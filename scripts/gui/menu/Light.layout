@@ -1,116 +1,113 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MyGUI type="Layout">
-    <Widget type="Window" skin="BFE_WindowC" position="24 24 472 400" layer="Menu">
-        <Property key="Widget_Caption" value="Light"/>
-        <Widget type="Widget" skin="BFE_Group" position="3 4 350 92">
-            <Property key="Widget_Caption" value="Colour"/>
-            <Widget type="StaticText" skin="BFE_StaticText" position="3 9 100 24" name="tDif">
-                <Property key="Widget_Caption" value="Diffuse Colour:"/>
-                <Property key="Text_TextAlign" value="Left VCenter"/>
+    <Widget type="Window" skin="WindowC" position="24 24 472 400" layer="Menu">
+        <Property key="Caption" value="Light"/>
+        <Widget type="Widget" skin="PanelSkin" position="3 4 350 92">
+            <Widget type="TextBox" skin="TextBox" position="3 9 100 24" name="tDif">
+                <Property key="Caption" value="Diffuse Colour:"/>
+                <Property key="TextAlign" value="Left VCenter"/>
             </Widget>
-            <Widget type="Edit" skin="BFE_Edit" position="120 9 160 24" name="diffuse">
-                <Property key="Text_TextAlign" value="Left VCenter"/>
-                <Property key="Widget_Caption" value="1.0 1.0 1.0"/>
+            <Widget type="EditBox" skin="EditBox" position="120 9 160 24" name="diffuse">
+                <Property key="TextAlign" value="Left VCenter"/>
+                <Property key="Caption" value="1.0 1.0 1.0"/>
             </Widget>
-            <Widget type="StaticText" skin="BFE_StaticText" position="315 9 35 24">
-                <Property key="Widget_Caption" value="RGB"/>
-                <Property key="Text_TextAlign" value="Left VCenter"/>
+            <Widget type="TextBox" skin="TextBox" position="315 9 35 24">
+                <Property key="Caption" value="RGB"/>
+                <Property key="TextAlign" value="Left VCenter"/>
             </Widget>
-            <Widget type="StaticText" skin="BFE_StaticText" position="3 36 110 24" name="tSpe">
-                <Property key="Widget_Caption" value="Specular Colour:"/>
-                <Property key="Text_TextAlign" value="Left VCenter"/>
+            <Widget type="TextBox" skin="TextBox" position="3 36 110 24" name="tSpe">
+                <Property key="Caption" value="Specular Colour:"/>
+                <Property key="TextAlign" value="Left VCenter"/>
             </Widget>
-            <Widget type="Edit" skin="BFE_Edit" position="120 36 160 24" name="specular">
-                <Property key="Widget_Caption" value="1.0 1.0 1.0"/>
+            <Widget type="EditBox" skin="EditBox" position="120 36 160 24" name="specular">
+                <Property key="Caption" value="1.0 1.0 1.0"/>
             </Widget>
-            <Widget type="StaticText" skin="BFE_StaticText" position="315 36 32 24">
-                <Property key="Widget_Caption" value="RGB"/>
-                <Property key="Text_TextAlign" value="Left VCenter"/>
+            <Widget type="TextBox" skin="TextBox" position="315 36 32 24">
+                <Property key="Caption" value="RGB"/>
+                <Property key="TextAlign" value="Left VCenter"/>
             </Widget>
-            <Widget type="StaticText" skin="BFE_StaticText" position="3 63 110 24" name="tPow">
-                <Property key="Text_TextAlign" value="Left VCenter"/>
-                <Property key="Widget_Caption" value="Power:"/>
+            <Widget type="TextBox" skin="TextBox" position="3 63 110 24" name="tPow">
+                <Property key="TextAlign" value="Left VCenter"/>
+                <Property key="Caption" value="Power:"/>
             </Widget>
-            <Widget type="Edit" skin="BFE_Edit" position="120 63 64 24" name="power">
-                <Property key="Widget_Caption" value="1.0"/>
+            <Widget type="EditBox" skin="EditBox" position="120 63 64 24" name="power">
+                <Property key="Caption" value="1.0"/>
             </Widget>
-            <Widget type="Widget" skin="BFE_White" position="286 9 24 24" name="colDif"/>
-            <Widget type="Widget" skin="BFE_White" position="286 36 24 24" name="colSpec"/>
+            <Widget type="Widget" skin="BFG_White" position="286 9 24 24" name="colDif"/>
+            <Widget type="Widget" skin="BFG_White" position="286 36 24 24" name="colSpec"/>
         </Widget>
-        <Widget type="Widget" skin="BFE_Group" position="3 96 350 65">
-            <Property key="Widget_Caption" value="Location"/>
-            <Widget type="StaticText" skin="BFE_StaticText" position="3 9 110 24" name="tPos">
-                <Property key="Text_TextAlign" value="Left VCenter"/>
-                <Property key="Widget_Caption" value="Position:"/>
+        <Widget type="Widget" skin="PanelSkin" position="3 96 350 65">
+            <Widget type="TextBox" skin="TextBox" position="3 9 110 24" name="tPos">
+                <Property key="TextAlign" value="Left VCenter"/>
+                <Property key="Caption" value="Position:"/>
             </Widget>
-            <Widget type="Edit" skin="BFE_Edit" position="120 9 192 24" name="position">
-                <Property key="Widget_Caption" value="0.0 0.0 0.0"/>
+            <Widget type="EditBox" skin="EditBox" position="120 9 192 24" name="position">
+                <Property key="Caption" value="0.0 0.0 0.0"/>
             </Widget>
-            <Widget type="StaticText" skin="BFE_StaticText" position="315 9 32 24">
-                <Property key="Text_TextAlign" value="Left VCenter"/>
-                <Property key="Widget_Caption" value="XYZ"/>
+            <Widget type="TextBox" skin="TextBox" position="315 9 32 24">
+                <Property key="TextAlign" value="Left VCenter"/>
+                <Property key="Caption" value="XYZ"/>
             </Widget>
-            <Widget type="StaticText" skin="BFE_StaticText" position="3 36 110 24" name="tDir">
-                <Property key="Text_TextAlign" value="Left VCenter"/>
-                <Property key="Widget_Caption" value="Direction:"/>
+            <Widget type="TextBox" skin="TextBox" position="3 36 110 24" name="tDir">
+                <Property key="TextAlign" value="Left VCenter"/>
+                <Property key="Caption" value="Direction:"/>
             </Widget>
-            <Widget type="Edit" skin="BFE_Edit" position="120 36 192 24" name="direction">
-                <Property key="Widget_Caption" value="0.0 0.0 1.0"/>
+            <Widget type="EditBox" skin="EditBox" position="120 36 192 24" name="direction">
+                <Property key="Caption" value="0.0 0.0 1.0"/>
             </Widget>
-            <Widget type="StaticText" skin="BFE_StaticText" position="315 36 32 24">
-                <Property key="Widget_Caption" value="XYZ"/>
-                <Property key="Text_TextAlign" value="Left VCenter"/>
+            <Widget type="TextBox" skin="TextBox" position="315 36 32 24">
+                <Property key="Caption" value="XYZ"/>
+                <Property key="TextAlign" value="Left VCenter"/>
             </Widget>
         </Widget>
-        <Widget type="Widget" skin="BFE_Group" position="3 161 350 200">
-            <Property key="Widget_Caption" value="Properties"/>
-            <Widget type="StaticText" skin="BFE_StaticText" position="3 9 110 24" name="tRan">
-                <Property key="Text_TextAlign" value="Left VCenter"/>
-                <Property key="Widget_Caption" value="Range:"/>
+        <Widget type="Widget" skin="PanelSkin" position="3 161 350 200">
+            <Widget type="TextBox" skin="TextBox" position="3 9 110 24" name="tRan">
+                <Property key="TextAlign" value="Left VCenter"/>
+                <Property key="Caption" value="Range:"/>
             </Widget>
-            <Widget type="Edit" skin="BFE_Edit" position="120 9 64 24" name="range"/>
-            <Widget type="StaticText" skin="BFE_StaticText" position="3 36 110 24" name="tCon">
-                <Property key="Text_TextAlign" value="Left VCenter"/>
-                <Property key="Widget_Caption" value="Constant:"/>
+            <Widget type="EditBox" skin="EditBox" position="120 9 64 24" name="range"/>
+            <Widget type="TextBox" skin="TextBox" position="3 36 110 24" name="tCon">
+                <Property key="TextAlign" value="Left VCenter"/>
+                <Property key="Caption" value="Constant:"/>
             </Widget>
-            <Widget type="Edit" skin="BFE_Edit" position="120 36 64 24" name="constant"/>
-            <Widget type="StaticText" skin="BFE_StaticText" position="3 63 110 24" name="tLin">
-                <Property key="Text_TextAlign" value="Left VCenter"/>
-                <Property key="Widget_Caption" value="Linear:"/>
+            <Widget type="EditBox" skin="EditBox" position="120 36 64 24" name="constant"/>
+            <Widget type="TextBox" skin="TextBox" position="3 63 110 24" name="tLin">
+                <Property key="TextAlign" value="Left VCenter"/>
+                <Property key="Caption" value="Linear:"/>
             </Widget>
-            <Widget type="Edit" skin="BFE_Edit" position="120 63 64 24" name="linear"/>
-            <Widget type="StaticText" skin="BFE_StaticText" position="3 90 110 24" name="tQua">
-                <Property key="Text_TextAlign" value="Left VCenter"/>
-                <Property key="Widget_Caption" value="Quadric:"/>
+            <Widget type="EditBox" skin="EditBox" position="120 63 64 24" name="linear"/>
+            <Widget type="TextBox" skin="TextBox" position="3 90 110 24" name="tQua">
+                <Property key="TextAlign" value="Left VCenter"/>
+                <Property key="Caption" value="Quadric:"/>
             </Widget>
-            <Widget type="Edit" skin="BFE_Edit" position="120 90 64 24" name="quadric"/>
-            <Widget type="StaticText" skin="BFE_StaticText" position="3 117 110 24" name="tFal">
-                <Property key="Text_TextAlign" value="Left VCenter"/>
-                <Property key="Widget_Caption" value="Falloff:"/>
+            <Widget type="EditBox" skin="EditBox" position="120 90 64 24" name="quadric"/>
+            <Widget type="TextBox" skin="TextBox" position="3 117 110 24" name="tFal">
+                <Property key="TextAlign" value="Left VCenter"/>
+                <Property key="Caption" value="Falloff:"/>
             </Widget>
-            <Widget type="Edit" skin="BFE_Edit" position="120 117 64 24" name="falloff"/>
-            <Widget type="StaticText" skin="BFE_StaticText" position="3 144 110 24" name="tInn">
-                <Property key="Text_TextAlign" value="Left VCenter"/>
-                <Property key="Widget_Caption" value="Inner Radius:"/>
+            <Widget type="EditBox" skin="EditBox" position="120 117 64 24" name="falloff"/>
+            <Widget type="TextBox" skin="TextBox" position="3 144 110 24" name="tInn">
+                <Property key="TextAlign" value="Left VCenter"/>
+                <Property key="Caption" value="Inner Radius:"/>
             </Widget>
-            <Widget type="Edit" skin="BFE_Edit" position="120 144 64 24" name="innerRadius"/>
-            <Widget type="StaticText" skin="BFE_StaticText" position="3 171 110 24" name="tOut">
-                <Property key="Text_TextAlign" value="Left VCenter"/>
-                <Property key="Widget_Caption" value="Outer Radius:"/>
+            <Widget type="EditBox" skin="EditBox" position="120 144 64 24" name="innerRadius"/>
+            <Widget type="TextBox" skin="TextBox" position="3 171 110 24" name="tOut">
+                <Property key="TextAlign" value="Left VCenter"/>
+                <Property key="Caption" value="Outer Radius:"/>
             </Widget>
-            <Widget type="Edit" skin="BFE_Edit" position="120 171 64 24" name="outerRadius"/>
+            <Widget type="EditBox" skin="EditBox" position="120 171 64 24" name="outerRadius"/>
         </Widget>
-        <Widget type="Button" skin="BFE_Button" position="365 16 92 24" name="setAmbient">
-            <Property key="Widget_Caption" value="Set Ambient"/>
+        <Widget type="Button" skin="Button" position="365 16 92 24" name="setAmbient">
+            <Property key="Caption" value="Set Ambient"/>
         </Widget>
-        <Widget type="Button" skin="BFE_Button" position="365 64 92 48" name="createDirection">
-            <Property key="Widget_Caption" value="Create\nDirection"/>
+        <Widget type="Button" skin="Button" position="365 64 92 48" name="createDirection">
+            <Property key="Caption" value="Create\nDirection"/>
         </Widget>
-        <Widget type="Button" skin="BFE_Button" position="365 136 92 48" name="createPoint">
-            <Property key="Widget_Caption" value="Create\nPoint"/>
+        <Widget type="Button" skin="Button" position="365 136 92 48" name="createPoint">
+            <Property key="Caption" value="Create\nPoint"/>
         </Widget>
-        <Widget type="Button" skin="BFE_Button" position="365 208 92 48" name="createSpot">
-            <Property key="Widget_Caption" value="Create\nSpot"/>
+        <Widget type="Button" skin="Button" position="365 208 92 48" name="createSpot">
+            <Property key="Caption" value="Create\nSpot"/>
         </Widget>
     </Widget>
 </MyGUI>

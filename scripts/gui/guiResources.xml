@@ -474,6 +474,11 @@
     </BasisSkin>
   </Resource>
 
+  <Resource type="ResourceSkin" name="BFG_White" size="1 1" texture="Menu01.png">
+    <BasisSkin type="SubSkin" offset="0 0 1 1" align="Stretch">
+      <State name="normal" offset="84 120 1 1"/>
+    </BasisSkin>
+  </Resource>
   <Resource type="ResourceSkin" name="BFE_Group" size="17 22" texture="#{BFE_Menu_Texture}" >
     <Property key="FontName" value = "font_Micro.11" />
     <Property key="TextAlign" value = "Default" />

@@ -1,4 +1,4 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MyGUI type="Layout">
-  <Widget type="List" skin="BFE_List" position="0 24 320 296" align="Left Top" layer="Menu" name="ItemList"/>
+  <Widget type="ListBox" skin="ListBox" position="0 24 320 296" align="Left Top" layer="Menu" name="ItemList"/>
 </MyGUI>

@@ -105,7 +105,7 @@ private:
 			xPos += w->getWidth();
 		}
 		mMenuButton = menuBox->createWidget<MyGUI::Button>
-			("BFE_Button", xPos, 0, 24, 24, MyGUI::Align::Default);
+			("Button", xPos, 0, 24, 24, MyGUI::Align::Default);
 
 		mMenuButton->setCaption(mName);
 		MyGUI::IntSize textSize = mMenuButton->getSubWidgetText()->getTextSize();
