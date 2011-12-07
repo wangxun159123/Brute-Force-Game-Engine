@@ -70,7 +70,7 @@ public:
 		if (value)
 			update();
 	}
-	bool isVisible() {return mWindow->isVisible();}
+	bool isVisible() {return mWindow->getVisible();}
 
 	EventHandle_Result eventEndDialog;
 
@@ -78,18 +78,18 @@ private:
 	void fillInfoVector(FileInfoVectorT& folders,
 	                    FileInfoVectorT& files);
 
-	void notifyListChangePosition(MyGUI::List* sender, size_t index);
-	void notifyListSelectAccept(MyGUI::List* sender, size_t index);
-	void notifyEditSelectAccept(MyGUI::Edit* sender);
-	void notifyEditTextChanged(MyGUI::Edit* sender);
+	void notifyListChangePosition(MyGUI::ListBox* sender, size_t index);
+	void notifyListSelectAccept(MyGUI::ListBox* sender, size_t index);
+	void notifyEditSelectAccept(MyGUI::EditBox* sender);
+	void notifyEditTextChanged(MyGUI::EditBox* sender);
 	void notifyWindowButtonPressed(MyGUI::Window* sender, const std::string& name);
 
 	void update();
 	void accept();
 
-	MyGUI::List* mFilesList;
-	MyGUI::Edit* mFileNameEdit;
-	MyGUI::Edit* mCurrentFolderEdit;
+	MyGUI::ListBox* mFilesList;
+	MyGUI::EditBox* mFileNameEdit;
+	MyGUI::EditBox* mCurrentFolderEdit;
 	MyGUI::Button* mOpenSaveButton;
 	MyGUI::Window* mWindow;
 	MyGUI::VectorWidgetPtr mContainer;

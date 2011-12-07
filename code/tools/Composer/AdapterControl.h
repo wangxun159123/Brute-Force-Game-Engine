@@ -31,6 +31,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <SharedData.h>
 
+#include <MyGUI.h>
+
 namespace Tool
 {
 
@@ -41,54 +43,16 @@ public:
 	BaseFeature("Adapter", true),
 	mData(data)
 	{
-
 	}
 
-	virtual void load()
-	{
-		if (mLoaded)
-			return;
+	virtual void load();
+	virtual void unload();
 
-		MyGUI::LayoutManager* layMan = MyGUI::LayoutManager::getInstancePtr();
-		mContainer = layMan->load("Adapter.layout");
-
-		mLoaded = true;
-		deactivate();
-	}
-
-	virtual void unload()
-	{
-		if (!mLoaded)
-			return;
-
-		if (mActive)
-			deactivate();
-
-		mLoaded = false;
-	}
-
-	virtual void activate()
-	{
-		MyGUI::VectorWidgetPtr::iterator it = mContainer.begin();
-		for (; it != mContainer.end(); ++it)
-		{
-			(*it)->setVisible(true);
-		}
-		mActive = true;
-	}
-	virtual void deactivate()
-	{
-		MyGUI::VectorWidgetPtr::iterator it = mContainer.begin();
-		for (; it != mContainer.end(); ++it)
-		{
-			(*it)->setVisible(false);
-		}
-		mActive = false;
-	}
+	virtual void activate();
+	virtual void deactivate();
 
 	virtual void eventHandler(BFG::Controller_::VipEvent* ve)
 	{
-
 	}
 
 private:

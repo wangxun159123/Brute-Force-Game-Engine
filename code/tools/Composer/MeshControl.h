@@ -31,7 +31,10 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <OgreResourceGroupManager.h>
 
+#include <Core/Path.h>
+
 #include <OpenSaveDialog.h>
+#include <SharedData.h>
 
 namespace Tool
 {
@@ -54,7 +57,7 @@ public:
 
 		mDialog.setRestrictions
 		(
-			p.Get(ID::P_GRAPHICS_MESHES),
+			p.Get(BFG::ID::P_GRAPHICS_MESHES),
 			true,
 			".mesh"
 		);
@@ -64,36 +67,11 @@ public:
 	{
 	}
 
-	virtual void load()
-	{
-		if (mLoaded)
-			return;
+	virtual void load();
+	virtual void unload();
 
-		mLoaded = true;
-		deactivate();
-	}
-
-	virtual void unload()
-	{
-		if (!mLoaded)
-			return;
-
-		if (mActive)
-			deactivate();
-		
-		mLoaded = false;
-	}
-
-	virtual void activate()
-	{
-		mDialog.setVisible(true);
-		mActive = true;
-	}
-	virtual void deactivate()
-	{
-		mDialog.setVisible(false);
-		mActive = false;
-	}
+	virtual void activate();
+	virtual void deactivate();
 
 	virtual void eventHandler(BFG::Controller_::VipEvent* ve)
 	{
@@ -103,32 +81,7 @@ public:
 protected:
 
 private:
-	void onLoadOk(MyGUI::Widget* w)
-	{
-		std::string folder = mDialog.getCurrentFolder();
-		std::string meshName = mDialog.getFileName().substr(folder.size() + 1);
-
-		if (!(mData->mActiveMesh))
-		{
-			mData->mActiveMesh = generateHandle();
-		}
-
-		mData->mRenderObject.reset();
-		mData->mRenderObject.reset(new View::RenderObject
-		(
-			NULL_HANDLE,
-			mData->mActiveMesh,
-			meshName,
-			v3::ZERO,
-			qv4::IDENTITY
-		));
-		mData->mMeshName = meshName;
-
-		Ogre::SceneManager* sceneMgr = Ogre::Root::getSingleton().getSceneManager(BFG_SCENEMANAGER);
-		Ogre::Entity* ent = sceneMgr->getEntity(stringify(mData->mActiveMesh));
-
-		deactivate();
-	}
+	void onLoadOk(MyGUI::Widget* w);
 
 	boost::shared_ptr<SharedData> mData;
 	OpenSaveDialog mDialog;

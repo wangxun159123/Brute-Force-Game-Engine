@@ -37,16 +37,16 @@ namespace Tool {
 
 typedef boost::variant
 <
-	s32
+	BFG::s32
 >
 ToolPayloadT;
 
-typedef Event
+typedef BFG::Event
 <
-	s32,
+	BFG::s32,
 	ToolPayloadT,
-	GameHandle,
-	GameHandle
+	BFG::GameHandle,
+	BFG::GameHandle
 >
 Event;
 

@@ -37,7 +37,7 @@ mOnlyThisFolder(false)
 
 	BFG::Path path;
 	std::string layout = path.Expand("OpenSaveDialog.layout");
-	mContainer = LayoutManager::getInstance().load(layout);
+	mContainer = LayoutManager::getInstance().loadLayout(layout);
 
 	Gui* gui = Gui::getInstancePtr();
 
@@ -47,15 +47,15 @@ mOnlyThisFolder(false)
 	mCurrentFolderEdit = gui->findWidget<Edit>("CurrentFolderEdit");
 	mOpenSaveButton = gui->findWidget<Button>("OpenSaveButton");
 
-	mWindow->eventWindowButtonPressed = 
+	mWindow->eventWindowButtonPressed += 
 		newDelegate(this, &OpenSaveDialog::notifyWindowButtonPressed);
-	mFilesList->eventListChangePosition = 
+	mFilesList->eventListChangePosition += 
 		newDelegate(this, &OpenSaveDialog::notifyListChangePosition);
-	mFilesList->eventListSelectAccept = 
+	mFilesList->eventListSelectAccept += 
 		newDelegate(this, &OpenSaveDialog::notifyListSelectAccept);
-	mFileNameEdit->eventEditSelectAccept = 
+	mFileNameEdit->eventEditSelectAccept += 
 		newDelegate(this, &OpenSaveDialog::notifyEditSelectAccept);
-	mFileNameEdit->eventEditTextChange =
+	mFileNameEdit->eventEditTextChange +=
 		newDelegate(this, &OpenSaveDialog::notifyEditTextChanged);
 
 	mCurrentFolder = boost::filesystem::current_path().string();
@@ -75,7 +75,7 @@ void OpenSaveDialog::notifyWindowButtonPressed(MyGUI::Window* sender,
 	}
 }
 
-void OpenSaveDialog::notifyEditSelectAccept(MyGUI::Edit* sender)
+void OpenSaveDialog::notifyEditSelectAccept(MyGUI::EditBox* sender)
 {
 	accept();
 }
@@ -86,7 +86,7 @@ void OpenSaveDialog::setDialogInfo(const std::string& caption,
 {
 	mWindow->setCaption(caption);
 	mOpenSaveButton->setCaption(button);
-	mOpenSaveButton->eventMouseButtonClick = clickHandler;
+	mOpenSaveButton->eventMouseButtonClick += clickHandler;
 }
 
 void OpenSaveDialog::setRestrictions(const std::string& startFolder,
@@ -107,12 +107,12 @@ void OpenSaveDialog::clearRestrictions()
 	mExtension = "";
 }
 
-void OpenSaveDialog::notifyEditTextChanged(MyGUI::Edit* sender)
+void OpenSaveDialog::notifyEditTextChanged(MyGUI::EditBox* sender)
 {
 	accept();
 }
 
-void OpenSaveDialog::notifyListChangePosition(MyGUI::List* sender,
+void OpenSaveDialog::notifyListChangePosition(MyGUI::ListBox* sender,
                                               size_t index)
 {
 	if (index == MyGUI::ITEM_NONE)
@@ -129,7 +129,7 @@ void OpenSaveDialog::notifyListChangePosition(MyGUI::List* sender,
 	}
 }
 
-void OpenSaveDialog::notifyListSelectAccept(MyGUI::List* sender, size_t index)
+void OpenSaveDialog::notifyListSelectAccept(MyGUI::ListBox* sender, size_t index)
 {
 	if (index == MyGUI::ITEM_NONE) return;
 

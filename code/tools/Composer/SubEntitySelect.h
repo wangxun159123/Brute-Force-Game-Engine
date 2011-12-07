@@ -29,13 +29,15 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <BaseFeature.h>
 
+#include <EventSystem/Emitter.h>
+
 #include <Event_fwd.h>
 #include <SharedData.h>
 
 namespace Tool
 {
 
-class SubEntitySelect : public BaseFeature, public Emitter
+class SubEntitySelect : public BaseFeature, public BFG::Emitter
 {
 public:
 	SubEntitySelect(EventLoop* loop,boost::shared_ptr<SharedData> data) :
@@ -46,129 +48,25 @@ public:
 
 	}
 
-	virtual void load()
-	{
-		if (mLoaded)
-			return;
+	virtual void load();
+	virtual void unload();
 
-		MyGUI::LayoutManager* layMan = MyGUI::LayoutManager::getInstancePtr();
-		mContainer = layMan->load("ChooseListItem.layout");
-
-		MyGUI::Widget* w = mContainer.front();
-
-		if (!w)
-			throw std::runtime_error("ItemList not found");
-
-		mList = w->castType<MyGUI::List>(true);
-
-		mList->eventListSelectAccept = MyGUI::newDelegate(this, &SubEntitySelect::onEntitySelected);
-
-		mLoaded = true;
-		deactivate();
-	}
-
-	virtual void unload()
-	{
-		if (!mLoaded)
-			return;
-
-		if (mActive)
-			deactivate();
-
-		MyGUI::LayoutManager* layMan = MyGUI::LayoutManager::getInstancePtr();
-		layMan->unloadLayout(mContainer);
-
-		mLoaded = false;
-	}
-
-	virtual void activate()
-	{
-		if (mData->mActiveMesh == NULL_HANDLE)
-			return;
-
-		mMeshName = mData->mMeshName;
-
-		if (!mLoaded)
-			load();
-
-		MyGUI::VectorWidgetPtr::iterator it = mContainer.begin();
-		for (; it != mContainer.end(); ++it)
-		{
-			(*it)->setVisible(true);
-		}
-
-		Ogre::SceneManager* sceneMgr = 
-			Ogre::Root::getSingletonPtr()->getSceneManager(BFG_SCENEMANAGER);
-
-		if (sceneMgr->hasEntity(stringify(mData->mActiveMesh)))
-		{
-			Ogre::Entity* ent = sceneMgr->getEntity(stringify(mData->mActiveMesh));
-
-			Ogre::MeshPtr mesh = ent->getMesh();
-
-			const Ogre::Mesh::SubMeshNameMap subMap = mesh->getSubMeshNameMap();
-
-			Ogre::Mesh::SubMeshNameMap::const_iterator subIt = subMap.begin();
-			for (; subIt != subMap.end(); ++subIt)
-			{
-				mList->addItem(subIt->first);
-			}
-		}
-
-		mActive = true;
-
-		emit<Tool::Event>(A_UPDATE_FEATURES, 0);
-	}
-	virtual void deactivate()
-	{
-		MyGUI::VectorWidgetPtr::iterator it = mContainer.begin();
-		for (; it != mContainer.end(); ++it)
-		{
-			(*it)->setVisible(false);
-		}
-
-		mList->removeAllItems();
-
-		mActive = false;
-
-		emit<Tool::Event>(A_UPDATE_FEATURES, 0, mData->mState);
-	}
+	virtual void activate();
+	virtual void deactivate();
 
 	virtual void eventHandler(BFG::Controller_::VipEvent* ve)
 	{
-
 	}
 
-	virtual void update(const Ogre::FrameEvent& evt)
-	{
-		if (mMeshName != mData->mMeshName)
-		{
-			deactivate();
-			activate();
-		}
-	}
+	virtual void update(const Ogre::FrameEvent& evt);
 
 private:
 
-	void onEntitySelected(MyGUI::List* list, size_t index)
-	{
-		std::string subName = list->getItemNameAt(index);
+	void onEntitySelected(MyGUI::ListBox* list, size_t index);
 
-		Ogre::SceneManager* sceneMgr = 
-			Ogre::Root::getSingletonPtr()->getSceneManager(BFG_SCENEMANAGER);
-
-		if (sceneMgr->hasEntity(stringify(mData->mActiveMesh)))
-		{
-			Ogre::Entity* ent = sceneMgr->getEntity(stringify(mData->mActiveMesh));
-
-			mData->mSelectedSubEntity = ent->getSubEntity(subName);
-		}
-
-		deactivate();
-	}
 	boost::shared_ptr<SharedData> mData;
 
-	MyGUI::List* mList;
+	MyGUI::ListBox* mList;
 	std::string mMeshName;
 
 }; // class SubEntitySelect

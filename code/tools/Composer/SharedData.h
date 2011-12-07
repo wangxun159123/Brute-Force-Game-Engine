@@ -27,15 +27,20 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #ifndef SHAREDDATA
 #define SHAREDDATA
 
+#include <boost/shared_ptr.hpp>
+
 #include <OgreSubEntity.h>
+
+#include <Core/Types.h>
+#include <View/RenderObject.h>
 
 struct SharedData
 {
-	GameHandle mState;
-	GameHandle mCamera;
-	GameHandle mActiveMesh;
+	BFG::GameHandle mState;
+	BFG::GameHandle mCamera;
+	BFG::GameHandle mActiveMesh;
 
-	boost::shared_ptr<View::RenderObject> mRenderObject;
+	boost::shared_ptr<BFG::View::RenderObject> mRenderObject;
 	std::string mMeshName;
 
 	Ogre::SubEntity* mSelectedSubEntity;

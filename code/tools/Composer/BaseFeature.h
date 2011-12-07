@@ -29,6 +29,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <MyGUI.h>
 
+#include <OgreFrameListener.h>
+
 #include <Controller/ControllerEvents.h>
 
 namespace Tool
