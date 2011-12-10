@@ -2,45 +2,11 @@
 
 <controller version = "1">
 
+  <include>MyGUI.xml</include>
+
   <action id = "A_QUIT">
     <vip type = "VIP_CLICK">
       <special button = "KB_ESCAPE" />
-    </vip>
-  </action>
-
-  <action id = "A_MOUSE_MOVE_X">
-    <vip type = "VIP_STEER" device = "DT_Mouse" axismode = "AM_Absolute">
-      <special axis = "0" sensitivity = "0.05" flip = "0" />
-    </vip>
-  </action>
-
-  <action id = "A_MOUSE_MOVE_Y">
-    <vip type = "VIP_STEER" device = "DT_Mouse" axismode = "AM_Absolute">
-      <special axis = "1" sensitivity = "0.05" flip = "0" />
-    </vip>
-  </action>
-
-  <action id = "A_MOUSE_MOVE_Z">
-    <vip type = "VIP_STEER" device = "DT_Mouse" axismode = "AM_Absolute">
-      <special axis = "2" sensitivity = "0.05" flip = "0" />
-    </vip>
-  </action>
-
-  <action id = "A_MOUSE_LEFT_PRESSED">
-    <vip type = "VIP_TOGGLE" device = "DT_Mouse">
-      <special hold = "1" button = "MB_Left" />
-    </vip>
-  </action>
-
-  <action id = "A_MOUSE_RIGHT_PRESSED">
-    <vip type = "VIP_TOGGLE" device = "DT_Mouse">
-      <special hold = "1" button = "MB_Right" />
-    </vip>
-  </action>
-
-  <action id = "A_MOUSE_MIDDLE_PRESSED">
-    <vip type = "VIP_TOGGLE" device = "DT_Mouse">
-      <special hold = "1" button = "MB_Middle" />
     </vip>
   </action>
 

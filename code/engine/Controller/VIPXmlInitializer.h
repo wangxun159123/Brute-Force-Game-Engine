@@ -95,7 +95,10 @@ private:
 	void onActionElement(TiXmlElement* element,
 	                     EventIdT& actionId,
 	                     std::vector<VipPtrT>& vips) const;
-
+	
+	void onIncludeElement(TiXmlElement* element,
+	                      std::vector<VipPtrT>& vips) const;
+	     
 	//! Gets called when the parser stumbles upon a vip element.
 	//! \param[in] element  TinyXML pointer to a vip element
 	//! \param[in] actionId ID of the action
