@@ -1,0 +1,44 @@
+About 
+=====
+
+The big strength of our engine lies in the combination of powerful open source
+third party libraries. We want to connect them and build on top of them, but we
+don't want to hide or wrap them. We want to develop new higher-level
+functionality.
+
+Out of this purpose, our engine allows direct control over several third party
+resources like e.g. OGRE, so that the user gains a lot of control and may use
+many cool features, but he also has to master the burden of many dependencies
+which may soon become a maintainer's nightmare.
+
+The more dependencies a project has, the more it is probable that it will break
+in the future due to interface changes or that porting it to other platforms
+may become difficult or even impossible. This is indeed one of the problems
+we've ever been struggling with. Luckily, I am not aware of a problem that we
+were not able to resolve.
+
+We try to build stable interfaces and we try to write robust source code, but
+if you want to use our engine, prepare yourself that your code will break from
+time to time, since the engine is not simply done yet. I'd never advice you to
+wrap our engine though, as this is entirely pointless.
+
+This engine was written with multi-platform support in mind, that is: Windows,
+Linux and Mac. We try to keep the first two always running, but Mac support
+has had never been tested - I'm pretty sure in my assumption that it doesn't
+work at all.
+
+Also, we want network support and we want multi processor scalability.
+The current state of these features is highly experimental.
+
+We invested a lot of time in this engine, so we hope you have fun using our
+code and maybe somebody can learn something from it.
+
+Important
+=========
+
+* Read the instructions within the INSTALL file, you won't be able to use the
+engine without them.
+
+* For more information visit:
+
+	https://github.com/wITTus/Brute-Force-Game-Engine

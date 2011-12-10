@@ -50,8 +50,7 @@ Compiling
 Simply open up a shell, move to the root directory and create a new empty
 directory for the build process.
 
-At the first time you'll need to create some empty placeholders (so that cmake
-can find and compile them later)
+At the first time you'll need to create some empty placeholders:
 
 for Linux:
 	
@@ -60,6 +59,10 @@ for Linux:
 for Windows:
 
 	enuminit.bat
+
+This is necessary so that CMake can find some auto generated source files
+(which haven't been generated at this point yet), if you don't do this you'll
+get confusing linker errors.
 
 Switch to the newly created folder and run cmake like this:
 
