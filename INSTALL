@@ -73,4 +73,6 @@ completed successfully you can simply run:
 
 	make
 
+With KDevelop it's even easier, simply open CMakeLists.txt.
+
 Have fun.
