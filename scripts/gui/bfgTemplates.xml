@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MyGUI type="Resource">
+  <Resource type="ResourceLayout" name="BFG_Connection" version="3.2.0">
+    <Widget type="Widget" skin="PanelEmpty" position="0 0 312 70" name="Root">
+      <UserString key="LE_TargetWidgetType" value="Window"/>
+      <Widget type="TextBox" skin="TextBox" position="2 2 48 24">
+        <Property key="Caption" value="From:"/>
+        <Property key="TextAlign" value="Left VCenter"/>
+      </Widget>
+      <Widget type="ComboBox" skin="ComboBox" position="52 2 128 24" name="from">
+        <Property key="ReadOnly" value="true"/>
+        <Property key="MultiLine" value="false"/>
+      </Widget>
+      <Widget type="TextBox" skin="TextBox" position="180 2 64 24">
+        <Property key="Caption" value="Adapter:"/>
+        <Property key="TextAlign" value="Left VCenter"/>
+      </Widget>
+      <Widget type="ComboBox" skin="ComboBox" position="246 2 64 24" name="fromAdapter">
+        <Property key="ReadOnly" value="true"/>
+        <Property key="MultiLine" value="false"/>
+      </Widget>
+      <Widget type="TextBox" skin="TextBox" position="2 28 48 24">
+        <Property key="Caption" value="To:"/>
+        <Property key="TextAlign" value="Left VCenter"/>
+      </Widget>
+      <Widget type="ComboBox" skin="ComboBox" position="52 28 128 24" name="to">
+        <Property key="ReadOnly" value="true"/>
+        <Property key="MultiLine" value="false"/>
+      </Widget>
+      <Widget type="TextBox" skin="TextBox" position="180 28 64 24">
+        <Property key="Caption" value="Adapter:"/>
+        <Property key="TextAlign" value="Left VCenter"/>
+      </Widget>
+      <Widget type="ComboBox" skin="ComboBox" position="246 28 64 24" name="toAdapter">
+        <Property key="MultiLine" value="false"/>
+        <Property key="ReadOnly" value="true"/>
+      </Widget>
+    </Widget>
+  </Resource>
+</MyGUI>

@@ -32,6 +32,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <OgreSubEntity.h>
 
 #include <Core/Types.h>
+#include <Model/Adapter.h>
 #include <View/RenderObject.h>
 
 struct SharedData
@@ -39,17 +40,28 @@ struct SharedData
 	BFG::GameHandle mState;
 	BFG::GameHandle mCamera;
 	BFG::GameHandle mActiveMesh;
+	BFG::GameHandle mRootMesh;
 
-	boost::shared_ptr<BFG::View::RenderObject> mRenderObject;
-	std::string mMeshName;
+	typedef boost::shared_ptr<BFG::View::RenderObject> RenderObjT;
+	typedef	std::map<BFG::GameHandle, RenderObjT> RenderObjectMapT;
+	typedef std::map<BFG::GameHandle, std::string> MeshMapT;
+	typedef std::map<BFG::GameHandle, std::string> HandleAdapterMapT;
+	typedef std::map<std::string, std::vector<BFG::Adapter> > AdapterMapT;
+
+	RenderObjectMapT mRenderObjects;
+	MeshMapT mMeshNames;
 
 	Ogre::SubEntity* mSelectedSubEntity;
 	std::string mMaterialName;
+
+	AdapterMapT mAdapters;
+	HandleAdapterMapT mObjectAdapters;
 
 	SharedData() :
 	mState(NULL_HANDLE),
 	mCamera(NULL_HANDLE),
 	mActiveMesh(NULL_HANDLE),
+	mRootMesh(NULL_HANDLE),
 	mSelectedSubEntity(NULL)
 	{
 	}

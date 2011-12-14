@@ -5,6 +5,9 @@
   <Layer type="SharedLayer" name="Background">
     <Property key="Pick" value="false"/>
   </Layer>
+  <Layer type="SharedLayer" name="Picking">
+    <Property key="Pick" value="true"/>
+  </Layer>
   <Layer type="SharedLayer" name="Displays">
     <Property key="Pick" value="false"/>
   </Layer>

@@ -39,13 +39,13 @@ mOnlyThisFolder(false)
 	std::string layout = path.Expand("OpenSaveDialog.layout");
 	mContainer = LayoutManager::getInstance().loadLayout(layout);
 
-	Gui* gui = Gui::getInstancePtr();
+	Widget* mainWidget = mContainer.front();
 
-	mWindow = gui->findWidget<Window>("OpenSaveDialog");
-	mFilesList = gui->findWidget<List>("FilesList");
-	mFileNameEdit = gui->findWidget<Edit>("FileNameEdit");
-	mCurrentFolderEdit = gui->findWidget<Edit>("CurrentFolderEdit");
-	mOpenSaveButton = gui->findWidget<Button>("OpenSaveButton");
+	mWindow = mainWidget->castType<Window>();
+	mFilesList = mWindow->findWidget("FilesList")->castType<ListBox>();
+	mFileNameEdit = mWindow->findWidget("FileNameEdit")->castType<EditBox>();
+	mCurrentFolderEdit = mWindow->findWidget("CurrentFolderEdit")->castType<EditBox>();
+	mOpenSaveButton = mWindow->findWidget("OpenSaveButton")->castType<Button>();
 
 	mWindow->eventWindowButtonPressed += 
 		newDelegate(this, &OpenSaveDialog::notifyWindowButtonPressed);
@@ -84,8 +84,11 @@ void OpenSaveDialog::setDialogInfo(const std::string& caption,
                                    const std::string& button,
                                    MyGUI::delegates::IDelegate1<MyGUI::Widget*>* clickHandler)
 {
+	if (isVisible())
+		return;
 	mWindow->setCaption(caption);
 	mOpenSaveButton->setCaption(button);
+	mOpenSaveButton->eventMouseButtonClick.clear();
 	mOpenSaveButton->eventMouseButtonClick += clickHandler;
 }
 
@@ -93,6 +96,9 @@ void OpenSaveDialog::setRestrictions(const std::string& startFolder,
                                      bool onlyThisFolder,
                                      const std::string& extension)
 {
+	if (isVisible())
+		return;
+
 	if (startFolder != "")
 		mCurrentFolder = startFolder;
 

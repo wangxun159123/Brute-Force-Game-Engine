@@ -4,6 +4,7 @@
 
   <List file="guiTheme.xml"/>
   <List file="MyGUI_Core.xml"/> <!-- Replacement for core_ files above in newer MyGUI versions -->
+  <List file="bfgTemplates.xml"/>
   <List file="guiLanguage.xml"/>
   <List file="guiTags.xml"/>
   <List file="guiLayer.xml"/>
