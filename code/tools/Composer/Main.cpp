@@ -153,8 +153,6 @@ public:
 
 		mLoadedFeatures.push_back(new Tool::AdapterControl(mData));
 
-		mLoadedFeatures.push_back(new Tool::ObjectAdapterAssign(mData));
-
 		onUpdateFeatures();
 	}
 
