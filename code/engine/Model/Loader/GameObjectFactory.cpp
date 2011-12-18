@@ -82,6 +82,8 @@ mInterpreter(interpreter),
 mEnvironment(environment),
 mStateHandle(stateHandle)
 {
+	assert(environment && "GameObjectFactory: You must preserve a constructed Environment object");
+
 	FileLoader fileLoader;
 	boost::shared_ptr<ManyManyTagsT> modules(new ManyManyTagsT);
 	boost::shared_ptr<ManyManyTagsT> adapter(new ManyManyTagsT);
@@ -203,8 +205,16 @@ GameObjectFactory::createGameObject(const ObjectParameter& parameter)
 		// Load "Concepts" and their "Values"
 		if (mConceptParameters[moduleParameter.mConcepts].empty())
 		{
-			throw std::runtime_error("GameObjectFactory::createGameObject(): "
-				"Concepts of \"" + moduleParameter.mConcepts + "\" not found!");
+			if (moduleParameter.mConcepts.empty())
+			{
+				throw std::runtime_error
+					("GameObjectFactory::createGameObject(): Missing concept specification for object type \"" + parameter.mType + "\".");
+			}
+			else
+			{
+				throw std::runtime_error
+					("GameObjectFactory::createGameObject(): Concepts of \"" + moduleParameter.mConcepts + "\" not found!");
+			}
 		}
 
 		std::vector<ConceptParameter>::iterator conceptIt = 
