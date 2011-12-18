@@ -18,7 +18,7 @@
   <ObjectConfig name="Ship">
     <Module
       name="Root"
-      mesh="FastRacer.mesh"
+      mesh="Arrow.mesh"
       connection=""
       adapters="Empty"
       concepts="ShipConcept"

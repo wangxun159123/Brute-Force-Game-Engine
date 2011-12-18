@@ -23,7 +23,7 @@
   </Resource>
   
   <Resource type="ResourceTrueTypeFont" name="base_font">
-    <Property key="Source" value="arial.ttf"/>
+    <Property key="Source" value="Arial.ttf"/>
     <Property key="Size" value="75"/>
     <Property key="Resolution" value="50"/>
     <Property key="Antialias" value="false"/>
@@ -38,7 +38,7 @@
   </Resource>
 
   <Resource type="ResourceManualFont" name="font_MM_normal.146">
-    <Property key="Source" value="font01.png"/>
+    <Property key="Source" value="Font_01.png"/>
     <Property key="DefaultHeight" value="146"/>
     <Codes>
 
@@ -155,7 +155,7 @@
   </Resource>
 
   <Resource type="ResourceManualFont" name="font_MM_highlight.146">
-    <Property key="Source" value="font02.png"/>
+    <Property key="Source" value="Font_02.png"/>
     <Property key="DefaultHeight" value="146"/>
     <Codes>
 

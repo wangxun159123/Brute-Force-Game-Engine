@@ -124,7 +124,7 @@ const s32 A_MOUSE_MIDDLE_PRESSED = 10026;
 const f32 DEFAULT_CAM_DISTANCE = 10.0f;
 const f32 DEFAULT_CAM_VELOCITY = 2.0f; // m/s
 
-const std::string DEFAULT_TEXTURE_MAP = "white.png";
+const std::string DEFAULT_TEXTURE_MAP = "White.png";
 const std::string DEFAULT_NORMAL_MAP = "flat_n.png";
 const std::string DEFAULT_ILLUMINATION_MAP = "black.png";
 
@@ -1468,7 +1468,7 @@ public:
 					tex->getTextureNameAlias() == "aoMap" ||
 					tex->getTextureNameAlias() == "SpecularMap")
 				{
-					edit->setUserString("DefaultMat", "white.png");
+					edit->setUserString("DefaultMat", "White.png");
 				}
 				else if (tex->getTextureNameAlias() == "NormalMap")
 				{
