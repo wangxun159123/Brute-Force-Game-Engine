@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout" version="3.2.0">
+  <Widget type="Window" skin="WindowC" position="10 40 613 430" layer="Menu">
+    <Widget type="Widget" skin="PanelEmpty" position="0 0 603 155">
+      <Widget type="Button" skin="Button" position="5 5 85 25" name="addModule">
+        <Property key="Caption" value="Add Module"/>
+      </Widget>
+      <Widget type="ScrollView" skin="ScrollView" position="5 35 598 115" name="modules">
+        <Property key="CanvasSize" value="590 107"/>
+        <Property key="CanvasAlign" value="Left Top"/>
+        <Property key="VisibleHScroll" value="false"/>
+      </Widget>
+    </Widget>
+    <Widget type="Widget" skin="PanelEmpty" position="0 160 603 190">
+      <Widget type="Button" skin="Button" position="10 5 115 20" name="addConnection">
+        <Property key="Caption" value="Add Connection"/>
+      </Widget>
+      <Widget type="ScrollView" skin="ScrollView" position="5 30 343 155" name="connections">
+        <Property key="CanvasSize" value="335 147"/>
+        <Property key="CanvasAlign" value="Left Top"/>
+        <Property key="VisibleHScroll" value="false"/>
+      </Widget>
+    </Widget>
+    <Widget type="Button" skin="Button" position="430 360 170 30" name="preview">
+      <Property key="Caption" value="Preview"/>
+    </Widget>
+  </Widget>
+</MyGUI>

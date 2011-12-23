@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MyGUI type="Layout" version="3.2.0">
+  <Widget type="Widget" skin="PanelSkin" position="0 0 325 55">
+    <Widget type="TextBox" skin="TextBox" position="2 2 48 24">
+      <Property key="Caption" value="From:"/>
+      <Property key="TextAlign" value="Left VCenter"/>
+    </Widget>
+    <Widget type="ComboBox" skin="ComboBox" position="52 2 128 24" name="from"/>
+    <Widget type="TextBox" skin="TextBox" position="180 2 64 24">
+      <Property key="Caption" value="Adapter:"/>
+      <Property key="TextAlign" value="Left VCenter"/>
+    </Widget>
+    <Widget type="ComboBox" skin="ComboBox" position="246 2 48 24" name="fromAdapter"/>
+    <Widget type="TextBox" skin="TextBox" position="2 28 48 24">
+      <Property key="Caption" value="To:"/>
+      <Property key="TextAlign" value="Left VCenter"/>
+    </Widget>
+    <Widget type="ComboBox" skin="ComboBox" position="52 28 128 24" name="to"/>
+    <Widget type="TextBox" skin="TextBox" position="180 28 64 24">
+      <Property key="Caption" value="Adapter:"/>
+      <Property key="TextAlign" value="Left VCenter"/>
+    </Widget>
+    <Widget type="ComboBox" skin="ComboBox" position="246 28 48 24" name="toAdapter"/>
+    <Widget type="Button" skin="ButtonCloseSkin" position="297 3 24 22" align="Right Top" name="close"/>
+  </Widget>
+</MyGUI>

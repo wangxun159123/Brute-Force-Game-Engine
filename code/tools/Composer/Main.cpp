@@ -57,7 +57,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <LightControl.h>
 #include <MaterialChange.h>
 #include <MeshControl.h>
-#include <ObjectAdapterAssign.h>
+#include <ModuleControl.h>
 #include <SkyBoxSelect.h>
 #include <SubEntitySelect.h>
 
@@ -152,6 +152,8 @@ public:
 		mLoadedFeatures.push_back(new Tool::LightControl(mData));
 
 		mLoadedFeatures.push_back(new Tool::AdapterControl(mData));
+
+		mLoadedFeatures.push_back(new Tool::ModuleControl(loop, mData));
 
 		onUpdateFeatures();
 	}
