@@ -32,7 +32,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <OgreTextureUnitState.h>
 
 #include <View/Event.h>
-#include <view/SkyCreation.h>
+#include <View/SkyCreation.h>
 
 namespace Tool
 {
