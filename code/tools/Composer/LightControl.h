@@ -81,8 +81,8 @@ private:
 	void fillBoxes(Ogre::Light* light);
 
 	BFG::View::SpotLightCreation getSpotLightValues(BFG::GameHandle handle);
-	BFG::View::PointLightCreation LightControl::getPointLightValues(BFG::GameHandle handle);
-	BFG::View::DirectionalLightCreation LightControl::getDirectionalLightValues(BFG::GameHandle handle);
+	BFG::View::PointLightCreation getPointLightValues(BFG::GameHandle handle);
+	BFG::View::DirectionalLightCreation getDirectionalLightValues(BFG::GameHandle handle);
 
 	boost::shared_ptr<SharedData> mData;
 
