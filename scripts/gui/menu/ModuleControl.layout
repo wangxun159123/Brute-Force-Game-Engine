@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MyGUI type="Layout" version="3.2.0">
-    <Widget type="Window" skin="WindowC" position="20 20 613 385" layer="Menu">
+    <Widget type="Window" skin="WindowC" position="35 40 613 385" layer="Menu">
         <Property key="MaxSize" value="613 385"/>
         <Property key="MinSize" value="613 385"/>
         <Widget type="Widget" skin="PanelEmpty" position="0 0 603 155">
