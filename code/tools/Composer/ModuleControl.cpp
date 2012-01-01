@@ -51,6 +51,7 @@ namespace Tool
 
 		mConnections = panel->findWidget("connections")->castType<MyGUI::ScrollView>();
 
+		mSave = panel->findWidget("save")->castType<MyGUI::Button>();
 		mPreview = panel->findWidget("preview")->castType<MyGUI::Button>();
 
 		mAddModule->eventMouseButtonClick =
@@ -59,6 +60,8 @@ namespace Tool
 		mAddConnection->eventMouseButtonClick =
 			MyGUI::newDelegate(this, &ModuleControl::onAddConnectionClicked);
 
+		mSave->eventMouseButtonClick =
+			MyGUI::newDelegate(this, &ModuleControl::onSaveClicked);
 		mPreview->eventMouseButtonClick =
 			MyGUI::newDelegate(this, &ModuleControl::onPreviewClicked);
 
@@ -312,6 +315,99 @@ namespace Tool
 		}
 
 		return (*possibleRoots.begin());
+	}
+
+	void ModuleControl::addXmlModule(TiXmlElement* xmlElement,
+	                                 const Module* module,
+	                                 const Connection* connection)
+	{
+		TiXmlElement* xmlMod = new TiXmlElement("Module");
+		xmlElement->LinkEndChild(xmlMod);
+
+		xmlMod->SetAttribute("name", module->mName->getCaption());
+		xmlMod->SetAttribute("mesh", module->mMesh->getCaption());
+		
+		std::string conn("");
+		if (connection)
+		{
+			conn = connection->mFromAdapter->getCaption() + "@" + 
+			       connection->mTo->getCaption() + ":" + 
+			       connection->mToAdapter->getCaption();
+		}
+		xmlMod->SetAttribute("connection", conn);
+		xmlMod->SetAttribute("adapters", module->mAdapter->getCaption());
+		xmlMod->SetAttribute("concepts", "");
+		xmlMod->SetAttribute("collision", "CM_Standard");
+		xmlMod->SetAttribute("visible", "yes");
+		xmlMod->SetAttribute("density", "50.0");
+	}
+
+	void ModuleControl::addXmlConnectedModules(TiXmlElement* xmlElement,
+	                                           const std::string& rootName)
+	{
+		SharedData::ConnectionsT::iterator conIt = mData->mConnections.begin();
+		for (; conIt != mData->mConnections.end(); ++conIt)
+		{
+			// find root module
+			Connection* conn = (*conIt);
+			std::string toName(conn->mTo->getItemNameAt(conn->mTo->getIndexSelected()));
+			if (toName == rootName)
+			{
+				std::string fromName(conn->mFrom->getItemNameAt(conn->mFrom->getIndexSelected()));
+
+				Module* childModule = findModule(fromName);
+
+				addXmlModule(xmlElement, childModule, conn);
+
+				addXmlConnectedModules(xmlElement, childModule->mName->getCaption());
+			}
+		}
+
+	}
+
+	void ModuleControl::onSaveClicked(MyGUI::Widget*)
+	{
+		BFG::Path p;
+
+		mDialog.setDialogInfo
+		(
+			"Save GameObject",
+			"Save",
+			MyGUI::newDelegate(this, &ModuleControl::onSaveOk)
+		);
+
+		mDialog.setRestrictions
+		(
+			"",
+			false,
+			".xml"
+		);
+
+		mDialog.setVisible(true);
+	}
+
+	void ModuleControl::onSaveOk(MyGUI::Widget*)
+	{
+		TiXmlDocument document;
+		TiXmlDeclaration* declaration = new TiXmlDeclaration("1.0", "utf-8", "" );
+		document.LinkEndChild(declaration);
+
+		TiXmlElement* objectConfigs = new TiXmlElement("ObjectConfigs");
+		document.LinkEndChild(objectConfigs);
+
+		TiXmlElement* objectConfig = new TiXmlElement("ObjectConfig");
+		objectConfigs->LinkEndChild(objectConfig);
+		// \Todo add an editBox to set the name of the whole GameObject
+		objectConfig->SetAttribute("name", "ToBeImplemented");
+
+		std::string rootName(findRootModule());
+		
+		addXmlModule(objectConfig, findModule(rootName), NULL);
+
+		addXmlConnectedModules(objectConfig, rootName);
+
+		document.SaveFile(mDialog.getFileName());
+		mDialog.setVisible(false);
 	}
 
 } // namespace Tool

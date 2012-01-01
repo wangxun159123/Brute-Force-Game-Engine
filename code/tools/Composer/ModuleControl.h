@@ -31,7 +31,10 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <MyGUI.h>
 
+#include <tinyxml.h>
+
 #include <BaseFeature.h>
+#include <OpenSaveDialog.h>
 #include <SharedData.h>
 
 namespace Tool
@@ -69,6 +72,7 @@ private:
 	void onAddConnectionClicked(MyGUI::Widget*);
 	void onCloseConnectionClicked(MyGUI::Widget* sender);
 
+	void onSaveClicked(MyGUI::Widget*);
 	void onPreviewClicked(MyGUI::Widget*);
 
 	void destroyGameObject();
@@ -77,6 +81,9 @@ private:
 	void createRoot(const std::string& name);
 	void addModuleTo(const std::string& parentName);
 	Module* findModule(const std::string& name);
+	void addXmlModule(TiXmlElement* xmlElement, const Module* module, const Connection* connection);
+	void addXmlConnectedModules(TiXmlElement* xmlElement, const std::string& rootName);
+	void onSaveOk(MyGUI::Widget*);
 
 	EventLoop* mLoop;
 	boost::shared_ptr<SharedData> mData;
@@ -87,9 +94,15 @@ private:
 	MyGUI::Button* mAddConnection;
 	MyGUI::ScrollView* mConnections;
 
+	MyGUI::Button* mLoad;
+	MyGUI::Button* mSave;
+	MyGUI::Button* mAppend;
+	MyGUI::Button* mClear;
 	MyGUI::Button* mPreview;
 
 	std::map<std::string, BFG::GameHandle> mModuleMap;
+
+	OpenSaveDialog mDialog;
 }; // class ModuleControl
 
 } // namespace Tool
