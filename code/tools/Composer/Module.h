@@ -31,6 +31,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <MyGUI.h>
 #include <boost/filesystem.hpp>
+#include <tinyxml.h>
 
 #include <Core/Path.h>
 
@@ -92,6 +93,33 @@ public:
 			MyGUI::Widget* child = mParent->getChildAt(i);
 			child->setPosition(0, i * child->getSize().height);
 		}
+	}
+
+	void toXml(TiXmlElement* xmlElement) const
+	{
+		xmlElement->SetAttribute("name", mName->getCaption());
+		xmlElement->SetAttribute("mesh", mMesh->getCaption());
+		xmlElement->SetAttribute("adapters", mAdapter->getCaption());
+	}
+
+	void fromXml(TiXmlElement* xmlElement)
+	{
+		std::string name(xmlElement->Attribute("name"));
+		std::string mesh(xmlElement->Attribute("mesh"));
+		std::string adapter(xmlElement->Attribute("adapters"));
+
+		mName->setCaption(name);
+		onNameSet(mName);
+
+		size_t index = mMesh->findItemIndexWith(mesh);
+		if (index == MyGUI::ITEM_NONE)
+			throw std::runtime_error("Mesh " + mesh + " not found!");
+		mMesh->setIndexSelected(index);
+
+		index = mAdapter->findItemIndexWith(adapter);
+		if (index == MyGUI::ITEM_NONE)
+			throw std::runtime_error("Adapter " + adapter + " not found!");
+		mAdapter->setIndexSelected(index);
 	}
 
 	MyGUI::EditBox* mName;

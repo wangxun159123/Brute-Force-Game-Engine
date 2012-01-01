@@ -414,6 +414,8 @@ void AdapterControl::onAdapterSelected(MyGUI::ComboBox* sender, size_t index)
 		)
 	);
 
+	enableFields(true);
+
 	showMarker(true, BFG::View::toOgre(adapter.mParentPosition), BFG::View::toOgre(adapter.mParentOrientation));
 }
 

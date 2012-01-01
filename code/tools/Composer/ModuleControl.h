@@ -84,6 +84,9 @@ private:
 	void addXmlModule(TiXmlElement* xmlElement, const Module* module, const Connection* connection);
 	void addXmlConnectedModules(TiXmlElement* xmlElement, const std::string& rootName);
 	void onSaveOk(MyGUI::Widget*);
+	void onLoadClicked(MyGUI::Widget*);
+	void onLoadOk(MyGUI::Widget*);
+	void onClearClicked(MyGUI::Widget*);
 
 	EventLoop* mLoop;
 	boost::shared_ptr<SharedData> mData;

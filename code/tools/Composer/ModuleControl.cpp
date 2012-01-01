@@ -29,7 +29,10 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Core/Utils.h>
 #include <Model/Property/SpacePlugin.h>
 
-
+const std::string OBJECTS("ObjectConfigs");
+const std::string OBJECT("ObjectConfig");
+const std::string MODULE("Module");
+const std::string CONNECTION("connection");
 
 namespace Tool
 {
@@ -52,6 +55,8 @@ namespace Tool
 		mConnections = panel->findWidget("connections")->castType<MyGUI::ScrollView>();
 
 		mSave = panel->findWidget("save")->castType<MyGUI::Button>();
+		mLoad = panel->findWidget("load")->castType<MyGUI::Button>();
+		mClear = panel->findWidget("clear")->castType<MyGUI::Button>();
 		mPreview = panel->findWidget("preview")->castType<MyGUI::Button>();
 
 		mAddModule->eventMouseButtonClick =
@@ -60,8 +65,12 @@ namespace Tool
 		mAddConnection->eventMouseButtonClick =
 			MyGUI::newDelegate(this, &ModuleControl::onAddConnectionClicked);
 
+		mLoad->eventMouseButtonClick =
+			MyGUI::newDelegate(this, &ModuleControl::onLoadClicked);
 		mSave->eventMouseButtonClick =
 			MyGUI::newDelegate(this, &ModuleControl::onSaveClicked);
+		mClear->eventMouseButtonClick =
+			MyGUI::newDelegate(this, &ModuleControl::onClearClicked);
 		mPreview->eventMouseButtonClick =
 			MyGUI::newDelegate(this, &ModuleControl::onPreviewClicked);
 
@@ -77,12 +86,7 @@ namespace Tool
 		if (mActive)
 			deactivate();
 
-		SharedData::ModulesT::iterator it = mData->mModules.begin();
-		for (; it != mData->mModules.end(); ++it)
-		{
-			delete *it;
-		}
-		mData->mModules.clear();
+		onClearClicked(NULL);
 
 		mLoaded = false;
 	}
@@ -170,6 +174,9 @@ namespace Tool
 	void ModuleControl::onPreviewClicked( MyGUI::Widget* )
 	{
 		std::string rootModule(findRootModule());
+
+		if (rootModule == "")
+			return;
 
 		createRoot(rootModule);
 
@@ -290,12 +297,14 @@ namespace Tool
 
 	std::string ModuleControl::findRootModule()
 	{
+		if (mData->mConnections.empty())
+			return "";
+
 		std::set<std::string> possibleRoots;
 		Connection* conn = NULL;
 		SharedData::ConnectionsT::iterator conIt = mData->mConnections.begin();
 		for (; conIt != mData->mConnections.end(); ++conIt)
 		{
-			// find root module
 			conn = (*conIt);
 			possibleRoots.insert(conn->mTo->getItemNameAt(conn->mTo->getIndexSelected()));
 		}
@@ -303,7 +312,6 @@ namespace Tool
 		conIt = mData->mConnections.begin();
 		for (; conIt != mData->mConnections.end(); ++conIt)
 		{
-			// find root module
 			conn = (*conIt);
 			std::string fromStr(conn->mFrom->getItemNameAt(conn->mFrom->getIndexSelected()));
 			possibleRoots.erase(fromStr);
@@ -321,21 +329,20 @@ namespace Tool
 	                                 const Module* module,
 	                                 const Connection* connection)
 	{
-		TiXmlElement* xmlMod = new TiXmlElement("Module");
+		TiXmlElement* xmlMod = new TiXmlElement(MODULE);
 		xmlElement->LinkEndChild(xmlMod);
 
-		xmlMod->SetAttribute("name", module->mName->getCaption());
-		xmlMod->SetAttribute("mesh", module->mMesh->getCaption());
+		module->toXml(xmlMod);
 		
-		std::string conn("");
 		if (connection)
 		{
-			conn = connection->mFromAdapter->getCaption() + "@" + 
-			       connection->mTo->getCaption() + ":" + 
-			       connection->mToAdapter->getCaption();
+			connection->toXml(xmlMod);
 		}
-		xmlMod->SetAttribute("connection", conn);
-		xmlMod->SetAttribute("adapters", module->mAdapter->getCaption());
+		else
+		{
+			xmlMod->SetAttribute(CONNECTION, "");
+		}
+
 		xmlMod->SetAttribute("concepts", "");
 		xmlMod->SetAttribute("collision", "CM_Standard");
 		xmlMod->SetAttribute("visible", "yes");
@@ -362,7 +369,6 @@ namespace Tool
 				addXmlConnectedModules(xmlElement, childModule->mName->getCaption());
 			}
 		}
-
 	}
 
 	void ModuleControl::onSaveClicked(MyGUI::Widget*)
@@ -392,10 +398,10 @@ namespace Tool
 		TiXmlDeclaration* declaration = new TiXmlDeclaration("1.0", "utf-8", "" );
 		document.LinkEndChild(declaration);
 
-		TiXmlElement* objectConfigs = new TiXmlElement("ObjectConfigs");
+		TiXmlElement* objectConfigs = new TiXmlElement(OBJECTS);
 		document.LinkEndChild(objectConfigs);
 
-		TiXmlElement* objectConfig = new TiXmlElement("ObjectConfig");
+		TiXmlElement* objectConfig = new TiXmlElement(OBJECT);
 		objectConfigs->LinkEndChild(objectConfig);
 		// \Todo add an editBox to set the name of the whole GameObject
 		objectConfig->SetAttribute("name", "ToBeImplemented");
@@ -410,4 +416,102 @@ namespace Tool
 		mDialog.setVisible(false);
 	}
 
+	void ModuleControl::onLoadClicked(MyGUI::Widget*)
+	{
+		BFG::Path p;
+
+		mDialog.setDialogInfo
+		(
+			"Load GameObject",
+			"Load",
+			MyGUI::newDelegate(this, &ModuleControl::onLoadOk)
+		);
+
+		mDialog.setRestrictions
+		(
+			"",
+			false,
+			".xml"
+		);
+
+		mDialog.setVisible(true);
+	}
+
+	void ModuleControl::onLoadOk(MyGUI::Widget*)
+	{
+		onClearClicked(NULL);
+
+		std::string filename(mDialog.getFileName());
+		TiXmlDocument doc(filename);
+
+		if (!doc.LoadFile())
+		{
+			throw std::runtime_error("Could not load " + filename);
+		}
+
+		TiXmlElement* objectConfigs = doc.FirstChildElement(OBJECTS);
+		TiXmlElement* objectConfig = objectConfigs->FirstChildElement(OBJECT);
+		for (; objectConfig != NULL; objectConfig = objectConfig->NextSiblingElement(OBJECT))
+		{
+			TiXmlElement* module = objectConfig->FirstChildElement(MODULE);
+			for (; module != NULL; module = module->NextSiblingElement(MODULE))
+			{
+				Module* mod = new Module
+				(
+					mModules,
+					mData->mAdapters,
+					MyGUI::newDelegate(this, &ModuleControl::onCloseModuleClicked)
+				);
+				mData->mModules.push_back(mod);
+
+				mod->fromXml(module);
+			}
+
+			module = objectConfig->FirstChildElement(MODULE);
+			for (; module != NULL; module = module->NextSiblingElement(MODULE))
+			{
+				std::string connection(*module->Attribute(CONNECTION));
+				if (connection != "")
+				{
+					Connection* con = new Connection
+					(
+						mConnections,
+						mData->mModules,
+						mData->mAdapters,
+						MyGUI::newDelegate(this, &ModuleControl::onCloseConnectionClicked)
+					);
+					mData->mConnections.push_back(con);
+
+					con->fromXml(module);
+				}
+			}
+		}
+		mDialog.setVisible(false);
+	}
+
+	void ModuleControl::onClearClicked(MyGUI::Widget*)
+	{
+		mModuleMap.clear();
+
+		SharedData::ModulesT::iterator modIt = mData->mModules.begin();
+		for (; modIt != mData->mModules.end(); ++modIt)
+		{
+			delete *modIt;
+		}
+		mData->mModules.clear();
+
+		SharedData::ConnectionsT::iterator conIt = mData->mConnections.begin();
+		for (; conIt != mData->mConnections.end(); ++conIt)
+		{
+			delete *conIt;
+		}
+		mData->mConnections.clear();
+
+		if (mData->mGameObject)
+			delete mData->mGameObject;
+
+		mData->mRenderObjects.clear();
+		mData->mRootMesh = NULL_HANDLE;
+		mData->mActiveMesh = NULL_HANDLE;
+	}
 } // namespace Tool

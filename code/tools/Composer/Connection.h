@@ -30,6 +30,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <MyGUI.h>
 #include <map>
 #include <vector>
+#include <tinyxml.h>
 
 #include <Model/Adapter.h>
 
@@ -101,6 +102,63 @@ public:
 			MyGUI::Widget* child = mParent->getChildAt(i);
 			child->setPosition(0, i * child->getSize().height);
 		}
+	}
+
+	void toXml(TiXmlElement* xmlElement) const
+	{
+		xmlElement->SetAttribute
+		(
+			"connection",
+			std::string
+			(
+				mFromAdapter->getCaption() + "@" + 
+				mTo->getCaption() + ":" +
+				mToAdapter->getCaption()
+			)
+		);
+	}
+
+	void fromXml(TiXmlElement* xmlElement)
+	{
+		std::string name(xmlElement->Attribute("name"));
+
+		size_t index = mFrom->findItemIndexWith(name);
+		if (index == MyGUI::ITEM_NONE)
+			throw std::runtime_error("Module " + name + " not found!");
+		mFrom->setIndexSelected(index);
+		onFromChanged(mFrom, index);
+
+		std::string connection(xmlElement->Attribute("connection"));
+		if (connection == "")
+			throw std::runtime_error("Connection string empty!");
+		
+		size_t atPos = connection.find('@');
+		if (atPos == std::string::npos)
+			throw std::runtime_error("No '@' found in connection");
+		
+		size_t colPos = connection.find(':', atPos);
+		if (colPos == std::string::npos)
+			throw std::runtime_error("No ':' found in connection");
+		
+		std::string fromAdapter(connection.substr(0, atPos));
+		std::string to(connection.substr(atPos + 1, colPos - (atPos + 1)));
+		std::string toAdapter(connection.substr(colPos + 1, connection.length() - (colPos + 1)));
+
+		index = mFromAdapter->findItemIndexWith(fromAdapter);
+		if (index == MyGUI::ITEM_NONE)
+			throw std::runtime_error("From-Adapter " + fromAdapter + " not found!");
+		mFromAdapter->setIndexSelected(index);
+
+		index = mTo->findItemIndexWith(to);
+		if (index == MyGUI::ITEM_NONE)
+			throw std::runtime_error("Module " + to + " not found!");
+		mTo->setIndexSelected(index);
+		onToChanged(mTo, index);
+
+		index = mToAdapter->findItemIndexWith(toAdapter);
+		if (index == MyGUI::ITEM_NONE)
+			throw std::runtime_error("To-Adapter " + toAdapter + " not found!");
+		mToAdapter->setIndexSelected(index);
 	}
 
 	MyGUI::ComboBox* mFrom;
