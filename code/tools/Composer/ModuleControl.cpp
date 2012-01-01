@@ -28,6 +28,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Core/Utils.h>
 #include <Model/Property/SpacePlugin.h>
+#include <View/Event.h>
 
 const std::string OBJECTS("ObjectConfigs");
 const std::string OBJECT("ObjectConfig");
@@ -290,6 +291,8 @@ namespace Tool
 
 				mModuleMap[fromName] = moduleHandle;
 
+				emit<BFG::View::Event>(BFG::ID::VE_ATTACH_OBJECT, moduleHandle, mData->mGameObject->getHandle());
+
 				addModuleTo(fromName);
 			}
 		}
@@ -508,7 +511,10 @@ namespace Tool
 		mData->mConnections.clear();
 
 		if (mData->mGameObject)
+		{
 			delete mData->mGameObject;
+			mData->mGameObject = NULL;
+		}
 
 		mData->mRenderObjects.clear();
 		mData->mRootMesh = NULL_HANDLE;

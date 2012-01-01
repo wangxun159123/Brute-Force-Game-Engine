@@ -33,6 +33,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <tinyxml.h>
 
+#include <EventSystem/Emitter.h>
+
 #include <BaseFeature.h>
 #include <OpenSaveDialog.h>
 #include <SharedData.h>
@@ -40,11 +42,12 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace Tool
 {
 
-class ModuleControl : public BaseFeature
+class ModuleControl : public BaseFeature, public BFG::Emitter
 {
 public:
 	ModuleControl(EventLoop* loop, boost::shared_ptr<SharedData> data) :
 	BaseFeature("Module", true),
+	Emitter(loop),
 	mLoop(loop),
 	mData(data)
 	{
