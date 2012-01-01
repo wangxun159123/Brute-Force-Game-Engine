@@ -1,118 +1,64 @@
+# -----------------------------------------------
 # This is the root CMakeLists.txt
 # you should cmake that one to build BFG - Engine
+# --------------------------- preamble ----------
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
-CMAKE_POLICY(SET CMP0011 NEW)
+CMAKE_POLICY(SET CMP0011 NEW) # :TODO: verify need of this policy
+
+# Our helper scripts are located in this folder
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/share/cmake/Modules)
+
+# --------------------------- includes ----------
 INCLUDE(USE)
-LOG_STATUS("Using module path: ${CMAKE_MODULE_PATH}")
-# ---------------------------------
+INCLUDE(DependencyBundle)
+
+# --------------------------- project declaration
 USE_INIT_PROJECT("Brute-Force Game Engine")
-#SET(CMAKE_BUILD_TYPE Release)
 
-LOG_STATUS("USE_PROJECT_BUNDLE: ${USE_PROJECT_BUNDLE}")
-
-SET(BFG_ENGINE_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/code/engine/")
+IF(NOT BFG_ENGINE_INCLUDE_DIR)
+  SET(BFG_ENGINE_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/code/engine/")
+ENDIF(NOT BFG_ENGINE_INCLUDE_DIR)
 
 IF(WIN32)
-# For Visual Studio 2008
-IF(${MSVC_VERSION} EQUAL "1500")
-	MESSAGE("Compiler: Visual Studio 2008")
-	ADD_DEFINITIONS(-D_WIN32_WINNT=0x0501)                 # Target: WinXP
-	ADD_DEFINITIONS(-D_SCL_SECURE_NO_WARNINGS)             # Disable std::copy warnings
-	ADD_DEFINITIONS(-D_CRT_SECURE_NO_WARNINGS)             # Disable sprintf warnings
-	ADD_DEFINITIONS(-DBOOST_LOG_DYN_LINK)                  # Use Boost.Log as shared lib
-	ADD_DEFINITIONS(-DBOOST_ALL_DYN_LINK )                 # Use Boost as shared libs
-	#ADD_DEFINITIONS(-DBOOST_LIB_DIAGNOSTIC)
+	# For Visual Studio 2008 or 2010
+	IF(${MSVC_VERSION} EQUAL "1500" OR ${MSVC_VERSION} EQUAL "1600")
+		ADD_DEFINITIONS(-D_WIN32_WINNT=0x0501)                 # Target: WinXP
+		ADD_DEFINITIONS(-D_SCL_SECURE_NO_WARNINGS)             # Disable std::copy warnings
+		ADD_DEFINITIONS(-D_CRT_SECURE_NO_WARNINGS)             # Disable sprintf warnings
+		ADD_DEFINITIONS(-DBOOST_LOG_DYN_LINK)                  # Use Boost.Log as shared lib
+		ADD_DEFINITIONS(-DBOOST_ALL_DYN_LINK )                 # Use Boost as shared libs
+		#ADD_DEFINITIONS(-DBOOST_LIB_DIAGNOSTIC)
 
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4251;4275") # Disable some DLL warnings
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")          # Enable MultiProcess compiling
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4251;4275") # Disable some DLL warnings
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")          # Enable MultiProcess compiling
 
-	# Temporary solution for starting and debugging applications within Visual Studio.
-	# A better way would be to use the install targets and to split engine and user builds.
-	SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin CACHE PATH "Library output path")
-	SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin CACHE PATH "Executable output path")
-# For Visual Studio 2010
-ELSEIF(${MSVC_VERSION} EQUAL "1600")
-	MESSAGE("Compiler: Visual Studio 2010")
-	ADD_DEFINITIONS(-D_WIN32_WINNT=0x0501)                 # Target: WinXP
-	ADD_DEFINITIONS(-D_SCL_SECURE_NO_WARNINGS)             # Disable std::copy warnings
-	ADD_DEFINITIONS(-D_CRT_SECURE_NO_WARNINGS)             # Disable sprintf warnings
-	ADD_DEFINITIONS(-DBOOST_LOG_DYN_LINK)                  # Use Boost.Log as shared lib
-	ADD_DEFINITIONS(-DBOOST_ALL_DYN_LINK )                 # Use Boost as shared libs
-	#ADD_DEFINITIONS(-DBOOST_LIB_DIAGNOSTIC)
-
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4251;4275") # Disable some DLL warnings
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")          # Enable MultiProcess compiling
-
-	# Temporary solution for starting and debugging applications within Visual Studio.
-	# A better way would be to use the install targets and to split engine and user builds.
-	SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin CACHE PATH "Library output path")
-	SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin CACHE PATH "Executable output path")
-ENDIF(${MSVC_VERSION} EQUAL "1500")
+		# Temporary solution for starting and debugging applications within Visual Studio.
+		# A better way would be to use the install targets and to split engine and user builds.
+		SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin CACHE PATH "Library output path")
+		SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin CACHE PATH "Executable output path")
+		SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin CACHE PATH "Executable output path")
+	ENDIF(${MSVC_VERSION} EQUAL "1500" OR ${MSVC_VERSION} EQUAL "1600")
 ENDIF(WIN32)
 
 #DUMP_LOG_MESSAGE_TYPES()
 
 IF(USE_PROJECT_BUNDLE)
 
-# --------------------------------------------
-# Set path that boost is found
-  SET(BOOST_ROOT "thirdparty/boost_1_47_0")
-  SET(Boost_USE_MULTITHREADED TRUE)
-  SET(Boost_USE_STATIC_LIBS   FALSE)
+	LOG_STATUS("USE_PROJECT_BUNDLE: ${USE_PROJECT_BUNDLE}")
+	# Nifty Macro. See WinDeps.cmake
+	SETUP_BUNDLE_PATHS()
 
-# --------------------------------------------
-# Handle finding BoostLog
-  SET(BoostLog_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/thirdparty/boost-log")
-  SET(BoostLog_LIBRARY_DIR "${PROJECT_SOURCE_DIR}/thirdparty/boost-log/lib")
-  IF(CMAKE_CONFIGURATION_TYPES)
-	IF(${MSVC_VERSION} EQUAL "1500")
-		SET(BoostLog_LIBRARIES debug ${BoostLog_LIBRARY_DIR}/boost_log_setup-vc90-mt-gd-1_47.lib
-							   debug ${BoostLog_LIBRARY_DIR}/boost_log-vc90-mt-gd-1_47.lib
-							   optimized ${BoostLog_LIBRARY_DIR}/boost_log_setup-vc90-mt-1_47.lib
-							   optimized ${BoostLog_LIBRARY_DIR}/boost_log-vc90-mt-1_47.lib)
-	ELSEIF(${MSVC_VERSION} EQUAL "1600")
-		SET(BoostLog_LIBRARIES debug ${BoostLog_LIBRARY_DIR}/boost_log_setup-vc100-mt-gd-1_47.lib
-							   debug ${BoostLog_LIBRARY_DIR}/boost_log-vc100-mt-gd-1_47.lib
-							   optimized ${BoostLog_LIBRARY_DIR}/boost_log_setup-vc100-mt-1_47.lib
-							   optimized ${BoostLog_LIBRARY_DIR}/boost_log-vc100-mt-1_47.lib)
-	ENDIF(${MSVC_VERSION} EQUAL "1500")
-  ELSE(CMAKE_CONFIGURATION_TYPES)
-	  IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
-		IF(${MSVC_VERSION} EQUAL "1500")
-			SET(BoostLog_LIBRARIES ${BoostLog_LIBRARY_DIR}/boost_log_setup-vc90-mt-gd-1_47.lib
-								   ${BoostLog_LIBRARY_DIR}/boost_log-vc90-mt-gd-1_47.lib)
-		ELSEIF(${MSVC_VERSION} EQUAL "1600")
-			SET(BoostLog_LIBRARIES ${BoostLog_LIBRARY_DIR}/boost_log_setup-vc100-mt-gd-1_47.lib
-									${BoostLog_LIBRARY_DIR}/boost_log-vc100-mt-gd-1_47.lib)
-		ENDIF(${MSVC_VERSION} EQUAL "1500")
-	  ELSE(CMAKE_BUILD_TYPE STREQUAL "Debug")
-		IF(${MSVC_VERSION} EQUAL "1500")
-		SET(BoostLog_LIBRARIES ${BoostLog_LIBRARY_DIR}/boost_log_setup-vc90-mt-1_47.lib
-		                       ${BoostLog_LIBRARY_DIR}/boost_log-vc90-mt-1_47.lib)
-		ELSEIF(${MSVC_VERSION} EQUAL "1600")
-			SET(BoostLog_LIBRARIES ${BoostLog_LIBRARY_DIR}/boost_log_setup-vc100-mt-1_47.lib
-		                       ${BoostLog_LIBRARY_DIR}/boost_log-vc100-mt-1_47.lib)
-		ENDIF(${MSVC_VERSION} EQUAL "1500")
-	  ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")		
-  ENDIF(CMAKE_CONFIGURATION_TYPES)
-# --------------------------------------------
-# Handle finding OpenAL
-  SET(OPENAL_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/thirdparty/OpenAL/include)
-  SET(OPENAL_LIBRARY_DIR ${PROJECT_SOURCE_DIR}/thirdparty/OpenAL/libs/Win32)
-  SET(OPENAL_LIBRARY ${OPENAL_LIBRARY_DIR}/OpenAL32.lib)
 ENDIF(USE_PROJECT_BUNDLE)
 
 FIND_PACKAGE(Boost 1.47 REQUIRED date_time thread filesystem program_options system regex)
 IF(Boost_FOUND)
-  #LOG ("Found boost ${Boost_VERSION} in ${Boost_LIBRARY_DIRS} and ${Boost_INCLUDE_DIR}" )
-  MESSAGE("Boost_LIBRARIES ${Boost_LIBRARIES}")
+  LOG("Found boost ${Boost_VERSION} in ${Boost_LIBRARY_DIRS} and ${Boost_INCLUDE_DIR}" )
 ELSE(Boost_FOUND)
-  MESSAGE(FATAL_ERROR "You need boost in order to build this project")
+  LOG_FATAL("You need boost in order to build this project")
 ENDIF(Boost_FOUND)
 # custom module to find Boost.Log... made by FelixB :)
 FIND_PACKAGE(BoostLog REQUIRED)
-LOG("Boost Log Libraries are: ${BoostLog_LIBRARIES} ${BoostLog_LIBRARY_DIR}")
+#LOG("Boost Log Libraries are: ${BoostLog_LIBRARIES} ${BoostLog_LIBRARY_DIR}")
 FIND_PACKAGE(OpenAL REQUIRED)
 
 #FIND_PACKAGE(LibSndFile REQUIRED)
@@ -123,9 +69,9 @@ IF(WIN32)
 ELSEIF(UNIX)
   FIND_PACKAGE(LibSndFile REQUIRED)
 ELSEIF (APPLE)
-	MESSAGE(FATAL_ERROR "Apple support is not implemented yet")
+	LOG_FATAL("Apple support is not implemented yet")
 ELSE (WIN32)
-	MESSAGE(FATAL_ERROR "Unknown error or a not supported OS")
+	LOG_FATAL("Unknown error or a not supported OS")
 ENDIF(WIN32)
 
 #FIND_PACKAGE(PostgreSQL)
@@ -215,11 +161,13 @@ ENDIF(NOT OIS_FOUND)
 IF(WIN32)
   SET(MYGUI_PATH "MyGUI")
   SET(MYGUI_LIB_PATH "${MYGUI_PATH}/Build/lib")
+  # General MyGUI
   SET(MYGUI_RELEASE_LIB "${MYGUI_LIB_PATH}/Release/MyGUIEngine.lib")
-  SET(MYGUI_OGRE_RELEASE_LIB "${MYGUI_LIB_PATH}/Release/MyGUI.OgrePlatform.lib")
   SET(MYGUI_DEBUG_LIB "${MYGUI_LIB_PATH}/Debug/MyGUIEngine_d.lib")
-  SET(MYGUI_OGRE_DEBUG_LIB "${MYGUI_LIB_PATH}/Debug/MyGUI.OgrePlatform_d.lib")
   SET(MYGUI_INCLUDE_FILE "${MYGUI_PATH}/MyGUIEngine/include/MyGUI.h")
+  # Settings for MyGUI OGRE connection
+  SET(MYGUI_OGRE_RELEASE_LIB "${MYGUI_LIB_PATH}/Release/MyGUI.OgrePlatform.lib")
+  SET(MYGUI_OGRE_DEBUG_LIB "${MYGUI_LIB_PATH}/Debug/MyGUI.OgrePlatform_d.lib")
   SET(MYGUI_OGRE_INCLUDE_FILE "${MYGUI_PATH}/Platforms/Ogre/OgrePlatform/include/MyGUI_OgrePlatform.h")
   IF(CMAKE_CONFIGURATION_TYPES)
 	CHECK_PACKAGE(MYGUI_DEBUG ${MYGUI_DEBUG_LIB} ${MYGUI_INCLUDE_FILE})

@@ -24,6 +24,18 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/** @file
+
+	\note
+	A lot of these functions were taken from OGRE. The reason is, that
+	we try to strictly separate the renderer from all other modules. You
+	(hopefully) won't find any calls to OGRE within other modules than the
+	View. However, vectors and quaternions are often used elsewhere, too.
+	This is why we copied (almost 1:1) some of OGREs vector and quaternion
+	functions, which you might recognize by their name. One difference is,
+	that we made some of them non-member functions.
+*/
+
 #ifndef BFG_QV4_H
 #define BFG_QV4_H
 
@@ -58,8 +70,8 @@ public:
 		return &w;
 	}
 	
-    vector3<T> operator* (const vector3<T>& v) const
-    {
+	vector3<T> operator* (const vector3<T>& v) const
+	{
 		// nVidia SDK implementation
 		vector3<T> uv, uuv;
 		vector3<T> qvec(x, y, z);
@@ -69,7 +81,7 @@ public:
 		uuv *= 2.0f;
 
 		return v + uv + uuv;
-    }
+	}
 
 	quaternion4<T>& operator = (const quaternion4<T>& rhs)
 	{
@@ -125,49 +137,49 @@ public:
 		return quaternion4(-w, -x, -y, -z);
 	}
 
-    vector3<T> xAxis(void) const
-    {
-        //T fTx  = 2*x;
-        T fTy  = 2*y;
-        T fTz  = 2*z;
-        T fTwy = fTy*w;
-        T fTwz = fTz*w;
-        T fTxy = fTy*x;
-        T fTxz = fTz*x;
-        T fTyy = fTy*y;
-        T fTzz = fTz*z;
+	vector3<T> xAxis(void) const
+	{
+		//T fTx  = 2*x;
+		T fTy  = 2*y;
+		T fTz  = 2*z;
+		T fTwy = fTy*w;
+		T fTwz = fTz*w;
+		T fTxy = fTy*x;
+		T fTxz = fTz*x;
+		T fTyy = fTy*y;
+		T fTzz = fTz*z;
 
-        return vector3<T>(1-(fTyy+fTzz), fTxy+fTwz, fTxz-fTwy);
-    }
+		return vector3<T>(1-(fTyy+fTzz), fTxy+fTwz, fTxz-fTwy);
+	}
 
-    vector3<T> yAxis(void) const
-    {
-        T fTx  = 2*x;
-        T fTy  = 2*y;
-        T fTz  = 2*z;
-        T fTwx = fTx*w;
-        T fTwz = fTz*w;
-        T fTxx = fTx*x;
-        T fTxy = fTy*x;
-        T fTyz = fTz*y;
-        T fTzz = fTz*z;
+	vector3<T> yAxis(void) const
+	{
+		T fTx  = 2*x;
+		T fTy  = 2*y;
+		T fTz  = 2*z;
+		T fTwx = fTx*w;
+		T fTwz = fTz*w;
+		T fTxx = fTx*x;
+		T fTxy = fTy*x;
+		T fTyz = fTz*y;
+		T fTzz = fTz*z;
 
-        return vector3<T>(fTxy-fTwz, 1-(fTxx+fTzz), fTyz+fTwx);
-    }
+		return vector3<T>(fTxy-fTwz, 1-(fTxx+fTzz), fTyz+fTwx);
+	}
 
-    vector3<T> zAxis(void) const
-    {
-        T fTx  = 2*x;
-        T fTy  = 2*y;
-        T fTz  = 2*z;
-        T fTwx = fTx*w;
-        T fTwy = fTy*w;
-        T fTxx = fTx*x;
-        T fTxz = fTz*x;
-        T fTyy = fTy*y;
-        T fTyz = fTz*y;
+	vector3<T> zAxis(void) const
+	{
+		T fTx  = 2*x;
+		T fTy  = 2*y;
+		T fTz  = 2*z;
+		T fTwx = fTx*w;
+		T fTwy = fTy*w;
+		T fTxx = fTx*x;
+		T fTxz = fTz*x;
+		T fTyy = fTy*y;
+		T fTyz = fTz*y;
 
-        return vector3<T>(fTxz+fTwy, fTyz-fTwx, 1-(fTxx+fTyy));
+		return vector3<T>(fTxz+fTwy, fTyz-fTwx, 1-(fTxx+fTyy));
 	}
 
 	T getRoll(bool reprojectAxis = true) const
@@ -193,7 +205,7 @@ public:
 			return T(std::atan2(2*(x*y + w*z), w*w + x*x - y*y - z*z));
 		}
 	}
-	
+
 	T getPitch(bool reprojectAxis = true) const
 	{
 		if (reprojectAxis)
@@ -246,7 +258,7 @@ public:
 
 	static const quaternion4 ZERO;
 	static const quaternion4 IDENTITY;
-	
+
 };
 
 template <typename T> const quaternion4<T> quaternion4<T>::ZERO(0.0,0.0,0.0,0.0);

@@ -24,6 +24,18 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/** @file
+
+	\note
+	A lot of these functions were taken from OGRE. The reason is, that
+	we try to strictly separate the renderer from all other modules. You
+	(hopefully) won't find any calls to OGRE within other modules than the
+	View. However, vectors and quaternions are often used elsewhere, too.
+	This is why we copied (almost 1:1) some of OGREs vector and quaternion
+	functions, which you might recognize by their name. One difference is,
+	that we made some of them non-member functions.
+*/
+
 #ifndef BFG_MATH_H
 #define BFG_MATH_H
 

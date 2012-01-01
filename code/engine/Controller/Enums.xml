@@ -12,6 +12,7 @@
             <value>A_MOUSE_MOVE_Y</value>
             <value>A_MOUSE_MOVE_Z</value>
             <value>A_MOUSE_LEFT_PRESSED</value>
+            <value>A_MOUSE_MIDDLE_PRESSED</value>
             <value>A_MOUSE_RIGHT_PRESSED</value>
             <value>A_KEY_PRESSED</value>
             <value>A_KEY_RELEASED</value>

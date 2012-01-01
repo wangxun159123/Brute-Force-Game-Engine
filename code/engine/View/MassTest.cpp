@@ -81,7 +81,7 @@ arc(0.0f)
 				(
 					NULL_HANDLE,
 					generateHandle(),
-					"FastRacer.mesh",
+					"Arrow.mesh",
 					v3
 					(
 						j*j_dist - j_max/2*j_dist,

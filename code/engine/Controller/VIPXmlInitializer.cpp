@@ -31,6 +31,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Base/CLogger.h>
 #include <Controller/State.h>
 #include <Controller/VIPEnumToType.h>
+#include <Core/Path.h>
 
 namespace BFG {
 namespace Controller_ {
@@ -38,8 +39,9 @@ namespace VIP {
 
 namespace Tag
 {
-	const std::string vip("vip");
 	const std::string action("action");
+	const std::string include("include");
+	const std::string vip("vip");
 }
 
 namespace Attr
@@ -129,7 +131,19 @@ void XmlInitializer::traverse(const std::string& fullConfigPath,
 {
 	TiXmlDocument xmlDocument(fullConfigPath);
 	xmlDocument.LoadFile();
-	TiXmlElement* root = xmlDocument.RootElement();
+	
+	if (xmlDocument.Error())
+	{
+		std::stringstream ss;
+		ss << "Controller: Error while loading file \""
+		   << fullConfigPath
+		   << "\", TinyXML: \""
+		   << xmlDocument.ErrorDesc()
+		   << "\"";
+		throw std::runtime_error(ss.str());
+	}
+	
+ 	TiXmlElement* root = xmlDocument.RootElement();
 
 	if (!root)
 	{
@@ -150,6 +164,10 @@ void XmlInitializer::traverse(const std::string& fullConfigPath,
 			if (currentTag == Tag::action)
 			{
 				onActionElement(element, eventId, vips);
+			}
+			else if(currentTag == Tag::include)
+			{
+				onIncludeElement(element, vips);
 			}
 			else
 				onUnknownElement(currentTag);
@@ -218,6 +236,34 @@ void XmlInitializer::onActionElement(TiXmlElement* element,
 			onUnknownElement(currentTag);
 		
 		element = element->NextSiblingElement();
+	}
+}
+
+void XmlInitializer::onIncludeElement(TiXmlElement* element,
+                                      std::vector<VipPtrT>& vips) const
+{
+	assert(element);
+	
+	const char* filename = element->GetText();
+	if (filename)
+	{
+		try
+		{
+			this->traverse(filename, vips);
+		}
+		catch (std::runtime_error& ex)
+		{
+			// Maybe the file wasn't found? Let's try again!
+			try
+			{
+				BFG::Path p;
+				this->traverse(p.Expand(filename), vips);
+			}
+			catch (std::runtime_error& ex)
+			{
+				errlog << ex.what();
+			}
+		}
 	}
 }
 

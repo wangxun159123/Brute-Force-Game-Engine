@@ -548,13 +548,13 @@
 
   </Resource>
 
-  <Resource type="ResourceSkin" name="ProgressBarTrack" size="19 12" texture="base_bars.png" >
+  <Resource type="ResourceSkin" name="ProgressBarTrack" size="19 12" texture="Base_bars.png" >
     <BasisSkin type="SubSkin" offset = "0 0 19 12" align = "Stretch">
       <State name="normal" offset = "0 0 19 12"/>
     </BasisSkin>
   </Resource>
 
-  <Resource type="ResourceSkin" name="MyProgressBar" size="19 12" texture="base_bars.png" >
+  <Resource type="ResourceSkin" name="MyProgressBar" size="19 12" texture="Base_bars.png" >
     <Property key="TrackSkin" value = "ProgressBarTrack" />
     <Property key="TrackWidth" value = "19" />
     <Property key="TrackStep" value = "19" />
@@ -575,7 +575,7 @@
     </BasisSkin>
   </Resource>
 
-  <Resource type="ResourceSkin" name="ProgressBarBack" size="512 16" texture="base_healthbar_back.png" >
+  <Resource type="ResourceSkin" name="ProgressBarBack" size="512 16" texture="Base_healthbar_back.png" >
     <BasisSkin type="SubSkin" offset = "0 0 512 16" align = "Stretch">
       <State name="normal" offset = "0 0 512 16"/>
     </BasisSkin>
