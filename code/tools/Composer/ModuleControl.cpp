@@ -59,6 +59,7 @@ namespace Tool
 		mLoad = panel->findWidget("load")->castType<MyGUI::Button>();
 		mClear = panel->findWidget("clear")->castType<MyGUI::Button>();
 		mPreview = panel->findWidget("preview")->castType<MyGUI::Button>();
+		mUpdate = panel->findWidget("update")->castType<MyGUI::Button>();
 
 		mAddModule->eventMouseButtonClick =
 			MyGUI::newDelegate(this, &ModuleControl::onAddModuleClicked);
@@ -74,6 +75,8 @@ namespace Tool
 			MyGUI::newDelegate(this, &ModuleControl::onClearClicked);
 		mPreview->eventMouseButtonClick =
 			MyGUI::newDelegate(this, &ModuleControl::onPreviewClicked);
+		mUpdate->eventMouseButtonClick =
+			MyGUI::newDelegate(this, &ModuleControl::onUpdateClicked);
 
 		mLoaded = true;
 		deactivate();
@@ -182,6 +185,8 @@ namespace Tool
 		createRoot(rootModule);
 
 		addModuleTo(rootModule);
+
+		mActivePreview = true;
 	}
 
 	void ModuleControl::destroyGameObject()
@@ -519,5 +524,50 @@ namespace Tool
 		mData->mRenderObjects.clear();
 		mData->mRootMesh = NULL_HANDLE;
 		mData->mActiveMesh = NULL_HANDLE;
+
+		mActivePreview = false;
 	}
+
+	void ModuleControl::onUpdateClicked(MyGUI::Widget*)
+	{
+		mUpdate->setStateSelected(!mUpdate->getStateSelected());
+	}
+
+	void ModuleControl::reAttach()
+	{
+		mModuleMap.clear();
+
+		if (mData->mGameObject)
+		{
+			delete mData->mGameObject;
+			mData->mGameObject = NULL;
+		}
+
+		mData->mRenderObjects.clear();
+		mData->mRootMesh = NULL_HANDLE;
+		mData->mActiveMesh = NULL_HANDLE;
+
+		mActivePreview = false;
+
+		onPreviewClicked(NULL);
+	}
+
+	void ModuleControl::toolEventHandler(Event* te)
+	{
+
+		switch(te->getId())
+		{
+		case A_UPDATE_ADAPTER:
+		{
+			if (!mUpdate->getStateSelected())
+				return;
+
+			if (!mActivePreview)
+				return;
+			
+			reAttach();
+		}
+		}
+	}
+
 } // namespace Tool

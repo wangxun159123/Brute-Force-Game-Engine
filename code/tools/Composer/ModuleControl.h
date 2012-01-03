@@ -35,7 +35,9 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <EventSystem/Emitter.h>
 
+#include <Actions.h>
 #include <BaseFeature.h>
+#include <Event_fwd.h>
 #include <OpenSaveDialog.h>
 #include <SharedData.h>
 
@@ -49,8 +51,10 @@ public:
 	BaseFeature("Module", true),
 	Emitter(loop),
 	mLoop(loop),
-	mData(data)
+	mData(data),
+	mActivePreview(false)
 	{
+		mLoop->connect(A_UPDATE_ADAPTER, this, &ModuleControl::toolEventHandler);
 	}
 
 	virtual ~ModuleControl()
@@ -64,8 +68,9 @@ public:
 	virtual void deactivate();
 
 	virtual void eventHandler(BFG::Controller_::VipEvent* ve)
-	{
-	}
+	{}
+
+	virtual void toolEventHandler(Event* te);
 
 private:
 
@@ -90,6 +95,8 @@ private:
 	void onLoadClicked(MyGUI::Widget*);
 	void onLoadOk(MyGUI::Widget*);
 	void onClearClicked(MyGUI::Widget*);
+	void onUpdateClicked(MyGUI::Widget*);
+	void reAttach();
 
 	EventLoop* mLoop;
 	boost::shared_ptr<SharedData> mData;
@@ -105,10 +112,13 @@ private:
 	MyGUI::Button* mAppend;
 	MyGUI::Button* mClear;
 	MyGUI::Button* mPreview;
+	MyGUI::Button* mUpdate;
 
 	std::map<std::string, BFG::GameHandle> mModuleMap;
 
 	OpenSaveDialog mDialog;
+
+	bool mActivePreview;
 }; // class ModuleControl
 
 } // namespace Tool

@@ -23,14 +23,14 @@
                 <Property key="VisibleHScroll" value="false"/>
             </Widget>
         </Widget>
-        <Widget type="Button" skin="Button" position="512 298 90 50" align="Right Bottom" name="preview">
+        <Widget type="Button" skin="Button" position="512 300 90 48" align="Right Bottom" name="preview">
             <Property key="Caption" value="Preview"/>
         </Widget>
-        <Widget type="TextBox" skin="TextBox" position="350 158 250 137">
+        <Widget type="TextBox" skin="TextBox" position="350 158 250 120">
             <Property key="Caption" value="- Press &apos;Return&apos; after naming a new \nModule to select the Mesh and the \nAdapter.\n- Make sure that the used Adapters\nare created/loaded.\n- Connections are created &apos;from&apos; leaf\n&apos;to&apos; root."/>
             <Property key="TextAlign" value="Left Top"/>
         </Widget>
-        <Widget type="Button" skin="Button" position="350 298 64 24" name="load">
+        <Widget type="Button" skin="Button" position="350 300 64 24" name="load">
             <Property key="Caption" value="Load GO"/>
         </Widget>
         <Widget type="Button" skin="Button" position="350 324 64 24" name="save">
@@ -39,8 +39,11 @@
         <Widget type="Button" skin="Button" position="415 324 96 24" name="append">
             <Property key="Caption" value="Append GO"/>
         </Widget>
-        <Widget type="Button" skin="Button" position="415 298 96 24" name="clear">
+        <Widget type="Button" skin="Button" position="415 300 96 24" name="clear">
             <Property key="Caption" value="Clear"/>
+        </Widget>
+        <Widget type="Button" skin="CheckBox" position="350 278 105 24" name="update">
+            <Property key="Caption" value="Autoupdate"/>
         </Widget>
     </Widget>
 </MyGUI>

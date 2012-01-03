@@ -40,6 +40,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <View/Convert.h>
 #include <View/LoadMesh.h>
 
+#include <Actions.h>
+
 namespace Tool
 {
 
@@ -435,6 +437,8 @@ void AdapterControl::onPositionChanged(MyGUI::Edit*)
 		BFG::View::toOgre(adapter.mParentPosition), 
 		BFG::View::toOgre(adapter.mParentOrientation)
 	);
+
+	emit<Tool::Event>(A_UPDATE_ADAPTER, 0);
 }
 
 
@@ -482,6 +486,7 @@ void AdapterControl::updateOrientation()
 			adapter.mParentOrientation.z
 		)
 	);
+	emit<Tool::Event>(A_UPDATE_ADAPTER, 0);
 }
 
 void AdapterControl::clearAdapterFields()

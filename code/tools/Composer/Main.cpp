@@ -151,7 +151,7 @@ public:
 
 		mLoadedFeatures.push_back(new Tool::LightControl(mData));
 
-		mLoadedFeatures.push_back(new Tool::AdapterControl(mData));
+		mLoadedFeatures.push_back(new Tool::AdapterControl(loop, mData));
 
 		mLoadedFeatures.push_back(new Tool::ModuleControl(loop, mData));
 

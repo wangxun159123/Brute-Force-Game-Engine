@@ -32,17 +32,21 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <MyGUI.h>
 
 #include <Core/Path.h>
+#include <EventSystem/Emitter.h>
+
+#include <Event_fwd.h>
 #include <OpenSaveDialog.h>
 #include <SharedData.h>
 
 namespace Tool
 {
 
-class AdapterControl : public BaseFeature
+class AdapterControl : public BaseFeature, public BFG::Emitter
 {
 public:
-	AdapterControl(boost::shared_ptr<SharedData> data) :
+	AdapterControl(EventLoop* loop, boost::shared_ptr<SharedData> data) :
 	BaseFeature("Adapter", true),
+	Emitter(loop),
 	mData(data),
 	mPickAdapter(false)
 	{
