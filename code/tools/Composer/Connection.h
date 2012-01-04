@@ -219,6 +219,9 @@ private:
 		{
 			size_t adapIndex = module->mAdapter->getIndexSelected();
 			std::string adapName(module->mAdapter->getItemNameAt(adapIndex));
+			
+			adapters->deleteAllItems();
+			
 			std::vector<BFG::Adapter> & adapter = mAdapters[adapName];
 			std::vector<BFG::Adapter>::iterator adapIt = adapter.begin();
 			for (; adapIt != adapter.end(); ++adapIt)
