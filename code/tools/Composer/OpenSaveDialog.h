@@ -35,6 +35,8 @@ struct FileInfo
 	mFileName(name),
 	mFolder(folder)
 	{}
+	
+	bool operator < (const FileInfo& rhs) const;
 
 	std::string mFileName;
 	std::string mFolder;
@@ -48,11 +50,11 @@ public:
 	typedef MyGUI::delegates::CDelegate1<bool> EventHandle_Result;
 
 public:
-	OpenSaveDialog();
+	OpenSaveDialog(bool sort = true);
 
 	void setDialogInfo(const std::string& caption,
 	                   const std::string& button,
-					   MyGUI::delegates::IDelegate1<MyGUI::Widget*>* clickHandler);
+	                   MyGUI::delegates::IDelegate1<MyGUI::Widget*>* clickHandler);
 
 	const std::string& getCurrentFolder() {return mCurrentFolder;}
 
@@ -96,6 +98,7 @@ private:
 
 	std::string mExtension;
 	bool mOnlyThisFolder;
+	bool mSort;
 
 	std::string mCurrentFolder;
 	std::string mFileName;

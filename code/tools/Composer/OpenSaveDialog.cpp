@@ -26,12 +26,25 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <OpenSaveDialog.h>
 
+#include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 #include <Base/CLogger.h>
 #include <Core/Path.h>
 
-OpenSaveDialog::OpenSaveDialog() :
-mOnlyThisFolder(false)
+bool FileInfo::operator < (const FileInfo& rhs) const
+{
+	std::cout << mFileName << std::endl;
+	using boost::algorithm::to_lower_copy;
+	
+	if (mFileName.empty() && rhs.mFileName.empty())
+		return to_lower_copy(mFolder) < to_lower_copy(rhs.mFolder);
+	else
+		return to_lower_copy(mFileName) < to_lower_copy(rhs.mFileName);
+}
+
+OpenSaveDialog::OpenSaveDialog(bool sort) :
+mOnlyThisFolder(false),
+mSort(sort)
 {
 	using namespace MyGUI;
 
@@ -210,6 +223,12 @@ void OpenSaveDialog::update()
 
 	fillInfoVector(folders, files);
 
+	if (mSort)
+	{
+		std::sort(files.begin(), files.end());
+		std::sort(folders.begin(), folders.end());
+	}
+	
 	path p(mCurrentFolder);
 
 	if(p != p.root_path() && !mOnlyThisFolder)
