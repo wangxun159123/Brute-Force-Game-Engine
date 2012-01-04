@@ -90,8 +90,8 @@ public:
 			std::string name(module->mName->getCaption());
 			if (name != "")
 			{
-				mFrom->addItem(module->mName->getCaption());
-				mTo->addItem(module->mName->getCaption());
+				mFrom->addItem(name);
+				mTo->addItem(name);
 			}
 		}
 	}
