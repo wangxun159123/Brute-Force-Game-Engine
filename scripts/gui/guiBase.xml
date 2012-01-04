@@ -3,9 +3,6 @@
 <MyGUI type="List">
 
   <List file="guiTheme.xml"/>
-  <List file="core_font.xml"/>
-  <List file="core_theme.xml"/>
-  <List file="core_skin.xml"/>
   <List file="MyGUI_Core.xml"/> <!-- Replacement for core_ files above in newer MyGUI versions -->
   <List file="guiLanguage.xml"/>
   <List file="guiTags.xml"/>

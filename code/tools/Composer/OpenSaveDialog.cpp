@@ -26,35 +26,48 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <OpenSaveDialog.h>
 
+#include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 #include <Base/CLogger.h>
 #include <Core/Path.h>
 
-OpenSaveDialog::OpenSaveDialog()
+bool FileInfo::operator < (const FileInfo& rhs) const
+{
+	using boost::algorithm::to_lower_copy;
+	
+	if (mFileName.empty() && rhs.mFileName.empty())
+		return to_lower_copy(mFolder) < to_lower_copy(rhs.mFolder);
+	else
+		return to_lower_copy(mFileName) < to_lower_copy(rhs.mFileName);
+}
+
+OpenSaveDialog::OpenSaveDialog(bool sort) :
+mOnlyThisFolder(false),
+mSort(sort)
 {
 	using namespace MyGUI;
 
 	BFG::Path path;
 	std::string layout = path.Expand("OpenSaveDialog.layout");
-	mContainer = LayoutManager::getInstance().load(layout);
+	mContainer = LayoutManager::getInstance().loadLayout(layout);
 
-	Gui* gui = Gui::getInstancePtr();
+	Widget* mainWidget = mContainer.front();
 
-	mWindow = gui->findWidget<Window>("OpenSaveDialog");
-	mFilesList = gui->findWidget<List>("FilesList");
-	mFileNameEdit = gui->findWidget<Edit>("FileNameEdit");
-	mCurrentFolderEdit = gui->findWidget<Edit>("CurrentFolderEdit");
-	mOpenSaveButton = gui->findWidget<Button>("OpenSaveButton");
+	mWindow = mainWidget->castType<Window>();
+	mFilesList = mWindow->findWidget("FilesList")->castType<ListBox>();
+	mFileNameEdit = mWindow->findWidget("FileNameEdit")->castType<EditBox>();
+	mCurrentFolderEdit = mWindow->findWidget("CurrentFolderEdit")->castType<EditBox>();
+	mOpenSaveButton = mWindow->findWidget("OpenSaveButton")->castType<Button>();
 
-	mWindow->eventWindowButtonPressed = 
+	mWindow->eventWindowButtonPressed += 
 		newDelegate(this, &OpenSaveDialog::notifyWindowButtonPressed);
-	mFilesList->eventListChangePosition = 
+	mFilesList->eventListChangePosition += 
 		newDelegate(this, &OpenSaveDialog::notifyListChangePosition);
-	mFilesList->eventListSelectAccept = 
+	mFilesList->eventListSelectAccept += 
 		newDelegate(this, &OpenSaveDialog::notifyListSelectAccept);
-	mFileNameEdit->eventEditSelectAccept = 
+	mFileNameEdit->eventEditSelectAccept += 
 		newDelegate(this, &OpenSaveDialog::notifyEditSelectAccept);
-	mFileNameEdit->eventEditTextChange =
+	mFileNameEdit->eventEditTextChange +=
 		newDelegate(this, &OpenSaveDialog::notifyEditTextChanged);
 
 	mCurrentFolder = boost::filesystem::current_path().string();
@@ -74,7 +87,7 @@ void OpenSaveDialog::notifyWindowButtonPressed(MyGUI::Window* sender,
 	}
 }
 
-void OpenSaveDialog::notifyEditSelectAccept(MyGUI::Edit* sender)
+void OpenSaveDialog::notifyEditSelectAccept(MyGUI::EditBox* sender)
 {
 	accept();
 }
@@ -83,17 +96,41 @@ void OpenSaveDialog::setDialogInfo(const std::string& caption,
                                    const std::string& button,
                                    MyGUI::delegates::IDelegate1<MyGUI::Widget*>* clickHandler)
 {
+	if (isVisible())
+		return;
 	mWindow->setCaption(caption);
 	mOpenSaveButton->setCaption(button);
-	mOpenSaveButton->eventMouseButtonClick = clickHandler;
+	mOpenSaveButton->eventMouseButtonClick.clear();
+	mOpenSaveButton->eventMouseButtonClick += clickHandler;
 }
 
-void OpenSaveDialog::notifyEditTextChanged(MyGUI::Edit* sender)
+void OpenSaveDialog::setRestrictions(const std::string& startFolder,
+                                     bool onlyThisFolder,
+                                     const std::string& extension)
+{
+	if (isVisible())
+		return;
+
+	if (startFolder != "")
+		mCurrentFolder = startFolder;
+
+	mOnlyThisFolder = onlyThisFolder;
+	mExtension = extension;
+}
+
+void OpenSaveDialog::clearRestrictions()
+{
+	mCurrentFolder = boost::filesystem::current_path().string();
+	mOnlyThisFolder = false;
+	mExtension = "";
+}
+
+void OpenSaveDialog::notifyEditTextChanged(MyGUI::EditBox* sender)
 {
 	accept();
 }
 
-void OpenSaveDialog::notifyListChangePosition(MyGUI::List* sender,
+void OpenSaveDialog::notifyListChangePosition(MyGUI::ListBox* sender,
                                               size_t index)
 {
 	if (index == MyGUI::ITEM_NONE)
@@ -110,7 +147,7 @@ void OpenSaveDialog::notifyListChangePosition(MyGUI::List* sender,
 	}
 }
 
-void OpenSaveDialog::notifyListSelectAccept(MyGUI::List* sender, size_t index)
+void OpenSaveDialog::notifyListSelectAccept(MyGUI::ListBox* sender, size_t index)
 {
 	if (index == MyGUI::ITEM_NONE) return;
 
@@ -156,9 +193,12 @@ void OpenSaveDialog::fillInfoVector(FileInfoVectorT& folders,
 			std::string folder = pathEntry.parent_path().string();
 			std::string filename = pathEntry.filename().string();
 
+			if (mExtension != "" && pathEntry.extension() != mExtension)
+				continue;
+
 			files.push_back(FileInfo(filename, folder));
 		}
-		else if(is_directory(pathEntry))
+		else if(is_directory(pathEntry) && !mOnlyThisFolder)
 		{
 			std::string folder = pathEntry.string();
 			std::string filename("");
@@ -182,9 +222,15 @@ void OpenSaveDialog::update()
 
 	fillInfoVector(folders, files);
 
+	if (mSort)
+	{
+		std::sort(files.begin(), files.end());
+		std::sort(folders.begin(), folders.end());
+	}
+	
 	path p(mCurrentFolder);
 
-	if(p != p.root_path())
+	if(p != p.root_path() && !mOnlyThisFolder)
 	{
 		FileInfo parent("", p.parent_path().string());
 		mFilesList->addItem("[..]", parent);

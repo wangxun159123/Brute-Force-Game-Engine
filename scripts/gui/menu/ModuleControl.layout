@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout" version="3.2.0">
+    <Widget type="Window" skin="WindowC" position="20 35 613 390" layer="Menu">
+        <Property key="MaxSize" value="613 385"/>
+        <Property key="MinSize" value="613 385"/>
+        <Widget type="Widget" skin="PanelEmpty" position="0 0 603 155" align="Left Bottom">
+            <Widget type="Button" skin="Button" position="2 2 96 24" name="addModule">
+                <Property key="Caption" value="Add Module"/>
+            </Widget>
+            <Widget type="ScrollView" skin="ScrollView" position="2 28 600 125" name="modules">
+                <Property key="CanvasSize" value="590 107"/>
+                <Property key="CanvasAlign" value="Left Top"/>
+                <Property key="VisibleHScroll" value="false"/>
+            </Widget>
+        </Widget>
+        <Widget type="Widget" skin="PanelEmpty" position="0 158 347 194" align="Left Bottom">
+            <Widget type="Button" skin="Button" position="2 2 128 24" name="addConnection">
+                <Property key="Caption" value="Add Connection"/>
+            </Widget>
+            <Widget type="ScrollView" skin="ScrollView" position="2 28 343 160" name="connections">
+                <Property key="CanvasSize" value="335 147"/>
+                <Property key="CanvasAlign" value="Left Top"/>
+                <Property key="VisibleHScroll" value="false"/>
+            </Widget>
+        </Widget>
+        <Widget type="Button" skin="Button" position="512 305 90 48" align="Right Bottom" name="preview">
+            <Property key="Caption" value="Preview"/>
+        </Widget>
+        <Widget type="TextBox" skin="TextBox" position="350 158 250 120" align="Right Bottom">
+            <Property key="Caption" value="- Press &apos;Return&apos; after naming a new \nModule to select the Mesh and the \nAdapter.\n- Make sure that the used Adapters\nare created/loaded.\n- Connections are created &apos;from&apos; leaf\n&apos;to&apos; root."/>
+            <Property key="TextAlign" value="Left Top"/>
+        </Widget>
+        <Widget type="Button" skin="Button" position="350 305 64 24" align="Right Bottom" name="load">
+            <Property key="Caption" value="Load GO"/>
+        </Widget>
+        <Widget type="Button" skin="Button" position="350 329 64 24" align="Right Bottom" name="save">
+            <Property key="Caption" value="Save GO"/>
+        </Widget>
+        <Widget type="Button" skin="Button" position="435 305 55 24" align="Right Bottom" name="clear">
+            <Property key="Caption" value="Clear"/>
+        </Widget>
+        <Widget type="Button" skin="CheckBox" position="350 282 105 24" align="Right Bottom" name="update">
+            <Property key="Caption" value="Autoupdate"/>
+        </Widget>
+    </Widget>
+</MyGUI>

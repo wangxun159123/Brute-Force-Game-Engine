@@ -35,6 +35,8 @@ struct FileInfo
 	mFileName(name),
 	mFolder(folder)
 	{}
+	
+	bool operator < (const FileInfo& rhs) const;
 
 	std::string mFileName;
 	std::string mFolder;
@@ -48,18 +50,29 @@ public:
 	typedef MyGUI::delegates::CDelegate1<bool> EventHandle_Result;
 
 public:
-	OpenSaveDialog();
+	OpenSaveDialog(bool sort = true);
 
 	void setDialogInfo(const std::string& caption,
 	                   const std::string& button,
-					   MyGUI::delegates::IDelegate1<MyGUI::Widget*>* clickHandler);
+	                   MyGUI::delegates::IDelegate1<MyGUI::Widget*>* clickHandler);
 
 	const std::string& getCurrentFolder() {return mCurrentFolder;}
 
 	const std::string& getFileName() const {return mFileName;}
 
-	void setVisible(bool value) {mWindow->setVisible(value);}
-	bool isVisible() {return mWindow->isVisible();}
+	void setRestrictions(const std::string& startFolder,
+	                     bool onlyThisFolder,
+	                     const std::string& extension);
+
+	void clearRestrictions();
+
+	void setVisible(bool value)
+	{
+		mWindow->setVisible(value);
+		if (value)
+			update();
+	}
+	bool isVisible() {return mWindow->getVisible();}
 
 	EventHandle_Result eventEndDialog;
 
@@ -67,22 +80,25 @@ private:
 	void fillInfoVector(FileInfoVectorT& folders,
 	                    FileInfoVectorT& files);
 
-	void notifyListChangePosition(MyGUI::List* sender, size_t index);
-	void notifyListSelectAccept(MyGUI::List* sender, size_t index);
-	void notifyEditSelectAccept(MyGUI::Edit* sender);
-	void notifyEditTextChanged(MyGUI::Edit* sender);
+	void notifyListChangePosition(MyGUI::ListBox* sender, size_t index);
+	void notifyListSelectAccept(MyGUI::ListBox* sender, size_t index);
+	void notifyEditSelectAccept(MyGUI::EditBox* sender);
+	void notifyEditTextChanged(MyGUI::EditBox* sender);
 	void notifyWindowButtonPressed(MyGUI::Window* sender, const std::string& name);
 
 	void update();
 	void accept();
 
-private:
-	MyGUI::List* mFilesList;
-	MyGUI::Edit* mFileNameEdit;
-	MyGUI::Edit* mCurrentFolderEdit;
+	MyGUI::ListBox* mFilesList;
+	MyGUI::EditBox* mFileNameEdit;
+	MyGUI::EditBox* mCurrentFolderEdit;
 	MyGUI::Button* mOpenSaveButton;
 	MyGUI::Window* mWindow;
 	MyGUI::VectorWidgetPtr mContainer;
+
+	std::string mExtension;
+	bool mOnlyThisFolder;
+	bool mSort;
 
 	std::string mCurrentFolder;
 	std::string mFileName;

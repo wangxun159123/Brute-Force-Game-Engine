@@ -130,18 +130,6 @@
     </vip>
   </action>
 
-  <action id = "A_KEY_PRESSED">
-    <vip type = "VIP_CLICK">
-      <special button = "KB_ANY" filter = "BS_Pressed" />
-    </vip>
-  </action>
-
-  <action id = "A_KEY_RELEASED">
-    <vip type = "VIP_CLICK">
-      <special button = "KB_ANY" filter = "BS_Released" />
-    </vip>
-  </action>
-
   <action id = "A_INFO_WINDOW">
     <vip type = "VIP_CLICK">
       <special button = "KB_i" />
