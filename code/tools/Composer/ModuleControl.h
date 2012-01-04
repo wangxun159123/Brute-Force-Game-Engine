@@ -80,8 +80,16 @@ private:
 	void onAddConnectionClicked(MyGUI::Widget*);
 	void onCloseConnectionClicked(MyGUI::Widget* sender);
 
+	void onLoadClicked(MyGUI::Widget*);
+	void onLoadOk(MyGUI::Widget*);
+
 	void onSaveClicked(MyGUI::Widget*);
+	void onSaveOk(MyGUI::Widget*);
+
+	void onClearClicked(MyGUI::Widget*);
 	void onPreviewClicked(MyGUI::Widget*);
+
+	void onUpdateClicked(MyGUI::Widget*);
 
 	void destroyGameObject();
 
@@ -89,14 +97,13 @@ private:
 	void createRoot(const std::string& name);
 	void addModuleTo(const std::string& parentName);
 	Module* findModule(const std::string& name);
+
 	void addXmlModule(TiXmlElement* xmlElement, const Module* module, const Connection* connection);
 	void addXmlConnectedModules(TiXmlElement* xmlElement, const std::string& rootName);
-	void onSaveOk(MyGUI::Widget*);
-	void onLoadClicked(MyGUI::Widget*);
-	void onLoadOk(MyGUI::Widget*);
-	void onClearClicked(MyGUI::Widget*);
-	void onUpdateClicked(MyGUI::Widget*);
+
 	void reAttach();
+	void clearFields();
+	void clearGO();
 
 	EventLoop* mLoop;
 	boost::shared_ptr<SharedData> mData;
@@ -109,12 +116,12 @@ private:
 
 	MyGUI::Button* mLoad;
 	MyGUI::Button* mSave;
-	MyGUI::Button* mAppend;
 	MyGUI::Button* mClear;
 	MyGUI::Button* mPreview;
 	MyGUI::Button* mUpdate;
 
-	std::map<std::string, BFG::GameHandle> mModuleMap;
+	typedef	std::map<std::string, BFG::GameHandle> ModuleMapT;
+	ModuleMapT mModuleMap;
 
 	OpenSaveDialog mDialog;
 

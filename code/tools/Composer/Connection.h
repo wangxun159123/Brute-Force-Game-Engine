@@ -87,8 +87,12 @@ public:
 		for (; modIt != mModules.end(); ++modIt)
 		{
 			Module* module = (*modIt);
-			mFrom->addItem(module->mName->getCaption());
-			mTo->addItem(module->mName->getCaption());
+			std::string name(module->mName->getCaption());
+			if (name != "")
+			{
+				mFrom->addItem(module->mName->getCaption());
+				mTo->addItem(module->mName->getCaption());
+			}
 		}
 	}
 

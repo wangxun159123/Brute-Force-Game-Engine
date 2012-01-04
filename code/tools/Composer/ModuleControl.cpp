@@ -117,6 +117,24 @@ namespace Tool
 		mActive = false;
 	}
 
+	void ModuleControl::toolEventHandler(Event* te)
+	{
+
+		switch(te->getId())
+		{
+		case A_UPDATE_ADAPTER:
+			{
+				if (!mUpdate->getStateSelected())
+					return;
+
+				if (!mActivePreview)
+					return;
+
+				reAttach();
+			}
+		}
+	}
+
 	void ModuleControl::onAddModuleClicked(MyGUI::Widget*)
 	{
 		mData->mModules.push_back(new Module
@@ -175,6 +193,130 @@ namespace Tool
 		}
 	}
 
+	void ModuleControl::onLoadClicked(MyGUI::Widget*)
+	{
+		BFG::Path p;
+
+		mDialog.setDialogInfo
+		(
+			"Load GameObject",
+			"Load",
+			MyGUI::newDelegate(this, &ModuleControl::onLoadOk)
+		);
+
+		mDialog.setRestrictions
+		(
+			"",
+			false,
+			".xml"
+		);
+
+		mDialog.setVisible(true);
+	}
+
+	void ModuleControl::onLoadOk(MyGUI::Widget*)
+	{
+		onClearClicked(NULL);
+
+		std::string filename(mDialog.getFileName());
+		TiXmlDocument doc(filename);
+
+		if (!doc.LoadFile())
+		{
+			throw std::runtime_error("Could not load " + filename);
+		}
+
+		TiXmlElement* objectConfigs = doc.FirstChildElement(OBJECTS);
+		TiXmlElement* objectConfig = objectConfigs->FirstChildElement(OBJECT);
+		for (; objectConfig != NULL; objectConfig = objectConfig->NextSiblingElement(OBJECT))
+		{
+			TiXmlElement* module = objectConfig->FirstChildElement(MODULE);
+			for (; module != NULL; module = module->NextSiblingElement(MODULE))
+			{
+				Module* mod = new Module
+				(
+					mModules,
+					mData->mAdapters,
+					MyGUI::newDelegate(this, &ModuleControl::onCloseModuleClicked)
+				);
+				mData->mModules.push_back(mod);
+
+				mod->fromXml(module);
+			}
+
+			module = objectConfig->FirstChildElement(MODULE);
+			for (; module != NULL; module = module->NextSiblingElement(MODULE))
+			{
+				std::string connection(*module->Attribute(CONNECTION));
+				if (connection != "")
+				{
+					Connection* con = new Connection
+					(
+						mConnections,
+						mData->mModules,
+						mData->mAdapters,
+						MyGUI::newDelegate(this, &ModuleControl::onCloseConnectionClicked)
+					);
+					mData->mConnections.push_back(con);
+
+					con->fromXml(module);
+				}
+			}
+		}
+		mDialog.setVisible(false);
+	}
+
+	void ModuleControl::onSaveClicked(MyGUI::Widget*)
+	{
+		BFG::Path p;
+
+		mDialog.setDialogInfo
+		(
+			"Save GameObject",
+			"Save",
+			MyGUI::newDelegate(this, &ModuleControl::onSaveOk)
+		);
+
+		mDialog.setRestrictions
+		(
+			"",
+			false,
+			".xml"
+		);
+
+		mDialog.setVisible(true);
+	}
+
+	void ModuleControl::onSaveOk(MyGUI::Widget*)
+	{
+		TiXmlDocument document;
+		TiXmlDeclaration* declaration = new TiXmlDeclaration("1.0", "utf-8", "" );
+		document.LinkEndChild(declaration);
+
+		TiXmlElement* objectConfigs = new TiXmlElement(OBJECTS);
+		document.LinkEndChild(objectConfigs);
+
+		TiXmlElement* objectConfig = new TiXmlElement(OBJECT);
+		objectConfigs->LinkEndChild(objectConfig);
+		// \Todo add an editBox to set the name of the whole GameObject
+		objectConfig->SetAttribute("name", "ToBeImplemented");
+
+		std::string rootName(findRootModule());
+		
+		addXmlModule(objectConfig, findModule(rootName), NULL);
+
+		addXmlConnectedModules(objectConfig, rootName);
+
+		document.SaveFile(mDialog.getFileName());
+		mDialog.setVisible(false);
+	}
+
+	void ModuleControl::onClearClicked(MyGUI::Widget*)
+	{
+		clearFields();
+		clearGO();
+	}
+
 	void ModuleControl::onPreviewClicked( MyGUI::Widget* )
 	{
 		std::string rootModule(findRootModule());
@@ -189,25 +331,45 @@ namespace Tool
 		mActivePreview = true;
 	}
 
+	void ModuleControl::onUpdateClicked(MyGUI::Widget*)
+	{
+		mUpdate->setStateSelected(!mUpdate->getStateSelected());
+	}
+
 	void ModuleControl::destroyGameObject()
 	{
 		if (mData->mGameObject)
 			delete mData->mGameObject;
 	}
 
-	Module* ModuleControl::findModule(const std::string& name)
+	std::string ModuleControl::findRootModule()
 	{
-		SharedData::ModulesT::iterator modIt = mData->mModules.begin();
-		for (; modIt != mData->mModules.end(); ++modIt)
+		if (mData->mConnections.empty())
+			return "";
+
+		std::set<std::string> possibleRoots;
+		Connection* conn = NULL;
+		SharedData::ConnectionsT::iterator conIt = mData->mConnections.begin();
+		for (; conIt != mData->mConnections.end(); ++conIt)
 		{
-			if ((*modIt)->mName->getCaption() == name)
-				break;
+			conn = (*conIt);
+			possibleRoots.insert(conn->mTo->getItemNameAt(conn->mTo->getIndexSelected()));
 		}
 
-		if (modIt == mData->mModules.end())
-			throw std::runtime_error("Module not found");
+		conIt = mData->mConnections.begin();
+		for (; conIt != mData->mConnections.end(); ++conIt)
+		{
+			conn = (*conIt);
+			std::string fromStr(conn->mFrom->getItemNameAt(conn->mFrom->getIndexSelected()));
+			possibleRoots.erase(fromStr);
+		}
 
-		return (*modIt);
+		if (possibleRoots.size() > 1)
+		{
+			throw std::runtime_error("More than one possible roots");
+		}
+
+		return (*possibleRoots.begin());
 	}
 
 	void ModuleControl::createRoot(const std::string& name)
@@ -303,34 +465,19 @@ namespace Tool
 		}
 	}
 
-	std::string ModuleControl::findRootModule()
+	Module* ModuleControl::findModule(const std::string& name)
 	{
-		if (mData->mConnections.empty())
-			return "";
-
-		std::set<std::string> possibleRoots;
-		Connection* conn = NULL;
-		SharedData::ConnectionsT::iterator conIt = mData->mConnections.begin();
-		for (; conIt != mData->mConnections.end(); ++conIt)
+		SharedData::ModulesT::iterator modIt = mData->mModules.begin();
+		for (; modIt != mData->mModules.end(); ++modIt)
 		{
-			conn = (*conIt);
-			possibleRoots.insert(conn->mTo->getItemNameAt(conn->mTo->getIndexSelected()));
+			if ((*modIt)->mName->getCaption() == name)
+				break;
 		}
 
-		conIt = mData->mConnections.begin();
-		for (; conIt != mData->mConnections.end(); ++conIt)
-		{
-			conn = (*conIt);
-			std::string fromStr(conn->mFrom->getItemNameAt(conn->mFrom->getIndexSelected()));
-			possibleRoots.erase(fromStr);
-		}
+		if (modIt == mData->mModules.end())
+			throw std::runtime_error("Module not found");
 
-		if (possibleRoots.size() > 1)
-		{
-			throw std::runtime_error("More than one possible roots");
-		}
-
-		return (*possibleRoots.begin());
+		return (*modIt);
 	}
 
 	void ModuleControl::addXmlModule(TiXmlElement* xmlElement,
@@ -379,128 +526,15 @@ namespace Tool
 		}
 	}
 
-	void ModuleControl::onSaveClicked(MyGUI::Widget*)
+	void ModuleControl::reAttach()
 	{
-		BFG::Path p;
+		clearGO();
 
-		mDialog.setDialogInfo
-		(
-			"Save GameObject",
-			"Save",
-			MyGUI::newDelegate(this, &ModuleControl::onSaveOk)
-		);
-
-		mDialog.setRestrictions
-		(
-			"",
-			false,
-			".xml"
-		);
-
-		mDialog.setVisible(true);
+		onPreviewClicked(NULL);
 	}
 
-	void ModuleControl::onSaveOk(MyGUI::Widget*)
+	void ModuleControl::clearFields()
 	{
-		TiXmlDocument document;
-		TiXmlDeclaration* declaration = new TiXmlDeclaration("1.0", "utf-8", "" );
-		document.LinkEndChild(declaration);
-
-		TiXmlElement* objectConfigs = new TiXmlElement(OBJECTS);
-		document.LinkEndChild(objectConfigs);
-
-		TiXmlElement* objectConfig = new TiXmlElement(OBJECT);
-		objectConfigs->LinkEndChild(objectConfig);
-		// \Todo add an editBox to set the name of the whole GameObject
-		objectConfig->SetAttribute("name", "ToBeImplemented");
-
-		std::string rootName(findRootModule());
-		
-		addXmlModule(objectConfig, findModule(rootName), NULL);
-
-		addXmlConnectedModules(objectConfig, rootName);
-
-		document.SaveFile(mDialog.getFileName());
-		mDialog.setVisible(false);
-	}
-
-	void ModuleControl::onLoadClicked(MyGUI::Widget*)
-	{
-		BFG::Path p;
-
-		mDialog.setDialogInfo
-		(
-			"Load GameObject",
-			"Load",
-			MyGUI::newDelegate(this, &ModuleControl::onLoadOk)
-		);
-
-		mDialog.setRestrictions
-		(
-			"",
-			false,
-			".xml"
-		);
-
-		mDialog.setVisible(true);
-	}
-
-	void ModuleControl::onLoadOk(MyGUI::Widget*)
-	{
-		onClearClicked(NULL);
-
-		std::string filename(mDialog.getFileName());
-		TiXmlDocument doc(filename);
-
-		if (!doc.LoadFile())
-		{
-			throw std::runtime_error("Could not load " + filename);
-		}
-
-		TiXmlElement* objectConfigs = doc.FirstChildElement(OBJECTS);
-		TiXmlElement* objectConfig = objectConfigs->FirstChildElement(OBJECT);
-		for (; objectConfig != NULL; objectConfig = objectConfig->NextSiblingElement(OBJECT))
-		{
-			TiXmlElement* module = objectConfig->FirstChildElement(MODULE);
-			for (; module != NULL; module = module->NextSiblingElement(MODULE))
-			{
-				Module* mod = new Module
-				(
-					mModules,
-					mData->mAdapters,
-					MyGUI::newDelegate(this, &ModuleControl::onCloseModuleClicked)
-				);
-				mData->mModules.push_back(mod);
-
-				mod->fromXml(module);
-			}
-
-			module = objectConfig->FirstChildElement(MODULE);
-			for (; module != NULL; module = module->NextSiblingElement(MODULE))
-			{
-				std::string connection(*module->Attribute(CONNECTION));
-				if (connection != "")
-				{
-					Connection* con = new Connection
-					(
-						mConnections,
-						mData->mModules,
-						mData->mAdapters,
-						MyGUI::newDelegate(this, &ModuleControl::onCloseConnectionClicked)
-					);
-					mData->mConnections.push_back(con);
-
-					con->fromXml(module);
-				}
-			}
-		}
-		mDialog.setVisible(false);
-	}
-
-	void ModuleControl::onClearClicked(MyGUI::Widget*)
-	{
-		mModuleMap.clear();
-
 		SharedData::ModulesT::iterator modIt = mData->mModules.begin();
 		for (; modIt != mData->mModules.end(); ++modIt)
 		{
@@ -515,25 +549,9 @@ namespace Tool
 		}
 		mData->mConnections.clear();
 
-		if (mData->mGameObject)
-		{
-			delete mData->mGameObject;
-			mData->mGameObject = NULL;
-		}
-
-		mData->mRenderObjects.clear();
-		mData->mRootMesh = NULL_HANDLE;
-		mData->mActiveMesh = NULL_HANDLE;
-
-		mActivePreview = false;
 	}
 
-	void ModuleControl::onUpdateClicked(MyGUI::Widget*)
-	{
-		mUpdate->setStateSelected(!mUpdate->getStateSelected());
-	}
-
-	void ModuleControl::reAttach()
+	void ModuleControl::clearGO()
 	{
 		mModuleMap.clear();
 
@@ -548,26 +566,6 @@ namespace Tool
 		mData->mActiveMesh = NULL_HANDLE;
 
 		mActivePreview = false;
-
-		onPreviewClicked(NULL);
-	}
-
-	void ModuleControl::toolEventHandler(Event* te)
-	{
-
-		switch(te->getId())
-		{
-		case A_UPDATE_ADAPTER:
-		{
-			if (!mUpdate->getStateSelected())
-				return;
-
-			if (!mActivePreview)
-				return;
-			
-			reAttach();
-		}
-		}
 	}
 
 } // namespace Tool
