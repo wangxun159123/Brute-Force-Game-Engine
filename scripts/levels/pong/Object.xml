@@ -5,7 +5,7 @@
   <ObjectConfig name="Pong Ball">
     <Module
       name="Root"
-      mesh="cube.mesh"
+      mesh="Cube.mesh"
       concepts="PongBallConcept"
       collision="CM_Standard"
       visible="yes"

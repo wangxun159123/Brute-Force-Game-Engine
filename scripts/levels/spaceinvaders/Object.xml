@@ -57,7 +57,7 @@
   <ObjectConfig name="Powerup">
     <Module
       name="Root"
-      mesh="cube.mesh"
+      mesh="Cube.mesh"
       connection=""
       adapters="Empty"
       concepts="PowerupConcept"
