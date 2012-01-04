@@ -75,4 +75,15 @@ completed successfully you can simply run:
 
 With KDevelop it's even easier, simply open CMakeLists.txt.
 
+Resources
+=========
+
+It's possible to use the engine without media, but we wouldn't recommend this.
+A simple media (resources) package to begin with can be downloaded at:
+
+	https://github.com/wITTus/Brute-Force-Game-Engine/downloads
+
+Extract the content right into this directory. You should have a "resources"
+directory then, in the same directory along with "code" and "thirdparty".
+
 Have fun.
