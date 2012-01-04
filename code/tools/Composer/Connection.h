@@ -172,30 +172,7 @@ private:
 	{
 		if (index != MyGUI::ITEM_NONE)
 		{
-			std::string moduleName(sender->getItemNameAt(index));
-
-			Module* module = NULL;
-			std::vector<Module*>::iterator modIt = mModules.begin();
-			for (; modIt != mModules.end(); ++modIt)
-			{
-				module = (*modIt);
-				std::string modName(module->mName->getCaption());
-				if (modName == moduleName)
-					break;
-			}
-
-			if (modIt != mModules.end())
-			{
-				size_t adapIndex = module->mAdapter->getIndexSelected();
-				std::string adapName(module->mAdapter->getItemNameAt(adapIndex));
-				std::vector<BFG::Adapter> & adapter = mAdapters[adapName];
-				std::vector<BFG::Adapter>::iterator adapIt = adapter.begin();
-				for (; adapIt != adapter.end(); ++adapIt)
-				{
-					mFromAdapter->addItem(MyGUI::utility::toString((*adapIt).mIdentifier));
-				}
-				mFromAdapter->setEnabled(true);
-			}
+			addAdapters(sender, index, mFromAdapter);
 		}
 	}
 
@@ -203,30 +180,7 @@ private:
 	{
 		if (index != MyGUI::ITEM_NONE)
 		{
-			std::string moduleName(sender->getItemNameAt(index));
-
-			Module* module = NULL;
-			std::vector<Module*>::iterator modIt = mModules.begin();
-			for (; modIt != mModules.end(); ++modIt)
-			{
-				module = (*modIt);
-				std::string modName(module->mName->getCaption());
-				if (modName == moduleName)
-					break;
-			}
-
-			if (modIt != mModules.end())
-			{
-				size_t adapIndex = module->mAdapter->getIndexSelected();
-				std::string adapName(module->mAdapter->getItemNameAt(adapIndex));
-				std::vector<BFG::Adapter> & adapter = mAdapters[adapName];
-				std::vector<BFG::Adapter>::iterator adapIt = adapter.begin();
-				for (; adapIt != adapter.end(); ++adapIt)
-				{
-					mToAdapter->addItem(MyGUI::utility::toString((*adapIt).mIdentifier));
-				}
-				mToAdapter->setEnabled(true);
-			}
+			addAdapters(sender, index, mToAdapter);
 		}
 	}
 
@@ -242,6 +196,36 @@ private:
 	{
 		if (index != MyGUI::ITEM_NONE)
 		{
+		}
+	}
+	
+	void addAdapters(MyGUI::ComboBox* sender,
+	                 size_t index,
+	                 MyGUI::ComboBox* adapters)
+	{
+		std::string moduleName(sender->getItemNameAt(index));
+
+		Module* module = NULL;
+		std::vector<Module*>::iterator modIt = mModules.begin();
+		for (; modIt != mModules.end(); ++modIt)
+		{
+			module = (*modIt);
+			std::string modName(module->mName->getCaption());
+			if (modName == moduleName)
+				break;
+		}
+
+		if (modIt != mModules.end())
+		{
+			size_t adapIndex = module->mAdapter->getIndexSelected();
+			std::string adapName(module->mAdapter->getItemNameAt(adapIndex));
+			std::vector<BFG::Adapter> & adapter = mAdapters[adapName];
+			std::vector<BFG::Adapter>::iterator adapIt = adapter.begin();
+			for (; adapIt != adapter.end(); ++adapIt)
+			{
+				adapters->addItem(MyGUI::utility::toString((*adapIt).mIdentifier));
+			}
+			adapters->setEnabled(true);
 		}
 	}
 
