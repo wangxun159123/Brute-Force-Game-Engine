@@ -33,7 +33,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 bool FileInfo::operator < (const FileInfo& rhs) const
 {
-	std::cout << mFileName << std::endl;
 	using boost::algorithm::to_lower_copy;
 	
 	if (mFileName.empty() && rhs.mFileName.empty())
