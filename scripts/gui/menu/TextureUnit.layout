@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout" version="3.2.0">
+    <Widget type="Widget" skin="PanelSkin" position="0 0 256 80">
+        <Widget type="TextBox" skin="TextBox" position="2 2 252 24" name="alias"/>
+        <Widget type="Button" skin="CheckBox" position="2 28 48 24" name="enabled">
+            <Property key="Caption" value="on"/>
+            <Property key="StateSelected" value="true"/>
+        </Widget>
+        <Widget type="EditBox" skin="EditBox" position="50 28 204 24" name="name"/>
+        <Widget type="TextBox" skin="TextBox" position="2 54 48 24">
+            <Property key="Caption" value="Bias:"/>
+            <Property key="TextAlign" value="Left VCenter"/>
+        </Widget>
+        <Widget type="EditBox" skin="EditBox" position="50 54 64 24" name="bias"/>
+    </Widget>
+</MyGUI>

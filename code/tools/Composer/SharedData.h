@@ -28,6 +28,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #define SHAREDDATA
 
 #include <boost/shared_ptr.hpp>
+#include <boost/tuple/tuple.hpp>
+#include <boost/tuple/tuple_comparison.hpp>
 
 #include <OgreSubEntity.h>
 
@@ -42,6 +44,12 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 struct SharedData
 {
+	struct TextureUnitChange
+	{
+		std::string mTextureName;
+		bool mEnabled;
+	};
+
 	BFG::GameHandle mState;
 	BFG::GameHandle mCamera;
 	BFG::GameHandle mActiveMesh;
@@ -70,6 +78,12 @@ struct SharedData
 	BFG::GameObject* mGameObject;
 
 	boost::shared_ptr<BFG::Environment> mEnvironment;
+
+	typedef boost::tuple<std::string, std::string> MaterialKeyT;
+	typedef boost::shared_ptr<SharedData::TextureUnitChange> TucPtrT;
+	typedef std::map<MaterialKeyT, TucPtrT> ChangeMapT;
+
+	ChangeMapT mTextureChanges;
 
 	SharedData() :
 	mState(NULL_HANDLE),

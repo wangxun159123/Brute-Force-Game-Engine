@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout" version="3.2.0">
+    <Widget type="Window" skin="WindowC" position="90 55 276 355" layer="Menu">
+        <Widget type="ScrollView" skin="ScrollView" position="0 0 270 319" align="Stretch" name="itemBox">
+            <Property key="CanvasSize" value="256 319"/>
+            <Property key="CanvasAlign" value="Left Top"/>
+            <Property key="VisibleHScroll" value="false"/>
+        </Widget>
+    </Widget>
+</MyGUI>

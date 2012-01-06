@@ -61,6 +61,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <ModuleControl.h>
 #include <SkyBoxSelect.h>
 #include <SubEntitySelect.h>
+#include <TextureControl.h>
 
 using namespace BFG;
 using namespace boost::units;
@@ -157,6 +158,8 @@ public:
 		mLoadedFeatures.push_back(new Tool::ModuleControl(loop, mData));
 
 		mLoadedFeatures.push_back(new Tool::AnimationControl(loop, mData));
+
+		mLoadedFeatures.push_back(new Tool::TextureControl(mData));
 
 		onUpdateFeatures();
 	}
