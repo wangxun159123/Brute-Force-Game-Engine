@@ -53,6 +53,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Event.h>
 
 #include <AdapterControl.h>
+#include <AnimationControl.h>
 #include <CameraControl.h>
 #include <LightControl.h>
 #include <MaterialChange.h>
@@ -154,6 +155,8 @@ public:
 		mLoadedFeatures.push_back(new Tool::AdapterControl(loop, mData));
 
 		mLoadedFeatures.push_back(new Tool::ModuleControl(loop, mData));
+
+		mLoadedFeatures.push_back(new Tool::AnimationControl(loop, mData));
 
 		onUpdateFeatures();
 	}

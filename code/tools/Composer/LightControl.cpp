@@ -156,6 +156,9 @@ void LightControl::unload()
 
 void LightControl::activate()
 {
+	if (!mLoaded)
+		load();
+
 	MyGUI::VectorWidgetPtr::iterator it = mContainer.begin();
 	for (; it != mContainer.end(); ++it)
 	{

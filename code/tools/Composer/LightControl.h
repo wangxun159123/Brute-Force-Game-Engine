@@ -48,6 +48,11 @@ public:
 	{
 	}
 
+	virtual ~LightControl()
+	{
+		unload();
+	}
+
 	virtual void load();
 	virtual void unload();
 
@@ -56,8 +61,6 @@ public:
 
 	virtual void eventHandler(BFG::Controller_::VipEvent* ve)
 	{
-		if (mLoaded)
-			unload();
 	}
 
 private:
