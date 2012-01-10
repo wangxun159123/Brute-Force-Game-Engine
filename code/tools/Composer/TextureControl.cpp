@@ -35,12 +35,20 @@ namespace Tool
 
 void TextureControl::load()
 {
-	MyGUI::LayoutManager* layMan = MyGUI::LayoutManager::getInstancePtr();
+	using namespace MyGUI;
+
+	LayoutManager* layMan = LayoutManager::getInstancePtr();
 	mContainer = layMan->loadLayout("Texture.layout");
 
-	MyGUI::Widget* window = mContainer.front();
+	if (mContainer.size() == 0)
+		throw std::runtime_error("Texture.layout loaded incorrectly!");
+		
+	Window* window = mContainer.front()->castType<Window>();
 
-	mTextureUnitBox = window->findWidget("itemBox")->castType<MyGUI::ScrollView>();
+	window->eventWindowButtonPressed +=
+		newDelegate(this, &TextureControl::onCloseClicked);
+
+	mTextureUnitBox = window->findWidget("itemBox")->castType<ScrollView>();
 
 	mLoaded = true;
 
@@ -142,6 +150,12 @@ void TextureControl::deactivate()
 void TextureControl::update(const Ogre::FrameEvent& evt)
 {
 	checkForChanges();
+}
+
+void TextureControl::onCloseClicked(MyGUI::Window*, const std::string& button)
+{
+	if (button == "close")
+		deactivate();
 }
 
 void TextureControl::checkForChanges()

@@ -43,28 +43,35 @@ void AnimationControl::load()
 	if (mLoaded)
 		return;
 
+	using namespace MyGUI;
 
-	MyGUI::LayoutManager* layMan = MyGUI::LayoutManager::getInstancePtr();
+	LayoutManager* layMan = LayoutManager::getInstancePtr();
 	mContainer = layMan->loadLayout("Animation.layout");
 
-	MyGUI::Widget* window = mContainer.front();
+	if (mContainer.size() == 0)
+		throw std::runtime_error("Animation.layout loaded incorrectly!");
 
-	mStates = window->findWidget("animStates")->castType<MyGUI::ComboBox>();
-	mSlider = window->findWidget("animSlider")->castType<MyGUI::ScrollBar>();
-	mPlay = window->findWidget("bPlay")->castType<MyGUI::Button>();
-	mPause = window->findWidget("bPause")->castType<MyGUI::Button>();
-	mStop = window->findWidget("bStop")->castType<MyGUI::Button>();
+	Window* window = mContainer.front()->castType<Window>();
+
+	window->eventWindowButtonPressed +=
+		newDelegate(this, &AnimationControl::onCloseClicked);
+
+	mStates = window->findWidget("animStates")->castType<ComboBox>();
+	mSlider = window->findWidget("animSlider")->castType<ScrollBar>();
+	mPlay = window->findWidget("bPlay")->castType<Button>();
+	mPause = window->findWidget("bPause")->castType<Button>();
+	mStop = window->findWidget("bStop")->castType<Button>();
 
 	mStates->eventComboChangePosition += 
-		MyGUI::newDelegate(this, &AnimationControl::onAnimationSelected);
+		newDelegate(this, &AnimationControl::onAnimationSelected);
 	mSlider->eventScrollChangePosition += 
-		MyGUI::newDelegate(this, &AnimationControl::onChangeSliderPosition);
+		newDelegate(this, &AnimationControl::onChangeSliderPosition);
 	mPlay->eventMouseButtonClick += 
-		MyGUI::newDelegate(this, &AnimationControl::onPlayPressed);
+		newDelegate(this, &AnimationControl::onPlayPressed);
 	mPause->eventMouseButtonClick += 
-		MyGUI::newDelegate(this, &AnimationControl::onPausePressed);
+		newDelegate(this, &AnimationControl::onPausePressed);
 	mStop->eventMouseButtonClick += 
-		MyGUI::newDelegate(this, &AnimationControl::onStopPressed);
+		newDelegate(this, &AnimationControl::onStopPressed);
 
 	mLoaded = true;
 	deactivate();
@@ -172,6 +179,12 @@ void AnimationControl::update(const Ogre::FrameEvent& evt)
 	size_t sliderPos = (size_t)((sliderLength - 1) * (pos / length));
 
 	mSlider->setScrollPosition(sliderPos);
+}
+
+void AnimationControl::onCloseClicked(MyGUI::Window*, const std::string& button)
+{
+	if (button == "close")
+		deactivate();
 }
 
 void AnimationControl::onAnimationSelected(MyGUI::ComboBox* sender, size_t index)

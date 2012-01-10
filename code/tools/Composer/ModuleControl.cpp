@@ -47,6 +47,10 @@ namespace Tool
 
 		MyGUI::Widget* panel = mContainer.front();
 
+		MyGUI::Window* window = panel->castType<MyGUI::Window>();
+		window->eventWindowButtonPressed += 
+			MyGUI::newDelegate(this, &ModuleControl::onCloseClicked);
+
 		mAddModule = panel->findWidget("addModule")->castType<MyGUI::Button>();
 
 		mModules = panel->findWidget("modules")->castType<MyGUI::ScrollView>();
@@ -132,6 +136,14 @@ namespace Tool
 
 				reAttach();
 			}
+		}
+	}
+
+	void ModuleControl::onCloseClicked(MyGUI::Window*, const std::string& button)
+	{
+		if (button == "close")
+		{
+			deactivate();
 		}
 	}
 

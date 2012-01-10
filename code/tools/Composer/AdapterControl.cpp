@@ -55,7 +55,13 @@ void AdapterControl::load()
 	LayoutManager* layMan = LayoutManager::getInstancePtr();
 	mContainer = layMan->loadLayout("Adapter.layout");
 	
-	Widget* window = mContainer.front();
+	if (mContainer.size() == 0)
+		throw std::runtime_error("Adapter.layout loaded incorrectly!");
+
+	Window* window = mContainer.front()->castType<Window>();
+
+	window->eventWindowButtonPressed +=
+		MyGUI::newDelegate(this, &AdapterControl::onCloseClicked);
 	
 	// store elements
 	mGroupName = window->findWidget("newGroupEdit")->castType<EditBox>();
@@ -188,6 +194,12 @@ void AdapterControl::setVisible(bool visible)
 	{
 		(*it)->setVisible(visible);
 	}
+}
+
+void AdapterControl::onCloseClicked(MyGUI::Window*, const std::string& button)
+{
+	if (button == "close")
+		deactivate();
 }
 
 void AdapterControl::onPickClicked(MyGUI::Widget*)

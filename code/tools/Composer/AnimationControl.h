@@ -69,6 +69,8 @@ public:
 	virtual void update(const Ogre::FrameEvent& evt);
 private:
 
+	void onCloseClicked(MyGUI::Window*, const std::string& button);
+
 	void onAnimationSelected(MyGUI::ComboBox* sender, size_t index);
 	void onChangeSliderPosition(MyGUI::ScrollBar* sender, size_t newPos);
 	void onPlayPressed(MyGUI::Widget*);

@@ -334,7 +334,6 @@ void* SingleThreadEntryPoint(void *iPointer)
 		actions[A_ANIMATION] = "A_ANIMATION";
 		actions[A_ADAPTER] = "A_ADAPTER";
 
-		actions[A_MOUSE_MIDDLE_PRESSED] = "A_MOUSE_MIDDLE_PRESSED";
 		actions[A_UPDATE_FEATURES] = "A_UPDATE_FEATURES";
 
 		BFG::Controller_::fillWithDefaultActions(actions);	
@@ -384,7 +383,7 @@ void* SingleThreadEntryPoint(void *iPointer)
 		loop->connect(A_CAMERA_MOUSE_Z, vps, &ViewComposerState::controllerEventHandler);
 		loop->connect(A_CAMERA_MOUSE_MOVE, vps, &ViewComposerState::controllerEventHandler);
 
-		loop->connect(A_MOUSE_MIDDLE_PRESSED, vps, &ViewComposerState::controllerEventHandler);
+		loop->connect(BFG::ID::A_MOUSE_MIDDLE_PRESSED, vps, &ViewComposerState::controllerEventHandler);
 		loop->connect(BFG::ID::A_MOUSE_LEFT_PRESSED, vps, &ViewComposerState::controllerEventHandler);
 		loop->connect(BFG::ID::A_MOUSE_RIGHT_PRESSED, vps, &ViewComposerState::controllerEventHandler);
 
