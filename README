@@ -2,8 +2,8 @@ About
 =====
 
 The big strength of Brute-Force Game Engine lies in the combination of powerful open source
-third party libraries. Our target is to connect this libs and build new higher-level functionality on top of them, but we
-don't want to hide or wrap them.
+third party libraries. Our target is to connect this libs and build new higher-level 
+functionality on top of them, but we don't want to hide or wrap them.
 
 Out of this purpose, the engine allows direct control over several third party
 resources like e.g. OGRE, so that the user gains a lot of control and may use
@@ -11,9 +11,9 @@ many cool features, but he also has to master the burden of many dependencies
 which may soon become a maintainer's nightmare.
 
 The more dependencies a project has, the higher is the likelihood that it could break.
-It could constrain the future progress in features, could make interface changes or porting to other platforms
-difficult or even impossible. This is indeed one of the biggest problems
-we are dealing with. 
+It could constrain the future progress in features, could make interface changes or 
+porting to other platforms difficult or even impossible. This is indeed one of the 
+biggest problems we are dealing with. 
 
 We have the highest ambitions to build stable interfaces and robust source code, but
 if you want to use our engine, prepare yourself that your code will break from
