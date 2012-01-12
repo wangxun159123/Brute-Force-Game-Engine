@@ -25,7 +25,7 @@ Linux and Mac. We try to keep the first two always running, but Mac support
 has never been tested - We looking forward to find some motivated mac developers
 who will start to support this.
 
-Near in future there are two main goals:
+In near future we have two main goals:
 
 - Implementation of network
 - Stabilization of multi processor scalability
