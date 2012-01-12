@@ -27,7 +27,7 @@ who will start to support this.
 
 Near in future there are two main goals:
 
-- Implement network
+- Implementation of network
 - Stabilization of multi processor scalability
 
 The current state of these features is highly experimental.
