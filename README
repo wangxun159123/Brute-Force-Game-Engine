@@ -20,9 +20,9 @@ if you want to use our engine, prepare yourself that your code will break from
 time to time, because the engine is simply not done yet. We would never advice you to
 wrap our engine though, as this is entirely pointless.
 
-This engine was written with multi-platform support in mind, that is: Windows,
+This engine was written with multi-platform support in mind, that are: Windows,
 Linux and Mac. We try to keep the first two always running, but Mac support
-has never been tested - We looking forward to find some motivated mac developer
+has never been tested - We looking forward to find some motivated mac developers
 who will start to support this.
 
 Near in future there are two main goals:
