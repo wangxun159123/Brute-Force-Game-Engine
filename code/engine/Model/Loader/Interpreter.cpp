@@ -26,11 +26,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Model/Loader/Interpreter.h>
 
-// In order to make this work for Visual Studio 2008, we disabled (/Zc:wchar_t).
-// If you want to dig deeper into the problem, look out for
-// BOOST_REGEX_HAS_OTHER_WCHAR_T in <boost/regex/config.hpp> 
-#include <boost/regex.hpp>
-
 #include <boost/algorithm/string.hpp>
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
@@ -113,53 +108,6 @@ Property::Value StringToPropertyValue(const std::string& input)
 
 	result = stringToArray<128>(input);
 	return result;
-}
-
-void parseConnection(const std::string& input,
-                     Connection& connection)
-{
-	if (input.empty())
-		return;
-
-	static const std::string rgx(
-		"("
-			"[[:digit:]]+"
-		")"
-		"@"
-		"(?:"
-			"("
-				"[^:]+"
-			")"
-			":"
-		")?"
-		"("
-			"[^:]+"
-		")"
-		":"
-		"("
-			"[[:digit:]]+"
-		")"
-	);
-
-	// This is thread safe when BOOST_HAS_THREADS is defined.
-	static const boost::regex e(rgx);
-
-	boost::smatch what;
-	if (boost::regex_match(input, what, e))
-	{
-		connection.mConnectedLocalAt = boost::lexical_cast<u32>(what[1]);
-		connection.mConnectedExternToGameObject = what[2];
-		connection.mConnectedExternToModule = what[3];
-		connection.mConnectedExternAt = boost::lexical_cast<u32>(what[4]);
-	}
-	
-	// Check and return if good
-	if (connection.good())
-		return;
-
-	std::stringstream err;
-	err << "parseConnection: Unable to parse \"" << input << "\"!";
-	throw std::runtime_error(err.str());
 }
 
 Interpreter::Interpreter(const Property::PluginMapT& pm) :

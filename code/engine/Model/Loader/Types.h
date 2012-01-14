@@ -34,6 +34,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Core/Location.h>
 #include <Core/Types.h>
+#include <Model/Loader/Connection.h>
 #include <Model/Property/Value.h>
 #include <Model/Property/ValueId.h>
 #include <Model/Property/ConceptId.h>
@@ -88,23 +89,6 @@ struct SectorDraft
 	boost::shared_ptr<TagWithAttributesT> mSkybox;
 	boost::shared_ptr<ManyTagsT>          mLights;
 	boost::shared_ptr<ManyTagsT>          mPlaylist;
-};
-
-struct Connection
-{
-	Connection() : mConnectedLocalAt(0), mConnectedExternAt(0) {}
-
-	bool good() const
-	{
-		return ! mConnectedExternToModule.empty() &&
-			mConnectedExternAt > 0 &&
-			mConnectedLocalAt > 0;
-	}
-
-	u32 mConnectedLocalAt;
-	std::string mConnectedExternToGameObject;
-	std::string mConnectedExternToModule;
-	u32 mConnectedExternAt;
 };
 
 struct ValueParameter

@@ -214,7 +214,7 @@ typedef vector3<BFG::f32> v3;
 template <typename T>
 std::ostream& operator << (std::ostream& lhs, const vector3<T>& rhs)
 {
-	lhs << boost::geometry::dsv(rhs);
+	lhs << rhs.x << " " << rhs.y << " " << rhs.z;
 	return lhs;
 }
 
