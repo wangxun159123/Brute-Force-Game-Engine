@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Sector name = "War Field">
+	<ObjectList>
+		<Object name="First one" type="T1" position="0 0 0" orientation="1, 0, 0, 0" linear_velocity="1 0 0" angular_velocity="0 0 0" connection="1@Other Object:Other Module:5" />
+		<Object name="Second one" type="T2" position="0 1 0" orientation="0, 1, 0, 0" linear_velocity="0 0 -1" angular_velocity="0 -1 0" />
+	</ObjectList>
+</Sector>

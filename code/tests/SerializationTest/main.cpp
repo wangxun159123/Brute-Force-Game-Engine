@@ -15,7 +15,7 @@ int main() try
 
 	// Find the test file
 	BFG::Path p;
-	std::string fullFilePath = p.Expand("SectorTest2.xml");
+	std::string fullFilePath = p.Expand("SerializationTest.xml");
 	infolog << "Full File Path: " << fullFilePath;
 
 	// Open the test file
