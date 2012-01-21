@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.6)
 
 INCLUDE(USE)
 
-USE_INIT_PACKAGE(ObjectSerialization "0.3.0")
+USE_INIT_PACKAGE(SerializationTest "0.3.0")
 
 FILE(GLOB SOURCES
 	*.cpp
@@ -23,9 +23,9 @@ INCLUDE_DIRECTORIES(.)	# For subdirectories
 
 ADD_DEFINITIONS(-DTIXML_USE_STL)
 
-ADD_EXECUTABLE(ObjectSerialization ${SOURCES} ${HEADERS})
+ADD_EXECUTABLE(SerializationTest ${SOURCES} ${HEADERS})
 
-TARGET_LINK_LIBRARIES(ObjectSerialization
+TARGET_LINK_LIBRARIES(SerializationTest
 	Base
 	Core
 	EventCore
@@ -36,6 +36,6 @@ TARGET_LINK_LIBRARIES(ObjectSerialization
 	${OGRE_LIBRARIES}
 )
 
-INSTALL(TARGETS ObjectSerialization
+INSTALL(TARGETS SerializationTest
 		RUNTIME DESTINATION ${USE_BIN_DIR}
-		COMPONENT runtime)
+	COMPONENT runtime)

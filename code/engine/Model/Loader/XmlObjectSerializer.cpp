@@ -33,6 +33,11 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace BFG {
 namespace Loader {
 
+namespace Elements
+{
+	const std::string Object("Object");
+}
+
 namespace Attributes
 {
 	const std::string name("name");
@@ -44,23 +49,18 @@ namespace Attributes
 	const std::string connection("connection");
 }
 
-namespace Elements
-{
-	const std::string Object("Object");
-}
-	
 XmlObjectSerializer::XmlObjectSerializer(TiXmlElement* objectCollection) :
 mCollectionOrigin(objectCollection)
 {
 }
 
-void XmlObjectSerializer::read(ObjectParameterMapT& objects)
+void XmlObjectSerializer::read(ObjectParameter::MapT& objects)
 {
 	TiXmlElement* collectionOrigin = mCollectionOrigin->Clone()->ToElement();
 	readCollection(collectionOrigin, objects);
 }
 
-void XmlObjectSerializer::write(const ObjectParameterMapT& objects)
+void XmlObjectSerializer::write(const ObjectParameter::MapT& objects)
 {
 	if (objects.empty())
 		return;
@@ -68,10 +68,10 @@ void XmlObjectSerializer::write(const ObjectParameterMapT& objects)
 	writeCollection(objects, mCollectionOrigin);
 }
 
-void XmlObjectSerializer::writeCollection(const ObjectParameterMapT& objects,
+void XmlObjectSerializer::writeCollection(const ObjectParameter::MapT& objects,
                                           TiXmlElement* result)
 {
-	ObjectParameterMapT::const_iterator it = objects.begin();
+	ObjectParameter::MapT::const_iterator it = objects.begin();
 	for (; it != objects.end(); ++it)
 	{
 		writeOne(it->second, result);
@@ -109,7 +109,7 @@ void XmlObjectSerializer::writeOne(const ObjectParameter& op,
 
 
 void XmlObjectSerializer::readCollection(TiXmlElement* objectCollection,
-                                         ObjectParameterMapT& result) const
+                                         ObjectParameter::MapT& result) const
 {
 	TiXmlElement* next = objectCollection->FirstChildElement();
 	while (next)

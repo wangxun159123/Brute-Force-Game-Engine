@@ -24,42 +24,48 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LOADER_XML_OBJECT_SERIALIZER_H_
-#define LOADER_XML_OBJECT_SERIALIZER_H
+#include <Model/Loader/XmlSectorSerializer.h>
 
-#include <Model/Loader/Types.h>
-#include <Model/Loader/ObjectSerializer.h>
-
-class TiXmlElement;
+#include <tinyxml.h>
+#include <Base/CLogger.h>
+#include <Model/Loader/XmlObjectSerializer.h>
 
 namespace BFG {
 namespace Loader {
 
-class XmlObjectSerializer : public ObjectSerializer
+namespace Elements
 {
-public:
-	XmlObjectSerializer(TiXmlElement* objectCollection);
+	const std::string ObjectList("ObjectList");
+}
+
+namespace Attributes
+{
+	const std::string name("name");
+}
+
+XmlSectorSerializer::XmlSectorSerializer(TiXmlElement* sector) :
+mOrigin(sector)
+{
+}
+
+void XmlSectorSerializer::read(SectorParameter& sp)
+{
+	TiXmlElement* origin = mOrigin->Clone()->ToElement();
 	
-	virtual void read(ObjectParameter::MapT& objects);
-	virtual void write(const ObjectParameter::MapT& objects);
-
-private:
-	void writeCollection(const ObjectParameter::MapT& objects,
-	                     TiXmlElement* result);
-
-	void writeOne(const ObjectParameter& op,
-	              TiXmlElement* result) const;
-
-	void readCollection(TiXmlElement* objectCollection,
-	                    ObjectParameter::MapT& result) const;
+	const std::string* name = origin->Attribute(Attributes::name);
 	
-	void readOne(const TiXmlElement* objectElement,
-	             ObjectParameter& result) const;
+	if (name)
+		sp.mName = *name;
+	
+	TiXmlElement* objectList = origin->FirstChildElement(Elements::ObjectList);
+	XmlObjectSerializer xos(objectList);
+	xos.read(sp.mObjects);
+}
 
-	TiXmlElement* mCollectionOrigin;
-};
+void XmlSectorSerializer::write(const SectorParameter& sp)
+{
+	warnlog << "TODO: void XmlSectorSerializer::write(const SectorParameter& sp)";
+}
 
 } // namespace Loader
 } // namespace BFG
-
-#endif

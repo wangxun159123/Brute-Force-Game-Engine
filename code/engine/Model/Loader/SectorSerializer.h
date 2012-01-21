@@ -24,39 +24,23 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LOADER_XML_OBJECT_SERIALIZER_H_
-#define LOADER_XML_OBJECT_SERIALIZER_H
+#ifndef LOADER_SECTOR_SERIALIZER_H_
+#define LOADER_SECTOR_SERIALIZER_H
+
+#include <map>
 
 #include <Model/Loader/Types.h>
-#include <Model/Loader/ObjectSerializer.h>
-
-class TiXmlElement;
 
 namespace BFG {
 namespace Loader {
 
-class XmlObjectSerializer : public ObjectSerializer
+class SectorSerializer
 {
 public:
-	XmlObjectSerializer(TiXmlElement* objectCollection);
+	virtual ~SectorSerializer(){};
 	
-	virtual void read(ObjectParameter::MapT& objects);
-	virtual void write(const ObjectParameter::MapT& objects);
-
-private:
-	void writeCollection(const ObjectParameter::MapT& objects,
-	                     TiXmlElement* result);
-
-	void writeOne(const ObjectParameter& op,
-	              TiXmlElement* result) const;
-
-	void readCollection(TiXmlElement* objectCollection,
-	                    ObjectParameter::MapT& result) const;
-	
-	void readOne(const TiXmlElement* objectElement,
-	             ObjectParameter& result) const;
-
-	TiXmlElement* mCollectionOrigin;
+	virtual void read(SectorParameter& sector) = 0;
+	virtual void write(const SectorParameter& sector) = 0;
 };
 
 } // namespace Loader

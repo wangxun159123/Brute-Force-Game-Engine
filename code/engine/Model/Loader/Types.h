@@ -129,6 +129,12 @@ struct ModuleParameter
 //! This struct saves the interpreted object data which is not(!) defined by PropertyConcepts.
 struct ObjectParameter
 {
+	typedef std::map
+	<
+		std::string,
+		ObjectParameter
+	> MapT;
+
 	ObjectParameter() :
 		mHandle(NULL_HANDLE),
 		mLinearVelocity(v3::ZERO),
@@ -141,6 +147,12 @@ struct ObjectParameter
 	v3 mLinearVelocity;
 	v3 mAngularVelocity;
 	Connection mConnection;
+};
+
+struct SectorParameter
+{
+	std::string           mName;
+	ObjectParameter::MapT mObjects;
 };
 
 struct LightParameters

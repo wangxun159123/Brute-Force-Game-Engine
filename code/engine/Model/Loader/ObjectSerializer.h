@@ -34,15 +34,14 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace BFG {
 namespace Loader {
 
-typedef std::map<std::string, BFG::Loader::ObjectParameter> ObjectParameterMapT;
 
 class ObjectSerializer
 {
 public:
 	virtual ~ObjectSerializer(){};
 	
-	virtual void read(ObjectParameterMapT& objects) = 0;
-	virtual void write(const ObjectParameterMapT& objects) = 0;
+	virtual void read(ObjectParameter::MapT& objects) = 0;
+	virtual void write(const ObjectParameter::MapT& objects) = 0;
 };
 
 void debugOut(const BFG::Loader::ObjectParameter& op);
@@ -50,8 +49,9 @@ void debugOut(const BFG::Loader::ObjectParameter& op);
 class DummyObjectSerializer : public ObjectSerializer
 {
 public:
-	virtual void read(ObjectParameterMapT& objects);
-	virtual void write(const ObjectParameterMapT& objects);};
+	virtual void read(ObjectParameter::MapT& objects);
+	virtual void write(const ObjectParameter::MapT& objects);
+};
 
 } // namespace Loader
 } // namespace BFG

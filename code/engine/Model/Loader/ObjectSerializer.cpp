@@ -45,7 +45,7 @@ void debugOut(const BFG::Loader::ObjectParameter& op)
 	infolog << "##########################";
 }
 
-void DummyObjectSerializer::read(ObjectParameterMapT& objects)
+void DummyObjectSerializer::read(ObjectParameter::MapT& objects)
 {
 	// First Test Object
 	ObjectParameter op;
@@ -68,12 +68,12 @@ void DummyObjectSerializer::read(ObjectParameterMapT& objects)
 	objects[op2.mName] = op2;
 }
 
-void DummyObjectSerializer::write(const ObjectParameterMapT& objects)
+void DummyObjectSerializer::write(const ObjectParameter::MapT& objects)
 {
 	if (objects.empty())
 		return;
 
-	ObjectParameterMapT::const_iterator it = objects.begin();
+	ObjectParameter::MapT::const_iterator it = objects.begin();
 	for (; it != objects.end(); ++it)
 		debugOut(it->second);
 }

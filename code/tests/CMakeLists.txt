@@ -1,1 +1,1 @@
-ADD_SUBDIRECTORY(ObjectSerialization)
+ADD_SUBDIRECTORY(SerializationTest)
