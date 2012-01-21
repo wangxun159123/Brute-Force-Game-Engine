@@ -33,6 +33,22 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace BFG {
 namespace Loader {
 
+namespace Attributes
+{
+	const std::string name("name");
+	const std::string type("type");
+	const std::string position("position");
+	const std::string orientation("orientation");
+	const std::string angular_velocity("angular_velocity");
+	const std::string linear_velocity("linear_velocity");
+	const std::string connection("connection");
+}
+
+namespace Elements
+{
+	const std::string Object("Object");
+}
+	
 XmlObjectSerializer::XmlObjectSerializer(TiXmlElement* objectCollection) :
 mCollectionOrigin(objectCollection)
 {
@@ -46,7 +62,9 @@ void XmlObjectSerializer::read(ObjectParameterMapT& objects)
 
 void XmlObjectSerializer::write(const ObjectParameterMapT& objects)
 {
-	const ObjectParameter& op = objects.begin()->second;
+	if (objects.empty())
+		return;
+	
 	writeCollection(objects, mCollectionOrigin);
 }
 
@@ -101,8 +119,6 @@ void XmlObjectSerializer::readCollection(TiXmlElement* objectCollection,
 			ObjectParameter op;
 			readOne(next, op);
 			result[op.mName] = op;
-
-			debugOut(op);
 		}
 		catch (std::runtime_error& ex)
 		{

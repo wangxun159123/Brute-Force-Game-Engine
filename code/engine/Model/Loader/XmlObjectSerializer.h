@@ -35,22 +35,6 @@ class TiXmlElement;
 namespace BFG {
 namespace Loader {
 
-namespace Attributes
-{
-	const std::string name("name");
-	const std::string type("type");
-	const std::string position("position");
-	const std::string orientation("orientation");
-	const std::string angular_velocity("angular_velocity");
-	const std::string linear_velocity("linear_velocity");
-	const std::string connection("connection");
-}
-
-namespace Elements
-{
-	const std::string Object("Object");
-}
-
 class XmlObjectSerializer : public ObjectSerializer
 {
 public:
