@@ -35,6 +35,7 @@ namespace Loader {
 
 namespace Elements
 {
+	const std::string Sector("Sector");
 	const std::string ObjectList("ObjectList");
 }
 
@@ -44,8 +45,17 @@ namespace Attributes
 }
 
 XmlSectorSerializer::XmlSectorSerializer(TiXmlElement* sector) :
-mOrigin(sector)
+mOrigin(sector),
+mDocument(NULL)
 {
+	assert(sector);
+}
+
+XmlSectorSerializer::XmlSectorSerializer(TiXmlDocument* document) :
+mOrigin(NULL),
+mDocument(document)
+{
+	assert(document);
 }
 
 void XmlSectorSerializer::read(SectorParameter& sp)
@@ -63,8 +73,20 @@ void XmlSectorSerializer::read(SectorParameter& sp)
 }
 
 void XmlSectorSerializer::write(const SectorParameter& sp)
-{
-	warnlog << "TODO: void XmlSectorSerializer::write(const SectorParameter& sp)";
+{	
+	TiXmlElement* sector = new TiXmlElement(Elements::Sector);
+	sector->SetAttribute(Attributes::name, sp.mName);
+	
+	TiXmlElement* objectList = new TiXmlElement(Elements::ObjectList);
+	XmlObjectSerializer xos(objectList);
+	xos.write(sp.mObjects);
+	
+	if (mOrigin)
+		mOrigin->LinkEndChild(sector);
+	else
+		mDocument->LinkEndChild(sector);
+
+	sector->LinkEndChild(objectList);
 }
 
 } // namespace Loader

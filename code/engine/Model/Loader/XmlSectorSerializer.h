@@ -31,6 +31,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Model/Loader/SectorSerializer.h>
 
+class TiXmlDocument;
 class TiXmlElement;
 
 namespace BFG {
@@ -39,13 +40,21 @@ namespace Loader {
 class XmlSectorSerializer : public SectorSerializer
 {
 public:
+	//! \param sector Must point to an existing Sector-element for
+	//! reading or to a higher parent element for writing a whole
+	//! sector element into.
 	XmlSectorSerializer(TiXmlElement* sector);
+	
+	//! \param document Must point to an existing document. A new
+	//! Sector-element will be created as root node.
+	XmlSectorSerializer(TiXmlDocument* document);
 	
 	virtual void read(SectorParameter& sp);
 	virtual void write(const SectorParameter& sp);
 	
 private:
 	TiXmlElement* mOrigin;
+	TiXmlDocument* mDocument;
 };
 
 } // namespace Loader

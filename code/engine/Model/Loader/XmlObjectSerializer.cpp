@@ -52,6 +52,7 @@ namespace Attributes
 XmlObjectSerializer::XmlObjectSerializer(TiXmlElement* objectCollection) :
 mCollectionOrigin(objectCollection)
 {
+	assert(objectCollection);
 }
 
 void XmlObjectSerializer::read(ObjectParameter::MapT& objects)

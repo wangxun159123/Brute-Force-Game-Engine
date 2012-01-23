@@ -38,6 +38,9 @@ namespace Loader {
 class XmlObjectSerializer : public ObjectSerializer
 {
 public:
+	//! \param objectCollection Must point to an existing ObjectList for
+	//! reading, and to a higher parent element for writing a whole
+	//! ObjectList element into.
 	XmlObjectSerializer(TiXmlElement* objectCollection);
 	
 	virtual void read(ObjectParameter::MapT& objects);
