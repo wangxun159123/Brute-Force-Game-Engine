@@ -81,56 +81,10 @@ protected:
 
 private:
 
-	void onButtonClicked(MyGUI::Widget*)
-	{
-		if (!isLoaded())
-			load();
+	void onButtonClicked(MyGUI::Widget*);
 
-		if (isActive())
-			deactivate();
-		else
-			activate();
-	}
-
-	void createButton()
-	{
-		MyGUI::Widget* menuBox = mGui->findWidgetT("MenuBox");
-		if (!menuBox)
-			throw std::runtime_error("MenuBox not found!");
-
-		int xPos = 0;
-		size_t count = menuBox->getChildCount();
-		for (size_t i = 0; i < count; ++i)
-		{
-			MyGUI::Widget* w = menuBox->getChildAt(i);
-			
-			xPos += w->getWidth();
-		}
-		mMenuButton = menuBox->createWidget<MyGUI::Button>
-			("Button", xPos, 0, 24, 24, MyGUI::Align::Default);
-
-		mMenuButton->setCaption(mName);
-		MyGUI::IntSize textSize = mMenuButton->getSubWidgetText()->getTextSize();
-		mMenuButton->setSize(textSize.width + 4, 24);
-		mMenuButton->eventMouseButtonClick = 
-			MyGUI::newDelegate(this, &BaseFeature::onButtonClicked);
-	}
-
-	void destroyButton()
-	{
-		if (!mMenuButton)
-			return;
-
-		MyGUI::ItemBox* itemBox = mGui->findWidget<MyGUI::ItemBox>("MenuBox");
-		if (!itemBox)
-			return;
-
-		size_t index = itemBox->getIndexByWidget(mMenuButton);
-		itemBox->removeItemAt(index);
-
-		mGui->destroyWidget(mMenuButton);
-		mMenuButton = NULL;
-	}
+	void createButton();
+	void destroyButton();
 
 	std::string mName;
 	MyGUI::Button* mMenuButton;

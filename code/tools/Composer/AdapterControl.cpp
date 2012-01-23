@@ -55,7 +55,7 @@ void AdapterControl::load()
 	LayoutManager* layMan = LayoutManager::getInstancePtr();
 	mContainer = layMan->loadLayout("Adapter.layout");
 	
-	if (mContainer.size() == 0)
+	if (mContainer.empty())
 		throw std::runtime_error("Adapter.layout loaded incorrectly!");
 
 	Window* window = mContainer.front()->castType<Window>();
@@ -137,6 +137,8 @@ void AdapterControl::load()
 	Ogre::SceneNode* rootSceneNode = sceneMan->getRootSceneNode();
 	mMarkerNode = rootSceneNode->createChildSceneNode("MarkerNode");
 	Ogre::Entity* ent = sceneMan->createEntity("AdapterMarker", "Marker.mesh");
+	ent->setCastShadows(false);
+
 	mMarkerNode->attachObject(ent);
 	mMarkerNode->setDirection(Ogre::Vector3::UNIT_Y);
 	mMarkerNode->setVisible(false);

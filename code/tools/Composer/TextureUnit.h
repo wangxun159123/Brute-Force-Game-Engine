@@ -55,7 +55,7 @@ public:
 		MyGUI::LayoutManager* layMan = MyGUI::LayoutManager::getInstancePtr();
 		mContainer = layMan->loadLayout("TextureUnit.layout", "", mParent);
 
-		BFG::s32 itemCount = mParent->getChildCount();
+		size_t itemCount = mParent->getChildCount();
 
 		BFG::s32 y = 0;
 		for (size_t i = 0; i < itemCount; ++i)

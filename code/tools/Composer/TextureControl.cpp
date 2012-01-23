@@ -40,7 +40,7 @@ void TextureControl::load()
 	LayoutManager* layMan = LayoutManager::getInstancePtr();
 	mContainer = layMan->loadLayout("Texture.layout");
 
-	if (mContainer.size() == 0)
+	if (mContainer.empty())
 		throw std::runtime_error("Texture.layout loaded incorrectly!");
 		
 	Window* window = mContainer.front()->castType<Window>();

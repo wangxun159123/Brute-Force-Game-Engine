@@ -48,7 +48,7 @@ void AnimationControl::load()
 	LayoutManager* layMan = LayoutManager::getInstancePtr();
 	mContainer = layMan->loadLayout("Animation.layout");
 
-	if (mContainer.size() == 0)
+	if (mContainer.empty())
 		throw std::runtime_error("Animation.layout loaded incorrectly!");
 
 	Window* window = mContainer.front()->castType<Window>();

@@ -123,6 +123,8 @@ namespace Tool
 
 	void ModuleControl::toolEventHandler(Event* te)
 	{
+		if (!mLoaded)
+			return;
 
 		switch(te->getId())
 		{
