@@ -59,7 +59,10 @@ public:
 
 	const std::string& getStateID() const;
 
+	//! \note Feedback of all VIPs will be disabled.
+	//!       This will fix a bug which can occur on state change.
 	void activate();
+
 	void deactivate();
 
 private:
