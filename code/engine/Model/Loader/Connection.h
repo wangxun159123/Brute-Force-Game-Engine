@@ -48,8 +48,12 @@ struct Connection
 	BFG::u32 mConnectedExternAt;
 };
 
-void parseConnection(const std::string& input,
-                     Connection& connection);
+//! \brief Utility function for Interpreter
+//! \param[in] input Example: "Wing:5" or "Body:1". Both parts are mandatory.
+//! \param[out] connection Result of parsing
+//! \exception std::runtime_error If the input couldn't be parsed. 
+void MODEL_API parseConnection(const std::string& input,
+                               Connection& connection);
 
 } // namespace Loader
 } // namespace BFG
