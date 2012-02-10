@@ -30,6 +30,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 
 #include <Core/Types.h>
+#include <Model/Defs.h>
 
 namespace BFG {
 namespace Loader {
