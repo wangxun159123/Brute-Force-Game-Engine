@@ -77,9 +77,9 @@ struct ShutdownDeleter
 
 
 Main::Main(EventLoop* loop, const std::string& windowTitle) :
-mSceneMgr(NULL),
 mShutdown(false),
-mWindowTitle(windowTitle)
+mWindowTitle(windowTitle),
+mSceneMgr(NULL)
 {
 	assert(loop && "Main: EventLoop is invalid");
 

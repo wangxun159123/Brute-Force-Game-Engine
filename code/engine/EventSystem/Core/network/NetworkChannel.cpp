@@ -34,9 +34,9 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace EventSystem {
 
 NetworkChannel::NetworkChannel(boost::asio::io_service& io_service, bool masterFlag) : 
-mSocket(io_service),
 mMaster(masterFlag),
-mValidConnection(false)
+mValidConnection(false),
+mSocket(io_service)
 {
 }
 

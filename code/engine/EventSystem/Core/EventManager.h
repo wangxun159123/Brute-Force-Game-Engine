@@ -58,7 +58,6 @@ class EventManager;
 //! Causes trouble with multiple includes 
 
 static const int max_threads = 32;
-static long EventIdDynamicStartValue = 30000;
 
 // EventChannel-Typedef : EventPoolQueue
 typedef std::map<long, long> EventChannelMaskMap;
@@ -141,6 +140,8 @@ private:
 	std::deque<BaseEventPool*> mPoolQueue;
 	//! Condition for shutting down the EventSystem
 	bool mExitFlag;
+
+	long mEventIdDynamicStartValue;
 
 	//-------------------------------------------------------------------------
 	// Network stuff

@@ -35,10 +35,11 @@ namespace BFG {
 namespace Audio {
 
 Stream::Stream(const std::string& name):
+mNUM_BUFFER(6),
 mName(name), 
 mSourceId(0),
-mNUM_BUFFER(6),
-mState(INITIALIZING)
+mState(INITIALIZING),
+mOnStreamFinished(NULL)
 {
 	dbglog << "Stream constructor called";
 

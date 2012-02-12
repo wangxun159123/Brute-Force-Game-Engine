@@ -51,11 +51,11 @@ Camera::Camera(GameHandle cameraHandle,
                Ogre::RenderTarget* renderTarget, 
                s32 width, 
                s32 height) :
-mRenderTarget(renderTarget),
 mCameraNode(camNode),
+mRenderTarget(renderTarget),
+mHandle(cameraHandle),
 mNodeCreated(false),
-mRenderTargetCreated(false),
-mHandle(cameraHandle)
+mRenderTargetCreated(false)
 {
 	Ogre::SceneManager* sceneMgr;
 	if (mCameraNode == NULL) // Create SceneNode

@@ -43,7 +43,7 @@ StreamWatch::StreamWatch(const std::vector<std::string>& fileList):
 	mEventLoop.registerLoopEventListener(this, &StreamWatch::loopEventHandler);
 	mEventLoop.run();
 	mState = RUNNING;
-};
+}
 
 StreamWatch::~StreamWatch() 
 {
