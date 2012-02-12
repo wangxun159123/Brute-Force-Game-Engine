@@ -29,12 +29,13 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <map>
 
+#include <Model/Defs.h>
 #include <Model/Loader/Types.h>
 
 namespace BFG {
 namespace Loader {
 
-class SectorSerializer
+class MODEL_API SectorSerializer
 {
 public:
 	virtual ~SectorSerializer(){};

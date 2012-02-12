@@ -27,6 +27,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #ifndef LOADER_XML_SECTOR_SERIALIZER_H_
 #define LOADER_XML_SECTOR_SERIALIZER_H
 
+#include <Model/Defs.h>
 #include <Model/Loader/Types.h>
 
 #include <Model/Loader/SectorSerializer.h>
@@ -37,7 +38,7 @@ class TiXmlElement;
 namespace BFG {
 namespace Loader {
 
-class XmlSectorSerializer : public SectorSerializer
+class MODEL_API XmlSectorSerializer : public SectorSerializer
 {
 public:
 	//! \param sector Must point to an existing Sector-element for

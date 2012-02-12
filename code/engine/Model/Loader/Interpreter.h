@@ -26,6 +26,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #ifndef INTERPRETER_H_
 #define INTERPRETER_H_
 
+#include <Model/Defs.h>
 #include <Model/Loader/Types.h>
 #include <Model/Loader/SectorFactory.h>
 #include <Model/Loader/Exceptions.h>

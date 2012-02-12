@@ -27,6 +27,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #ifndef LOADER_XML_OBJECT_SERIALIZER_H_
 #define LOADER_XML_OBJECT_SERIALIZER_H
 
+#include <Model/Defs.h>
 #include <Model/Loader/Types.h>
 #include <Model/Loader/ObjectSerializer.h>
 
@@ -35,7 +36,7 @@ class TiXmlElement;
 namespace BFG {
 namespace Loader {
 
-class XmlObjectSerializer : public ObjectSerializer
+class MODEL_API XmlObjectSerializer : public ObjectSerializer
 {
 public:
 	//! \param objectCollection Must point to an existing ObjectList for

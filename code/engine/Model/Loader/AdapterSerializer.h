@@ -29,10 +29,12 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Model/Adapter.h>
 
+#include <Model/Defs.h>
+
 namespace BFG {
 namespace Loader {
 
-class AdapterSerializer
+class MODEL_API AdapterSerializer
 {
 public:
 	virtual ~AdapterSerializer(){};

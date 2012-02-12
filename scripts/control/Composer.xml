@@ -30,7 +30,7 @@
 
   <action id = "A_CAMERA_AXIS_X">
     <vip type = "VIP_LINEAR_AXIS" axismode = "AM_Relative">
-      <special frequency = "100" raise = "KB_KP8" lower = "KB_KP2" step = "0.5" />
+      <special frequency = "100" raise = "KB_KP8" lower = "KB_KP2" step = "1" />
     </vip>
   </action>
 
@@ -42,7 +42,7 @@
 
   <action id = "A_CAMERA_AXIS_Y">
     <vip type = "VIP_LINEAR_AXIS" axismode = "AM_Relative">
-      <special frequency = "100" raise = "KB_KP6" lower = "KB_KP4" step = "0.5" />
+      <special frequency = "100" raise = "KB_KP6" lower = "KB_KP4" step = "1" />
     </vip>
   </action>
 
@@ -54,7 +54,7 @@
 
   <action id = "A_CAMERA_AXIS_Z">
     <vip type = "VIP_LINEAR_AXIS" axismode = "AM_Relative">
-      <special frequency = "100" raise = "KB_KP9" lower = "KB_KP7" step = "0.5" />
+      <special frequency = "100" raise = "KB_KP9" lower = "KB_KP7" step = "1" />
     </vip>
   </action>
 

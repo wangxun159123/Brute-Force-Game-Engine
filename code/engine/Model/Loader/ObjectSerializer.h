@@ -29,13 +29,14 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <map>
 
+#include <Model/Defs.h>
 #include <Model/Loader/Types.h>
 
 namespace BFG {
 namespace Loader {
 
 
-class ObjectSerializer
+class MODEL_API ObjectSerializer
 {
 public:
 	virtual ~ObjectSerializer(){};
@@ -44,9 +45,9 @@ public:
 	virtual void write(const ObjectParameter::MapT& objects) = 0;
 };
 
-void debugOut(const BFG::Loader::ObjectParameter& op);
+void MODEL_API debugOut(const BFG::Loader::ObjectParameter& op);
 
-class DummyObjectSerializer : public ObjectSerializer
+class MODEL_API DummyObjectSerializer : public ObjectSerializer
 {
 public:
 	virtual void read(ObjectParameter::MapT& objects);

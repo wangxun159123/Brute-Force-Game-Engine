@@ -30,6 +30,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Model/Adapter.h>
 
 #include <vector>
+
+#include <Model/Defs.h>
 #include <Model/Loader/AdapterSerializer.h>
 
 class TiXmlElement;
@@ -37,7 +39,7 @@ class TiXmlElement;
 namespace BFG {
 namespace Loader {
 
-class XmlAdapterSerializer : public AdapterSerializer
+class MODEL_API XmlAdapterSerializer : public AdapterSerializer
 {
 public:
 	//! \param adapter Must point to an existing Adapter-element for
@@ -54,7 +56,7 @@ private:
 
 typedef std::pair<std::string, std::vector<Adapter> > AdapterConfigT;
 
-class XmlAdapterConfigSerializer
+class MODEL_API XmlAdapterConfigSerializer
 {
 public:
 	//! \param adapterConfig Must point to an existing AdapterConfig-element for

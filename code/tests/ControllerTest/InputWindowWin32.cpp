@@ -28,6 +28,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include "InputWindowWin32.h"
 
+#include <stdexcept>
+
 #include "resource.h"
 
 HWND g_win = NULL;
@@ -46,7 +48,7 @@ HWND createInputGrabbingWindow()
 
 	if (! hWnd)
 	{
-		throw std::exception("Failed to create an input grabbing window!");
+		throw std::runtime_error("Failed to create an input grabbing window!");
 	}
 
 	ShowWindow(hWnd, SW_SHOW);
