@@ -133,3 +133,4 @@ namespace Shared
 } // namespace EnumGen
 
 #endif
+

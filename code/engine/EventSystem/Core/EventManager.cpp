@@ -216,7 +216,7 @@ bool EventManager::doOperate()
 	for (size_t i = 0; i < mThreadCount; ++i)
 	{
 		BaseEventPool* pool;
-		while(pool = mEventChannelList[i]->getPublishedEventPool())
+		while ((pool = mEventChannelList[i]->getPublishedEventPool()))
 		{
 			didWork = true;
 			transmitPool(pool); // transmit to networkchannels
@@ -262,7 +262,7 @@ long EventManager::getDynamicEventId(const std::string& eventIdentifier)
 	{
 		mDynamicEventIdMap[eventIdentifier] = EventIdDynamicStartValue;
 		wRet = EventIdDynamicStartValue;
-		++EventIdDynamicStartValue;		
+		++EventIdDynamicStartValue;
 	}
 	else
 	{

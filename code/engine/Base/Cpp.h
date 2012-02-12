@@ -50,7 +50,7 @@ Function for_each_if(InputIterator first,
 			f(*first);
 	}
 	return f;
-};
+}
 
 //! This is a kind of lossless two-way cast.
 //! For example, you may convert float(0.123f) to int(1039918957) so you

@@ -70,3 +70,4 @@ GameHandle destringify(const std::string& name)
 }
 
 } // namespace BFG
+

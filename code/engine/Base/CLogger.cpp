@@ -26,7 +26,9 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLogger.h"
 
-#pragma warning( disable: 4512 )
+#ifdef _MSC_VER
+	#pragma warning( disable: 4512 )
+#endif
 
 #include <iostream>
 #include <fstream>
@@ -161,6 +163,6 @@ void setupCore(SeverityLevel Min_Log_Level)
 } // Base
 
 //BOOST_LOG_INLINE_GLOBAL_LOGGER_DEFAULT(usp_log, BFG::Base::Logger::SourceT);
-BOOST_LOG_GLOBAL_LOGGER_DEFAULT(usp_log, BFG::Base::Logger::SourceT);
+BOOST_LOG_GLOBAL_LOGGER_DEFAULT(usp_log, BFG::Base::Logger::SourceT)
 
 } // namespace BFG

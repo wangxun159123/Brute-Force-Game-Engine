@@ -54,3 +54,4 @@ void showException(const char* info_text)
 }
 
 } // namespace BFG
+

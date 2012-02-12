@@ -26,6 +26,9 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <X11/Xlib.h>
 
+#ifndef BFG_CONTROLLER_INPUT_WINDOW_X11_H
+#define BFG_CONTROLLER_INPUT_WINDOW_X11_H
+
 extern Display *d;
 extern Window w;
 extern int s;
@@ -36,3 +39,5 @@ Window createInputGrabbingWindow();
 void updateInputGrabbingWindow();
 
 void destroyInputGrabbingWindow();
+
+#endif

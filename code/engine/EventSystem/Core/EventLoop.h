@@ -70,7 +70,7 @@ public:
 
 class EventLoop : public EventProcessor, 
                   public IEventLoop,
-                  public BFG::Base::CEntryPointHandler <EventLoop>
+                  public BFG::Base::CEntryPointHandler<EventLoop>
 {
 public:
 

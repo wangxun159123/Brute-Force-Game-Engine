@@ -56,3 +56,4 @@ std::ostream& operator << (std::ostream& lhs, const CVersion& rhs);
 } // namespace BFG
 
 #endif //__C_VERSION_H_
+
