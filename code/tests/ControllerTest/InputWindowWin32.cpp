@@ -28,7 +28,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include "InputWindowWin32.h"
 
-#include <Controller/TestApp/resource.h>
+#include "resource.h"
 
 HWND g_win = NULL;
 
