@@ -45,7 +45,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Model/Environment.h>
 #include <Model/Property/SpacePlugin.h>
 
-#include <Physics/PhysicsManager.h>
+#include <Physics/Event.h>
 
 #include "Pong/PongDefinitions.h"
 #include "Pong/PongFactory.h"

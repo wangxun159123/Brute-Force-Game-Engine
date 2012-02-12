@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-INCLUDE(USE)
-
-USE_INIT_PACKAGE(SerializationTest "0.3.0")
+BFG_INIT_PACKAGE(SerializationTest "0.3.0")
 
 FILE(GLOB SOURCES
 	*.cpp
@@ -23,19 +21,19 @@ INCLUDE_DIRECTORIES(.)	# For subdirectories
 
 ADD_DEFINITIONS(-DTIXML_USE_STL)
 
-ADD_EXECUTABLE(SerializationTest ${SOURCES} ${HEADERS})
+ADD_EXECUTABLE(bfgSerializationTest ${SOURCES} ${HEADERS})
 
-TARGET_LINK_LIBRARIES(SerializationTest
+TARGET_LINK_LIBRARIES(bfgSerializationTest
 	${Boost_LIBRARIES}
 	${BoostLog_LIBRARIES}
 	${OGRE_LIBRARIES}
-	Base
-	Core
-	EventCore
-	Model
+	bfgBase
+	bfgCore
+	bfgEventCore
+	bfgModel
 	TinyXML
 )
 
-INSTALL(TARGETS SerializationTest
-	RUNTIME DESTINATION ${USE_BIN_DIR}
+INSTALL(TARGETS bfgSerializationTest
+	RUNTIME DESTINATION ${BFG_BIN_DIR}
 	COMPONENT runtime)

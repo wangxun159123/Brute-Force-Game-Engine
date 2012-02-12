@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-INCLUDE(USE)
-
-USE_INIT_PACKAGE(TutorialBasics "0.3.0")
+BFG_INIT_PACKAGE(TutorialBasics "0.3.0")
 
 FILE(GLOB SOURCES
 	*.cpp
@@ -25,22 +23,22 @@ INCLUDE_DIRECTORIES(.)	# For subdirectories
 
 ADD_DEFINITIONS(-DTIXML_USE_STL)
 
-ADD_EXECUTABLE(TutorialBasics ${SOURCES} ${HEADERS})
+ADD_EXECUTABLE(bfgTutorialBasics ${SOURCES} ${HEADERS})
 
-TARGET_LINK_LIBRARIES(TutorialBasics
+TARGET_LINK_LIBRARIES(bfgTutorialBasics
 	${Boost_LIBRARIES}
 	${BoostLog_LIBRARIES}
 	${OGRE_LIBRARIES}
 	${MYGUI_LIBRARIES}
 	${MYGUI_OGRE_LIBRARIES}
-	Base
-	Controller
-	Core
-	EventCore
-	View
+	bfgBase
+	bfgController
+	bfgCore
+	bfgEventCore
+	bfgView
 	TinyXML
 )
 
-INSTALL(TARGETS TutorialBasics
-		RUNTIME DESTINATION ${USE_BIN_DIR}
-		COMPONENT runtime)
+INSTALL(TARGETS bfgTutorialBasics
+        RUNTIME DESTINATION ${BFG_BIN_DIR}
+        COMPONENT runtime)

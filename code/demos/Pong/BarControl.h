@@ -29,9 +29,9 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Core/Location.h>
 #include <Core/Math.h>
-#include <Physics/PhysicsManager.h>
 #include <Model/GameObject.h>
 #include <Model/Property/Concept.h>
+#include <Physics/Event.h>
 
 #include "Pong/PongDefinitions.h"
 

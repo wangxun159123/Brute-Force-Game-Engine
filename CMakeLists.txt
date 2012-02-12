@@ -9,12 +9,12 @@ CMAKE_POLICY(SET CMP0011 NEW) # :TODO: verify need of this policy
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/share/cmake/Modules)
 
 # --------------------------- includes ----------
-INCLUDE(USE)
+INCLUDE(BFG)
 INCLUDE(DependencyBundle)
 INCLUDE(FindAllDependencies)
 
 # --------------------------- project declaration
-USE_INIT_PROJECT("Brute-Force Game Engine")
+BFG_INIT_PROJECT("Brute-Force Game Engine" "bfg")
 
 IF(NOT BFG_ENGINE_INCLUDE_DIR)
   SET(BFG_ENGINE_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/code/engine/")

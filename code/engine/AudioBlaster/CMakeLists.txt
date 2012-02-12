@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-INCLUDE(USE)
-
-USE_INIT_PACKAGE(AudioBlaster "0.1.0")
+BFG_INIT_PACKAGE(AudioBlaster "0.1.0")
 
 FILE(GLOB AudioBlaster_SOURCES *.cpp)
 FILE(GLOB AudioBlaster_HEADERS *.h *.xml *.hh)
@@ -17,38 +15,36 @@ INCLUDE_DIRECTORIES(${OGG_INCLUDE_DIR})
 INCLUDE_DIRECTORIES(..)
 
 ADD_CUSTOM_TARGET(AudioEnums
-	EnumGen --input ${CMAKE_CURRENT_SOURCE_DIR}/Enums.xml
+	bfgEnumGen --input ${CMAKE_CURRENT_SOURCE_DIR}/Enums.xml
 	        --header ${CMAKE_CURRENT_SOURCE_DIR}/Enums.hh
 	        --source ${CMAKE_CURRENT_SOURCE_DIR}/Enums.cpp
-	DEPENDS EnumGen
+	DEPENDS bfgEnumGen
 )
 
 ADD_DEFINITIONS(-DAUDIO_BLASTER_EXPORTS)
 
-ADD_LIBRARY(AudioBlaster SHARED
+ADD_LIBRARY(bfgAudioBlaster SHARED
 	${AudioBlaster_SOURCES}
 	${AudioBlaster_HEADERS}
 )
 
-TARGET_LINK_LIBRARIES(AudioBlaster
+TARGET_LINK_LIBRARIES(bfgAudioBlaster
 	${Boost_LIBRARIES}
 	${LIBSNDFILE_LIBRARY}
 	${VORBIS_LIBRARIES} 
 	${VORBIS_FILE_LIBRARIES}
 	${OGG_LIBRARIES}
 	${OPENAL_LIBRARY}
-	EventCore
-	Core
+	bfgCore
+	bfgEventCore
 )
 
-INSTALL(TARGETS AudioBlaster 
-		LIBRARY DESTINATION ${USE_LIB_DIR}
-		RUNTIME DESTINATION ${USE_LIB_DIR})
+INSTALL(TARGETS bfgAudioBlaster
+        LIBRARY DESTINATION ${BFG_LIB_DIR}
+        RUNTIME DESTINATION ${BFG_LIB_DIR})
 
 INSTALL(FILES ${AudioBlaster_HEADERS}
-		DESTINATION "${USE_INCLUDE_DIR}/${USE_PACKAGE_NAME}"
-		COMPONENT devel)
-		
-ADD_DEPENDENCIES(AudioBlaster AudioEnums)
+        DESTINATION "${BFG_PACKAGE_INCLUDE_DIR}"
+        COMPONENT devel)
 
-
+ADD_DEPENDENCIES(bfgAudioBlaster AudioEnums)
