@@ -73,9 +73,9 @@ public:
 
 	void addModule(GameHandle moduleHandle,
 	               const std::string& meshName,
-				   ID::CollisionMode collisionMode,
-				   const v3& position,
-				   const qv4& orientation,
+	               ID::CollisionMode collisionMode,
+	               const v3& position,
+	               const qv4& orientation,
 	               f32 density);
 
 	void addModule(boost::shared_ptr<PhysicsObject>,

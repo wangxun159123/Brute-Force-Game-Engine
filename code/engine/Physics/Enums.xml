@@ -28,7 +28,6 @@
             <!-- ### PhysicsObject ### -->
 
             <value>PE_FULL_SYNC</value>
-            <value>PE_DELTA_SYNC</value>
 
             <!-- Delta Updates-->
             <value>PE_VELOCITY</value>
