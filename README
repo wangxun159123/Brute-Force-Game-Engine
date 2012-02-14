@@ -1,14 +1,14 @@
 About 
 =====
 
-The big strength of Brute-Force Game Engine lies in the combination of powerful open source
-third party libraries. Our target is to connect this libs and build new higher-level 
+The big strength of the Brute-Force Game Engine lies in the combination of powerful open source
+third party libraries. Our target is to connect these libs and build new higher-level 
 functionality on top of them, but we don't want to hide or wrap them.
 
-Out of this purpose, the engine allows direct control over several third party
-resources like e.g. OGRE, so that the user gains a lot of control and may use
+Out of this purpose the engine allows direct control over several third party
+resources like OGRE, so that the user gains a lot of control and may use
 many cool features, but he also has to master the burden of many dependencies
-which may soon become a maintainer's nightmare.
+which may soon become a maintainers nightmare.
 
 The more dependencies a project has, the higher is the likelihood that it could break.
 It could constrain the future progress in features, could make interface changes or 
@@ -22,7 +22,7 @@ wrap our engine though, as this is entirely pointless.
 
 This engine was written with multi-platform support in mind, that are: Windows,
 Linux and Mac. We try to keep the first two always running, but Mac support
-has never been tested - We looking forward to find some motivated mac developers
+has never been tested - We are looking forward to find some motivated mac developers
 who will start to support this.
 
 In near future we have two main goals:
