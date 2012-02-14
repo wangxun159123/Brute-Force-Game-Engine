@@ -251,7 +251,7 @@ void XmlInitializer::onIncludeElement(TiXmlElement* element,
 		{
 			this->traverse(filename, vips);
 		}
-		catch (std::runtime_error& ex)
+		catch (std::runtime_error&)
 		{
 			// Maybe the file wasn't found? Let's try again!
 			try

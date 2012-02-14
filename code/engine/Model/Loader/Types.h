@@ -34,6 +34,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Core/Location.h>
 #include <Core/Types.h>
+#include <Model/Loader/Connection.h>
 #include <Model/Property/Value.h>
 #include <Model/Property/ValueId.h>
 #include <Model/Property/ConceptId.h>
@@ -90,23 +91,6 @@ struct SectorDraft
 	boost::shared_ptr<ManyTagsT>          mPlaylist;
 };
 
-struct Connection
-{
-	Connection() : mConnectedLocalAt(0), mConnectedExternAt(0) {}
-
-	bool good() const
-	{
-		return ! mConnectedExternToModule.empty() &&
-			mConnectedExternAt > 0 &&
-			mConnectedLocalAt > 0;
-	}
-
-	u32 mConnectedLocalAt;
-	std::string mConnectedExternToGameObject;
-	std::string mConnectedExternToModule;
-	u32 mConnectedExternAt;
-};
-
 struct ValueParameter
 {
 	Property::ValueId mId;
@@ -145,6 +129,12 @@ struct ModuleParameter
 //! This struct saves the interpreted object data which is not(!) defined by PropertyConcepts.
 struct ObjectParameter
 {
+	typedef std::map
+	<
+		std::string,
+		ObjectParameter
+	> MapT;
+
 	ObjectParameter() :
 		mHandle(NULL_HANDLE),
 		mLinearVelocity(v3::ZERO),
@@ -157,6 +147,12 @@ struct ObjectParameter
 	v3 mLinearVelocity;
 	v3 mAngularVelocity;
 	Connection mConnection;
+};
+
+struct SectorParameter
+{
+	std::string           mName;
+	ObjectParameter::MapT mObjects;
 };
 
 struct LightParameters

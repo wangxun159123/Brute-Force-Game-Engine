@@ -230,3 +230,4 @@ void levelDirectories(std::vector<std::string>& result)
 
 
 } // namespace BFG
+

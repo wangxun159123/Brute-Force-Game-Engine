@@ -53,14 +53,15 @@ mGameObjectFactory(gof),
 mEnvironment(environment),
 mViewState(viewState)
 {
-	assert(gof && "Interpreter must be initialized");
+	assert(interpreter && "Interpreter must be initialized");
 	assert(gof && "GameObjectFactory must be initialized");
 	assert(environment && "Environment must be initialized");
+	assert(viewState != NULL_HANDLE);
 }
 
 boost::shared_ptr<Sector>
 SectorFactory::createSector(const std::string& fileSectorConfig,
-							GameHandle& outCameraHandle)
+                            GameHandle& outCameraHandle)
 {
 	FileLoader fileLoader;
 

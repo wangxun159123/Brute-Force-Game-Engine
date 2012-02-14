@@ -26,6 +26,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #ifndef INTERPRETER_H_
 #define INTERPRETER_H_
 
+#include <Model/Defs.h>
 #include <Model/Loader/Types.h>
 #include <Model/Loader/SectorFactory.h>
 #include <Model/Loader/Exceptions.h>
@@ -41,13 +42,6 @@ namespace Loader {
 //! Not all types of the GoePayloadT are supported though.
 //! \exception std::runtime_error If the input couldn't be converted. 
 Property::Value MODEL_API StringToPropertyValue(const std::string& input);
-
-//! \brief Utility function for Interpreter
-//! \param[in] input Example: "Wing:5" or "Body:1". Both parts are mandatory.
-//! \param[out] connection Result of parsing
-//! \exception std::runtime_error If the input couldn't be parsed. 
-void MODEL_API parseConnection(const std::string& input,
-                               Connection& connection);
 
 //! \brief Serializes string data into engine structures
 class MODEL_API Interpreter

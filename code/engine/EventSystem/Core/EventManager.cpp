@@ -52,6 +52,7 @@ EventManager* EventManager::getInstance()
 EventManager::EventManager() :
 mThreadCount(0),
 mExitFlag(false),
+mEventIdDynamicStartValue(30000),
 mAcceptor(0)
 {
 	mThread = boost::thread(&EventManager::runThread, this);
@@ -216,7 +217,7 @@ bool EventManager::doOperate()
 	for (size_t i = 0; i < mThreadCount; ++i)
 	{
 		BaseEventPool* pool;
-		while(pool = mEventChannelList[i]->getPublishedEventPool())
+		while ((pool = mEventChannelList[i]->getPublishedEventPool()))
 		{
 			didWork = true;
 			transmitPool(pool); // transmit to networkchannels
@@ -260,9 +261,9 @@ long EventManager::getDynamicEventId(const std::string& eventIdentifier)
 	EventIdBinding::iterator it = mDynamicEventIdMap.find(eventIdentifier);
 	if (it == mDynamicEventIdMap.end())
 	{
-		mDynamicEventIdMap[eventIdentifier] = EventIdDynamicStartValue;
-		wRet = EventIdDynamicStartValue;
-		++EventIdDynamicStartValue;		
+		mDynamicEventIdMap[eventIdentifier] = mEventIdDynamicStartValue;
+		wRet = mEventIdDynamicStartValue;
+		++mEventIdDynamicStartValue;
 	}
 	else
 	{
@@ -342,8 +343,8 @@ void EventManager::connect(const std::string& ip, const int port)
 {
 	dbglog << "EventManager: Connecting to " << ip << ":" << port << " ...";
 
-    boost::asio::ip::address_v4 addr = boost::asio::ip::address_v4::from_string(ip);
-    boost::asio::ip::tcp::endpoint ep(addr, port);
+	boost::asio::ip::address_v4 addr = boost::asio::ip::address_v4::from_string(ip);
+	boost::asio::ip::tcp::endpoint ep(addr, port);
 	boost::asio::ip::tcp::socket socket(mService);
 
 	EventSystem::ClientChannel::Pointer newConnection =

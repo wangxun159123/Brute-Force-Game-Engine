@@ -28,10 +28,10 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #define __PONG_BALL_CONTROL_H_
 
 #include <Core/Math.h>
-#include <Physics/PhysicsManager.h>
 #include <Model/GameObject.h>
 #include <Model/Property/Concept.h>
 #include <View/Event.h>
+#include <Physics/Event.h>
 
 #include "Pong/PongDefinitions.h"
 

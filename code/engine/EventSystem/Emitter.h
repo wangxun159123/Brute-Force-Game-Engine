@@ -36,7 +36,9 @@ class Emitter
 public:
 	Emitter(EventLoop* loop) :
 	mLoop(loop)
-	{}
+	{
+		assert(loop);
+	}
 
 	EventLoop* loop() const { return mLoop; }
 	

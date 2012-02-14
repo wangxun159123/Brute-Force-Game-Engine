@@ -52,3 +52,4 @@ private:
 } //namespace BFG
 
 #endif //__BASE_EXAMPLES_H_
+

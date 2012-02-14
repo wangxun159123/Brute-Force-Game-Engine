@@ -33,6 +33,10 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
   #pragma warning( disable: 4512 4244 4996 4100 )
 #endif // _MSC_VER
 
+// Fix for compile error within Boost.Log (operator problem) on OSX and Clang++
+// See http://stackoverflow.com/questions/6573436/cant-compile-against-boost-log-on-os-x
+#define BOOST_LOG_NO_UNSPECIFIED_BOOL
+
 #include <string>
 #include <boost/log/sources/severity_logger.hpp>
 #include <boost/log/sources/global_logger_storage.hpp>
@@ -82,7 +86,7 @@ void Init(SeverityLevel Min_Log_Level, const std::string& Filename = "");
 } // namespace Logger
 } // namespace Base
 
-BOOST_LOG_GLOBAL_LOGGER(usp_log, BFG::Base::Logger::SourceT);
+BOOST_LOG_GLOBAL_LOGGER(usp_log, BFG::Base::Logger::SourceT)
 
 } // namespace BFG
 

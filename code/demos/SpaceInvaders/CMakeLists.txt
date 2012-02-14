@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-INCLUDE(USE)
-
-USE_INIT_PACKAGE(SpaceInvaders "0.3.0")
+BFG_INIT_PACKAGE(SpaceInvaders "0.3.0")
 
 FILE(GLOB SpaceInvaders_SOURCES *.cpp)
 FILE(GLOB SpaceInvaders_HEADERS *.h)
@@ -21,24 +19,22 @@ INCLUDE_DIRECTORIES(${OPENAL_INCLUDE_DIR})
 INCLUDE_DIRECTORIES(${VORBIS_INCLUDE_DIR})
 
 INCLUDE_DIRECTORIES(${TINYXML_INCLUDE_DIR})
-INCLUDE_DIRECTORIES(${ODE_INCLUDE_DIR})
 INCLUDE_DIRECTORIES(${BFG_ENGINE_INCLUDE_DIR})
 INCLUDE_DIRECTORIES(..)
 INCLUDE_DIRECTORIES(.)	# For subdirectories
 
-ADD_DEFINITIONS(-DdSINGLE)
 ADD_DEFINITIONS(-DTIXML_USE_STL)
 
-ADD_EXECUTABLE(SpaceInvaders ${SpaceInvaders_SOURCES} ${SpaceInvaders_HEADERS})
+ADD_EXECUTABLE(bfgSpaceInvaders ${SpaceInvaders_SOURCES} ${SpaceInvaders_HEADERS})
 
-TARGET_LINK_LIBRARIES(SpaceInvaders
-	AudioBlaster
-	Base
-	Controller
-	EventCore
-	Model
-	Core
-	View
+TARGET_LINK_LIBRARIES(bfgSpaceInvaders
+	bfgAudioBlaster
+	bfgBase
+	bfgController
+	bfgEventCore
+	bfgModel
+	bfgCore
+	bfgView
 	${BoostLog_LIBRARIES}
 	${Boost_LIBRARIES}
 	${OGRE_LIBRARIES}
@@ -50,7 +46,7 @@ TARGET_LINK_LIBRARIES(SpaceInvaders
 	ode
 )
 
-INSTALL(TARGETS SpaceInvaders
-	RUNTIME DESTINATION ${USE_BIN_DIR}
-	COMPONENT runtime
+INSTALL(TARGETS bfgSpaceInvaders
+        RUNTIME DESTINATION ${BFG_BIN_DIR}
+        COMPONENT runtime
 )

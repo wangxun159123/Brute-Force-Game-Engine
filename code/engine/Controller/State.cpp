@@ -142,7 +142,6 @@ const std::string& State::getStateID() const
 
 void State::activate()
 {
-	// This will fix a bug which can occur on state change.
 	disableFeedbackOfAllVips();
 
 	if (mMouse.good())

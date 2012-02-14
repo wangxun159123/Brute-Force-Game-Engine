@@ -118,7 +118,6 @@ protected:
 	//! The socket of this Channel
 	boost::asio::ip::tcp::socket mSocket;
 
-	//std::string message_;
 	//! Hopefully this buffer is big enough
 	boost::asio::streambuf mIncomingBuffer;
 

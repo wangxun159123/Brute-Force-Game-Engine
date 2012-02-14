@@ -32,39 +32,48 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <EventSystem/Core/EventDefs.h>
 
-
 template < class EventListenerType, class EventType >
 class SpecificEventFunctor 
 {
-   private:
-      void (EventListenerType::*mFpt)(EventType *event);   // pointer to EventHandlerFunction
-      EventListenerType* mPt2Object;                  // pointer to EventHandlerObject
-      long long mReceiver;
-   public:
+public:
+	typedef void (EventListenerType::*EventHandlerFunctionT)(EventType*);
 
-      // constructor - takes pointer to an object and pointer to a member and stores
-      SpecificEventFunctor(EventListenerType* pt2Object, 
-                           void(EventListenerType::*fpt)(EventType *event),
-                           long long receiver /* 0 = global*/ ) :
-      mPt2Object(pt2Object),
-      mFpt(fpt),
-      mReceiver(receiver)
-      { 
-        /*empty ctor*/ 
-      };
-	  virtual ~SpecificEventFunctor(){};
-      // override function "Call" !
-      virtual inline void call(EventType* event)
-      { 
-		  // Don't use the following line here, because that causes bad Branch Prediction
-		  //if ( !event->GetReceiver() || event->GetReceiver() == receiver )
-		  {
-		    // execute member function
-		    (*mPt2Object.*mFpt)(event);
-		  }
-	  };             
+	// constructor - takes pointer to an object and pointer to a member and stores
+	SpecificEventFunctor(EventListenerType* pt2Object,
+	                     EventHandlerFunctionT fpt,
+	                     long long receiver /* 0 = global */) :
+	mFpt(fpt),
+	mPt2Object(pt2Object),
+	mReceiver(receiver)
+	{}
 
-	  virtual EventListenerType* getEventListener() const {return mPt2Object;}
+	virtual ~SpecificEventFunctor()
+	{}
+
+	//! Override function "Call" !
+	virtual inline void call(EventType* event)
+	{ 
+		// Don't use the following line here, because that causes bad Branch Prediction
+		//if ( !event->GetReceiver() || event->GetReceiver() == receiver )
+		{
+			// execute member function
+			(*mPt2Object.*mFpt)(event);
+		}
+	};
+
+	virtual EventListenerType* getEventListener() const
+	{
+		return mPt2Object;
+	}
+
+private:
+	//! Pointer to EventHandlerFunction
+	EventHandlerFunctionT mFpt;
+
+	//! Pointer to EventHandlerObject
+	EventListenerType* mPt2Object;
+
+	long long mReceiver;
 };
 
 

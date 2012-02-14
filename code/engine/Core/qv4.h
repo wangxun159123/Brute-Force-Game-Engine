@@ -269,7 +269,7 @@ typedef quaternion4<f32> qv4;
 template <typename T>
 std::ostream& operator << (std::ostream& o, const quaternion4<T>& q)
 {
-	o << "qv4(" << q.w << ", " << q.x << ", " << q.y << ", " << q.z << ")";
+	o << q.w << ", " << q.x << ", " << q.y << ", " << q.z;
 	return o;
 }
 

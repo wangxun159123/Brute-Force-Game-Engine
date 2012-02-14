@@ -27,16 +27,16 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <EventSystem/Core/EventLoop.h>
 #include <EventSystem/Core/EventManager.h>
 
-EventLoop::EventLoop(bool notifyLoopEventListener, EventSystem::ThreadingPolicy* tp, EventSystem::CommunicationPolicy* cp) :
-IEventLoop (),
-EventProcessor(),
-BFG::Base::CEntryPointHandler<EventLoop>(),
-mMultiLoop(notifyLoopEventListener), 
-mShouldExit(false),
+EventLoop::EventLoop(bool notifyLoopEventListener,
+                     EventSystem::ThreadingPolicy* tp,
+                     EventSystem::CommunicationPolicy* cp) :
 mFrontPool(new BaseEventPool()),
 mBackPool(new BaseEventPool()),
 mThreadingPolicy(tp),
-mCommunicationPolicy(cp) {}
+mCommunicationPolicy(cp),
+mShouldExit(false),
+mMultiLoop(notifyLoopEventListener)
+{}
 
 EventLoop::~EventLoop()
 {

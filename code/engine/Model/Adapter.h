@@ -37,25 +37,28 @@ namespace BFG {
 		Simple connection between Modules
 
 	Used to determine if there is a connection between modules possible or
-	if there is allready one.
+	if there is already one.
 */
 struct Adapter
 {
 	u32 mIdentifier;
-	/// The local orientation
-	qv4 mParentOrientation;
-	qv4 mChildOrientation;
-	
-	/// The local positions
+
+	//! The local position
 	v3 mParentPosition;
+	//! The local orientation
+	qv4 mParentOrientation;
+
+	//! Position of the attached object (when connected)
 	v3 mChildPosition;
+	//! Orientation of the attached object (when connected)
+	qv4 mChildOrientation;
 
 	Adapter() :
 	mIdentifier(0),
-	mParentOrientation(qv4::IDENTITY),
-	mChildOrientation(qv4::IDENTITY),
 	mParentPosition(v3::ZERO),
-	mChildPosition(v3::ZERO)
+	mParentOrientation(qv4::IDENTITY),
+	mChildPosition(v3::ZERO),
+	mChildOrientation(qv4::IDENTITY)
 	{
 	}
 	

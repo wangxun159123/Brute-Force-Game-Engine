@@ -55,8 +55,6 @@ arc(0.0f)
 	mLight->setPowerScale(5.0f);
 
 	sceneMgr->setAmbientLight(ColourValue::Black);
-	
-	GameHandle handle = generateHandle();
 
 	// x
 	size_t j_max = 10;

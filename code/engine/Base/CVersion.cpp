@@ -71,3 +71,4 @@ std::ostream& operator << (std::ostream& lhs, const CVersion& rhs)
 }
 
 } // namespace BFG
+

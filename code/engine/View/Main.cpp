@@ -77,9 +77,9 @@ struct ShutdownDeleter
 
 
 Main::Main(EventLoop* loop, const std::string& windowTitle) :
-mSceneMgr(NULL),
 mShutdown(false),
-mWindowTitle(windowTitle)
+mWindowTitle(windowTitle),
+mSceneMgr(NULL)
 {
 	assert(loop && "Main: EventLoop is invalid");
 
@@ -274,7 +274,7 @@ void Main::initMyGui()
 	);
 	mPlatform->getRenderManagerPtr()->setActiveViewport(0); 
 	mGui.reset(new MyGUI::Gui, ShutdownDeleter<MyGUI::Gui>());
-	mGui->initialise("guiBase.xml", log);
+	mGui->initialise("guiBase.xml");
 	
 	infolog << "MyGui: Initialize MyGui done.";
 }

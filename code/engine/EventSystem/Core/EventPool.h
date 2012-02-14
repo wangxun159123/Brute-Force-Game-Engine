@@ -102,7 +102,7 @@ public:
 		else
 		{
 			// put as much into this and leave the rest in pool
-			size_t eventCount = 0, memory = 0;
+			size_t eventCount = 0;
 
 			if(availableMemory < (neededMemory / 2))
 			{
@@ -122,7 +122,9 @@ public:
 
 			// reorganize pool
 			size_t startIndex = eventCount;
-			size_t endIndex = pool->mEventStorageCount - 1;
+			
+			// Still unused, but maybe helpful one day
+			//size_t endIndex = pool->mEventStorageCount - 1;
 
 			pool->reorganize(startIndex);
 		}

@@ -72,3 +72,4 @@ void nameCurrentThread(const std::string& name)
 #endif
 
 } // namespace BFG
+

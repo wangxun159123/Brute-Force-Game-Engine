@@ -84,7 +84,7 @@ namespace Parse
 				
 				Storage.mValues.push_back(Val);
 			}
-			while (Value = Value->NextSiblingElement(Tag::Value));
+			while ((Value = Value->NextSiblingElement(Tag::Value)));
 		}
 
 		void AddIncludes(TiXmlElement* Value, Shared::Enum& Storage)
@@ -96,7 +96,7 @@ namespace Parse
 				
 				Storage.mMeta.Required.push_back(Text);
 			}
-			while (Value = Value->NextSiblingElement(Tag::Include));
+			while ((Value = Value->NextSiblingElement(Tag::Include)));
 		}
 
 		void AddEnums(TiXmlElement* currentTag,
@@ -158,7 +158,7 @@ namespace Parse
 
 				Everything.push_back(Storage);
 			}
-			while (currentTag = currentTag->NextSiblingElement(Tag::Enum));
+			while ((currentTag = currentTag->NextSiblingElement(Tag::Enum)));
 		}
 
 		void AddNamespaces(TiXmlElement* currentTag,
@@ -190,7 +190,7 @@ namespace Parse
 					AddEnums(currentTag, Everything, *Name);
 				}
 			}
-			while (currentTag = currentTag->NextSiblingElement(Tag::Namespace));
+			while ((currentTag = currentTag->NextSiblingElement(Tag::Namespace)));
 		}
 		              
 	} // namespace detail

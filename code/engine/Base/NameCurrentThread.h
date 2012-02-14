@@ -38,3 +38,4 @@ void nameCurrentThread(const std::string& name);
 } // namespace BFG
 
 #endif
+
