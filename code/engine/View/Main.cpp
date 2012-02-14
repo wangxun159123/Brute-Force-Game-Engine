@@ -274,7 +274,7 @@ void Main::initMyGui()
 	);
 	mPlatform->getRenderManagerPtr()->setActiveViewport(0); 
 	mGui.reset(new MyGUI::Gui, ShutdownDeleter<MyGUI::Gui>());
-	mGui->initialise("guiBase.xml", log);
+	mGui->initialise("guiBase.xml");
 	
 	infolog << "MyGui: Initialize MyGui done.";
 }
