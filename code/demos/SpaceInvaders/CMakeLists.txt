@@ -28,7 +28,7 @@ ADD_DEFINITIONS(-DTIXML_USE_STL)
 ADD_EXECUTABLE(bfgSpaceInvaders ${SpaceInvaders_SOURCES} ${SpaceInvaders_HEADERS})
 
 TARGET_LINK_LIBRARIES(bfgSpaceInvaders
-	bfgAudioBlaster
+	bfgAudio
 	bfgBase
 	bfgController
 	bfgEventCore

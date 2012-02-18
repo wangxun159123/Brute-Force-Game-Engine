@@ -69,10 +69,10 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Model/Property/SpacePlugin.h>
 #include <Physics/Event.h>
 #include <Physics/Interface.h>
-#include <AudioBlaster/AudioBlaster.h>
-#include <AudioBlaster/Transport.h>
-#include <AudioBlaster/Interface.h>
-#include <AudioBlaster/Enums.hh>
+#include <Audio/Audio.h>
+#include <Audio/Transport.h>
+#include <Audio/Interface.h>
+#include <Audio/Enums.hh>
 
 
 using namespace BFG;
@@ -669,7 +669,7 @@ struct MainState : Emitter
 		
 		mPlayer = playerShip->getHandle();
 
-		// \Hack This level is a static list at Audio::DummyLoader.. must be removed in advance of AudioBlaster development.
+		// \Hack This level is a static list at Audio::DummyLoader.. must be removed in advance of Audio development.
 		emit<Audio::AudioEvent>(ID::AE_SET_LEVEL_CURRENT, std::string("DummyLevel1"));
 
 		mClock->start();
@@ -966,8 +966,8 @@ void* SingleThreadEntryPoint(void *iPointer)
 		loop->connect(A_FPS, ps, &MainState::ControllerEventHandler);
 	}
 
-	// Init AudioBlaster
-	Audio::AudioBlaster* audioBlaster = new Audio::AudioBlaster();
+	// Init Audio
+	Audio::Audio* Audio = new Audio::Audio();
 
 	assert(loop);
 	loop->registerLoopEventListener(ps, &MainState::LoopEventHandler);
