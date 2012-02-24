@@ -1,2 +1,3 @@
 ADD_SUBDIRECTORY(ControllerTest)
 ADD_SUBDIRECTORY(SerializationTest)
+ADD_SUBDIRECTORY(AudioTest)
