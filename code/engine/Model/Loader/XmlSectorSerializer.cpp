@@ -28,6 +28,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <tinyxml.h>
 #include <Base/CLogger.h>
+#include <Model/Loader/Types.h>
 #include <Model/Loader/XmlObjectSerializer.h>
 
 namespace BFG {
@@ -58,7 +59,7 @@ mDocument(document)
 	assert(document);
 }
 
-void XmlSectorSerializer::read(SectorParameter& sp)
+void XmlSectorSerializer::read(ReadT& sp)
 {
 	TiXmlElement* origin = mOrigin->Clone()->ToElement();
 	
@@ -68,17 +69,17 @@ void XmlSectorSerializer::read(SectorParameter& sp)
 		sp.mName = *name;
 	
 	TiXmlElement* objectList = origin->FirstChildElement(Elements::ObjectList);
-	XmlObjectSerializer xos(objectList);
-	xos.read(sp.mObjects);
+	XmlObjectListSerializer xols(objectList);
+	xols.read(sp.mObjects);
 }
 
-void XmlSectorSerializer::write(const SectorParameter& sp)
+void XmlSectorSerializer::write(WriteT& sp)
 {	
 	TiXmlElement* sector = new TiXmlElement(Elements::Sector);
 	sector->SetAttribute(Attributes::name, sp.mName);
 	
 	TiXmlElement* objectList = new TiXmlElement(Elements::ObjectList);
-	XmlObjectSerializer xos(objectList);
+	XmlObjectListSerializer xos(objectList);
 	xos.write(sp.mObjects);
 	
 	if (mOrigin)

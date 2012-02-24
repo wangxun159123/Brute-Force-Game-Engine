@@ -32,7 +32,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 #include <Model/Defs.h>
-#include <Model/Loader/AdapterSerializer.h>
+#include <Model/Loader/Types.h>
 
 class TiXmlElement;
 
@@ -46,17 +46,15 @@ public:
 	//! reading or to a higher parent element for writing a whole
 	//! adapter element into.
 	XmlAdapterSerializer(TiXmlElement* adapter);
-		
-	virtual void read(Adapter& a);
-	virtual void write(const Adapter& a);
+	
+	virtual void read(ReadT& a);
+	virtual void write(WriteT& a);
 	
 private:
 	TiXmlElement* mOrigin;
 };
 
-typedef std::pair<std::string, std::vector<Adapter> > AdapterConfigT;
-
-class MODEL_API XmlAdapterConfigSerializer
+class MODEL_API XmlAdapterConfigSerializer : public AdapterConfigSerializer
 {
 public:
 	//! \param adapterConfig Must point to an existing AdapterConfig-element for
@@ -64,8 +62,8 @@ public:
 	//! AdapterConfig element into.
 	XmlAdapterConfigSerializer(TiXmlElement* adapterConfig);
 		
-	virtual void read(AdapterConfigT& a);
-	virtual void write(const AdapterConfigT& a);
+	virtual void read(ReadT& a);
+	virtual void write(WriteT& a);
 	
 private:
 	TiXmlElement* mOrigin;

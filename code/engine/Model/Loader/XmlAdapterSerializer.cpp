@@ -57,7 +57,7 @@ mOrigin(adapter)
 	assert(adapter);
 }
 
-void XmlAdapterSerializer::read(Adapter& a)
+void XmlAdapterSerializer::read(ReadT& a)
 {
 	TiXmlElement* origin = mOrigin->Clone()->ToElement();
 	
@@ -73,7 +73,7 @@ void XmlAdapterSerializer::read(Adapter& a)
 		stringToQuaternion4(*orientation, a.mParentOrientation);
 }
 
-void XmlAdapterSerializer::write(const BFG::Adapter& a)
+void XmlAdapterSerializer::write(WriteT& a)
 {
 	TiXmlElement* adapter = new TiXmlElement(Elements::Adapter);
 	adapter->SetAttribute(Attributes::id, a.mIdentifier);
@@ -94,7 +94,7 @@ mOrigin(adapterConfig)
 	assert(adapterConfig);
 }
 
-void XmlAdapterConfigSerializer::read(AdapterConfigT& a)
+void XmlAdapterConfigSerializer::read(ReadT& a)
 {
 	TiXmlElement* origin = mOrigin->Clone()->ToElement();
 
@@ -116,7 +116,7 @@ void XmlAdapterConfigSerializer::read(AdapterConfigT& a)
 	}
 }
 
-void XmlAdapterConfigSerializer::write(const AdapterConfigT& a)
+void XmlAdapterConfigSerializer::write(WriteT& a)
 {
 	TiXmlElement* adapterConfig = new TiXmlElement(Elements::AdapterConfig);
 

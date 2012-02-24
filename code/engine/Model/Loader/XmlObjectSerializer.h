@@ -29,7 +29,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Model/Defs.h>
 #include <Model/Loader/Types.h>
-#include <Model/Loader/ObjectSerializer.h>
 
 class TiXmlElement;
 
@@ -39,28 +38,31 @@ namespace Loader {
 class MODEL_API XmlObjectSerializer : public ObjectSerializer
 {
 public:
+	//! \param object Must point to an existing Object for
+	//! reading, and to a higher parent element for writing a whole
+	//! Object element into.
+	XmlObjectSerializer(TiXmlElement* object);
+	
+	virtual void read(ReadT& object);
+	virtual void write(WriteT& object);
+
+private:
+	TiXmlElement* mOrigin;
+};
+
+class MODEL_API XmlObjectListSerializer : public ObjectListSerializer
+{
+public:
 	//! \param objectCollection Must point to an existing ObjectList for
 	//! reading, and to a higher parent element for writing a whole
 	//! ObjectList element into.
-	XmlObjectSerializer(TiXmlElement* objectCollection);
+	XmlObjectListSerializer(TiXmlElement* objectCollection);
 	
-	virtual void read(ObjectParameter::MapT& objects);
-	virtual void write(const ObjectParameter::MapT& objects);
+	virtual void read(ReadT& objects);
+	virtual void write(WriteT& objects);
 
 private:
-	void writeCollection(const ObjectParameter::MapT& objects,
-	                     TiXmlElement* result);
-
-	void writeOne(const ObjectParameter& op,
-	              TiXmlElement* result) const;
-
-	void readCollection(TiXmlElement* objectCollection,
-	                    ObjectParameter::MapT& result) const;
-	
-	void readOne(const TiXmlElement* objectElement,
-	             ObjectParameter& result) const;
-
-	TiXmlElement* mCollectionOrigin;
+	TiXmlElement* mOrigin;
 };
 
 } // namespace Loader
