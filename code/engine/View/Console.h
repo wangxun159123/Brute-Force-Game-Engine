@@ -29,6 +29,9 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <View/HudElement.h>
 
+// Included to fix an operator problem with clang
+#include <Base/CLogger.h>
+
 #include <boost/log/sinks.hpp>
 #include <EventSystem/Emitter.h>
 
