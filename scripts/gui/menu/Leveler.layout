@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout" version="3.2.0">
+  <Widget type="Widget" skin="Transparent" position="0 0 512 20" layer="Menu" align="Left Top" name="MenuBox">
+  </Widget>
+</MyGUI>

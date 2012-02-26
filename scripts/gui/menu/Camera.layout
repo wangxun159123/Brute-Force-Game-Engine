@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout" version="3.2.0">
+  <Widget type="Canvas" skin="Canvas" position="0 20 512 492" align="Stretch" layer="Picking" name="CameraPanel">
+    <Property key="NeedKey" value="true"/>
+    <Widget type="TextBox" skin="TextBox" position="0 0 148 24" name="Title">
+      <Property key="TextColour" value="1 1 1"/>
+      <Property key="NeedMouse" value="false"/>
+    </Widget>
+    <Widget type="Canvas" skin="Canvas" position="0 0 256 246" align="Left Top" name="CameraOne">
+      <Property key="NeedKey" value="true"/>
+      <UserString key="lookFrom" value="Front"/>
+      <UserString key="type" value="orthographic"/>
+      <UserString key="startDistance" value="10"/>
+      <Widget type="TextBox" skin="TextBox" position="0 0 148 24" name="Title">
+        <Property key="TextColour" value="1 1 1"/>
+        <Property key="NeedMouse" value="false"/>
+      </Widget>
+      <Widget type="TextBox" skin="TextBox" position="150 0 106 24" align="Right Top" name="Debug">
+        <Property key="TextColour" value="1 1 1"/>
+        <Property key="NeedMouse" value="false"/>
+      </Widget>
+    </Widget>
+    <Widget type="Canvas" skin="Canvas" position="256 0 256 246" align="Right Top" name="CameraTwo">
+      <Property key="NeedKey" value="true"/>
+      <UserString key="lookFrom" value="Left"/>
+      <UserString key="startDistance" value="10"/>
+      <UserString key="type" value="orthographic"/>
+      <Widget type="TextBox" skin="TextBox" position="0 0 148 24" name="Title">
+        <Property key="TextColour" value="1 1 1"/>
+        <Property key="NeedMouse" value="false"/>
+      </Widget>
+      <Widget type="TextBox" skin="TextBox" position="150 0 106 24" align="Right Top" name="Debug">
+        <Property key="TextColour" value="1 1 1"/>
+        <Property key="NeedMouse" value="false"/>
+      </Widget>
+    </Widget>
+    <Widget type="Canvas" skin="Canvas" position="0 246 256 246" align="Left Bottom" name="CameraThree">
+      <Property key="NeedKey" value="true"/>
+      <UserString key="lookFrom" value="Top"/>
+      <UserString key="startDistance" value="10"/>
+      <UserString key="type" value="orthographic"/>
+      <Widget type="TextBox" skin="TextBox" position="0 0 148 24" name="Title">
+        <Property key="TextColour" value="1 1 1"/>
+        <Property key="NeedMouse" value="false"/>
+      </Widget>
+      <Widget type="TextBox" skin="TextBox" position="150 0 106 24" align="Right Top" name="Debug">
+        <Property key="TextColour" value="1 1 1"/>
+        <Property key="NeedMouse" value="false"/>
+      </Widget>
+    </Widget>
+    <Widget type="Canvas" skin="Canvas" position="256 246 256 246" align="Right Bottom" name="CameraFour">
+      <Property key="NeedKey" value="true"/>
+      <UserString key="lookFrom" value="Front"/>
+      <UserString key="startDistance" value="10"/>
+      <UserString key="type" value="perspective"/>
+      <Widget type="TextBox" skin="TextBox" position="0 0 148 24" name="Title">
+        <Property key="TextColour" value="1 1 1"/>
+        <Property key="NeedMouse" value="false"/>
+      </Widget>
+      <Widget type="TextBox" skin="TextBox" position="150 0 106 24" align="Right Top" name="Debug">
+        <Property key="TextColour" value="1 1 1"/>
+        <Property key="NeedMouse" value="false"/>
+      </Widget>
+    </Widget>
+  </Widget>
+</MyGUI>
