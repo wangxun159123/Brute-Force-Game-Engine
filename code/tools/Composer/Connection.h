@@ -80,7 +80,7 @@ public:
 		mToAdapter->setEnabled(false);
 
 		mClose = panel->findWidget("close")->castType<MyGUI::Button>();
-		mClose->eventMouseButtonClick = closeHandler;
+		mClose->eventMouseButtonClick += closeHandler;
 		mClose->setUserData(this);
 
 		std::vector<Module*>::iterator modIt = mModules.begin();
@@ -224,7 +224,7 @@ private:
 			size_t adapIndex = module->mAdapter->getIndexSelected();
 			std::string adapName(module->mAdapter->getItemNameAt(adapIndex));
 			
-			adapters->deleteAllItems();
+			adapters->removeAllItems();
 			
 			std::vector<BFG::Adapter> & adapter = mAdapters[adapName];
 			std::vector<BFG::Adapter>::iterator adapIt = adapter.begin();

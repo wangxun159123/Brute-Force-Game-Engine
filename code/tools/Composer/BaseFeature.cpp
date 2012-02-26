@@ -60,7 +60,7 @@ namespace Tool
 		mMenuButton->setCaption(mName);
 		MyGUI::IntSize textSize = mMenuButton->getSubWidgetText()->getTextSize();
 		mMenuButton->setSize(textSize.width + 4, 24);
-		mMenuButton->eventMouseButtonClick = 
+		mMenuButton->eventMouseButtonClick += 
 			MyGUI::newDelegate(this, &BaseFeature::onButtonClicked);
 	}
 

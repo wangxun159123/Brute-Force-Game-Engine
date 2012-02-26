@@ -53,7 +53,7 @@ public:
 			return;
 
 		MyGUI::LayoutManager* layMan = MyGUI::LayoutManager::getInstancePtr();
-		mContainer = layMan->load("ChooseListItem.layout");
+		mContainer = layMan->loadLayout("ChooseListItem.layout");
 
 		MyGUI::Widget* w = mContainer.front();
 
@@ -62,7 +62,7 @@ public:
 
 		mList = w->castType<MyGUI::List>(true);
 
-		mList->eventListSelectAccept = MyGUI::newDelegate(this, &MaterialChange::onMatSelected);
+		mList->eventListSelectAccept += MyGUI::newDelegate(this, &MaterialChange::onMatSelected);
 
 		mLoaded = true;
 		deactivate();
