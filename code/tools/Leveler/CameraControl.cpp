@@ -490,9 +490,24 @@ void CameraControl::update(const Ogre::FrameEvent& evt)
 			if (camName.empty())
 				throw std::runtime_error("CamHandle not found in widget " + mZoomWidget->getName());
 
-			Ogre::SceneNode* node = mSceneMan->getSceneNode(camName);
+			const std::string camType(mZoomWidget->getUserString("type"));
+			if (camType == "orthographic")
+			{
+				Ogre::Camera* cam = mSceneMan->getCamera(camName);
+				f32 height = cam->getOrthoWindowHeight();
 
-			node->translate(0, 0, mZoomSpeed * evt.timeSinceLastFrame, Ogre::Node::TS_LOCAL);
+				height += mZoomSpeed * evt.timeSinceLastFrame;
+				if (height < BFG::EPSILON_F)
+					height = BFG::EPSILON_F;
+
+				cam->setOrthoWindowHeight(height);
+			}
+			else if (camType == "perspective")
+			{
+				Ogre::SceneNode* node = mSceneMan->getSceneNode(camName);
+
+				node->translate(0, 0, mZoomSpeed * evt.timeSinceLastFrame, Ogre::Node::TS_LOCAL);
+			}
 		}
 	}
 }
