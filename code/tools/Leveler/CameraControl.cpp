@@ -490,7 +490,14 @@ void CameraControl::update(const Ogre::FrameEvent& evt)
 			if (camName.empty())
 				throw std::runtime_error("CamHandle not found in widget " + mZoomWidget->getName());
 
+			const std::string look(mZoomWidget->getUserString("lookFrom"));
+			if (look.empty())
+				throw std::runtime_error("lookFrom parameter not found in widget " + mZoomWidget->getName());
+
 			const std::string camType(mZoomWidget->getUserString("type"));
+			if (camType.empty())
+				throw std::runtime_error("type parameter not found in widget " + mZoomWidget->getName());
+
 			if (camType == "orthographic")
 			{
 				Ogre::Camera* cam = mSceneMan->getCamera(camName);
@@ -507,6 +514,9 @@ void CameraControl::update(const Ogre::FrameEvent& evt)
 				Ogre::SceneNode* node = mSceneMan->getSceneNode(camName);
 
 				node->translate(0, 0, mZoomSpeed * evt.timeSinceLastFrame, Ogre::Node::TS_LOCAL);
+
+				ViewParameter& vp = mViewParameterMap[look];
+				vp.mPlane.d += mZoomSpeed * evt.timeSinceLastFrame;
 			}
 		}
 	}
