@@ -389,7 +389,22 @@ void CameraControl::onKeyReleased(MyGUI::Widget* widget, MyGUI::KeyCode key)
 			if (camName.empty())
 				throw std::runtime_error("camHandle property not found");
 
+			const std::string lookFrom(widget->getUserString("lookFrom"));
+			if (lookFrom.empty())
+				throw std::runtime_error("lookFrom property not found");
+
+			const std::string startDistance(widget->getUserString("startDistance"));
+			if (startDistance.empty())
+				throw std::runtime_error("startDistance property not found");
+
+			const std::string type(widget->getUserString("type"));
+			if (type.empty())
+				throw std::runtime_error("type property not found");
+
 			mFullView->setUserString("camHandle", camName);
+			mFullView->setUserString("lookFrom", lookFrom);
+			mFullView->setUserString("startDistance", startDistance);
+			mFullView->setUserString("type", type);
 
 			MyGUI::TextBox* fullTitle = mFullView->findWidget("Title")->castType<MyGUI::TextBox>();
 			MyGUI::TextBox* viewTitle = widget->findWidget("Title")->castType<MyGUI::TextBox>();
