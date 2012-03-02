@@ -50,7 +50,7 @@
     </Widget>
     <Widget type="Canvas" skin="Canvas" position="256 246 256 246" align="Right Bottom" name="CameraFour">
       <Property key="NeedKey" value="true"/>
-      <UserString key="lookFrom" value="Front"/>
+      <UserString key="lookFrom" value="Free"/>
       <UserString key="startDistance" value="10"/>
       <UserString key="type" value="perspective"/>
       <Widget type="TextBox" skin="TextBox" position="0 0 148 24" name="Title">

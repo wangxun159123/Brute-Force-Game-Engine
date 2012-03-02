@@ -100,7 +100,7 @@ void CameraControl::createDefaultCamera()
 		const std::string look(mViews[i]->getUserString("lookFrom"));
 		if (look == "Free")
 		{
-			position = BFG::v3::UNIT_X * startDistance;
+			position = BFG::v3::NEGATIVE_UNIT_Z * startDistance;
 			orientation = BFG::qv4::IDENTITY;
 		}
 		else
@@ -411,11 +411,6 @@ void CameraControl::onKeyReleased(MyGUI::Widget* widget, MyGUI::KeyCode key)
 
 			fullTitle->setCaption(viewTitle->getCaption());
 			fullTitle->setSize(viewTitle->getSize());
-
-			if (widget->isUserString("lookFrom"))
-			{
-				mFullView->setUserString("lookFrom", widget->getUserString("lookFrom"));
-			}
 
 			Ogre::RenderTarget** target = *widget->getUserData<Ogre::RenderTarget**>();
 
