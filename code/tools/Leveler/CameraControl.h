@@ -251,6 +251,10 @@ private:
 	void addCanvasEvents(MyGUI::Canvas* canvas);
 	void removeCanvasEvents(MyGUI::Canvas* canvas);
 
+	const std::string checkUserString(const MyGUI::Widget* widget,
+	                                  const std::string& key,
+	                                  bool throwException = true) const;
+
 	boost::shared_ptr<SharedData> mData;
 
 	MyGUI::Canvas* mFullView;

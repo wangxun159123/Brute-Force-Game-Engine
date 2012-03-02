@@ -228,21 +228,16 @@ void CameraControl::resize()
 
 	MyGUI::IntSize panelSize(mFullSize.width / 2, mFullSize.height / 2);
 
-	mViews[0]->setSize(panelSize);
+	for (size_t i = 0; i < 4; ++i)
+	{
+		int x = i%2 ? panelSize.width : 0;
+		int y = i>1 ? panelSize.height : 0;
 
-	mViews[1]->setSize(panelSize);
-	mViews[1]->setPosition(panelSize.width, 0);
+		mViews[i]->setSize(panelSize);
+		mViews[i]->setPosition(x, y);
 
-	mViews[2]->setSize(panelSize);
-	mViews[2]->setPosition(0, panelSize.height);
-
-	mViews[3]->setSize(panelSize);
-	mViews[3]->setPosition(panelSize.width, panelSize.height);
-
-	setAspectRatio(stringify(mData->mCameras[0]), (float)panelSize.width, (float)panelSize.height);
-	setAspectRatio(stringify(mData->mCameras[1]), (float)panelSize.width, (float)panelSize.height);
-	setAspectRatio(stringify(mData->mCameras[2]), (float)panelSize.width, (float)panelSize.height);
-	setAspectRatio(stringify(mData->mCameras[3]), (float)panelSize.width, (float)panelSize.height);
+		setAspectRatio(stringify(mData->mCameras[i]), (float)panelSize.width, (float)panelSize.height);
+	}
 
 	if (mFullView->isUserString("camHandle"))
 	{
@@ -291,15 +286,22 @@ void CameraControl::onMousePressed(MyGUI::Widget* widget, int x, int y, MyGUI::M
 	}
 }
 
+const std::string CameraControl::checkUserString(const MyGUI::Widget* widget,
+                                                 const std::string& key,
+                                                 bool throwException) const
+{
+	const std::string result(widget->getUserString(key));
+
+	if (result.empty() && throwException)
+		throw std::runtime_error(key + " not found in " + widget->getName());
+
+	return result;
+}
+
 void CameraControl::intersectPosition(MyGUI::Widget* widget, int x, int y, BFG::v3& result)
 {
-	const std::string& look(widget->getUserString("lookFrom"));
-	if (look == "Free")
-		throw std::runtime_error("Free cameras don't have a plane to intersect!");
-
-	const std::string camName(widget->getUserString("camHandle"));
-	if (camName.empty())
-		throw std::runtime_error("CamHandle not found in widget " + widget->getName());
+	const std::string look(checkUserString(widget, "lookFrom"));
+	const std::string camName(checkUserString(widget, "camHandle"));
 
 	Ogre::Camera* cam = mSceneMan->getCamera(camName);
 
@@ -340,10 +342,7 @@ void CameraControl::onMouseDrag(MyGUI::Widget* widget, int x, int y, MyGUI::Mous
 	if (mDragStart.left == x && mDragStart.top == y)
 		return;
 
-	if (!widget->isUserString("lookFrom"))
-		throw std::runtime_error("lookFrom is not found in widget " + widget->getName());
-
-	const std::string look(widget->getUserString("lookFrom"));
+	const std::string look(checkUserString(widget, "lookFrom"));
 	if (look == "Free")
 		return;
 
@@ -357,9 +356,7 @@ void CameraControl::onMouseDrag(MyGUI::Widget* widget, int x, int y, MyGUI::Mous
 
 		BFG::v3 dragDifference = startPosition - position;
 
-		const std::string camName(widget->getUserString("camHandle"));
-		if (camName.empty())
-			throw std::runtime_error("camHandle property empty");
+		const std::string camName(checkUserString(widget, "camHandle"));
 
 		Ogre::SceneNode* node = mSceneMan->getSceneNode(camName);
 		BFG::v3 nodePosition = BFG::View::toBFG(node->getPosition());
@@ -385,21 +382,10 @@ void CameraControl::onKeyReleased(MyGUI::Widget* widget, MyGUI::KeyCode key)
 
 		if (mMultiview)
 		{
-			const std::string camName(widget->getUserString("camHandle"));
-			if (camName.empty())
-				throw std::runtime_error("camHandle property not found");
-
-			const std::string lookFrom(widget->getUserString("lookFrom"));
-			if (lookFrom.empty())
-				throw std::runtime_error("lookFrom property not found");
-
-			const std::string startDistance(widget->getUserString("startDistance"));
-			if (startDistance.empty())
-				throw std::runtime_error("startDistance property not found");
-
-			const std::string type(widget->getUserString("type"));
-			if (type.empty())
-				throw std::runtime_error("type property not found");
+			const std::string camName(checkUserString(widget, "camHandle"));
+			const std::string lookFrom(checkUserString(widget, "lookFrom"));
+			const std::string startDistance(checkUserString(widget, "startDistance"));
+			const std::string type(checkUserString(widget, "type"));
 
 			mFullView->setUserString("camHandle", camName);
 			mFullView->setUserString("lookFrom", lookFrom);
