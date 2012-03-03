@@ -34,7 +34,9 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Core/Location.h>
 #include <Core/Types.h>
+#include <Model/Adapter.h>
 #include <Model/Loader/Connection.h>
+#include <Model/Loader/Serializer.h>
 #include <Model/Property/Value.h>
 #include <Model/Property/ValueId.h>
 #include <Model/Property/ConceptId.h>
@@ -109,6 +111,11 @@ struct AdapterParameter
 	Location mLocation;
 };
 
+typedef std::pair<std::string, std::vector<Adapter> > AdapterConfigT;
+
+typedef Serializer<Adapter> AdapterSerializer;
+typedef Serializer<AdapterConfigT> AdapterConfigSerializer;
+
 struct ModuleParameter
 {
 	ModuleParameter() : 
@@ -149,11 +156,16 @@ struct ObjectParameter
 	Connection mConnection;
 };
 
+typedef Serializer<ObjectParameter> ObjectSerializer;
+typedef Serializer<ObjectParameter::MapT> ObjectListSerializer;
+
 struct SectorParameter
 {
 	std::string           mName;
 	ObjectParameter::MapT mObjects;
 };
+
+typedef Serializer<SectorParameter> SectorSerializer;
 
 struct LightParameters
 {

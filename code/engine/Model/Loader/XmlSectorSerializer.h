@@ -30,8 +30,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Model/Defs.h>
 #include <Model/Loader/Types.h>
 
-#include <Model/Loader/SectorSerializer.h>
-
 class TiXmlDocument;
 class TiXmlElement;
 
@@ -50,8 +48,8 @@ public:
 	//! Sector-element will be created as root node.
 	XmlSectorSerializer(TiXmlDocument* document);
 	
-	virtual void read(SectorParameter& sp);
-	virtual void write(const SectorParameter& sp);
+	virtual void read(ReadT& sp);
+	virtual void write(WriteT& sp);
 	
 private:
 	TiXmlElement* mOrigin;

@@ -24,7 +24,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Model/Loader/ObjectSerializer.h>
+#include <Model/Loader/DummyObjectSerializer.h>
 
 #include <Base/CLogger.h>
 
@@ -45,7 +45,7 @@ void debugOut(const BFG::Loader::ObjectParameter& op)
 	infolog << "##########################";
 }
 
-void DummyObjectSerializer::read(ObjectParameter::MapT& objects)
+void DummyObjectListSerializer::read(ReadT& objects)
 {
 	// First Test Object
 	ObjectParameter op;
@@ -68,7 +68,7 @@ void DummyObjectSerializer::read(ObjectParameter::MapT& objects)
 	objects[op2.mName] = op2;
 }
 
-void DummyObjectSerializer::write(const ObjectParameter::MapT& objects)
+void DummyObjectListSerializer::write(WriteT& objects)
 {
 	if (objects.empty())
 		return;

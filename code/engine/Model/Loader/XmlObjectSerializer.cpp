@@ -49,39 +49,44 @@ namespace Attributes
 	const std::string connection("connection");
 }
 
-XmlObjectSerializer::XmlObjectSerializer(TiXmlElement* objectCollection) :
-mCollectionOrigin(objectCollection)
+XmlObjectSerializer::XmlObjectSerializer(TiXmlElement* object) :
+mOrigin(object)
 {
-	assert(objectCollection);
+	assert(object);
 }
 
-void XmlObjectSerializer::read(ObjectParameter::MapT& objects)
+void XmlObjectSerializer::read(ReadT& object)
 {
-	TiXmlElement* collectionOrigin = mCollectionOrigin->Clone()->ToElement();
-	readCollection(collectionOrigin, objects);
-}
-
-void XmlObjectSerializer::write(const ObjectParameter::MapT& objects)
-{
-	if (objects.empty())
-		return;
+	assert(mOrigin);
 	
-	writeCollection(objects, mCollectionOrigin);
-}
-
-void XmlObjectSerializer::writeCollection(const ObjectParameter::MapT& objects,
-                                          TiXmlElement* result)
-{
-	ObjectParameter::MapT::const_iterator it = objects.begin();
-	for (; it != objects.end(); ++it)
+	const std::string* name = mOrigin->Attribute(Attributes::name);
+	const std::string* type = mOrigin->Attribute(Attributes::type);
+	const std::string* pos = mOrigin->Attribute(Attributes::position);	
+	const std::string* ori = mOrigin->Attribute(Attributes::orientation);	
+	const std::string* ang = mOrigin->Attribute(Attributes::angular_velocity);
+	const std::string* lin = mOrigin->Attribute(Attributes::linear_velocity);
+	const std::string* connection = mOrigin->Attribute(Attributes::connection);
+	
+	if (!name || !type || name->empty() || type->empty())
 	{
-		writeOne(it->second, result);
+		throw std::runtime_error
+		(
+			"XmlObjectSerializer: Stumbled upon Object without"
+			" name or type attribute (or with empty one)."
+		);
 	}
+	
+	object.mName = *name;
+	object.mType = *type;
+	
+	if (pos) BFG::stringToVector3(*pos, object.mLocation.position);
+	if (ori) BFG::stringToQuaternion4(*ori, object.mLocation.orientation);
+	if (ang) BFG::stringToVector3(*ang, object.mAngularVelocity);
+	if (lin) BFG::stringToVector3(*lin, object.mLinearVelocity);
+	if (connection) parseConnection(*connection, object.mConnection);	
 }
 
-
-void XmlObjectSerializer::writeOne(const ObjectParameter& op,
-                                   TiXmlElement* result) const
+void XmlObjectSerializer::write(WriteT& op)
 {
 	TiXmlElement* object = new TiXmlElement(Elements::Object);
 
@@ -105,21 +110,28 @@ void XmlObjectSerializer::writeOne(const ObjectParameter& op,
 	if (op.mConnection.good())
 		object->SetAttribute(Attributes::connection, op.mConnection.str());
 
-	result->LinkEndChild(object);
+	mOrigin->LinkEndChild(object);
 }
 
-
-void XmlObjectSerializer::readCollection(TiXmlElement* objectCollection,
-                                         ObjectParameter::MapT& result) const
+XmlObjectListSerializer::XmlObjectListSerializer(TiXmlElement* objectList) :
+mOrigin(objectList)
 {
-	TiXmlElement* next = objectCollection->FirstChildElement();
+	assert(objectList);
+}
+
+void XmlObjectListSerializer::read(ReadT& objects)
+{
+	TiXmlElement* collectionOrigin = mOrigin->Clone()->ToElement();
+
+	TiXmlElement* next = collectionOrigin->FirstChildElement();
 	while (next)
 	{
 		try
 		{
 			ObjectParameter op;
-			readOne(next, op);
-			result[op.mName] = op;
+			XmlObjectSerializer xos(next);
+			xos.read(op);
+			objects.insert(std::make_pair(op.mName, op));
 		}
 		catch (std::runtime_error& ex)
 		{
@@ -130,37 +142,17 @@ void XmlObjectSerializer::readCollection(TiXmlElement* objectCollection,
 	}
 }
 
-
-void XmlObjectSerializer::readOne(const TiXmlElement* object,
-                                  ObjectParameter& result) const
+void XmlObjectListSerializer::write(WriteT& objects)
 {
-	assert(object);
+	if (objects.empty())
+		return;
 	
-	const std::string* name = object->Attribute(Attributes::name);
-	const std::string* type = object->Attribute(Attributes::type);
-	const std::string* pos = object->Attribute(Attributes::position);	
-	const std::string* ori = object->Attribute(Attributes::orientation);	
-	const std::string* ang = object->Attribute(Attributes::angular_velocity);
-	const std::string* lin = object->Attribute(Attributes::linear_velocity);
-	const std::string* connection = object->Attribute(Attributes::connection);
-	
-	if (!name || !type || name->empty() || type->empty())
+	WriteT::const_iterator it = objects.begin();
+	for (; it != objects.end(); ++it)
 	{
-		throw std::runtime_error
-		(
-			"XmlObjectSerializer: Stumbled upon Object without"
-			" name or type attribute (or with empty one)."
-		);
+		XmlObjectSerializer xos(mOrigin);
+		xos.write(it->second);
 	}
-	
-	result.mName = *name;
-	result.mType = *type;
-	
-	if (pos) BFG::stringToVector3(*pos, result.mLocation.position);
-	if (ori) BFG::stringToQuaternion4(*ori, result.mLocation.orientation);
-	if (ang) BFG::stringToVector3(*ang, result.mAngularVelocity);
-	if (lin) BFG::stringToVector3(*lin, result.mLinearVelocity);
-	if (connection) parseConnection(*connection, result.mConnection);	
 }
 
 } // namespace Loader

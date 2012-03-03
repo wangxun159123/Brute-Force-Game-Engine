@@ -24,8 +24,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LOADER_OBJECT_SERIALIZER_H_
-#define LOADER_OBJECT_SERIALIZER_H
+#ifndef LOADER_SERIALIZER_H_
+#define LOADER_SERIALIZER_H_
 
 #include <map>
 
@@ -35,23 +35,17 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace BFG {
 namespace Loader {
 
-
-class MODEL_API ObjectSerializer
+template <typename DtoT>
+class MODEL_API Serializer
 {
 public:
-	virtual ~ObjectSerializer(){};
+	typedef DtoT ReadT;
+	typedef const DtoT WriteT;
+
+	virtual ~Serializer(){};
 	
-	virtual void read(ObjectParameter::MapT& objects) = 0;
-	virtual void write(const ObjectParameter::MapT& objects) = 0;
-};
-
-void MODEL_API debugOut(const BFG::Loader::ObjectParameter& op);
-
-class MODEL_API DummyObjectSerializer : public ObjectSerializer
-{
-public:
-	virtual void read(ObjectParameter::MapT& objects);
-	virtual void write(const ObjectParameter::MapT& objects);
+	virtual void read(ReadT& dto) = 0;
+	virtual void write(WriteT& dto) = 0;
 };
 
 } // namespace Loader

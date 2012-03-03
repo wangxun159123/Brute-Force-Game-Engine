@@ -7,6 +7,7 @@
 #include <Base/CLogger.h>
 #include <Core/Path.h>
 #include <Core/qv4.h>
+#include <Model/Loader/DummyObjectSerializer.h>
 #include <Model/Loader/XmlObjectSerializer.h>
 #include <Model/Loader/XmlSectorSerializer.h>
 #include <Model/Loader/XmlAdapterSerializer.h>
@@ -31,8 +32,8 @@ void readSector(const std::string& fullFilePath)
 	xmlSs->read(sp);
 
 	// Test output
-	infolog << "Name: " << sp.mName;	
-	boost::shared_ptr<BFG::Loader::ObjectSerializer> dummyOs(new BFG::Loader::DummyObjectSerializer);
+	infolog << "Name: " << sp.mName;
+	boost::shared_ptr<BFG::Loader::ObjectListSerializer> dummyOs(new BFG::Loader::DummyObjectListSerializer);
 	dummyOs->write(sp.mObjects);
 }
 
@@ -47,7 +48,7 @@ void writeSector(const std::string& fullFilePath)
 	sp.mName = "My Sector";
 
 	// Read some test data (from memory)
-	boost::shared_ptr<BFG::Loader::ObjectSerializer> dummyOs(new BFG::Loader::DummyObjectSerializer);
+	boost::shared_ptr<BFG::Loader::ObjectListSerializer> dummyOs(new BFG::Loader::DummyObjectListSerializer);
 	dummyOs->read(sp.mObjects);
 
 	// Write test data as XML
