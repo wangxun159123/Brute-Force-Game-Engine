@@ -36,7 +36,7 @@ namespace Audio {
 
 class AudioMain;
 
-class AUDIO_BLASTER_API AudioInterface
+class BFG_AUDIO_API AudioInterface
 {
 public:
 	friend class Base::CClassEntryPoint<AudioInterface> ;

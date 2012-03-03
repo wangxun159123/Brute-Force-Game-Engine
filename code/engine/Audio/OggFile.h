@@ -24,8 +24,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef AUDIO_BLASTER_OGG_FILE_H
-#define AUDIO_BLASTER_OGG_FILE_H
+#ifndef AUDIO_OGG_FILE_H
+#define AUDIO_OGG_FILE_H
 
 #include <string>
 #include <boost/scoped_array.hpp>
@@ -41,7 +41,7 @@ namespace BFG {
 namespace Audio {
 
 //! This class read and decode audio-data from an OGG vorbis files.
-class AUDIO_BLASTER_API OggFile : public AudioFile
+class BFG_AUDIO_API OggFile : public AudioFile
 {
 
 static const unsigned int AB_16BIT_SAMPLES = 2;

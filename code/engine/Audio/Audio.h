@@ -44,7 +44,7 @@ namespace Audio {
 
 struct Level;
 
-class AUDIO_BLASTER_API Audio
+class BFG_AUDIO_API Audio
 {
 public:
 	Audio();

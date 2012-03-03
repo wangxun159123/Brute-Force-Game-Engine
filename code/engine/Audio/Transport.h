@@ -25,8 +25,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef AUDIO_BLASTER_TRANSPORT_H
-#define AUDIO_BLASTER_TRANSPORT_H
+#ifndef AUDIO_TRANSPORT_H
+#define AUDIO_TRANSPORT_H
 
 #include <Core/Types.h>
 #include <Core/v3.h>

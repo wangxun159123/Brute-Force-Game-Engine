@@ -24,17 +24,17 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef AUDIO_BLASTER_DEFS_H
-#define AUDIO_BLASTER_DEFS_H
+#ifndef AUDIO_DEFS_H
+#define AUDIO_DEFS_H
 
 #ifdef _WIN32
-	#ifndef AUDIO_BLASTER_EXPORTS
-		#define AUDIO_BLASTER_API __declspec(dllimport)
+	#ifndef AUDIO_EXPORTS
+		#define BFG_AUDIO_API __declspec(dllimport)
 	#else
-		#define AUDIO_BLASTER_API __declspec(dllexport)
-	#endif //AUDIO_BLASTER_EXPORTS
+		#define BFG_AUDIO_API __declspec(dllexport)
+	#endif //AUDIO_EXPORTS
 #else // UNIX
-    #define AUDIO_BLASTER_API
+    #define BFG_AUDIO_API
 #endif// UNIX
 
 #endif

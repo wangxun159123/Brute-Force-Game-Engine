@@ -42,7 +42,7 @@ namespace Audio {
 class StreamWatch;
 class AudioObject;
 
-struct AUDIO_BLASTER_API Level
+struct BFG_AUDIO_API Level
 {
 	typedef std::map<GameHandle, boost::shared_ptr<AudioObject> > ObjectMapT; 
 

@@ -24,8 +24,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef AUDIO_BLASTER_OBJECT_H
-#define AUDIO_BLASTER_OBJECT_H
+#ifndef AUDIO_OBJECT_H
+#define AUDIO_OBJECT_H
 
 #include <Audio/Defines.h>
 
@@ -50,7 +50,7 @@ namespace Audio {
 class StreamWatch;
 class Audio;
 
-class AUDIO_BLASTER_API AudioObject
+class BFG_AUDIO_API AudioObject
 {
 public:
 	AudioObject(GameHandle gameHandle, 
