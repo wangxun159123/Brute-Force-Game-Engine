@@ -2,4 +2,12 @@
 <MyGUI type="Layout" version="3.2.0">
   <Widget type="Widget" skin="Transparent" position="0 0 512 20" layer="Menu" align="Left Top" name="MenuBox">
   </Widget>
+  <Widget type="Widget" skin="WhiteSkin" position="0 0 512 512" align="Stretch" layer="Background" name="Backpanel">
+    <Property key="Colour" value="0 0 0"/>
+    <Property key="NeedMouse" value="false"/>
+    <Property key="NeedKey" value="false"/>
+    <Property key="InheritsPick" value="false"/>
+    <Property key="NeedToolTip" value="false"/>
+    <Property key="InheritsAlpha" value="false"/>
+  </Widget>
 </MyGUI>

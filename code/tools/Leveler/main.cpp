@@ -171,10 +171,15 @@ public:
 		if (!box)
 			throw std::runtime_error("MenuBox not found!");
 
+		Widget* back = Gui::getInstance().findWidgetT("Backpanel");
+		if (!back)
+			throw std::runtime_error("Backpanel not found");
+
 		IntSize boxSize = box->getSize();
 		IntSize size = RenderManager::getInstance().getViewSize();
 		// leave 1 pixel space to the sides
 		box->setSize(size.width - 2, boxSize.height);  
+		back->setSize(size);
 	}
 
 	void controllerEventHandler(Controller_::VipEvent* ve)
