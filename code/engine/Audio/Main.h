@@ -35,7 +35,7 @@ class EventLoop;
 namespace BFG {
 namespace Audio {
 
-class AUDIO_BLASTER_API AudioMain
+class BFG_AUDIO_API AudioMain
 {
 public:
 	AudioMain(EventLoop* loop);

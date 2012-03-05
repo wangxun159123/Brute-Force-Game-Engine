@@ -24,8 +24,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef AUDIO_BLASTER_STREAMER_H
-#define AUDIO_BLASTER_STREAMER_H
+#ifndef AUDIO_STREAMER_H
+#define AUDIO_STREAMER_H
 
 #include <Audio/Defines.h>
 #include <boost/shared_ptr.hpp>
@@ -43,7 +43,7 @@ class AudioFile;
 //! This class provides streaming audio data in OpenAl buffers.
 //! An openAl buffers are represented as BufferIds (ALuint == unsigned int).
 //! So we take only care about these IDs OpenAl take care about the rest.
-class AUDIO_BLASTER_API Stream
+class BFG_AUDIO_API Stream
 {
 
 friend class StreamWatch;

@@ -28,13 +28,13 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Audio/Defines.h>
 #include <al.h>
 
-#ifndef AUDIO_BLASTER_HELPER_H
-#define AUDIO_BLASTER_HELPER_H
+#ifndef AUDIO_HELPER_H
+#define AUDIO_HELPER_H
 
 namespace BFG {
 namespace Audio {
 
-std::string AUDIO_BLASTER_API stringifyAlError(ALenum errorCode);
+std::string BFG_AUDIO_API stringifyAlError(ALenum errorCode);
 
 } // namespace Audio
 } // namespace BFG

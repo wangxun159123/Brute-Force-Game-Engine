@@ -24,8 +24,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef AUDIO_BLASTER_LOADER_H
-#define AUDIO_BLASTER_LOADER_H
+#ifndef AUDIO_LOADER_H
+#define AUDIO_LOADER_H
 
 #include <string>
 #include <vector>
@@ -34,7 +34,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace BFG {
 namespace Audio {
 
-//! This is just a test-dummy! Replace this with serious code...
+//! This is just a test-dummy, and will be replaced with serious code in a later step of development.
 class DummyLoader
 {
 public:
