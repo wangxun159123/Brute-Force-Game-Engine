@@ -111,6 +111,78 @@ void showUsage(po::options_description desc)
 		 << desc << "\n";
 }
 
+void checkAndPrintTimeTravelWarning(const std::string& filenameWithPath)
+{
+	time_t lastWriteTime = fs::last_write_time(filenameWithPath);
+	time_t now = time(NULL);
+
+	time_t difftime = now - lastWriteTime;
+	if (difftime < 0)
+	{
+		cout << "Warning: Modification time of \"" << filenameWithPath
+		     << "\" is "
+		     << difftime
+		     << " seconds in future "
+		     << endl;
+	}
+}
+
+bool firstFileIsNewer(const std::string& first, const std::string& second)
+{
+	time_t firstLastWriteTime = fs::last_write_time(first);
+	time_t secondLastWriteTime = fs::last_write_time(second);
+	
+	return firstLastWriteTime > secondLastWriteTime;
+}
+
+bool mustGenerate(const std::string& inputFile,
+                  const std::string& headerFile,
+                  const std::string& sourceFile,
+                  const std::string& enumgenFile,
+                  bool forceGeneration)
+{
+	if (forceGeneration)
+		return true;
+
+	// .hh older than .xml or enumgen binary?
+	if (firstFileIsNewer(inputFile, headerFile) ||
+	    firstFileIsNewer(enumgenFile, headerFile))
+		return true;
+	
+	// .hh empty or not existant?
+	if (fs::file_size(headerFile) == 0 ||
+	    !fs::exists(headerFile))
+		return true;
+
+	if (! sourceFile.empty())
+	{
+		// .cpp older than .xml or enumgen binary?
+		if (firstFileIsNewer(inputFile, sourceFile) ||
+		    firstFileIsNewer(enumgenFile, sourceFile))
+			return true;
+
+		// .cpp empty or not existant?
+		if (fs::file_size(sourceFile) == 0 ||
+		    !fs::exists(sourceFile))
+			return true;
+	}
+
+	// Generate, if we can't determine if the enumgen binary is newer or not.
+	if (!(fs::exists(enumgenFile) &&
+	      fs::is_regular_file(enumgenFile)))
+	{
+		cout << "Warning, unable to test if "
+		        "EnumGen itself is newer than the "
+		        "output file. Got: \""
+		     << enumgenFile
+		     << "\" instead of "
+		        "EnumGen.exe" << endl;
+		return true;
+	}
+	
+	return false;
+}
+
 int main(int argc, char* argv[]) try
 {
 #if defined (_WIN32)
@@ -133,103 +205,77 @@ int main(int argc, char* argv[]) try
 
 
 	po::options_description desc("Allowed options");
-    desc.add_options()
+	desc.add_options()
 		(HelpString.c_str(),
 		"Display this help message")
 
 		(InputString.c_str(), po::value<std::string>(),
-		"Set xml file. This is the file which gets parsed by EnumGen.")
+		"Set .xml file. This is the file which gets parsed by EnumGen.")
 
 		(HeaderString.c_str(), po::value<std::string>(),
 		"Set .hh file. File name of the header which gets generated.")
 		
 		(SourceString.c_str(), po::value<std::string>(),
-		"Set .cxx file. File name of the source which gets generated.\n"
+		"Set .cpp file. File name of the source which gets generated.\n"
 		"If you omit this parameter, everything will be put into the header.")
 		
 		(ForceString.c_str(),
 		"Ignore time checks and force overwrite")
         ;
 
-    po::variables_map vm;        
-    po::store(po::parse_command_line(argc, argv, desc), vm);
+	po::variables_map vm;
+	po::store(po::parse_command_line(argc, argv, desc), vm);
 	po::notify(vm);    
 
 	if (vm.count(HelpString)) 
 	{
 		showUsage(desc);
-        return 1;
-    }
+		return 1;
+	}
 
-    if (vm.count(InputString) && vm.count(HeaderString)) 
+	if (vm.count(InputString) && vm.count(HeaderString)) 
 	{
-		string inputFile = vm[InputString].as<std::string>();
-		string headerFile= vm[HeaderString].as<std::string>();
+		bool forceGeneration = vm.count(ForceString) != 0;
+		string inputFile  = vm[InputString].as<std::string>();
+		string headerFile = vm[HeaderString].as<std::string>();
+		string sourceFile;
 		
-		if ( !fs::exists( inputFile ) )
+		if (vm.count(SourceString) != 0)
+			sourceFile = vm[SourceString].as<std::string>();
+
+		if (!fs::exists(inputFile))
 		{
-			cout << "InputFile == " << inputFile << " does not exist" << endl;
-			return (1);
+			cout << "InputFile \"" << inputFile << "\" does not exist!" << endl;
+			return 1;
 		}
 
-		if ( 0 == fs::file_size( inputFile ) )
+		if (0 == fs::file_size(inputFile))
 		{
-			cout << "InputFile is empty !!!" << endl;
-			return (1);
-		}
-		
-		time_t lastWriteTimeInput = fs::last_write_time( inputFile );
-		time_t start = time(NULL);
-
-		time_t difftime = start - lastWriteTimeInput;
-		if ( difftime < 0 )
-		{
-			cout << "Warning !!! InputFile modification time is "
-			     << difftime << " seconds in future " << endl;
+			cout << "InputFile is empty!" << endl;
+			return 1;
 		}
 
-		if (fs::exists (headerFile))
+		checkAndPrintTimeTravelWarning(inputFile);
+
+		bool generationNecessary = mustGenerate
+		(
+			inputFile,
+			headerFile,
+			sourceFile,
+			PathEnumGenExe,
+			forceGeneration
+		);
+
+		if (!generationNecessary)
 		{
-			bool performCheck = vm.count(ForceString) == 0;
-			bool headerFileEmpty = fs::file_size(headerFile) == 0;
-
-			//! \bug
-			//! We need to check also the optionally submitted source file
-			//! here. If not, EnumGen might say that the "Target file is 
-			//! up-to-date even if the .cpp file is out-dated.
-			time_t lastWriteTimeOutput = fs::last_write_time(headerFile);
-			time_t lastWriteEnumGen = fs::last_write_time(PathEnumGenExe);
-
-			difftime = lastWriteTimeOutput - lastWriteTimeInput;
-			time_t difftime2 = lastWriteTimeOutput - lastWriteEnumGen;
-
-			if (! (fs::exists(PathEnumGenExe) &&
-			       fs::is_regular_file(PathEnumGenExe)))
-			{
-				cout << "Warning, unable to test if "
-				        "EnumGen itself is newer than the "
-				        "output file. Got: \""
-				     << PathEnumGenExe << "\" instead of "
-				        "EnumGen.exe" << endl;
-				difftime2 = 1;
-			}
-
-			bool generationNotNecessary = performCheck &&
-				                          difftime &&
-										  difftime2 &&
-										  !headerFileEmpty;
-
-			if (generationNotNecessary)
-			{
-				cout << "Target file is up-to-date" << endl
-					 << "Generation stopped" << endl;
-				return (0);
-			}
+			cout << "Target file is up-to-date" << endl
+			     << "Generation stopped" << endl;
+			return 0;
 		}
 		
 		Shared::EnumVector inputEnums = loadFile(inputFile);
 
-		if (vm.count(SourceString) == 0)
+		if (sourceFile.empty())
 		{
 			std::string Result;
 			std::string inputFileCRC = calculateFileCRC(inputFile);			
@@ -247,12 +293,12 @@ int main(int argc, char* argv[]) try
 
 			out_file.write(Result.c_str(), Result.size());
 
-			cout << "Successfully compiled " << inputFile << " to " << headerFile << endl;
+			cout << "Successfully compiled "
+			     << inputFile << " to:\n"
+			     << "-> " << headerFile << endl;
 		}
 		else
 		{
-			string sourceFile= vm[SourceString].as<std::string>();
-		
 			std::string headerResult;
 			std::string sourceResult;
 			std::string inputFileCRC = calculateFileCRC(inputFile);
@@ -286,12 +332,12 @@ int main(int argc, char* argv[]) try
 			     << "-> " << headerFile << " and\n"
 			     << "-> " << sourceFile << endl;
 		}
-    } 
+	}
 	else
 	{
-        cout << "input/output file was not set.\n";
+		cout << "input/output file was not set.\n";
 		showUsage(desc);
-    }
+	}
 }
 catch (std::exception& ex)
 {
