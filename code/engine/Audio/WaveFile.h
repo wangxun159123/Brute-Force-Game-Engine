@@ -24,8 +24,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef AUDIO_BLASTER_WAVE_FILE_H
-#define AUDIO_BLASTER_WAVE_FILE_H
+#ifndef AUDIO_WAVE_FILE_H
+#define AUDIO_WAVE_FILE_H
 
 #include <string>
 #include <boost/scoped_array.hpp>
@@ -38,7 +38,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace BFG {
 namespace Audio {
 
-class AUDIO_BLASTER_API WaveFile : public AudioFile
+class BFG_AUDIO_API WaveFile : public AudioFile
 {
 
 public:

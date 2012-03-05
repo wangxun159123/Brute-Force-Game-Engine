@@ -25,8 +25,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef AUDIO_BLASTER_OPENAL_UPDATE_HANDLER_H
-#define AUDIO_BLASTER_OPENAL_UPDATE_HANDLER_H
+#ifndef AUDIO_OPENAL_UPDATE_HANDLER_H
+#define AUDIO_OPENAL_UPDATE_HANDLER_H
 
 #include <Audio/Defines.h>
 #include <boost/shared_ptr.hpp>
@@ -40,7 +40,7 @@ namespace Audio {
 
 class StreamWatch;
 
-class AUDIO_BLASTER_API OpenAlUpdateHandler
+class BFG_AUDIO_API OpenAlUpdateHandler
 {
 public:
 	OpenAlUpdateHandler(ALuint sourceID, GameHandle handle);

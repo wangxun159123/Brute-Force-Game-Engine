@@ -3,9 +3,9 @@
 
     <namespace name = "BFG">
 
-      <enum name = "AudioAction" export = "AUDIO_BLASTER_API">
+      <enum name = "AudioAction" export = "BFG_AUDIO_API">
 
-          <!-- For Audio_API definition -->
+          <!-- For BFG_AUDIO_API definition -->
           <include>Audio/Defines.h</include>
 
           <!-- Audio Events Master -->
@@ -33,9 +33,9 @@
           <value>AE_VELOCITY</value>
       </enum>
 
-      <enum name = "AudioObjectType" export = "AUDIO_BLASTER_API">
+      <enum name = "AudioObjectType" export = "BFG_AUDIO_API">
 
-        <!-- For Audio_API definition -->
+        <!-- For BFG_AUDIO_API definition -->
         <include>Audio/Defines.h</include>
 
         <!-- Audio Object Types-->
@@ -43,8 +43,8 @@
         <value>AOT_PERMANENT</value>
       </enum>
 
-      <enum name = "AudioPreset" export = "AUDIO_BLASTER_API">
-        <!-- For Audio_API definition -->
+      <enum name = "AudioPreset" export = "BFG_AUDIO_API">
+        <!-- For BFG_AUDIO_API definition -->
         <include>Audio/Defines.h</include>
 
         <!-- Audio Object Presets-->

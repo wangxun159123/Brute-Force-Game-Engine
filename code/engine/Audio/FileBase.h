@@ -24,8 +24,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef AUDIO_BLASTER_BASE_FILE_H
-#define AUDIO_BLASTER_BASE_FILE_H
+#ifndef AUDIO_BASE_FILE_H
+#define AUDIO_BASE_FILE_H
 
 #include <string>
 #include <al.h>
@@ -36,7 +36,7 @@ namespace BFG {
 namespace Audio {
 
 //! This is an Interface for reading AudioData out of several file formats.
-class AUDIO_BLASTER_API AudioFile
+class BFG_AUDIO_API AudioFile
 {
 public:
  	virtual ~AudioFile() {}
