@@ -153,6 +153,7 @@ void CameraControl::addCanvasEvents(MyGUI::Canvas* canvas)
 	canvas->eventMouseButtonReleased += MyGUI::newDelegate(this, &CameraControl::onMouseReleased);
 	canvas->eventMouseDrag += MyGUI::newDelegate(this, &CameraControl::onMouseDrag);
 	canvas->eventKeyButtonReleased += MyGUI::newDelegate(this, &CameraControl::onKeyReleased);
+	canvas->eventKeyButtonPressed += MyGUI::newDelegate(this, &CameraControl::onKeyPressed);
 }
 
 void CameraControl::removeCanvasEvents(MyGUI::Canvas* canvas)
@@ -163,6 +164,7 @@ void CameraControl::removeCanvasEvents(MyGUI::Canvas* canvas)
 	canvas->eventMouseButtonReleased -= MyGUI::newDelegate(this, &CameraControl::onMouseReleased);
 	canvas->eventMouseDrag -= MyGUI::newDelegate(this, &CameraControl::onMouseDrag);
 	canvas->eventKeyButtonReleased -= MyGUI::newDelegate(this, &CameraControl::onKeyReleased);
+	canvas->eventKeyButtonPressed -= MyGUI::newDelegate(this, &CameraControl::onKeyPressed);
 }
 
 void CameraControl::destroy(MyGUI::Canvas* canvas)
@@ -284,6 +286,58 @@ void CameraControl::onMousePressed(MyGUI::Widget* widget, int x, int y, MyGUI::M
 		mZoomSpeed = 0.0f;
 		mZoomWidget = widget;
 	}
+	else if (id == MyGUI::MouseButton::Left)
+	{
+		if (checkUserString(widget, "lookFrom") == "Free")
+			return;
+
+		if (mCreationMode)
+		{
+			BFG::v3 rpPosition;
+			intersectPosition(widget, x, y, rpPosition);
+
+			createRacePoint(rpPosition);
+		}
+		else
+		{
+			selectRacePoint(widget, x, y);
+		}
+	}
+}
+
+void CameraControl::createRacePoint(BFG::v3& position)
+{
+	std::stringstream ss;
+	ss << "RacePoint" << mRacePointIndex;
+	const std::string rpName(ss.str());
+
+	Ogre::SceneNode* rpNode = mSceneMan->getRootSceneNode()->createChildSceneNode
+	(
+		rpName,
+		BFG::View::toOgre(position)
+	);
+
+	rpNode->attachObject(mRacePointEntity->clone(rpName));
+	mRacePoints.insert(std::make_pair(rpName, rpNode));
+	++mRacePointIndex;
+	
+	setSelectedRacePoint(rpName);
+}
+
+void CameraControl::setSelectedRacePoint(const std::string& name)
+{
+	if (mSelectedRacePoint)
+		mSelectedRacePoint->showBoundingBox(false);
+
+	if (name.empty())
+	{
+		mSelectedRacePoint = NULL;
+	}
+	else
+	{
+		mSelectedRacePoint = mRacePoints[name];
+		mSelectedRacePoint->showBoundingBox(true);
+	}
 }
 
 const std::string CameraControl::checkUserString(const MyGUI::Widget* widget,
@@ -296,6 +350,36 @@ const std::string CameraControl::checkUserString(const MyGUI::Widget* widget,
 		throw std::runtime_error(key + " not found in " + widget->getName());
 
 	return result;
+}
+
+void CameraControl::selectRacePoint(MyGUI::Widget* widget, int x, int y)
+{
+	const std::string look(checkUserString(widget, "lookFrom"));
+	const std::string camName(checkUserString(widget, "camHandle"));
+
+	Ogre::Camera* cam = mSceneMan->getCamera(camName);
+
+	MyGUI::IntCoord coord = widget->getAbsoluteCoord();
+	BFG::f32 mouseX = (x - coord.left) / (BFG::f32)coord.width;
+	BFG::f32 mouseY = (y - coord.top) / (BFG::f32)coord.height;
+
+	Ogre::Ray mouseRay = cam->getCameraToViewportRay(mouseX, mouseY);
+
+	RacePointMap::iterator it = mRacePoints.begin();
+	for (; it != mRacePoints.end(); ++it)
+	{
+		Ogre::SceneNode* node = it->second;
+		Ogre::MovableObject* object = node->getAttachedObject(it->first);
+
+		std::pair<bool, Ogre::Real> intersection = mouseRay.intersects(object->getWorldBoundingBox());
+
+		if (intersection.first)
+		{
+			setSelectedRacePoint(it->first);
+			return;
+		}
+	}
+	setSelectedRacePoint("");
 }
 
 void CameraControl::intersectPosition(MyGUI::Widget* widget, int x, int y, BFG::v3& result)
@@ -415,44 +499,28 @@ void CameraControl::onKeyReleased(MyGUI::Widget* widget, MyGUI::KeyCode key)
 	}
 }
 
+void CameraControl::onKeyPressed(MyGUI::Widget* widget, MyGUI::KeyCode key, MyGUI::Char c)
+{
+	if (key == MyGUI::KeyCode::None && c == 99)
+	{
+		mCreationMode = !mCreationMode;
+		
+		for (size_t i = 0; i < 4; ++i)
+		{
+			if (mCreationMode)
+			{
+				mViews[i]->findWidget("Debug")->setProperty("Caption", "create");
+			}
+			else
+			{
+				mViews[i]->findWidget("Debug")->setProperty("Caption", "");
+			}
+		}
+	}
+}
+
 void CameraControl::update(const Ogre::FrameEvent& evt)
 {
-// 	if (mCamOrbit)
-// 	{
-// 		mCameraRotation->rotate
-// 		(
-// 			Ogre::Vector3::UNIT_Y,
-// 			Ogre::Radian(mDeltaRot.y) * evt.timeSinceLastFrame,
-// 			Ogre::Node::TS_WORLD
-// 		);
-// 
-// 		mCameraRotation->rotate
-// 		(
-// 			Ogre::Vector3::UNIT_X,
-// 			Ogre::Radian(mDeltaRot.x) * evt.timeSinceLastFrame,
-// 			Ogre::Node::TS_WORLD
-// 		);
-// 	}
-// 	else
-// 	{
-// 		mCameraRotation->yaw(Ogre::Radian(mDeltaRot.y) * evt.timeSinceLastFrame);
-// 		mCameraRotation->pitch(Ogre::Radian(mDeltaRot.x) * evt.timeSinceLastFrame);
-// 		mCameraRotation->roll(Ogre::Radian(mDeltaRot.z) * evt.timeSinceLastFrame);
-// 	}
-// 
-// 	mCamDistance += mDeltaDis * evt.timeSinceLastFrame;
-// 	if (mCamDistance <= 1.0f)
-// 		mCamDistance = 1.0f;
-// 
-// 	mCameraDistance->setPosition(0.0f, 0.0f, -mCamDistance);
-// 
-// 	mDeltaRot = v3::ZERO;
-// 
-// 	if (!mIsZooming)
-// 	{
-// 		mDeltaDis = 0.0f;
-// 	}
-
 	if (!mCamerasCreated)
 	{
 		if (mSceneMan->hasCamera(stringify(mData->mCameras[0])) &&

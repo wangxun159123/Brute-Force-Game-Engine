@@ -75,6 +75,8 @@ struct ViewParameter
 class CameraControl : public BaseFeature, public Emitter
 {
 public:
+	typedef std::map<std::string, Ogre::SceneNode*> RacePointMap;
+	
 	CameraControl(EventLoop* loop, boost::shared_ptr<SharedData> data) :
 	BaseFeature("CameraControl", false),
 	Emitter(loop),
@@ -93,7 +95,12 @@ public:
 	mCamOrbit(false),
 	mMouseCamPitchYaw(false),
 	mMouseCamRoll(false),
-	mIsZooming(false)
+	mIsZooming(false),
+	mRacePointName("Marker.mesh"),
+	mRacePointEntity(NULL),
+	mRacePointIndex(0),
+	mSelectedRacePoint(NULL),
+	mCreationMode(false)
 	{
 		mSceneMan = Ogre::Root::getSingletonPtr()->getSceneManager(BFG_SCENEMANAGER);
 		if (mSceneMan == NULL)
@@ -179,11 +186,13 @@ public:
 		);
 
 		createDefaultCamera();
+
+		mRacePointEntity = mSceneMan->createEntity("rpPrototype", mRacePointName);
 	}
 
 	virtual ~CameraControl()
 	{
-
+		mSceneMan->destroyEntity(mRacePointEntity);
 	}
 
 	virtual void load(){mLoaded = true;}
@@ -244,6 +253,7 @@ private:
 	void onMouseReleased(MyGUI::Widget* widget, int x, int y, MyGUI::MouseButton id);
 	void onMouseDrag(MyGUI::Widget* widget, int x, int y, MyGUI::MouseButton id);
 	void onKeyReleased(MyGUI::Widget* widget, MyGUI::KeyCode key);
+	void onKeyPressed(MyGUI::Widget* widget, MyGUI::KeyCode key, MyGUI::Char c);
 
 	void intersectPosition(MyGUI::Widget* widget, int x, int y, BFG::v3& result);
 	void setAspectRatio(const std::string& camName, float width, float height);
@@ -254,6 +264,9 @@ private:
 	const std::string checkUserString(const MyGUI::Widget* widget,
 	                                  const std::string& key,
 	                                  bool throwException = true) const;
+	void createRacePoint(BFG::v3& position);
+	void selectRacePoint(MyGUI::Widget* widget, int x, int y);
+	void setSelectedRacePoint(const std::string& name);
 
 	boost::shared_ptr<SharedData> mData;
 
@@ -287,6 +300,14 @@ private:
 	bool mMouseCamPitchYaw;
 	bool mMouseCamRoll;
 	bool mIsZooming;
+
+	const std::string mRacePointName;
+	Ogre::Entity* mRacePointEntity;
+	RacePointMap mRacePoints;
+	u32 mRacePointIndex;
+	Ogre::SceneNode* mSelectedRacePoint;
+	bool mCreationMode;
+
 }; // class CameraControl
 
 } // namespace Tool
