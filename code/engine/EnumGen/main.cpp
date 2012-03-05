@@ -144,29 +144,6 @@ bool mustGenerate(const std::string& inputFile,
 	if (forceGeneration)
 		return true;
 
-	// .hh older than .xml or enumgen binary?
-	if (firstFileIsNewer(inputFile, headerFile) ||
-	    firstFileIsNewer(enumgenFile, headerFile))
-		return true;
-	
-	// .hh empty or not existant?
-	if (fs::file_size(headerFile) == 0 ||
-	    !fs::exists(headerFile))
-		return true;
-
-	if (! sourceFile.empty())
-	{
-		// .cpp older than .xml or enumgen binary?
-		if (firstFileIsNewer(inputFile, sourceFile) ||
-		    firstFileIsNewer(enumgenFile, sourceFile))
-			return true;
-
-		// .cpp empty or not existant?
-		if (fs::file_size(sourceFile) == 0 ||
-		    !fs::exists(sourceFile))
-			return true;
-	}
-
 	// Generate, if we can't determine if the enumgen binary is newer or not.
 	if (!(fs::exists(enumgenFile) &&
 	      fs::is_regular_file(enumgenFile)))
@@ -178,6 +155,29 @@ bool mustGenerate(const std::string& inputFile,
 		     << "\" instead of "
 		        "EnumGen.exe" << endl;
 		return true;
+	}
+
+	// .hh empty or not existant?
+	if (fs::file_size(headerFile) == 0 ||
+	    !fs::exists(headerFile))
+		return true;
+
+	// .hh older than .xml or enumgen binary?
+	if (firstFileIsNewer(inputFile, headerFile) ||
+	    firstFileIsNewer(enumgenFile, headerFile))
+		return true;
+
+	if (! sourceFile.empty())
+	{
+		// .cpp empty or not existant?
+		if (fs::file_size(sourceFile) == 0 ||
+		    !fs::exists(sourceFile))
+			return true;
+
+		// .cpp older than .xml or enumgen binary?
+		if (firstFileIsNewer(inputFile, sourceFile) ||
+		    firstFileIsNewer(enumgenFile, sourceFile))
+			return true;
 	}
 	
 	return false;
