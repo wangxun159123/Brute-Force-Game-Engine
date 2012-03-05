@@ -279,6 +279,13 @@ void CameraControl::onMousePressed(MyGUI::Widget* widget, int x, int y, MyGUI::M
 	if (id == MyGUI::MouseButton::Right)
 	{
 		mDragStart = MyGUI::IntPoint(x, y);
+		if (checkUserString(widget, "lookFrom") == "Free")
+		{
+			mMoveStart = MyGUI::IntPoint(x, y);
+			mMoveWidget = widget;
+			mMoveSpeedX = 0.0f;
+			mMoveSpeedY = 0.0f;
+		}
 	}
 	else if (id == MyGUI::MouseButton::Middle)
 	{
@@ -289,18 +296,25 @@ void CameraControl::onMousePressed(MyGUI::Widget* widget, int x, int y, MyGUI::M
 	else if (id == MyGUI::MouseButton::Left)
 	{
 		if (checkUserString(widget, "lookFrom") == "Free")
-			return;
-
-		if (mCreationMode)
 		{
-			BFG::v3 rpPosition;
-			intersectPosition(widget, x, y, rpPosition);
-
-			createRacePoint(rpPosition);
+			mRotateStart = MyGUI::IntPoint(x, y);
+			mRotateSpeedX = 0.0f;
+			mRotateSpeedY = 0.0f;
+			mRotateWidget = widget;
 		}
 		else
 		{
-			selectRacePoint(widget, x, y);
+			if (mCreationMode)
+			{
+				BFG::v3 rpPosition;
+				intersectPosition(widget, x, y, rpPosition);
+
+				createRacePoint(rpPosition);
+			}
+			else
+			{
+				selectRacePoint(widget, x, y);
+			}
 		}
 	}
 }
@@ -412,12 +426,25 @@ void CameraControl::onMouseReleased(MyGUI::Widget* widget, int x, int y, MyGUI::
 	if (id == MyGUI::MouseButton::Right)
 	{
 		mDragStart = MyGUI::IntPoint(0, 0);
+		if (checkUserString(widget, "lookFrom") == "Free")
+		{
+			mMoveStart = MyGUI::IntPoint(0, 0);
+			mMoveWidget = NULL;
+		}
 	}
 	else if (id == MyGUI::MouseButton::Middle)
 	{
 		mZoomStart = MyGUI::IntPoint(0,0);
 		mZoomSpeed = 0.0f;
 		mZoomWidget = NULL;
+	}
+	else if (id == MyGUI::MouseButton::Left)
+	{
+		mRotateStart = MyGUI::IntPoint(0, 0);
+		if (checkUserString(widget, "lookFrom") == "Free")
+		{
+			mRotateWidget = NULL;
+		}
 	}
 }
 
@@ -427,27 +454,35 @@ void CameraControl::onMouseDrag(MyGUI::Widget* widget, int x, int y, MyGUI::Mous
 		return;
 
 	const std::string look(checkUserString(widget, "lookFrom"));
-	if (look == "Free")
-		return;
-
 	if (id == MyGUI::MouseButton::Right)
 	{
-		BFG::v3 position;
-		intersectPosition(widget, x, y, position);
+		if (look == "Free")
+		{
+			if (mMoveStart == MyGUI::IntPoint(x, y))
+				return;
 
-		BFG::v3 startPosition;
-		intersectPosition(widget, mDragStart.left, mDragStart.top, startPosition);
+			mMoveSpeedY = 0.1f * (y - mMoveStart.top);
+			mMoveSpeedX = 0.1f * (x - mMoveStart.left);
+		}
+		else
+		{
+			BFG::v3 position;
+			intersectPosition(widget, x, y, position);
 
-		BFG::v3 dragDifference = startPosition - position;
+			BFG::v3 startPosition;
+			intersectPosition(widget, mDragStart.left, mDragStart.top, startPosition);
 
-		const std::string camName(checkUserString(widget, "camHandle"));
+			BFG::v3 dragDifference = startPosition - position;
 
-		Ogre::SceneNode* node = mSceneMan->getSceneNode(camName);
-		BFG::v3 nodePosition = BFG::View::toBFG(node->getPosition());
-		BFG::v3 newPosition(nodePosition + dragDifference);
-		node->setPosition(BFG::View::toOgre(newPosition));
+			const std::string camName(checkUserString(widget, "camHandle"));
 
-		mDragStart = MyGUI::IntPoint(x, y);
+			Ogre::SceneNode* node = mSceneMan->getSceneNode(camName);
+			BFG::v3 nodePosition = BFG::View::toBFG(node->getPosition());
+			BFG::v3 newPosition(nodePosition + dragDifference);
+			node->setPosition(BFG::View::toOgre(newPosition));
+
+			mDragStart = MyGUI::IntPoint(x, y);
+		}
 	}
 	if (id == MyGUI::MouseButton::Middle)
 	{
@@ -455,6 +490,17 @@ void CameraControl::onMouseDrag(MyGUI::Widget* widget, int x, int y, MyGUI::Mous
 			return;
 
 		mZoomSpeed = 0.1f * (y - mZoomStart.top);
+	}
+	if (id == MyGUI::MouseButton::Left)
+	{
+		if (look == "Free")
+		{
+			if (mRotateStart == MyGUI::IntPoint(x, y))
+				return;
+
+			mRotateSpeedX = 0.01f * (x - mRotateStart.left);
+			mRotateSpeedY = 0.01f * (y - mRotateStart.top);
+		}
 	}
 }
 
@@ -550,17 +596,9 @@ void CameraControl::update(const Ogre::FrameEvent& evt)
 	{
 		if (mZoomSpeed > BFG::EPSILON_F || mZoomSpeed < -BFG::EPSILON_F)
 		{
-			const std::string camName(mZoomWidget->getUserString("camHandle"));
-			if (camName.empty())
-				throw std::runtime_error("CamHandle not found in widget " + mZoomWidget->getName());
-
-			const std::string look(mZoomWidget->getUserString("lookFrom"));
-			if (look.empty())
-				throw std::runtime_error("lookFrom parameter not found in widget " + mZoomWidget->getName());
-
-			const std::string camType(mZoomWidget->getUserString("type"));
-			if (camType.empty())
-				throw std::runtime_error("type parameter not found in widget " + mZoomWidget->getName());
+			const std::string camName(checkUserString(mZoomWidget, "camHandle"));
+			const std::string look(checkUserString(mZoomWidget, "lookFrom"));
+			const std::string camType(checkUserString(mZoomWidget, "type"));
 
 			if (camType == "orthographic")
 			{
@@ -583,6 +621,29 @@ void CameraControl::update(const Ogre::FrameEvent& evt)
 				vp.mPlane.d += mZoomSpeed * evt.timeSinceLastFrame;
 			}
 		}
+	}
+	if (mMoveWidget)
+	{
+		const std::string camName(checkUserString(mMoveWidget, "camHandle"));
+	
+		Ogre::SceneNode* node = mSceneMan->getSceneNode(camName);
+
+		node->translate
+		(
+			mMoveSpeedX * evt.timeSinceLastFrame, 
+			mMoveSpeedY * evt.timeSinceLastFrame, 
+			0, 
+			Ogre::Node::TS_LOCAL
+		);
+	}
+	if (mRotateWidget)
+	{
+		const std::string camName(checkUserString(mRotateWidget, "camHandle"));
+	
+		Ogre::SceneNode* node = mSceneMan->getSceneNode(camName);
+
+		node->pitch(Ogre::Radian(mRotateSpeedY * evt.timeSinceLastFrame));
+		node->yaw(-Ogre::Radian(mRotateSpeedX * evt.timeSinceLastFrame));
 	}
 }
 

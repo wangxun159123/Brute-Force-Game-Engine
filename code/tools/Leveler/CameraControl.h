@@ -87,7 +87,13 @@ public:
 	mCameraDistance(NULL),
 	mCamerasCreated(false),
 	mZoomSpeed(0.0f),
+	mMoveSpeedX(0.0f),
+	mMoveSpeedY(0.0f),
+	mRotateSpeedX(0.0f),
+	mRotateSpeedY(0.0f),
 	mZoomWidget(NULL),
+	mMoveWidget(NULL),
+	mRotateWidget(NULL),
 	mMultiview(true),
 	mDeltaRot(v3::ZERO),
 	mDeltaDis(0.0f),
@@ -286,8 +292,16 @@ private:
 	bool mCamerasCreated;
 	MyGUI::IntPoint mDragStart;
 	MyGUI::IntPoint mZoomStart;
+	MyGUI::IntPoint mMoveStart;
+	MyGUI::IntPoint mRotateStart;
 	f32 mZoomSpeed;
+	f32 mMoveSpeedX;
+	f32 mMoveSpeedY;
+	f32 mRotateSpeedX;
+	f32 mRotateSpeedY;
 	MyGUI::Widget* mZoomWidget;
+	MyGUI::Widget* mMoveWidget;
+	MyGUI::Widget* mRotateWidget;
 
 	bool mMultiview;
 
