@@ -51,9 +51,6 @@
             <value>VE_CONFIRM_MENU_ENTRY</value>
             <value>VE_LEVEL_CHOSEN</value>
             <value>VE_EXIT</value>
-          
-
-
         </enum>
 
         <enum name = "EffectType" export = "VIEW_API">
@@ -71,15 +68,6 @@
             <value set = "0">LT_Point</value>
             <value set = "1">LT_Directional</value>
             <value set = "2">LT_Spot</value>
-        </enum>
-
-        <enum name = "HudType" export = "VIEW_API">
-            <!-- For VIEW_API definition -->
-            <include>View/Defs.h</include>
-
-            <value>HT_FLIGHTMAP</value>
-            <value>HT_CROSSHAIR</value>
-            <value>HT_WEAPONS</value>
         </enum>
 
     </namespace>
