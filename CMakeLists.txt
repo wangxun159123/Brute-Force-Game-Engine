@@ -1,24 +1,34 @@
-# -----------------------------------------------
-# This is the root CMakeLists.txt
-# you should cmake that one to build BFG - Engine
-# --------------------------- preamble ----------
+# ------------------------------- #
+# This is the root CMakeLists.txt #
+# ------------------------------- #
+
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 CMAKE_POLICY(SET CMP0011 NEW) # :TODO: verify need of this policy
 
 # Our helper scripts are located in this folder
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/share/cmake/Modules)
 
-# --------------------------- includes ----------
+# -------- #
+# Includes #
+# -------- #
+
 INCLUDE(BFG)
 INCLUDE(DependencyBundle)
 INCLUDE(FindAllDependencies)
 
-# --------------------------- project declaration
+# --------------------#
+# Project Declaration #
+# --------------------#
+
 BFG_INIT_PROJECT("Brute-Force Game Engine" "bfg")
 
 IF(NOT BFG_ENGINE_INCLUDE_DIR)
-  SET(BFG_ENGINE_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/code/engine/")
+	SET(BFG_ENGINE_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/code/engine/")
 ENDIF(NOT BFG_ENGINE_INCLUDE_DIR)
+
+# ---------------------- #
+# Windows Specific Stuff #
+# -----------------------#
 
 IF(WIN32)
 	# For Visual Studio 2008 or 2010
@@ -43,29 +53,38 @@ ENDIF(WIN32)
 
 #DUMP_LOG_MESSAGE_TYPES()
 
-IF(BFG_PROJECT_BUNDLE)
-
-	LOG_STATUS("BFG_PROJECT_BUNDLE: ${BFG_PROJECT_BUNDLE}")
-	# Nifty Macro. See WinDeps.cmake
-	SETUP_BUNDLE_PATHS()
-
-ENDIF(BFG_PROJECT_BUNDLE)
-
+IF(BFG_DEPENDENCY_BUNDLE_PATH)
+	LOG_ACTION("Using dependency bundle at: ${BFG_DEPENDENCY_BUNDLE_PATH}")
+	SETUP_BUNDLE_PATHS(${BFG_DEPENDENCY_BUNDLE_PATH})
+ENDIF()
 
 FIND_ALL_DEPENDENCIES()
 
+# ------------------------------------- #
+# Locally modified thirdparty libraries #
+# ------------------------------------- #
+
+SET(TINYXML_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/thirdparty/tinyxml")
+SET(BOOST_GEOMETRY_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/thirdparty/boost-geometry")
+SET(ODE_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/thirdparty/ODE_r1727/include")
+
+# ------------------ #
+# Output Directories #
+# ------------------ #
 
 IF(UNIX)
-	SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY	"${PROJECT_SOURCE_DIR}/bin/Linux/")
-	SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY	"${PROJECT_SOURCE_DIR}/lib/")
-	SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY	"${PROJECT_SOURCE_DIR}/lib/")
+	SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin/Linux/")
+	SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/lib/")
+	SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/lib/")
 ENDIF(UNIX)
 
 ADD_SUBDIRECTORY(thirdparty)
 ADD_SUBDIRECTORY(code)
 
+# ------------------------ #
+# Documentation Generation #
+# ------------------------ #
 
-# documentation generation
 FIND_PACKAGE (Doxygen)
 IF(DOXYGEN_FOUND)
 	ADD_CUSTOM_TARGET (doc
@@ -73,3 +92,9 @@ IF(DOXYGEN_FOUND)
 		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/doc
 	)
 ENDIF(DOXYGEN_FOUND)
+
+# ---------------#
+# Install Shared #
+# ---------------#
+
+INSTALL(DIRECTORY share/cmake DESTINATION "share/bfg")

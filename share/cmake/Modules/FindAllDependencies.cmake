@@ -1,3 +1,5 @@
+INCLUDE(BFG)
+
 MACRO(FIND_ALL_DEPENDENCIES)
 
 	# ----- #
@@ -203,24 +205,6 @@ MACRO(FIND_ALL_DEPENDENCIES)
 	IF(NOT MYGUI_FOUND)
 	LOG_FATAL("MyGUI could not be found")
 	ENDIF(NOT MYGUI_FOUND)
-
-	# ------- #
-	# TinyXML #
-	# ------- #
-
-	SET(TINYXML_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/thirdparty/tinyxml")
-
-	# -------------- #
-	# Boost.Geometry #
-	# -------------- #
-
-	SET(BOOST_GEOMETRY_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/thirdparty/boost-geometry")
-
-	# --- #
-	# ODE #
-	# --- #
-
-	SET(ODE_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/thirdparty/ODE_r1727/include")
 
 	# ------ #
 	# Vorbis #
