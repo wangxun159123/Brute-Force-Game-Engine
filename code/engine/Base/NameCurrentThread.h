@@ -31,9 +31,13 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 namespace BFG {
 
+#if defined (_WIN32) or defined (__linux)
+
 //! Names a thread. Useful for debugging
 //! \attention Call this from within the thread to be named
 void nameCurrentThread(const std::string& name);
+
+#endif
 
 } // namespace BFG
 
