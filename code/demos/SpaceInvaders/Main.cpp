@@ -43,7 +43,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Base/Pause.h>
 #include <Controller/Action.h>
 #include <Controller/ControllerEvents.h>
-#include <Controller/ControllerInterface.h>
+#include <Controller/Interface.h>
 #include <Core/ClockUtils.h>
 #include <Core/Math.h>
 #include <Core/Path.h>

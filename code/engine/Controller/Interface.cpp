@@ -24,7 +24,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Controller/ControllerInterface.h>
+#include <Controller/Interface.h>
 
 #include <Controller/Controller.h>
 #include <Controller/OISUtils.h>
