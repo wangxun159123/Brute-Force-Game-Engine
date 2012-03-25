@@ -28,10 +28,10 @@ ENDMACRO ()
 IF (BFG_INCLUDE_DIR AND BFG_LIBRARIES)
 	SET (BFG_FOUND TRUE)
 ELSE ()
-	FIND_PATH (BFG_INCLUDE_DIR "bfg/Core/Math.h"
-		/usr/include
-		/usr/local
-		${BFG_ROOT}/include
+	FIND_PATH (BFG_INCLUDE_DIR "Core/Math.h"
+		/usr/include/bfg/
+		/usr/local/bfg/
+		${BFG_ROOT}/include/bfg
 	)
 
 	_FIND_BFG_LIBRARY (BFG_AUDIO_LIBRARY      bfgAudio)
