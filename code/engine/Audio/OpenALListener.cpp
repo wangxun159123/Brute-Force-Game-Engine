@@ -41,10 +41,10 @@ OpenALListener::OpenALListener()
 
 OpenALListener::~OpenALListener()
 {
-	AudioMain::eventLoop()->disconnect(ID::AE_MASTER_GAIN);
-	AudioMain::eventLoop()->connect(ID::AE_POSITION_PLAYER);
-	AudioMain::eventLoop()->connect(ID::AE_ORIENTATION_PLAYER);
-	AudioMain::eventLoop()->connect(ID::AE_VELOCITY_PLAYER);
+	AudioMain::eventLoop()->disconnect(ID::AE_MASTER_GAIN, this);
+	AudioMain::eventLoop()->disconnect(ID::AE_POSITION_PLAYER, this);
+	AudioMain::eventLoop()->disconnect(ID::AE_ORIENTATION_PLAYER, this);
+	AudioMain::eventLoop()->disconnect(ID::AE_VELOCITY_PLAYER, this);
 
 	AudioMain::eventLoop()->setExitFlag(true);
 	AudioMain::eventLoop()->doLoop();
@@ -71,25 +71,25 @@ void OpenALListener::eventHandler(AudioEvent* AE)
 	}
 }
 
-void Audio::onVelocityPlayer(const AudioPayloadT& payload)
+void OpenALListener::onVelocityPlayer(const AudioPayloadT& payload)
 {
 	v3 velocity = boost::get<v3>(payload);
 	alListener3f(AL_VELOCITY, velocity.x, velocity.y, velocity.z);
 }
 
-void Audio::onOrientationPlayer(const AudioPayloadT& payload)
+void OpenALListener::onOrientationPlayer(const AudioPayloadT& payload)
 {
 	v3 orientation = boost::get<v3>(payload);
 	alListener3f(AL_ORIENTATION, orientation.x, orientation.y, orientation.z);
 }
 
-void Audio::onEventMasterGain(const AudioPayloadT& payload)
+void OpenALListener::onEventMasterGain(const AudioPayloadT& payload)
 {
 	ALfloat gain = static_cast<ALfloat>(boost::get<float>(payload));
 	alListenerf(AL_GAIN, gain);
 }
 
-void Audio::onEventPositionPlayer(const AudioPayloadT& payload)
+void OpenALListener::onEventPositionPlayer(const AudioPayloadT& payload)
 {
 	v3 position = boost::get<v3>(payload);
 	alListener3f(AL_POSITION, position.x, position.y, position.z);

@@ -27,6 +27,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Audio/OpenALStream.h>
 #include <Base/CLogger.h>
 #include <Audio/FileBase.h>
+#include <Audio/HelperFunctions.h>
 
 namespace BFG {
 namespace Audio {
@@ -39,12 +40,16 @@ namespace Audio {
 		mSourceId(sourceId)
     {
 		mBufferIds.reset(new ALuint[mNUM_BUFFER]);
+		alGenBuffers(mNUM_BUFFER, mBufferIds.get());
+		std::string result = stringifyAlError(alGetError());
+		dbglog << result;
+		
 		preload();
     }
 
 	OpenALStream::~OpenALStream()
 	{
-		alDeleteSources(1, &mSourceId);
+		alDeleteBuffers(mNUM_BUFFER, mBufferIds.get());
 	}
 
 	void OpenALStream::preload()
@@ -53,6 +58,11 @@ namespace Audio {
 		{
 			mAudioFile->read(mBufferIds[i]);
 		}
+
+		alSourceQueueBuffers(mSourceId, mNUM_BUFFER, mBufferIds.get());
+		std::string err = stringifyAlError(alGetError());
+
+		dbglog << err;
 
 		//dbglog << "Stream: "+mName+" preloaded";
     }

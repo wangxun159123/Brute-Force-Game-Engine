@@ -34,7 +34,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <EventSystem/Event_fwd.h>
 
 #include <Audio/Enums.hh>
-#include <Audio/Transport.h>
 
 namespace BFG {
 namespace Audio {
@@ -46,7 +45,6 @@ typedef boost::variant
 	s32,
 	v3,
 	GameHandle,
-	AOCreation,
 	std::string
 >
 AudioPayloadT;

@@ -56,7 +56,7 @@ private:
 };
 
 #ifdef OPEN_AL_IS_OUR_CHOISE
-	boost::shared_ptr<Listener> createListener() { boost::shared_ptr<Listener>(new OpenALListener()); }
+	boost::shared_ptr<Listener> createListener() { return boost::shared_ptr<Listener>(new OpenALListener()); }
 #endif
 
 } // namespace Audio

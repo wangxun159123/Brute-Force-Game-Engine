@@ -69,15 +69,15 @@ void StreamLoop::onStreaming()
 {
 	while (mIsRunning)
 	{
+		boost::this_thread::sleep(boost::posix_time::millisec(100));
+		boost::mutex::scoped_lock lock(mMutex);
+		
 		StreamsOnLoopT::iterator it; 
 
 		for(it = mStreamsOnLoop.begin(); it != mStreamsOnLoop.end(); ++it)
 		{
-			boost::mutex::scoped_lock lock(mMutex);
 			it->second->nextStreamStep();
 		}
-
-		boost::this_thread::sleep(boost::posix_time::millisec(50));
 	}
 }
 

@@ -25,8 +25,12 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <Audio/OpenALAudioObject.h>
+
+#include <Base/CLogger.h>
+
 #include <Audio/OpenALStream.h>
 #include <Audio/FileFactory.h>
+#include <Audio/HelperFunctions.h>
 
 
 namespace BFG {
@@ -34,14 +38,16 @@ namespace Audio {
 
 OpenALAudioObject::OpenALAudioObject(std::string audioName, 
 	                                 boost::shared_ptr<StreamLoop> streamLoop): 
-	AudioObject(audioName, mStreamLoop),
+	AudioObject(audioName, streamLoop),
 	mSourceId(0)
 	{
 	}
 
 	OpenALAudioObject::~OpenALAudioObject() 
 	{
-		alDeleteSources(1, &mSourceId);
+		if (mSourceId)
+			alDeleteSources(1, &mSourceId);
+
 	}
 
 	void OpenALAudioObject::play()
@@ -110,7 +116,16 @@ OpenALAudioObject::OpenALAudioObject(std::string audioName,
 	void OpenALAudioObject::careOfSource()
 	{
 		if (!mSourceId)
+		{
 			alGenSources(1, &mSourceId);
+
+			std::string result = stringifyAlError(alGetError());
+			dbglog << result;
+
+
+			if (!alIsSource(mSourceId))
+				throw std::logic_error("Not a valid source ID at OpenALAudioObject::careOfSource().");
+		}
 	}
 
 	void OpenALAudioObject::onStreamFinished()
