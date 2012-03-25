@@ -24,76 +24,101 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <EventSystem/Core/network/ClientChannel.h>
+#include <EventSystem/Network/ServerChannel.h>
 
 #include <boost/archive/text_iarchive.hpp>
 
 #include <Base/CLogger.h>
-#include <EventSystem/Core/EventDefs.h>
-#include <EventSystem/Core/EventManager.h>
 #include <EventSystem/Core/EventPool.h>
+#include <EventSystem/Core/EventManager.h>
+
 
 
 namespace EventSystem
 {
 
-ClientChannel::ClientChannel(boost::asio::io_service& io_service):
-NetworkChannel(io_service, false)
+ServerChannel::ServerChannel(boost::asio::io_service& io_service):
+NetworkChannel(io_service, true)
 {
 }
 
-ClientChannel::~ClientChannel()
+ServerChannel::~ServerChannel()
 {
 }
 
-void ClientChannel::connect(boost::asio::ip::tcp::endpoint& ep)
+void ServerChannel::startHandShake()
 {
-	mSocket.connect(ep);
-	startHandShake();
-}
-
-void ClientChannel::startHandShake()
-{
-	writeStaticMessage(boost::asio::buffer(NetworkHandshake));
 	readMessage
 	(
-		&ClientChannel::handleHandShakeResponse,
+		&ServerChannel::handleClientHandShake,
 		shared_from_this(),
-		NetworkHandshakeResponse.size()
+		NetworkHandshake.size()
 	);
 }
-
-void ClientChannel::handleHandShakeResponse(const boost::system::error_code& error)
+ 
+void ServerChannel::handleClientHandShake(const boost::system::error_code& error)
 {
-	infolog << "handleClientHandshakeResponse";
+	infolog << "ServerChannel::handleServerHandshake";
+	if (!error)
+	{
+		std::ostringstream ss;
+		ss << &mIncomingBuffer;
+
+		if (ss.str() == NetworkHandshake)
+		{
+			// Send ACK to the other side, last step in authentication process
+			writeStaticMessage(boost::asio::buffer(NetworkHandshakeResponse));
+
+			readMessage
+			(
+				&ServerChannel::handleHandShakeResponse,
+				shared_from_this(),
+				NetworkHandshakeACK.size()
+			);
+		}
+		else
+		{
+			errlog << "ServerChannel::handleClientHandShake: received wrong package >> "
+			       << ss.str();
+		}
+	}
+}
+ 
+void ServerChannel::handleHandShakeResponse(const boost::system::error_code& error)
+{
+	infolog << "ServerChannel::handleHandshakeResponse";
 	if (!error)
 	{
 		// Write all of the data that has been read so far.
 		std::ostringstream ss;
 		ss << &mIncomingBuffer;
-		if (ss.str() == NetworkHandshakeResponse)
+
+		if (ss.str() == NetworkHandshakeACK)
 		{
 			// Got a valid response from the other side
 			setValid(true);
 
-			// Send ACK to the other side, last step in authentication process
-			writeStaticMessage(boost::asio::buffer(NetworkHandshakeACK));
-
+			// Continue reading remaining data until EOF.
 			readMessage
 			(
-				&ClientChannel::handleReadHeader,
+				&ServerChannel::handleReadHeader,
 				shared_from_this(),
 				8
 			);
 		}
+		else
+		{
+			errlog << "ServerChannel::handleHandShakeResponse << received wrong package >> "
+			       << ss.str();
+		}
 	}
 	else if (error != boost::asio::error::eof)
 	{
-		errlog << "ClientChannel::handleHandShakeResponse: " << error;
+		errlog << "ServerChannel::handleHandshakeResponse: " << error << "\n";
 	}  
 }
 
-void ClientChannel::handleReadHeader(const boost::system::error_code& error)
+void ServerChannel::handleReadHeader(const boost::system::error_code& error)
 {
 	if (!error)
 	{
@@ -103,18 +128,19 @@ void ClientChannel::handleReadHeader(const boost::system::error_code& error)
 
 		readMessage
 		(
-			&ClientChannel::handleReadData,
+			&ServerChannel::handleReadData,
 			shared_from_this(),
 			dataSize
 		);
 	}
-	else if (error != boost::asio::error::eof)
+	else
 	{
-		errlog << "ClientChannel::handleReadHeader: " << error;
+		errlog << "ServerChannel::handleReader: " << error.value();
+		errlog << "ServerChannel::handleReader: " << error.category().name();
 	}
 }
 
-void ClientChannel::handleReadData(const boost::system::error_code& error)
+void ServerChannel::handleReadData(const boost::system::error_code& error)
 {
 	try
 	{
@@ -129,8 +155,8 @@ void ClientChannel::handleReadData(const boost::system::error_code& error)
 		// copy this pool to all channels
 		EventManager::getInstance()->publishNetworkPool(pool);
 
-		dbglog << "ClientChannel has received:" << std::endl
-		          << (*pool);
+		dbglog << "ServerChannel has received:" << std::endl
+		       << (*pool);
 
 		// mark eventpool as unused
 		EventManager::getInstance()->freePool(pool);
@@ -138,21 +164,21 @@ void ClientChannel::handleReadData(const boost::system::error_code& error)
 		// prepare read for next message
 		readMessage
 		(
-			&ClientChannel::handleReadHeader,
+			&ServerChannel::handleReadHeader,
 			shared_from_this(),
 			8
 		);
 	}
 	catch(boost::archive::archive_exception& e)
 	{
-		errlog << "ClientHandle::handleReadData: ArchiveError: " << e.what();
+		errlog << "ServerChannel::handleReadData: " << e.what();
 		return;
 	}
 	catch (std::exception& e)
 	{
-		errlog << "ClientHandle::handleReadData: " << e.what();
+		errlog << "ServerChannel::handleReadData: " << e.what();
 		return;
 	}
 }
 
-} //namespace EventSystem 
+} //namespace EventSystem

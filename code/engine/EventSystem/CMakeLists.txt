@@ -4,13 +4,13 @@ BFG_INIT_PACKAGE(EventSystem "1.0.0")
 
 FILE(GLOB Event_SOURCES         *.cpp)
 FILE(GLOB EventCore_SOURCES     Core/*.cpp)
-FILE(GLOB EventNetwork_SOURCES  Core/network/*.cpp)
+FILE(GLOB EventNetwork_SOURCES  Network/*.cpp)
 FILE(GLOB EventSuite_SOURCES    EventSuite_Con/*.cpp)
 FILE(GLOB EventTest_SOURCES     EventTypesTest/*.cpp)
 
 FILE(GLOB Event_HEADERS         *.h)
 FILE(GLOB EventCore_HEADERS     Core/*.h)
-FILE(GLOB EventNetwork_HEADERS  Core/network/*.h )
+FILE(GLOB EventNetwork_HEADERS  Network/*.h )
 FILE(GLOB EventSuite_HEADERS    EventSuite_Con/*.h)
 FILE(GLOB EventTest_HEADERS     EventTypesTest/*.h)
 
@@ -51,5 +51,5 @@ INSTALL(FILES ${EventCore_HEADERS}
         COMPONENT devel)
 		
 INSTALL(FILES ${EventNetwork_HEADERS}
-        DESTINATION "${BFG_PACKAGE_INCLUDE_DIR}/network"
+        DESTINATION "${BFG_PACKAGE_INCLUDE_DIR}/Network"
         COMPONENT devel)		
