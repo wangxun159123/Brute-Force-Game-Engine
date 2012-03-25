@@ -27,6 +27,9 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #ifndef AUDIO_DEFS_H
 #define AUDIO_DEFS_H
 
+// Define the used audio lib here.
+#define OPEN_AL_IS_OUR_CHOISE
+
 #ifdef _WIN32
 	#ifndef AUDIO_EXPORTS
 		#define BFG_AUDIO_API __declspec(dllimport)

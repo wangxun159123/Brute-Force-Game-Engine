@@ -42,6 +42,8 @@ AudioMain::AudioMain(EventLoop* loop)
 		throw std::logic_error("AudioMain gets initialized twice!");
 	
 	AudioMain::mLoop = loop;
+	mInit = createInit();
+	mListener = createListener();
 }
 
 AudioMain::~AudioMain()

@@ -31,6 +31,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Base/CLogger.h>
 #include <Core/ClockUtils.h>
 #include <Audio/HelperFunctions.h>
+#include <Audio/OpenALStream.h>
+#include <Audio/FileFactory.h>
 
 namespace BFG {
 namespace Audio {
@@ -83,7 +85,7 @@ void StreamWatch::createStream(const std::string& streamName)
 	}
 
 	dbglog << "Creating stream of: "+streamName;
-	mReadyStreams[streamName] = boost::shared_ptr<Stream>(new Stream(streamName));
+	mReadyStreams[streamName] = boost::shared_ptr<Stream>(new OpenALStream(createFile(streamName)));
 	dbglog << "Stream created";
 }
 

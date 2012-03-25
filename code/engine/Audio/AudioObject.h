@@ -28,56 +28,32 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #define AUDIO_OBJECT_H
 
 #include <Audio/Defines.h>
-
 #include <boost/shared_ptr.hpp>
-#include <boost/scoped_ptr.hpp>
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
-
-#include <al.h>
-
-#include <Core/Types.h>
-#include <Core/Utils.h>
-#include <Core/v3.h>
-
-#include <Audio/AudioEvent.h>
-#include <Audio/Transport.h>
-#include <Audio/OpenAlUpdateHandler.h>
 
 namespace BFG {
 namespace Audio {
 
-class StreamWatch;
-class Audio;
+class StreamLoop;
 
 class BFG_AUDIO_API AudioObject
 {
+
 public:
-	AudioObject(GameHandle gameHandle, 
-	            const std::string& audioName,
-	            boost::shared_ptr<StreamWatch> streamWatch,
-	            const AOPresetData& presetData,
-	            const AOLocation& location,
-				Audio& Audio,
-	            bool updateable = false);
+	AudioObject(std::string audioName, 
+		        boost::shared_ptr<StreamLoop> streamLoop): 
+		mAudioName(audioName),
+		mStreamLoop(streamLoop) {}
+	~AudioObject() {}
 
-	~AudioObject();
+	virtual void play() = 0;
+	virtual void pause() = 0;
+	virtual void stop() = 0;
 
-private:
-	void initEvents();
-	void initPresetData(const AOPresetData& presetData);
-	void initLocation(const AOLocation& locationData);
-	void eventHandler(AudioEvent* AE);
-	void onStreamFinished();
+protected:
+	virtual void onStreamFinished() = 0;
 
-	ALuint mSourceId;
-	GameHandle mGameHandle;
 	std::string mAudioName;
-	bool mUpdateable;
-	Audio& mAudio;
-
-	boost::scoped_ptr<OpenAlUpdateHandler> mUpdateHandler;
-	boost::shared_ptr<StreamWatch> mStreamWatch;
+	boost::shared_ptr<StreamLoop> mStreamLoop;
 };
 
 } // namespace Audio

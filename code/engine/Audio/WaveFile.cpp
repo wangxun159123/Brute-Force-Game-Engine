@@ -34,10 +34,12 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace BFG {
 namespace Audio {
 
-WaveFile::WaveFile(const std::string& filename) : mBUFFER_SIZE(44100)
+WaveFile::WaveFile(const std::string& filename) : 
+mBUFFER_SIZE(44100),
+mFileName(filename)
 {
 	mBuffer.reset(new int[mBUFFER_SIZE]);
-	open(filename);
+	open();
 }
 
 WaveFile::~WaveFile()
@@ -50,15 +52,15 @@ void WaveFile::close()
 	sf_close(mSoundFile);
 }
 
-void WaveFile::open(const std::string& filename)
+void WaveFile::open()
 {
 	SF_INFO sfInfo;
 	sfInfo.format = 0;
 
-	mSoundFile = sf_open(filename.c_str(), SFM_READ, &sfInfo);
+	mSoundFile = sf_open(mFileName.c_str(), SFM_READ, &sfInfo);
 
 	if (!mSoundFile)
-		throw std::logic_error("Can't open sound file: "+ filename +" !");
+		throw std::logic_error("Can't open sound file: "+ mFileName +" !");
 
 	dbglog << "channels: " << sfInfo.channels;
 	dbglog << "format: " << sfInfo.format;

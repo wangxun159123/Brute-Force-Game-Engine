@@ -53,18 +53,20 @@ public:
 	~OggFile();
 
 	void read(ALuint bufferID);
+	std::string toString() { return mFileName; }
 
 private:
 
 	unsigned long decode(char *buffer, unsigned long bufferSize);
 	void close();
-	void open(const std::string& filename);
+	void open();
 
 	const unsigned int BUFFER_SIZE;
 	OggVorbis_File* mVorbisFile;
 	vorbis_info* mFileInfo;
 	boost::scoped_array<char> mBuffer;
 	ALenum mFormat;
+	std::string mFileName;
 };
 
 } // namespace Audio

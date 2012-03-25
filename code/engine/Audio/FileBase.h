@@ -44,9 +44,10 @@ public:
  	//! The function gets one OpenAl bufferId whose buffer will be filled with audio data.
  	//! So every call of read fills one buffer. The size of one buffer depends on the sample-rate. 
  	virtual void read(ALuint bufferId) = 0;
+	virtual std::string toString() = 0;
 
 private:
- 	virtual void open(const std::string& filename) = 0;
+ 	virtual void open() = 0;
  	virtual void close() = 0;
 };
 

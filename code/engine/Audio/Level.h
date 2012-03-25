@@ -58,7 +58,7 @@ struct BFG_AUDIO_API Level
 	std::vector<std::string> mFiles;
 	ObjectMapT mObjects;
 
-	boost::scoped_ptr<AudioObjectFactory> mObjectFactory;
+	//boost::scoped_ptr<AudioObjectFactory> mObjectFactory;
 	boost::shared_ptr<StreamWatch> mStreamWatch;
 };
 

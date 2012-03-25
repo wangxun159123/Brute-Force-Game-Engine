@@ -29,6 +29,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #define BFG_AUDIOMAIN_H
 
 #include <Audio/Defines.h>
+#include <Audio/Init.h>
+#include <Audio/Listener.h>
 
 class EventLoop;
 
@@ -45,6 +47,8 @@ public:
 	
 private:
 	static EventLoop* mLoop;
+	boost::shared_ptr<Init> mInit;
+	boost::shared_ptr<Listener> mListener;
 };
 
 } // namespace Audio

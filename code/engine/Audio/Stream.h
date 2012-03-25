@@ -24,62 +24,34 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef AUDIO_STREAMER_H
-#define AUDIO_STREAMER_H
+#ifndef AUDIO_STREAM_H_
+#define AUDIO_STREAM_H_
 
 #include <Audio/Defines.h>
 #include <boost/shared_ptr.hpp>
-#include <boost/scoped_array.hpp>
-#include <boost/thread/thread.hpp>
-#include <boost/thread/mutex.hpp>
 #include <boost/function.hpp>
-#include <al.h>
 
 namespace BFG {
 namespace Audio {
 
 class AudioFile;
 
-//! This class provides streaming audio data in OpenAl buffers.
-//! An openAl buffers are represented as BufferIds (ALuint == unsigned int).
-//! So we take only care about these IDs OpenAl take care about the rest.
 class BFG_AUDIO_API Stream
 {
 
-friend class StreamWatch;
-
-enum State
-{
-	READY = 1,
-	STREAMING,
-	INITIALIZING,
-	FINISHED
-};
-
 public:
-	Stream(const std::string& name);
-	~Stream();
 
-	//! Open a new thread for the stream process.
-	void startStream(ALuint sourceId, boost::function<void (void)> onStreamFinished);
+	Stream(boost::shared_ptr<AudioFile> file, 
+		   boost::function<void (void)> onStreamFinished) : 
+	mAudioFile(file), 
+	mOnStreamFinished(onStreamFinished) 
+	{}
 
-	void nextStreamStep();
+	virtual void nextStreamStep() = 0;
 
-	State state() { return mState; }
+protected:
 
-private:
-
-	//! Initialize the buffers with first audio data before the stream process is started.
-	void preload();
-
-	const int mNUM_BUFFER;
-	const std::string mName;
-
-	ALuint mSourceId;
-	State mState;
 	boost::function<void (void)> mOnStreamFinished;
-
-	boost::scoped_array<ALuint> mBufferIds;
 	boost::shared_ptr<AudioFile> mAudioFile;
 };
 

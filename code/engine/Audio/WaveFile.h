@@ -46,16 +46,18 @@ public:
 	~WaveFile();
 
 	void read(ALuint bufferID);
+	std::string toString() { return mFileName; }
 
 private:
 
 	void close();
-	void open(const std::string& filename);
+	void open();
 
 	SNDFILE* mSoundFile;
 	boost::scoped_array<int> mBuffer;
 	const unsigned int mBUFFER_SIZE;
 	ALenum mFormat;
+	std::string mFileName;
 };
 
 } // namespace Audio

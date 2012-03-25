@@ -44,8 +44,8 @@ Level::~Level()
 
 void Level::load()
 {
-	if(!mObjectFactory)
-		mObjectFactory.reset(new AudioObjectFactory());
+	//if(!mObjectFactory)
+	//	mObjectFactory.reset(new AudioObjectFactory());
 
 	mStreamWatch = boost::shared_ptr<StreamWatch>(new StreamWatch(mFiles));
 }

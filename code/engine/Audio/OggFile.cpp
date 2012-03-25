@@ -34,10 +34,12 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace BFG {
 namespace Audio {
 
-OggFile::OggFile(const std::string& filename) : BUFFER_SIZE(44100)
+OggFile::OggFile(const std::string& filename) : 
+BUFFER_SIZE(44100), 
+mFileName(filename)
 {
 	mBuffer.reset(new char[BUFFER_SIZE]);
-	open(filename);
+	open();
 }
 
 OggFile::~OggFile()
@@ -45,12 +47,12 @@ OggFile::~OggFile()
 	close();
 }
 
-void OggFile::open(const std::string& filename)
+void OggFile::open()
 {
 	mVorbisFile = new OggVorbis_File;
 
-	if (ov_fopen(filename.c_str(), mVorbisFile))
-		throw std::logic_error(std::string("Audio: Error loading file: "+ filename +" ."));
+	if (ov_fopen(mFileName.c_str(), mVorbisFile))
+		throw std::logic_error(std::string("Audio: Error loading file: "+ mFileName +" ."));
 
 	mFileInfo = ov_info(mVorbisFile, -1);
 

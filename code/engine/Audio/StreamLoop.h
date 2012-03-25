@@ -32,6 +32,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/thread/mutex.hpp>
 #include <boost/function.hpp>
 #include <EventSystem/Core/EventLoop.h>
+#include <al.h>
+
 #include <Audio/Defines.h>
 #include <Audio/Stream.h>
 
@@ -43,7 +45,7 @@ class BFG_AUDIO_API StreamWatch
 
 public:
 
-	StreamWatch(const std::vector<std::string>& fileList);
+	StreamLoop();
 	~StreamWatch();
 
 	//! An audio-object can demand a stream.
@@ -51,34 +53,12 @@ public:
 						boost::function<void (void)>,
 						ALuint aSourceID = 0);
 
-	//! All files in ready list stay saved. Busy streams will be deleted and the working thread holds.
-	void idle();
-	//! T he worker thread holds but all ready streams will freeze at their current position.
-	void freeze();
-	//! reactivate the Instance from freeze or idle.
-	void reactivate();
-
 private:
-
-	enum State
-	{
-		RUNNING,
-		IDLE,
-		FREEZED
-	};
 
 	boost::mutex mMutex; 
 
-	//! Entry point is the constructor that calls run. So we need a dummy entry point to satisfy eventsystem policy.
-	static void* pseudoEntryPoint(void * iPointer) { return 0; }
-	void loopEventHandler(LoopEvent* loopEvent);
-
-	//! Open one stream for every file that every file is preloaded if a stream will be demanded.
 	void init(const std::vector<std::string>& filelist);
 
-	void createStream(const std::string& streamName);
-
-	//! A stream list that safes streams of one audio-file.
 	typedef std::vector<boost::shared_ptr<Stream> > StreamsT;
 	typedef std::map<std::string, boost::shared_ptr<Stream> > ReadyStreamsT;
 
