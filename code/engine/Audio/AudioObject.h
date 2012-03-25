@@ -29,11 +29,11 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Audio/Defines.h>
 #include <boost/shared_ptr.hpp>
+#include <Audio/StreamLoop.h>
 
 namespace BFG {
 namespace Audio {
 
-class StreamLoop;
 
 class BFG_AUDIO_API AudioObject
 {
@@ -42,7 +42,10 @@ public:
 	AudioObject(std::string audioName, 
 		        boost::shared_ptr<StreamLoop> streamLoop): 
 		mAudioName(audioName),
-		mStreamLoop(streamLoop) {}
+		mStreamLoop(streamLoop),
+		mStreamHandle(0)
+	{}
+	
 	~AudioObject() {}
 
 	virtual void play() = 0;
@@ -54,6 +57,7 @@ protected:
 
 	std::string mAudioName;
 	boost::shared_ptr<StreamLoop> mStreamLoop;
+	StreamLoop::StreamHandleT mStreamHandle;
 };
 
 } // namespace Audio
