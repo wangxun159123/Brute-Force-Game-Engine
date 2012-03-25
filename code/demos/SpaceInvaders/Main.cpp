@@ -33,47 +33,47 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <OgreSceneManager.h>
 #include <OgreParticleSystem.h>
 
-#include <EventSystem/EventFactory.h>
-#include <Controller/Action.h>
-#include <Controller/ControllerEvents.h>
-#include <Controller/ControllerInterface.h>
+#include <Audio/Audio.h>
+#include <Audio/Enums.hh>
+#include <Audio/Interface.h>
+#include <Audio/Transport.h>
 #include <Base/CEntryPoint.h>
 #include <Base/CLogger.h>
 #include <Base/Cpp.h>
 #include <Base/Pause.h>
-#include <EventSystem/Core/EventLoop.h>
-#include <EventSystem/Emitter.h>
-#include <Core/ShowException.h>
-#include <Core/Types.h>
+#include <Controller/Action.h>
+#include <Controller/ControllerEvents.h>
+#include <Controller/ControllerInterface.h>
+#include <Core/ClockUtils.h>
 #include <Core/Math.h>
 #include <Core/Path.h>
-#include <Core/ClockUtils.h>
+#include <Core/ShowException.h>
+#include <Core/Types.h>
 #include <Core/Utils.h>
-#include <View/Owner.h>
-#include <View/Interface.h>
-#include <View/Event.h>
-#include <View/State.h>
-#include <View/RenderObject.h>
-#include <View/Main.h>
-#include <View/Explosion.h>
-#include <View/SkyCreation.h>
-#include <View/Skybox.h>
-#include <Model/Interface.h>
-#include <Model/Loader/Interpreter.h>
-#include <Model/Loader/GameObjectFactory.h>
+#include <EventSystem/Core/EventLoop.h>
+#include <EventSystem/Emitter.h>
+#include <EventSystem/EventFactory.h>
 #include <Model/Environment.h>
 #include <Model/GameObject.h>
+#include <Model/Interface.h>
+#include <Model/Loader/GameObjectFactory.h>
+#include <Model/Loader/Interpreter.h>
 #include <Model/Module.h>
-#include <Model/Sector.h>
 #include <Model/Property/Concept.h>
 #include <Model/Property/SpacePlugin.h>
+#include <Model/Sector.h>
 #include <Physics/Event.h>
 #include <Physics/Interface.h>
-#include <Audio/Audio.h>
-#include <Audio/Transport.h>
-#include <Audio/Interface.h>
-#include <Audio/Enums.hh>
-
+#include <View/Event.h>
+#include <View/Explosion.h>
+#include <View/Interface.h>
+#include <View/Main.h>
+#include <View/Owner.h>
+#include <View/RenderObject.h>
+#include <View/Skybox.h>
+#include <View/SkyCreation.h>
+#include <View/State.h>
+#include <View/WindowAttributes.h>
 
 using namespace BFG;
 
@@ -950,8 +950,11 @@ void* SingleThreadEntryPoint(void *iPointer)
 		Path path;
 		const std::string config_path = path.Expand("SpaceInvaders.xml");
 		const std::string state_name = "SpaceInvaders";
-		
-		Controller_::StateInsertion si(config_path, state_name, handle, true);
+
+		size_t handle; u32 width; u32 height;
+		BFG::View::windowAttributes(handle, width, height);
+
+		Controller_::StateInsertion si(config_path, state_name, handle, true, width, height, handle);
 
 		EventFactory::Create<Controller_::ControlEvent>
 		(

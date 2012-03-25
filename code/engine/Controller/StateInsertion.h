@@ -38,12 +38,18 @@ struct StateInsertion
 	StateInsertion(const std::string& configurationFilename,
 	               const std::string& stateName,
 	               GameHandle handle,
-	               bool activateNow);
+	               bool activateNow,
+	               u32 windowWidth,
+	               u32 windowHeight,
+	               size_t windowHandle);
 	
 	CharArray512T mConfigurationFilename;
 	CharArray128T mStateName;
 	GameHandle    mHandle;
 	bool          mActivateNow;
+	u32           mWindowWidth;
+	u32           mWindowHeight;
+	size_t        mWindowHandle;
 };
 
 } // namespace Controller_

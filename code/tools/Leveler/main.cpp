@@ -49,6 +49,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <View/Interface.h>
 #include <View/RenderObject.h>
 #include <View/State.h>
+#include <View/WindowAttributes.h>
 
 #include <Actions.h>
 #include <BaseFeature.h>
@@ -272,8 +273,10 @@ void* SingleThreadEntryPoint(void *iPointer)
 	Path path;
 	const std::string config_path = path.Expand("Leveler.xml");
 	const std::string state_name = "Leveler";
-	
-	Controller_::StateInsertion si(config_path, state_name, handle, true);
+
+	size_t windowHandle; u32 width; u32 height;
+	BFG::View::windowAttributes(windowHandle, width, height);
+	Controller_::StateInsertion si(config_path, state_name, handle, true, width, height, windowHandle);
 
 	EventFactory::Create<Controller_::ControlEvent>
 	(

@@ -61,7 +61,6 @@ class State;
 class Camera;
 class Fps;
 class Console;
-struct StateInsertion;
 
 class VIEW_API Main
 {

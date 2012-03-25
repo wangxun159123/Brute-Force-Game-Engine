@@ -42,9 +42,7 @@ namespace posix_time = boost::posix_time;
 //#############################################################################
 
 Controller::Controller(EventLoop* loop) :
-mEventLoop(loop),
-mWindowWidth(0),
-mWindowHeight(0)
+mEventLoop(loop)
 {
 	assert(loop && "Controller: EventLoop not initialized!");
 	
@@ -64,10 +62,7 @@ Controller::~Controller()
 	}
 }
 
-void Controller::init(boost::shared_ptr<OIS::InputManager> aInputManager,
-                      int maxFrameratePerSec,
-                      u32 windowWidth,
-                      u32 windowHeight)
+void Controller::init(int maxFrameratePerSec)
 {
 	dbglog << "Controller: Initializing with "
 	       << maxFrameratePerSec << " FPS";
@@ -79,9 +74,6 @@ void Controller::init(boost::shared_ptr<OIS::InputManager> aInputManager,
 	{
 		mEventLoop->connect(i, this, &Controller::controlHandler);
 	}
-
-	if (! aInputManager)
-		throw std::logic_error("Controller: OIS::InputManager invalid.");
 	
 	if (maxFrameratePerSec <= 0)
 		throw std::logic_error("Controller: Invalid maxFrameratePerSec param");
@@ -94,10 +86,6 @@ void Controller::init(boost::shared_ptr<OIS::InputManager> aInputManager,
 			ONE_SEC_IN_MICROSECS / maxFrameratePerSec
 		)
 	);
-
-	mInputSystem = aInputManager;
-	mWindowWidth = windowWidth;
-	mWindowHeight = windowHeight;
 }
 
 void Controller::insertState(StateInsertion& si)
@@ -116,9 +104,9 @@ void Controller::insertState(StateInsertion& si)
 		std::string(name),
 		std::string(config_filename),
 		mActions,
-		mInputSystem,
-		mWindowWidth,
-		mWindowHeight
+		si.mWindowWidth,
+		si.mWindowHeight,
+		si.mWindowHandle
 	);
 
 	if (si.mActivateNow)

@@ -35,11 +35,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Controller/Action.h>
 #include <Controller/ControllerEvents_fwd.h>
 
-namespace OIS
-{
-	class InputManager;
-}
-
 class LoopEvent;
 class EventLoop; // Confused?
 
@@ -59,10 +54,7 @@ public:
 	Controller(EventLoop* loop);
 	~Controller();
 
-	void init(boost::shared_ptr<OIS::InputManager> aInputManager,
-	          int maxFrameratePerSec,
-	          u32 windowWidth,
-	          u32 windowHeight);
+	void init(int maxFrameratePerSec);
 
 	void nextTick();
 
@@ -92,7 +84,6 @@ private:
 	> StateContainerT;
 
 	boost::shared_ptr<State>                  mActiveState;
-	boost::shared_ptr<OIS::InputManager>      mInputSystem;
 
 	StateContainerT                           mStates;
 	ActionMapT                                mActions;
@@ -100,9 +91,6 @@ private:
 	boost::scoped_ptr<Clock::SleepFrequently> mClock;
 
 	EventLoop*                                mEventLoop;
-
-	u32                                       mWindowWidth;
-	u32                                       mWindowHeight;
 };
 
 } // namespace Controller_

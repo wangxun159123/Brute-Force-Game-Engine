@@ -54,6 +54,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <View/Event.h>
 #include <View/Interface.h>
 #include <View/State.h>
+#include <View/WindowAttributes.h>
 
 using namespace boost::units;
 
@@ -177,9 +178,13 @@ void initController(BFG::Emitter& emitter, BFG::GameHandle stateHandle)
 	BFG::Path path;
 	const std::string configPath = path.Expand("TutorialBasics.xml");
 	const std::string stateName = "TutorialBasics";
+
+	// The Controller must know about the size of the window for the mouse
+	size_t handle; BFG::u32 width; BFG::u32 height;
+	BFG::View::windowAttributes(handle, width, height);
 	
 	// Finally, send everything to the Controller
-	BFG::Controller_::StateInsertion si(configPath, stateName, stateHandle, true);
+	BFG::Controller_::StateInsertion si(configPath, stateName, stateHandle, true, width, height, handle);
 	emitter.emit<BFG::Controller_::ControlEvent>
 	(
 		BFG::ID::CE_LOAD_STATE,

@@ -33,6 +33,11 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Controller/Action.h>
 #include <Controller/OISDevice.h>
 
+namespace OIS
+{
+	class InputManager;
+}
+
 class EventLoop;
 
 namespace BFG {
@@ -47,9 +52,9 @@ public:
 	void init(const std::string& state,
 	          const std::string& configFilename,
 	          const ActionMapT& actions,
-	          boost::shared_ptr<OIS::InputManager>,
 	          u32 windowWidth,
-	          u32 windowHeight);
+	          u32 windowHeight,
+	          size_t windowHandle);
 
 	void capture();
 
@@ -72,6 +77,8 @@ private:
 	typedef std::set<VipPtrT> FeedbackT;
 
 	std::string mID;
+
+	boost::shared_ptr<OIS::InputManager> mOisInputManager;
 
 	Devices::OISMouse    mMouse;
 	Devices::OISKeyboard mKeyboard;

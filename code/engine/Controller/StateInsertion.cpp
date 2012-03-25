@@ -31,13 +31,20 @@ namespace Controller_ {
 StateInsertion::StateInsertion(const std::string& configurationFilename,
                                const std::string& stateName,
                                GameHandle handle,
-                               bool activateNow)
+                               bool activateNow,
+                               u32 windowWidth,
+                               u32 windowHeight,
+                               size_t windowHandle)
 {
 	mConfigurationFilename = stringToArray<512>(configurationFilename);
 	mStateName             = stringToArray<128>(stateName);
 
 	mHandle      = handle;
 	mActivateNow = activateNow;
+
+	mWindowWidth = windowWidth;
+	mWindowHeight = windowHeight;
+	mWindowHandle = windowHandle;
 }
 
 } // namespace Controller_

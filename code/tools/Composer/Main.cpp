@@ -47,6 +47,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <View/Interface.h>
 #include <View/RenderObject.h>
 #include <View/State.h>
+#include <View/WindowAttributes.h>
 
 #include <Actions.h>
 #include <BaseFeature.h>
@@ -344,7 +345,10 @@ void* SingleThreadEntryPoint(void *iPointer)
 		const std::string config_path = path.Expand("Composer.xml");
 		const std::string state_name = "Composer";
 		
-		Controller_::StateInsertion si(config_path, state_name, handle, true);
+		size_t handle; u32 width; u32 height;
+		BFG::View::windowAttributes(handle, width, height);
+		
+		Controller_::StateInsertion si(config_path, state_name, handle, true, width, height, handle);
 
 		EventFactory::Create<Controller_::ControlEvent>
 		(

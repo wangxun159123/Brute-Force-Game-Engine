@@ -124,7 +124,7 @@ static void startTestProgram(TestProgramPolicy& TPP)
 		);
 
 		Controller aController(TPP.eventLoop());
-		aController.init(IM, c.Frequency, 50, 50);
+		aController.init(c.Frequency);
 
 		ActionMapT actions;
 		fillWithDefaultActions(actions);
@@ -143,8 +143,8 @@ static void startTestProgram(TestProgramPolicy& TPP)
 		
 			const std::string config_path = path.Expand(it->second);
 			const std::string state_name = it->first;
-		
-			StateInsertion si(config_path, state_name, handle, false);
+
+			StateInsertion si(config_path, state_name, handle, false, 50, 50, win);
 
 			emitter.emit<ControlEvent>(ID::CE_LOAD_STATE, si);
 		}
