@@ -69,7 +69,7 @@ private:
 	static void * EventLoopEntryPoint(void * iPointer)
 	{
 		mTestFunction();
-
+		((EventLoop*)iPointer)->setExitFlag();
 		return 0;
 	}
 

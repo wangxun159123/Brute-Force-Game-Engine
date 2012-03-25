@@ -29,9 +29,9 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Core/ShowException.h>
 
 #include <tests/AudioTest/TestLoader.h>
-#include <tests/AudioTest/CpuBurnTest.h>
-#include <tests/AudioTest/MusicAndSoundTest.h>
-#include <tests/AudioTest/3DSoundTest.h>
+//#include <tests/AudioTest/CpuBurnTest.h>
+//#include <tests/AudioTest/MusicAndSoundTest.h>
+//#include <tests/AudioTest/3DSoundTest.h>
 #include <tests/AudioTest/StreamTest.h>
 
 //#include <tests/AudioTest/StreamWatchTest.h>
@@ -47,10 +47,10 @@ void menu()
 	while (running)
 	{
 		std::cout << "menu AudioTest\n"
-		          << "1: StreamWatchTest\n"
-		          << "2: BurnCPU Test\n"
-		          << "3: AudioTest\n"
-		          << "4: 3DSoundTest\n"
+//		          << "1: StreamWatchTest\n"
+//		          << "2: BurnCPU Test\n"
+//		          << "3: AudioTest\n"
+//		          << "4: 3DSoundTest\n"
 				  << "5: Stream Test\n"
 		          << "0: end\n\n";
 
@@ -63,24 +63,25 @@ void menu()
 				//streamWatchTest();
 				break;
 			case 2:
-				burnCPU();
+//				burnCPU();
 				break;
 			case 3:
 			{
-				AudioTestLoader::registerTestFunction(&musicAndSoundTest);
-				AudioTestLoader testLoader;
+//				AudioTestLoader::registerTestFunction(&musicAndSoundTest);
+//				AudioTestLoader testLoader;
 				break;
 			}
 			case 4:
 			{
-				AudioTestLoader::registerTestFunction(&test3DSound);
-				AudioTestLoader testLoader;
+//				AudioTestLoader::registerTestFunction(&test3DSound);
+//				AudioTestLoader testLoader;
 				break;
 			}
 			case 5:
 			{
 				AudioTestLoader::registerTestFunction(&streamTest);
 				AudioTestLoader testLoader;
+				//streamTest();
 				break;
 			}
 			case 0:

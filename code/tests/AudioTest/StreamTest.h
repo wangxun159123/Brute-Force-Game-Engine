@@ -28,8 +28,9 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #define STREAM_TEST_H_
 
 #include <tests/AudioTest/functions.h>
-#include <Audio/Audio.h>
 #include <Audio/Loader.h>
+#include <Audio/StreamLoop.h>
+#include <Audio/OpenALAudioObject.h>
 
 
 //! \Hack this won't work in further development!
@@ -42,8 +43,16 @@ void printMenu()
 
 	std::cout << level[0].second.size() << ": Exit\n";
 
-	for(int i = 0; i < level[0].second.size(); ++i)
+	for(unsigned int i = 0; i < level[0].second.size(); ++i)
 		std::cout << i << ": " << level[0].second[i] << "\n";
+}
+
+void printControls()
+{
+	std::cout << "0: Exit\n"
+              << "1: Play\n"
+	          << "2: Pause\n"
+	          << "3: Stop\n";
 }
 
 void streamTest()
@@ -51,17 +60,12 @@ void streamTest()
 	using namespace BFG;
 
 	dbglog << "Get EventLoop";
-	EventLoop* myEventLoop = Audio::AudioMain::eventLoop();
+	Audio::AudioInterface::getEntryPoint();
 
 	std::vector<std::string> fileNameList = soundFileNames();
 
-	dbglog << "Create Audio";
-	Audio::Audio Audio;
-
-	EventFactory ef;
-
-	ef.Create<Audio::AudioEvent>(myEventLoop, ID::AE_SET_LEVEL_CURRENT, std::string("DummyLevel1"));
-	myEventLoop->doLoop();
+	boost::shared_ptr<Audio::StreamLoop> streamLoop(new Audio::StreamLoop);
+	boost::shared_ptr<Audio::AudioObject> audioObject;
 
 	bool noExit = true;
 
@@ -73,40 +77,40 @@ void streamTest()
 		int choice = -1;
 		std::cin >> choice;
 
-		if (choice == -1)
-		{
-			std::cout << "Not a valid choice. Do it again!\n";
-			continue;
-		}
-
-		if(choice == fileNameList.size())
+		if(choice >= fileNameList.size())
 		{
 			noExit = false;
 			continue;
 		}
 
-		AOCreation aoc
-		(
-			generateHandle(),
-			fileNameList[choice]
-		);
-
-		ef.Create<Audio::AudioEvent>(myEventLoop, ID::AE_CREATE_AUDIO_OBJECT, aoc);
-		ef.Create<Audio::AudioEvent>(myEventLoop, ID::AE_PLAY, true, aoc.mHandle, NULL_HANDLE);
-		myEventLoop->doLoop();
-
+		audioObject.reset(new Audio::OpenALAudioObject(fileNameList[choice], streamLoop));
 		choice = -1;
 
-		while(choice != 0)
+		bool isRunning = true;
+		while(isRunning)
 		{
-			std::cout << "Enter '0' to stop music and proceed: ";
+			printControls();			
 			std::cin >> choice;
+
+			switch (choice)
+			{
+				case 0:
+					isRunning = false;
+					audioObject->stop();
+					break;
+				case 1:
+					audioObject->play();
+					break;
+				case 2:
+					audioObject->pause();
+					break;
+				case 3:
+					audioObject->stop();
+					break;	
+			}
 		}
 
-		ef.Create<Audio::AudioEvent>(myEventLoop, ID::AE_STOP, true, aoc.mHandle, NULL_HANDLE);
-		myEventLoop->doLoop();
 	}
 }
-
 
 #endif
