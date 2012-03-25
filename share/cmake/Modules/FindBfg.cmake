@@ -1,32 +1,75 @@
-IF (Bfg_INCLUDE_DIR AND Bfg_LIBRARIES)
-	SET (Bfg_FOUND TRUE)
+# This script tries to find the Brute Force Engine.
+#
+# On windows the paths should be set manually.
+#
+# The following variables will be set:
+#
+#  BFG_FOUND
+#  BFG_INCLUDE_DIR
+#  BFG_LIBRARIES
+#
+# You should link to BFG_LIBRARIES.
+#
+# BFG_ROOT - Can be set to Bfg install path or Windows build path.
+
+MACRO (_FIND_BFG_LIBRARY _libpath)
+	FIND_LIBRARY (${_libpath}
+		NAMES
+			${ARGN}
+		PATHS
+			/usr/lib
+			/usr/local/lib
+			${BFG_ROOT}/lib
+		PATH_SUFFIXES lib
+	)
+	MARK_AS_ADVANCED(${_libpath})
+ENDMACRO ()
+
+IF (BFG_INCLUDE_DIR AND BFG_LIBRARIES)
+	SET (BFG_FOUND TRUE)
 ELSE ()
-	# only useful with unix system and correctly installed boost log
-	# on windows the paths should be set manually
-	FIND_PATH (Bfg_INCLUDE_DIR "bfg/Core/Math.h"
+	FIND_PATH (BFG_INCLUDE_DIR "bfg/Core/Math.h"
 		/usr/include
 		/usr/local
-		${BOOSTLOG_ROOT}/include
-		${BOOST_ROOT}/include
-		${BOOSTROOT}/include
+		${BFG_ROOT}/include
 	)
-	# on 64 bit linux /usr/lib64 is a symlink to /usr/lib
-	FIND_LIBRARY (Bfg_LIBRARIES NAMES libbfgCore.so
-		PATHS
-		/usr/lib
-		/usr/local/lib
-		${BOOSTLOG_ROOT}/lib
-		${BOOST_ROOT}/lib
-		${BOOSTROOT}/lib
+
+	_FIND_BFG_LIBRARY (BFG_AUDIO_LIBRARY      bfgAudio)
+	_FIND_BFG_LIBRARY (BFG_BASE_LIBRARY       bfgBase)
+	_FIND_BFG_LIBRARY (BFG_CONTROLLER_LIBRARY bfgController)
+	_FIND_BFG_LIBRARY (BFG_CORE_LIBRARY       bfgCore)
+	_FIND_BFG_LIBRARY (BFG_EVENTCORE_LIBRARY  bfgEventCore)
+	_FIND_BFG_LIBRARY (BFG_MODEL_LIBRARY      bfgModel)
+	_FIND_BFG_LIBRARY (BFG_PHYSICS_LIBRARY    bfgPhysics)
+	_FIND_BFG_LIBRARY (BFG_VIEW_LIBRARY       bfgView)
+
+	INCLUDE(FindPackageHandleStandardArgs)
+
+	FIND_PACKAGE_HANDLE_STANDARD_ARGS(Bfg DEFAULT_MSG
+		BFG_AUDIO_LIBRARY
+		BFG_BASE_LIBRARY
+		BFG_CONTROLLER_LIBRARY
+		BFG_CORE_LIBRARY
+		BFG_EVENTCORE_LIBRARY
+		BFG_MODEL_LIBRARY
+		BFG_PHYSICS_LIBRARY
+		BFG_VIEW_LIBRARY
 	)
+
+	IF (BFG_FOUND)
+		LIST (APPEND BFG_LIBRARIES ${BFG_AUDIO_LIBRARY})
+		LIST (APPEND BFG_LIBRARIES ${BFG_BASE_LIBRARY})
+		LIST (APPEND BFG_LIBRARIES ${BFG_CONTROLLER_LIBRARY})
+		LIST (APPEND BFG_LIBRARIES ${BFG_CORE_LIBRARY})
+		LIST (APPEND BFG_LIBRARIES ${BFG_EVENTCORE_LIBRARY})
+		LIST (APPEND BFG_LIBRARIES ${BFG_MODEL_LIBRARY})
+		LIST (APPEND BFG_LIBRARIES ${BFG_PHYSICS_LIBRARY})
+		LIST (APPEND BFG_LIBRARIES ${BFG_VIEW_LIBRARY})
 	
-	IF (Bfg_INCLUDE_DIR AND Bfg_LIBRARIES)
-		SET (Bfg_FOUND TRUE)
-		MESSAGE (STATUS "Found Bfg: ${Bfg_INCLUDE_DIR}, ${Bfg_LIBRARIES}")
+		MESSAGE (STATUS "Found Bfg: ${BFG_INCLUDE_DIR}, ${BFG_LIBRARIES}")
 	ELSE ()
-		SET (Bfg_FOUND FALSE)
 		MESSAGE(STATUS "Bfg not found.")
 	ENDIF ()
 	
-	MARK_AS_ADVANCED(Bfg_INCLUDE_DIR Bfg_LIBRARIES)
+	MARK_AS_ADVANCED(BFG_INCLUDE_DIR BFG_LIBRARIES)
 ENDIF ()
