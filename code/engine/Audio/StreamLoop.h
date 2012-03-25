@@ -29,10 +29,10 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 #include <boost/shared_ptr.hpp>
+#include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
-#include <boost/function.hpp>
-#include <EventSystem/Core/EventLoop.h>
-#include <al.h>
+
+#include <Core/Types.h>
 
 #include <Audio/Defines.h>
 #include <Audio/Stream.h>
@@ -40,33 +40,33 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace BFG {
 namespace Audio {
 
-class BFG_AUDIO_API StreamWatch
+class BFG_AUDIO_API StreamLoop
 {
 
 public:
 
 	StreamLoop();
-	~StreamWatch();
+	~StreamLoop();
+
+	typedef u32 StreamHandleT;
 
 	//! An audio-object can demand a stream.
-	ALuint demandStream(const std::string& streamName, 
-						boost::function<void (void)>,
-						ALuint aSourceID = 0);
+	StreamHandleT driveMyStream(boost::shared_ptr<Stream> stream);
+	void removeMyStream(StreamHandleT streamHandle);
 
 private:
 
+	boost::thread mThread;
 	boost::mutex mMutex; 
+	bool mIsRunning;
 
 	void init(const std::vector<std::string>& filelist);
+	void onStreaming();
 
-	typedef std::vector<boost::shared_ptr<Stream> > StreamsT;
-	typedef std::map<std::string, boost::shared_ptr<Stream> > ReadyStreamsT;
+	typedef std::map<StreamHandleT, boost::shared_ptr<Stream> > StreamsOnLoopT;
+	StreamHandleT mStreamHandleCounter;
 
-	ReadyStreamsT mReadyStreams;
-	StreamsT mBusyStreams;
-	
-	EventLoop mEventLoop;
-	State mState;
+	StreamsOnLoopT mStreamsOnLoop;
 };
 
 } // namespace Audio

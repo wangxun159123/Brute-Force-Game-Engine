@@ -24,177 +24,61 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Audio/StreamWatch.h>
+#include <Audio/StreamLoop.h>
 
-#include <boost/foreach.hpp>
-#include <Base/Cpp.h>
 #include <Base/CLogger.h>
-#include <Core/ClockUtils.h>
-#include <Audio/HelperFunctions.h>
-#include <Audio/OpenALStream.h>
-#include <Audio/FileFactory.h>
 
 namespace BFG {
 namespace Audio {
 
-StreamWatch::StreamWatch(const std::vector<std::string>& fileList): 
-	mEventLoop(true, new EventSystem::BoostThread<>("StreamWatchWorkerThread."))
+StreamLoop::StreamLoop() : 
+	mIsRunning(true),
+	mThread(&StreamLoop::onStreaming, this),
+	mStreamHandleCounter(0)
+{}
+
+StreamLoop::~StreamLoop() 
 {
-	init(fileList);
-	mEventLoop.addEntryPoint(new Base::CEntryPoint(pseudoEntryPoint));
-	mEventLoop.registerLoopEventListener(this, &StreamWatch::loopEventHandler);
-	mEventLoop.run();
-	mState = RUNNING;
+	mIsRunning = false;
+	boost::this_thread::sleep(boost::posix_time::milliseconds(500));
+	
+	mStreamsOnLoop.clear();
 }
 
-StreamWatch::~StreamWatch() 
+StreamLoop::StreamHandleT StreamLoop::driveMyStream(boost::shared_ptr<Stream> stream)
 {
-	mEventLoop.setExitFlag(true);
-	mEventLoop.doLoop();
+	boost::mutex::scoped_lock lock(mMutex);
+	++mStreamHandleCounter;
 
-	// Let a little time for the event system to clean up it's stuff
-	dbglog << "StreamWatch instance deleted.";
-	boost::this_thread::sleep(boost::posix_time::milliseconds(200));
-
-	mBusyStreams.clear();
-	mReadyStreams.clear();
+	mStreamsOnLoop[mStreamHandleCounter] = stream;
+	return mStreamHandleCounter;
 }
 
-void StreamWatch::init(const std::vector<std::string>& filelist)
+void StreamLoop::removeMyStream(StreamHandleT streamHandle)
 {
-	BOOST_FOREACH(std::string str, filelist)
-	{
-		ReadyStreamsT::iterator it = mReadyStreams.find(str);
-
-		if (it == mReadyStreams.end())
-			createStream(str);
-	}
-}
-
-void StreamWatch::createStream(const std::string& streamName)
-{
-	dbglog << "Lookup if ready stream already exists.";
 	boost::mutex::scoped_lock lock(mMutex);
 
-	ReadyStreamsT::iterator it = mReadyStreams.find(streamName);
-
-	if (it != mReadyStreams.end())
-	{
-		dbglog << "Stream of that file already exists. Continue without creating new stream object.";
-		return;
-	}
-
-	dbglog << "Creating stream of: "+streamName;
-	mReadyStreams[streamName] = boost::shared_ptr<Stream>(new OpenALStream(createFile(streamName)));
-	dbglog << "Stream created";
+	StreamsOnLoopT::iterator it;
+	it = mStreamsOnLoop.find(streamHandle);
+	
+	if (it != mStreamsOnLoop.end())
+		mStreamsOnLoop.erase(it);
 }
 
-ALuint StreamWatch::demandStream(const std::string& streamName, 
-								 boost::function<void (void)> onFinishCallback, 
-								 ALuint aSourceId)
+void StreamLoop::onStreaming()
 {
-	ReadyStreamsT::iterator it = mReadyStreams.find(streamName);
-
-	if (it == mReadyStreams.end())
-		throw std::logic_error("Stream ID not known at StreamWatch::demandStream.");
-
-	boost::shared_ptr<Stream> tempPtr = it->second;
-
-	ALuint sourceId;
-
-	if (!aSourceId)
-	{	
-		// Read error memory to get a valid result.
-		ALenum error = alGetError();
-		alGenSources(1, &sourceId);
-		error = alGetError();	
-
-		if (error != AL_NO_ERROR)
-			throw std::logic_error("Creation of OpenAl source failed at StreamWatch::demandStream. AL_Error: "+stringifyAlError(error));
-	}
-	else
-		sourceId = aSourceId;
-
-	if(!alIsSource(sourceId))
-		throw std::logic_error("Generated sourceID is no valid sourceID. Problem with OpenAL. Error at StreamWatch::demandStream.");
-
-	tempPtr->startStream(sourceId, onFinishCallback);
-
-	try
+	while (mIsRunning)
 	{
-		boost::mutex::scoped_lock lock(mMutex);
+		StreamsOnLoopT::iterator it; 
 
-		dbglog << "Put stream to busy stream list.";
-		mBusyStreams.push_back(tempPtr);
+		for(it = mStreamsOnLoop.begin(); it != mStreamsOnLoop.end(); ++it)
+		{
+			boost::mutex::scoped_lock lock(mMutex);
+			it->second->nextStreamStep();
+		}
 
-		dbglog << "Remove stream from ready stream list.";
-		mReadyStreams.erase(it);
+		boost::this_thread::sleep(boost::posix_time::millisec(50));
 	}
-	catch (std::exception e)
-	{
-		throw std::logic_error("Exception occurred while demanding a new stream.");
-	}
-
-	// Create a new stream with state 'ready'. If a stream of this file will requested again, a ready stream stands ready.
-	createStream(streamName);
-
-	return sourceId;
-}
-
-void StreamWatch::loopEventHandler(LoopEvent* loopEvent)
-{
-	boost::this_thread::sleep(boost::posix_time::millisec(2));
-
-//	dbglog << "Enter loopEventHandler";
-
-	try
-	{
-		boost::mutex::scoped_lock lock(mMutex);
-		erase_if(mBusyStreams, boost::bind(&Stream::state, _1) == Stream::FINISHED);
-	}
-	catch (std::exception e)
-	{
-		errlog << "Exception occurred while deleting finished stream with erase_if(..)";
-		throw std::logic_error("Exception occurred while deleting finished stream with erase_if(..)");
-	}
-
-	StreamsT::iterator it = mBusyStreams.begin();
-
-	for(; it != mBusyStreams.end(); ++it)
-	{
-		//dbglog << "Next stream step.";
-		boost::mutex::scoped_lock lock(mMutex);
-		(*it)->nextStreamStep();
-	}
-}
-
-void StreamWatch::idle()
-{
-	if (mState == RUNNING)
-	{
-		mEventLoop.unregisterLoopEventListener(this);
-		mBusyStreams.clear();
-		mState = IDLE;
-	}
-	else
-		throw std::logic_error("Calling StreamWatch::idle() not allowed while state is not RUNNING.");
-}
-
-void StreamWatch::freeze()
-{
-	if (mState == RUNNING)
-	{
-			mEventLoop.unregisterLoopEventListener(this);
-			mState = FREEZED;
-	}
-	else
-		throw std::logic_error("Calling StreamWatch::freeze() not allowed while state is not RUNNING.");
-}
-
-void StreamWatch::reactivate()
-{
-	mEventLoop.registerLoopEventListener(this, &StreamWatch::loopEventHandler);
-	mState = RUNNING;
 }
 
 } // namespace Audio
