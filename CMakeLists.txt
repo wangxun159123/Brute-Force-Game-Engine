@@ -8,6 +8,12 @@ CMAKE_POLICY(SET CMP0011 NEW) # :TODO: verify need of this policy
 # Our helper scripts are located in this folder
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/share/cmake/Modules)
 
+# ---------------------- #
+# Optional Configuration #
+# ---------------------- #
+
+SET (BFG_DEPENDENCY_BUNDLE_PATH "" CACHE PATH "This is useful for Win32 users, the location of the dependency bundle may be hinted with this variable.")
+
 # -------- #
 # Includes #
 # -------- #
