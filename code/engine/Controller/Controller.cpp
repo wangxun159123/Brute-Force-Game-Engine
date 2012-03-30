@@ -104,9 +104,9 @@ void Controller::insertState(StateInsertion& si)
 		std::string(name),
 		std::string(config_filename),
 		mActions,
-		si.mWindowWidth,
-		si.mWindowHeight,
-		si.mWindowHandle
+		si.mWindowAttributes.mWidth,
+		si.mWindowAttributes.mHeight,
+		si.mWindowAttributes.mHandle
 	);
 
 	if (si.mActivateNow)

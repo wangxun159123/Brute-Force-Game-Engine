@@ -71,10 +71,10 @@ void* ClientEntryPoint(void *iPointer)
 		const std::string config_path = path.Expand("Pong.lua");
 		const std::string state_name = "Pong";
 
-		size_t handle; BFG::u32 width; BFG::u32 height;
-		BFG::View::windowAttributes(handle, width, height);
+		BFG::View::WindowAttributes wa;
+		BFG::View::queryWindowAttributes(wa);
 
-		BFG::Controller_::StateInsertion si(config_path, state_name, handle, true, width, height, handle);
+		BFG::Controller_::StateInsertion si(config_path, state_name, handle, true, wa);
 
 		BFG::EventFactory::Create<BFG::Controller_::ControlEvent>
 		(

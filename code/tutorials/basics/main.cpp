@@ -180,11 +180,11 @@ void initController(BFG::Emitter& emitter, BFG::GameHandle stateHandle)
 	const std::string stateName = "TutorialBasics";
 
 	// The Controller must know about the size of the window for the mouse
-	size_t handle; BFG::u32 width; BFG::u32 height;
-	BFG::View::windowAttributes(handle, width, height);
+	BFG::View::WindowAttributes wa;
+	BFG::View::queryWindowAttributes(wa);
 	
 	// Finally, send everything to the Controller
-	BFG::Controller_::StateInsertion si(configPath, stateName, stateHandle, true, width, height, handle);
+	BFG::Controller_::StateInsertion si(configPath, stateName, stateHandle, true, wa);
 	emitter.emit<BFG::Controller_::ControlEvent>
 	(
 		BFG::ID::CE_LOAD_STATE,

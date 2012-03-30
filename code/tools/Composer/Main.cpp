@@ -345,10 +345,10 @@ void* SingleThreadEntryPoint(void *iPointer)
 		const std::string config_path = path.Expand("Composer.xml");
 		const std::string state_name = "Composer";
 		
-		size_t handle; u32 width; u32 height;
-		BFG::View::windowAttributes(handle, width, height);
+		BFG::View::WindowAttributes wa;
+		BFG::View::queryWindowAttributes(wa);
 		
-		Controller_::StateInsertion si(config_path, state_name, handle, true, width, height, handle);
+		Controller_::StateInsertion si(config_path, state_name, handle, true, wa);
 
 		EventFactory::Create<Controller_::ControlEvent>
 		(

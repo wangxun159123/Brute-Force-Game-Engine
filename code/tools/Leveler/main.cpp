@@ -274,9 +274,9 @@ void* SingleThreadEntryPoint(void *iPointer)
 	const std::string config_path = path.Expand("Leveler.xml");
 	const std::string state_name = "Leveler";
 
-	size_t windowHandle; u32 width; u32 height;
-	BFG::View::windowAttributes(windowHandle, width, height);
-	Controller_::StateInsertion si(config_path, state_name, handle, true, width, height, windowHandle);
+	BFG::View::WindowAttributes wa;
+	BFG::View::queryWindowAttributes(wa);
+	Controller_::StateInsertion si(config_path, state_name, handle, true, wa);
 
 	EventFactory::Create<Controller_::ControlEvent>
 	(

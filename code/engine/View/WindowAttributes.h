@@ -35,7 +35,14 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace BFG {
 namespace View {
 
-VIEW_API void windowAttributes(size_t& handle, u32& width, u32& height);
+struct WindowAttributes
+{
+	size_t mHandle;
+	u32 mWidth;
+	u32 mHeight;
+};
+
+VIEW_API void queryWindowAttributes(WindowAttributes& wa);
 
 } // namespace View
 } // namespace BFG

@@ -33,7 +33,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace BFG {
 namespace View {
 
-VIEW_API void windowAttributes(size_t& handle, u32& width, u32& height)
+VIEW_API void queryWindowAttributes(WindowAttributes& wa)
 {
 	Ogre::Root* root = Ogre::Root::getSingletonPtr();
 	
@@ -43,9 +43,9 @@ VIEW_API void windowAttributes(size_t& handle, u32& width, u32& height)
 	
 	Ogre::RenderWindow* win = root->getAutoCreatedWindow();
 
-	win->getCustomAttribute("WINDOW", &handle);
-	height = win->getHeight();
-	width = win->getWidth();
+	win->getCustomAttribute("WINDOW", &wa.mHandle);
+	wa.mHeight = win->getHeight();
+	wa.mWidth = win->getWidth();
 }
 
 } // namespace View

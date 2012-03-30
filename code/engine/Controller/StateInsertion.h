@@ -29,6 +29,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Core/CharArray.h>
 #include <Core/Types.h>
+#include <View/WindowAttributes.h>
 
 namespace BFG {
 namespace Controller_ {
@@ -39,17 +40,13 @@ struct StateInsertion
 	               const std::string& stateName,
 	               GameHandle handle,
 	               bool activateNow,
-	               u32 windowWidth,
-	               u32 windowHeight,
-	               size_t windowHandle);
+	               const View::WindowAttributes& wa);
 	
 	CharArray512T mConfigurationFilename;
 	CharArray128T mStateName;
 	GameHandle    mHandle;
 	bool          mActivateNow;
-	u32           mWindowWidth;
-	u32           mWindowHeight;
-	size_t        mWindowHandle;
+	View::WindowAttributes mWindowAttributes;
 };
 
 } // namespace Controller_

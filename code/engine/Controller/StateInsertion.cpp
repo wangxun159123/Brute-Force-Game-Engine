@@ -32,9 +32,7 @@ StateInsertion::StateInsertion(const std::string& configurationFilename,
                                const std::string& stateName,
                                GameHandle handle,
                                bool activateNow,
-                               u32 windowWidth,
-                               u32 windowHeight,
-                               size_t windowHandle)
+                               const View::WindowAttributes& wa)
 {
 	mConfigurationFilename = stringToArray<512>(configurationFilename);
 	mStateName             = stringToArray<128>(stateName);
@@ -42,9 +40,7 @@ StateInsertion::StateInsertion(const std::string& configurationFilename,
 	mHandle      = handle;
 	mActivateNow = activateNow;
 
-	mWindowWidth = windowWidth;
-	mWindowHeight = windowHeight;
-	mWindowHandle = windowHandle;
+	mWindowAttributes = wa;
 }
 
 } // namespace Controller_
