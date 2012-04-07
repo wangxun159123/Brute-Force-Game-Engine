@@ -8,6 +8,10 @@ CMAKE_POLICY(SET CMP0011 NEW) # :TODO: verify need of this policy
 # Our helper scripts are located in this folder
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/share/cmake/Modules)
 
+INCLUDE(Enuminit)
+
+ENUMINIT()
+
 # ---------------------- #
 # Optional Configuration #
 # ---------------------- #
