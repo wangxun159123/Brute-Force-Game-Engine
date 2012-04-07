@@ -31,6 +31,9 @@
           <value>AE_POSITION</value>
           <value>AE_ORIENTATION</value>
           <value>AE_VELOCITY</value>
+      
+          <value>AE_PLAYLIST_PLAY</value>
+          <value>AE_PLAYLIST_PAUSE</value>
       </enum>
 
       <enum name = "AudioObjectType" export = "BFG_AUDIO_API">

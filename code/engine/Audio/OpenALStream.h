@@ -28,6 +28,9 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #define AUDIO_OPEN_AL_STREAM_H_
 
 #include <Audio/Defines.h>
+
+#ifdef ENABLE_OPENAL
+
 #include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 #include <boost/scoped_array.hpp>
@@ -69,4 +72,5 @@ private:
 } // namespace Audio
 } // namespace BFG
 
+#endif // ENABLE_OPENAL
 #endif

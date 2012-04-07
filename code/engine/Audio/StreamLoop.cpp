@@ -43,26 +43,27 @@ StreamLoop::~StreamLoop()
 	mThread.join();
 
 	mStreamsOnLoop.clear();
+	mNewStreams.clear();
 }
 
 StreamLoop::StreamHandleT StreamLoop::driveMyStream(boost::shared_ptr<Stream> stream)
 {
-	boost::mutex::scoped_lock lock(mMutex);
+	boost::mutex::scoped_lock lock(mRefreshMutex);
 	++mStreamHandleCounter;
+	mNewStreams[mStreamHandleCounter] = stream;
 
-	mStreamsOnLoop[mStreamHandleCounter] = stream;
 	return mStreamHandleCounter;
 }
 
 void StreamLoop::removeMyStream(StreamHandleT streamHandle)
 {
-	//boost::mutex::scoped_lock lock(mMutex);
+	boost::mutex::scoped_lock lock(mRefreshMutex);
 	mFinishedStreams.push_back(streamHandle);
 }
 
 void StreamLoop::removeStream(StreamHandleT streamHandle)
 {
-	StreamsOnLoopT::iterator it;
+	StreamsMapT::iterator it;
 	it = mStreamsOnLoop.find(streamHandle);
 	
 	if (it != mStreamsOnLoop.end())
@@ -74,19 +75,26 @@ void StreamLoop::onStreaming()
 	while (mIsRunning)
 	{
 		boost::this_thread::sleep(boost::posix_time::millisec(100));
-		boost::mutex::scoped_lock lock(mMutex);
+		boost::mutex::scoped_lock lockForStream(mStreamMutex);
 		
-		StreamsOnLoopT::iterator it; 
+		StreamsMapT::iterator it; 
 
 		for (it = mStreamsOnLoop.begin(); it != mStreamsOnLoop.end(); ++it)
 		{
 			it->second->nextStreamStep();
 		}
 
+		boost::mutex::scoped_lock lockForRefresh(mRefreshMutex);
+
 		while (!mFinishedStreams.empty())
 		{
 			removeStream(mFinishedStreams.back());
 			mFinishedStreams.pop_back();
+		}
+	
+		for (it = mNewStreams.begin(); it != mNewStreams.end(); ++it)
+		{
+			mStreamsOnLoop[it->first] = it->second;
 		}
 	}
 }

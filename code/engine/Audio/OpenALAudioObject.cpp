@@ -26,6 +26,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Audio/OpenALAudioObject.h>
 
+#ifdef ENABLE_OPENAL
+
 #include <Base/CLogger.h>
 
 #include <Audio/OpenALStream.h>
@@ -37,8 +39,9 @@ namespace BFG {
 namespace Audio {
 
 OpenALAudioObject::OpenALAudioObject(std::string audioName, 
-	                                 boost::shared_ptr<StreamLoop> streamLoop): 
-	AudioObject(audioName, streamLoop),
+	                                 boost::shared_ptr<StreamLoop> streamLoop,
+									 boost::function<void (void)> onFinishedForward): 
+	AudioObject(audioName, streamLoop, onFinishedForward),
 	mSourceId(0)
 	{
 	}
@@ -84,7 +87,7 @@ OpenALAudioObject::OpenALAudioObject(std::string audioName,
 				);
 				
 				mStreamHandle = mStreamLoop->driveMyStream(stream);
-							
+				
 				break;
 			}
 
@@ -117,10 +120,11 @@ OpenALAudioObject::OpenALAudioObject(std::string audioName,
 	{
 		if (!mSourceId)
 		{
+			alGetError();
 			alGenSources(1, &mSourceId);
 
 			std::string result = stringifyAlError(alGetError());
-			dbglog << result;
+			dbglog << result << " at OpenALAudioObject::careOfSource";
 
 
 			if (!alIsSource(mSourceId))
@@ -130,9 +134,12 @@ OpenALAudioObject::OpenALAudioObject(std::string audioName,
 
 	void OpenALAudioObject::onStreamFinished()
 	{
+		if (mForwardCallback)
+			mForwardCallback();
 		stop();
 	}
 
 } // namespace Audio
 } // namespace BFG
 
+#endif

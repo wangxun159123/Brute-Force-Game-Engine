@@ -56,20 +56,23 @@ public:
 private:
 
 	boost::thread mThread;
-	boost::mutex mMutex; 
+	boost::mutex mStreamMutex;
+	boost::mutex mRefreshMutex;
+	
 	bool mIsRunning;
 
 	void init(const std::vector<std::string>& filelist);
 	void onStreaming();
 	void removeStream(StreamHandleT streamHandle);
 
-	typedef std::map<StreamHandleT, boost::shared_ptr<Stream> > StreamsOnLoopT;
+	typedef std::map<StreamHandleT, boost::shared_ptr<Stream> > StreamsMapT;
 	typedef std::vector<StreamHandleT> FinishedStreamsT;
 	
 	StreamHandleT mStreamHandleCounter;
 	FinishedStreamsT mFinishedStreams;
 	
-	StreamsOnLoopT mStreamsOnLoop;
+	StreamsMapT mStreamsOnLoop;
+	StreamsMapT mNewStreams;
 };
 
 } // namespace Audio

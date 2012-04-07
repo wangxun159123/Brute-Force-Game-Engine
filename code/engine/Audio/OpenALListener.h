@@ -27,12 +27,12 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #ifndef BFG_AUDIO_OPEN_AL_LISTENER_H
 #define BFG_AUDIO_OPEN_AL_LISTENER_H
 
-#include <al.h>
-#include <alc.h>
-
-#include <Audio/Defines.h>
 #include <Audio/Listener.h>
 
+#ifdef ENABLE_OPENAL
+
+#include <al.h>
+#include <alc.h>
 
 namespace BFG {
 namespace Audio {
@@ -55,11 +55,12 @@ private:
 	void onEventPositionPlayer(const AudioPayloadT& payload);
 };
 
-#ifdef OPEN_AL_IS_OUR_CHOISE
-	boost::shared_ptr<Listener> createListener() { return boost::shared_ptr<Listener>(new OpenALListener()); }
-#endif
+
+boost::shared_ptr<Listener> createListener() { return boost::shared_ptr<Listener>(new OpenALListener()); }
+
 
 } // namespace Audio
 } // namespace BFG
 
+#endif // ENABLE_OPENAL
 #endif

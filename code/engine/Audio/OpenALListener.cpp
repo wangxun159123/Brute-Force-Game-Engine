@@ -25,6 +25,9 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <Audio/OpenALListener.h>
+
+#ifdef ENABLE_OPENAL
+
 #include <Audio/Main.h>
 #include <Audio/Enums.hh>
 
@@ -97,3 +100,5 @@ void OpenALListener::onEventPositionPlayer(const AudioPayloadT& payload)
 
 } // namespace Audio
 } // namespace BFG
+
+#endif

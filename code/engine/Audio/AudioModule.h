@@ -8,7 +8,7 @@ This file is part of the Brute-Force Game Engine, BFG-Engine
 
 For the latest info, see http://www.brute-force-games.com
 
-Copyright (c) 2011 Brute-Force Games GbR
+Copyright (c) 2012 Brute-Force Games GbR
 
 The BFG-Engine is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -24,20 +24,32 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef AUDIO_DEFS_H
-#define AUDIO_DEFS_H
+#ifndef AUDIO_MODULE_H
+#define AUDIO_MODULE_H
 
-// Define the used audio lib here.
-#define ENABLE_OPENAL
+#include <Audio/Defines.h>
+#include <boost/shared_ptr.hpp>
+#include <Audio/StreamLoop.h>
+#include <Audio/AudioEvent.h>
 
-#ifdef _WIN32
-	#ifndef AUDIO_EXPORTS
-		#define BFG_AUDIO_API __declspec(dllimport)
-	#else
-		#define BFG_AUDIO_API __declspec(dllexport)
-	#endif //AUDIO_EXPORTS
-#else // UNIX
-    #define BFG_AUDIO_API
-#endif// UNIX
+namespace BFG {
+namespace Audio {
+
+
+class BFG_AUDIO_API AudioModule
+{
+
+public:
+	AudioModule() { mStreamLoop.reset(new StreamLoop()); }
+
+protected:
+	virtual void onStreamFinishedForwarded() = 0;
+	virtual void eventHandler(AudioEvent* AE) = 0;
+	
+	boost::shared_ptr<StreamLoop> mStreamLoop;
+};
+
+} // namespace Audio
+} // namespace BFG
 
 #endif

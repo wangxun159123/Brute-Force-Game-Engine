@@ -29,6 +29,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Audio/AudioObject.h>
 
+#ifdef ENABLE_OPENAL
+
 #include <al.h>
 
 
@@ -42,7 +44,8 @@ class BFG_AUDIO_API OpenALAudioObject : public AudioObject
 
 public:
 	OpenALAudioObject(std::string audioName, 
-		              boost::shared_ptr<StreamLoop> streamLoop);
+		              boost::shared_ptr<StreamLoop> streamLoop,
+					  boost::function<void (void)> onFinishedForward = 0);
 	
 	~OpenALAudioObject();
 
@@ -58,7 +61,15 @@ private:
 	ALuint mSourceId;
 };
 
+boost::shared_ptr<AudioObject> createAudioObject(std::string audioName, 
+	                                             boost::shared_ptr<StreamLoop> streamLoop,
+												 boost::function<void (void)> onFinishedForward)
+{
+	return boost::shared_ptr<AudioObject>(new OpenALAudioObject(audioName, streamLoop, onFinishedForward));
+}
+
 } // namespace Audio
 } // namespace BFG
 
+#endif // ENABLE_OPENAL
 #endif

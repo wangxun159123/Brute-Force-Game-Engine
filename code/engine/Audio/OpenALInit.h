@@ -27,13 +27,16 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #ifndef BFG_AUDIO_OPEN_AL_INIT_H
 #define BFG_AUDIO_OPEN_AL_INIT_H
 
+#include <Audio/Init.h>
+
+#ifdef ENABLE_OPENAL
+
 #include <boost/shared_ptr.hpp>
 
 #include <al.h>
 #include <alc.h>
 
 #include <Audio/Defines.h>
-#include <Audio/Init.h>
 
 
 namespace BFG {
@@ -52,12 +55,10 @@ private:
 	ALCcontext* mContext;
 };
 
-
-#ifdef OPEN_AL_IS_OUR_CHOISE
-	boost::shared_ptr<Init> createInit() { return boost::shared_ptr<Init>(new OpenALInit()); }
-#endif
+boost::shared_ptr<Init> createInit() { return boost::shared_ptr<Init>(new OpenALInit()); }
 
 } // namespace Audio
 } // namespace BFG
 
+#endif // ENABLE_OPENAL
 #endif
