@@ -35,6 +35,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Core/ShowException.h>
 #include <Model/Interface.h>
 #include <Physics/Interface.h>
+#include <View/WindowAttributes.h>
 
 #include "Pong/PongDefinitions.h"
 #include "Pong/BallControl.h"
@@ -69,8 +70,11 @@ void* ClientEntryPoint(void *iPointer)
 		BFG::Path path;
 		const std::string config_path = path.Expand("Pong.lua");
 		const std::string state_name = "Pong";
-		
-		BFG::Controller_::StateInsertion si(config_path, state_name, handle, true);
+
+		BFG::View::WindowAttributes wa;
+		BFG::View::queryWindowAttributes(wa);
+
+		BFG::Controller_::StateInsertion si(config_path, state_name, handle, true, wa);
 
 		BFG::EventFactory::Create<BFG::Controller_::ControlEvent>
 		(

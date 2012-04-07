@@ -40,8 +40,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Base/NameCurrentThread.h>
 #include <EventSystem/Core/EventLoop.h>
 #include <EventSystem/Core/EventManager.h>
-#include <EventSystem/Core/network/ClientChannel.h>
-#include <EventSystem/Core/network/ServerChannel.h>
+#include <EventSystem/Network/ClientChannel.h>
+#include <EventSystem/Network/ServerChannel.h>
 
 
 EventManager* EventManager::getInstance()

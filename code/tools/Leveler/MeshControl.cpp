@@ -24,27 +24,72 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BFG_VIEW_WINDOW_ATTRIBUTES_H
-#define BFG_VIEW_WINDOW_ATTRIBUTES_H
+#include <MeshControl.h>
 
-#include <stddef.h>
+#include <OgreRoot.h>
 
-#include <Core/Types.h>
-#include <View/Defs.h>
+#include <Core/Utils.h>
+#include <View/RenderObject.h>
 
-namespace BFG {
-namespace View {
-
-struct WindowAttributes
+namespace Tool
 {
-	size_t mHandle;
-	u32 mWidth;
-	u32 mHeight;
-};
 
-VIEW_API void queryWindowAttributes(WindowAttributes& wa);
+void MeshControl::load()
+{
+	if (mLoaded)
+		return;
 
-} // namespace View
-} // namespace BFG
+	mLoaded = true;
+	deactivate();
+}
 
-#endif
+void MeshControl::unload()
+{
+	if (!mLoaded)
+		return;
+
+	if (mActive)
+		deactivate();
+	
+	mLoaded = false;
+}
+
+void MeshControl::activate()
+{
+	mDialog.setVisible(true);
+	mActive = true;
+}
+
+void MeshControl::deactivate()
+{
+	mDialog.setVisible(false);
+	mActive = false;
+}
+
+void MeshControl::onLoadOk(MyGUI::Widget* w)
+{
+	std::string folder = mDialog.getCurrentFolder();
+	std::string meshName = mDialog.getFileName().substr(folder.size() + 1);
+
+	if (!(mData->mRootMesh))
+	{
+		mData->mRootMesh = BFG::generateHandle();
+	}
+
+	mData->mRenderObjects[mData->mRootMesh].reset();
+	mData->mRenderObjects[mData->mRootMesh].reset(new BFG::View::RenderObject
+	(
+		NULL_HANDLE,
+		mData->mRootMesh,
+		meshName,
+		BFG::v3::ZERO,
+		BFG::qv4::IDENTITY
+	));
+
+	mData->mMeshNames[mData->mRootMesh] = meshName;
+	mData->mActiveMesh = mData->mRootMesh;
+
+	deactivate();
+}
+
+} // namespace Tool

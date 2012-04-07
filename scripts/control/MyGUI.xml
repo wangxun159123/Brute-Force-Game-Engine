@@ -27,7 +27,7 @@
   </action>
 
   <action id = "A_MOUSE_RIGHT_PRESSED">
-    <vip type = "VIP_TOGGLE">
+    <vip type = "VIP_TOGGLE" device = "DT_Mouse">
       <special hold = "1" button = "MB_Right" />
     </vip>
   </action>

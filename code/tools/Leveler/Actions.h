@@ -24,27 +24,16 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BFG_VIEW_WINDOW_ATTRIBUTES_H
-#define BFG_VIEW_WINDOW_ATTRIBUTES_H
-
-#include <stddef.h>
+#ifndef LEVELERACTIONS
+#define LEVELERACTIONS
 
 #include <Core/Types.h>
-#include <View/Defs.h>
 
-namespace BFG {
-namespace View {
+using namespace BFG;
 
-struct WindowAttributes
-{
-	size_t mHandle;
-	u32 mWidth;
-	u32 mHeight;
-};
+const s32 A_QUIT = 10000;
+const s32 A_SCREENSHOT = 10001;
 
-VIEW_API void queryWindowAttributes(WindowAttributes& wa);
-
-} // namespace View
-} // namespace BFG
+const s32 A_UPDATE_FEATURES = 15000;
 
 #endif

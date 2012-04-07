@@ -24,27 +24,11 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BFG_VIEW_WINDOW_ATTRIBUTES_H
-#define BFG_VIEW_WINDOW_ATTRIBUTES_H
+#ifndef TOOLEVENT_H
+#define TOOLEVENT_H
 
-#include <stddef.h>
+#include <Composer/Event_fwd.h>
 
-#include <Core/Types.h>
-#include <View/Defs.h>
-
-namespace BFG {
-namespace View {
-
-struct WindowAttributes
-{
-	size_t mHandle;
-	u32 mWidth;
-	u32 mHeight;
-};
-
-VIEW_API void queryWindowAttributes(WindowAttributes& wa);
-
-} // namespace View
-} // namespace BFG
+#include <EventSystem/Event.h>
 
 #endif

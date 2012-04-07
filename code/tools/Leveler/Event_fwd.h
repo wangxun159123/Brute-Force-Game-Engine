@@ -24,27 +24,32 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BFG_VIEW_WINDOW_ATTRIBUTES_H
-#define BFG_VIEW_WINDOW_ATTRIBUTES_H
+#ifndef TOOLEVENT_FWD_H
+#define TOOLEVENT_FWD_H
 
-#include <stddef.h>
+#include <boost/variant.hpp>
+
+#include <EventSystem/Event_fwd.h>
 
 #include <Core/Types.h>
-#include <View/Defs.h>
 
-namespace BFG {
-namespace View {
+namespace Tool {
 
-struct WindowAttributes
-{
-	size_t mHandle;
-	u32 mWidth;
-	u32 mHeight;
-};
+typedef boost::variant
+<
+	BFG::s32
+>
+ToolPayloadT;
 
-VIEW_API void queryWindowAttributes(WindowAttributes& wa);
+typedef BFG::Event
+<
+	BFG::s32,
+	ToolPayloadT,
+	BFG::GameHandle,
+	BFG::GameHandle
+>
+Event;
 
-} // namespace View
-} // namespace BFG
+} // namespace Tool
 
 #endif

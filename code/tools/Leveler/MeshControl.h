@@ -24,27 +24,69 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BFG_VIEW_WINDOW_ATTRIBUTES_H
-#define BFG_VIEW_WINDOW_ATTRIBUTES_H
+#ifndef MESHCONTROL
+#define MESHCONTROL
 
-#include <stddef.h>
+#include <BaseFeature.h>
 
-#include <Core/Types.h>
-#include <View/Defs.h>
+#include <OgreResourceGroupManager.h>
 
-namespace BFG {
-namespace View {
+#include <Core/Path.h>
 
-struct WindowAttributes
+#include <OpenSaveDialog.h>
+#include <SharedData.h>
+
+namespace Tool
 {
-	size_t mHandle;
-	u32 mWidth;
-	u32 mHeight;
-};
 
-VIEW_API void queryWindowAttributes(WindowAttributes& wa);
+class MeshControl : public BaseFeature
+{
+public:
+	MeshControl(boost::shared_ptr<SharedData> data) :
+	BaseFeature("Mesh", true),
+	mData(data)
+	{
+		BFG::Path p;
 
-} // namespace View
-} // namespace BFG
+		mDialog.setDialogInfo
+		(
+			"Load Mesh",
+			"Load",
+			 MyGUI::newDelegate(this, &MeshControl::onLoadOk)
+		);
 
+		mDialog.setRestrictions
+		(
+			p.Get(BFG::ID::P_GRAPHICS_MESHES),
+			true,
+			".mesh"
+		);
+	}
+
+	virtual ~MeshControl()
+	{
+	}
+
+	virtual void load();
+	virtual void unload();
+
+	virtual void activate();
+	virtual void deactivate();
+
+	virtual void eventHandler(BFG::Controller_::VipEvent* ve)
+	{
+
+	}
+
+protected:
+
+private:
+	void onLoadOk(MyGUI::Widget* w);
+
+	boost::shared_ptr<SharedData> mData;
+	OpenSaveDialog mDialog;
+	std::string mPath;
+}; // class MeshControl
+
+} // namespace Tool
 #endif

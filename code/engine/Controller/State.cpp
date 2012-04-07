@@ -57,9 +57,9 @@ State::~State()
 void State::init(const std::string& state,
                  const std::string& configFilename,
                  const ActionMapT& actions,
-                 boost::shared_ptr<OIS::InputManager> inputManager,
                  u32 windowWidth,
-                 u32 windowHeight)
+                 u32 windowHeight,
+                 size_t windowHandle)
 {
 	infolog << "Controller: Initializing State \"" << state << "\"";
 	mID = state;
@@ -70,13 +70,32 @@ void State::init(const std::string& state,
 			("Controller::State: Init of this State is pointless without Actions");
 	}
 
-	if (! mKeyboard.init(inputManager, windowWidth, windowHeight))
+#if defined(_DEBUG) || !defined(NDEBUG)
+  #define SHOWMOUSECURSOR true
+#else
+  #define SHOWMOUSECURSOR false
+#endif
+		
+	boost::shared_ptr<OIS::InputManager> im
+	(
+		Controller_::Utils::CreateInputManager(windowHandle, SHOWMOUSECURSOR),
+		&Controller_::Utils::DestroyInputManager
+	);
+
+#undef SHOWMOUSECURSOR
+
+	if (! im)
+		throw std::logic_error("Controller: OIS::InputManager invalid.");
+
+	mOisInputManager = im;	
+	
+	if (! mKeyboard.init(mOisInputManager, windowWidth, windowHeight))
 		warnlog << "Controller: Continuing without the keyboard device.";
 
-	if (! mMouse.init(inputManager, windowWidth, windowHeight))
+	if (! mMouse.init(mOisInputManager, windowWidth, windowHeight))
 		warnlog << "Controller: Continuing without the mouse device.";
 
-	if (! mJoystick.init(inputManager, windowWidth, windowHeight))
+	if (! mJoystick.init(mOisInputManager, windowWidth, windowHeight))
 		warnlog << "Controller: Continuing without the joystick device.";
 
 	if (! (mJoystick.good() || mMouse.good() || mKeyboard.good()))

@@ -47,6 +47,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Controller/EventDumper.h>
 #include <Controller/OISUtils.h>
 
+#include <View/WindowAttributes.h>
+
 #ifdef _WIN32
 	#include "InputWindowWin32.h"
 #elif defined(linux) || defined(__linux)
@@ -124,7 +126,7 @@ static void startTestProgram(TestProgramPolicy& TPP)
 		);
 
 		Controller aController(TPP.eventLoop());
-		aController.init(IM, c.Frequency, 50, 50);
+		aController.init(c.Frequency);
 
 		ActionMapT actions;
 		fillWithDefaultActions(actions);
@@ -143,8 +145,11 @@ static void startTestProgram(TestProgramPolicy& TPP)
 		
 			const std::string config_path = path.Expand(it->second);
 			const std::string state_name = it->first;
-		
-			StateInsertion si(config_path, state_name, handle, false);
+			
+			BFG::View::WindowAttributes wa;
+			wa.mWidth = wa.mHeight = 50;
+			wa.mHandle = win;
+			StateInsertion si(config_path, state_name, handle, false, wa);
 
 			emitter.emit<ControlEvent>(ID::CE_LOAD_STATE, si);
 		}

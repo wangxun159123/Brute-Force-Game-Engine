@@ -1,4 +1,4 @@
-##!/bin/bash
+#!/bin/bash
 
 PACKAGE=package
 PREFIX=$PACKAGE/usr

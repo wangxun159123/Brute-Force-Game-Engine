@@ -34,7 +34,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Controller/Action.h>
 #include <Controller/ControllerEvents.h>
-#include <Controller/ControllerInterface.h>
+#include <Controller/Interface.h>
 #include <Core/ClockUtils.h>
 #include <Core/Path.h>
 #include <Core/ShowException.h>
@@ -47,6 +47,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <View/Interface.h>
 #include <View/RenderObject.h>
 #include <View/State.h>
+#include <View/WindowAttributes.h>
 
 #include <Actions.h>
 #include <BaseFeature.h>
@@ -344,7 +345,10 @@ void* SingleThreadEntryPoint(void *iPointer)
 		const std::string config_path = path.Expand("Composer.xml");
 		const std::string state_name = "Composer";
 		
-		Controller_::StateInsertion si(config_path, state_name, handle, true);
+		BFG::View::WindowAttributes wa;
+		BFG::View::queryWindowAttributes(wa);
+		
+		Controller_::StateInsertion si(config_path, state_name, handle, true, wa);
 
 		EventFactory::Create<Controller_::ControlEvent>
 		(

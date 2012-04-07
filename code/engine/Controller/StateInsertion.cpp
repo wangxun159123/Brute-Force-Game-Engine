@@ -31,13 +31,16 @@ namespace Controller_ {
 StateInsertion::StateInsertion(const std::string& configurationFilename,
                                const std::string& stateName,
                                GameHandle handle,
-                               bool activateNow)
+                               bool activateNow,
+                               const View::WindowAttributes& wa)
 {
 	mConfigurationFilename = stringToArray<512>(configurationFilename);
 	mStateName             = stringToArray<128>(stateName);
 
 	mHandle      = handle;
 	mActivateNow = activateNow;
+
+	mWindowAttributes = wa;
 }
 
 } // namespace Controller_

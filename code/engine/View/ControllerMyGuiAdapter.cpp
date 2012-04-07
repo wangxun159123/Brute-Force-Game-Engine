@@ -47,6 +47,7 @@ mAdapterLoop(loop)
 	mAdapterEvents.push_back(BFG::ID::A_MOUSE_MOVE_Z);
 	mAdapterEvents.push_back(BFG::ID::A_MOUSE_LEFT_PRESSED);
 	mAdapterEvents.push_back(BFG::ID::A_MOUSE_RIGHT_PRESSED);
+	mAdapterEvents.push_back(BFG::ID::A_MOUSE_MIDDLE_PRESSED);
 	mAdapterEvents.push_back(BFG::ID::A_KEY_PRESSED);
 	mAdapterEvents.push_back(BFG::ID::A_KEY_RELEASED);
 
@@ -149,6 +150,30 @@ void ControllerMyGuiAdapter::eventHandler(BFG::Controller_::VipEvent* event)
 		}
 		break;
 	}
+
+	case BFG::ID::A_MOUSE_MIDDLE_PRESSED:
+	{
+		if (boost::get<bool>(event->getData()))
+		{
+			MyGUI::Gui::getInstance().injectMousePress
+			(
+				mMouseBuffer.x,
+				mMouseBuffer.y,
+				MyGUI::MouseButton::Enum(OIS::MB_Middle)
+			);
+		}
+		else
+		{
+			MyGUI::Gui::getInstance().injectMouseRelease
+			(
+				mMouseBuffer.x,
+				mMouseBuffer.y,
+				MyGUI::MouseButton::Enum(OIS::MB_Middle)
+			);
+		}
+		break;
+	}
+
 
 	case BFG::ID::A_KEY_PRESSED:
 	case BFG::ID::A_KEY_RELEASED:

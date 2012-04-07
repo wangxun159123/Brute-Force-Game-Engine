@@ -36,7 +36,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Core/Utils.h>
 
 #include <Controller/ControllerEvents.h>
-#include <Controller/ControllerInterface.h>
+#include <Controller/Interface.h>
 
 #include <Model/Loader/Types.h>
 #include <Model/Loader/Interpreter.h>

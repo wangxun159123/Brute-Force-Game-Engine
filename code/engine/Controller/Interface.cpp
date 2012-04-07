@@ -24,11 +24,10 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Controller/ControllerInterface.h>
+#include <Controller/Interface.h>
 
 #include <Controller/Controller.h>
 #include <Controller/OISUtils.h>
-#include <View/WindowAttributes.h>
 
 namespace BFG {
 
@@ -53,27 +52,7 @@ void* ControllerInterface::start(void* ptr)
 
 	mController.reset(new Controller(iLoop));
 
-	size_t handle;
-	u32 width;
-	u32 height;
-	
-	View::windowAttributes(handle, width, height);
-
-#if defined(_DEBUG) || !defined(NDEBUG)
-  #define SHOWMOUSECURSOR true
-#else
-  #define SHOWMOUSECURSOR false
-#endif
-	
-	boost::shared_ptr<OIS::InputManager> im
-	(
-		Controller_::Utils::CreateInputManager(handle, SHOWMOUSECURSOR),
-		&Controller_::Utils::DestroyInputManager
-	);
-
-#undef SHOWMOUSECURSOR
-	
-	mController->init(im, mFrequency, width, height);
+	mController->init(mFrequency);
 	return 0;
 }
 

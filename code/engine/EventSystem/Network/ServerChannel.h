@@ -24,10 +24,10 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __EVENT_CLIENT_CHANNEL_H_
-#define __EVENT_CLIENT_CHANNEL_H_
+#ifndef __EVENT_SERVER_CHANNEL_H_
+#define __EVENT_SERVER_CHANNEL_H_
 
-#include <EventSystem/Core/network/NetworkChannel.h>
+#include <EventSystem/Network/NetworkChannel.h>
 
 #include <boost/enable_shared_from_this.hpp>
 
@@ -35,30 +35,30 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace EventSystem
 {
 
-class ClientChannel : public NetworkChannel,
-                      public boost::enable_shared_from_this<ClientChannel>
+class ServerChannel : public NetworkChannel,
+                      public boost::enable_shared_from_this<ServerChannel>
 {
 public:
-	typedef boost::shared_ptr<ClientChannel> Pointer;
-	static Pointer create(boost::asio::io_service& io_service)
+	typedef boost::shared_ptr<ServerChannel> Pointer;
+	static Pointer create(boost::asio::io_service& ioService)
 	{
-		return Pointer(new ClientChannel(io_service));
+		return Pointer(new ServerChannel(ioService));
 	}
 
-	virtual ~ClientChannel();
-
-	void connect(boost::asio::ip::tcp::endpoint& ep);
+	virtual ~ServerChannel();
 
 	virtual void startHandShake();
 private:
-	ClientChannel(boost::asio::io_service& io_service);
+	ServerChannel(boost::asio::io_service& ioService);
 
 	virtual void handleHandShakeResponse(const boost::system::error_code& error);
+	void handleClientHandShake(const boost::system::error_code& error);
 
 	virtual void handleReadHeader(const boost::system::error_code& error);
 	virtual void handleReadData(const boost::system::error_code& error);
+
 };
 
 }
 
-#endif //__EVENT_CLIENT_CHANNEL_H_
+#endif //__EVENT_SERVER_CHANNEL_H_
