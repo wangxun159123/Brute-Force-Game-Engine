@@ -66,12 +66,14 @@ Mesh loadMesh(const std::string& meshName)
 	const qv4 orientation = qv4::IDENTITY;
 
 	Ogre::MeshManager* mm = Ogre::MeshManager::getSingletonPtr();
-	
+
 	if (! mm)
 	{
 		initOgreForMeshLoading();
 		mm = Ogre::MeshManager::getSingletonPtr();
 	}
+
+	OGRE_LOCK_MUTEX(mm->mutex);
 
 	Ogre::MeshPtr mesh = mm->load(meshName, "General");
 
