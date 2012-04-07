@@ -30,6 +30,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <OISKeyboard.h>
 
 #include <Core/Types.h>
+#include <Controller/Defs.h>
 #include <Controller/Enums.hh>
 
 namespace Ogre
@@ -46,17 +47,17 @@ namespace BFG {
 namespace Controller_ {
 namespace Utils {
 
-bool translateKey(OIS::KeyCode code, ID::KeyboardButton& result);
+CONTROLLER_API bool translateKey(OIS::KeyCode code, ID::KeyboardButton& result);
 
-bool translateKeyBack(ID::KeyboardButton code, OIS::KeyCode& result);
+CONTROLLER_API bool translateKeyBack(ID::KeyboardButton code, OIS::KeyCode& result);
 
-void convertToBrainDamagedOisStyle(ID::KeyboardButton code,
-                                   OIS::KeyCode& key,
-                                   s32& ch);
+CONTROLLER_API void convertToBrainDamagedOisStyle(ID::KeyboardButton code,
+                                                  OIS::KeyCode& key,
+                                                  s32& ch);
 
-OIS::InputManager* CreateInputManager(size_t ParentWindowHandle, bool showCursor);
+CONTROLLER_API OIS::InputManager* CreateInputManager(size_t ParentWindowHandle, bool showCursor);
 
-void DestroyInputManager(OIS::InputManager*);
+CONTROLLER_API void DestroyInputManager(OIS::InputManager*);
 
 } // namespace Utils
 } // namespace Controller_

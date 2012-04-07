@@ -27,6 +27,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #ifndef __CONTROLLER_EVENT_DUMPER_H_
 #define __CONTROLLER_EVENT_DUMPER_H_
 
+#include <Controller/Defs.h>
 #include <Controller/Enums.hh>
 #include <Controller/ControllerEvents_fwd.h>
 #include <EventSystem/Core/EventDefs.h>
@@ -34,7 +35,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace BFG {
 namespace Controller_ {
 
-class EventDumper //: public BaseEventListener
+class CONTROLLER_API EventDumper //: public BaseEventListener
 {
 public:
 	EventDumper();
