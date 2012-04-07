@@ -40,8 +40,8 @@ StreamLoop::StreamLoop() :
 StreamLoop::~StreamLoop() 
 {
 	mIsRunning = false;
-	boost::this_thread::sleep(boost::posix_time::milliseconds(500));
-	
+	mThread.join();
+
 	mStreamsOnLoop.clear();
 }
 
@@ -56,8 +56,12 @@ StreamLoop::StreamHandleT StreamLoop::driveMyStream(boost::shared_ptr<Stream> st
 
 void StreamLoop::removeMyStream(StreamHandleT streamHandle)
 {
-	boost::mutex::scoped_lock lock(mMutex);
+	//boost::mutex::scoped_lock lock(mMutex);
+	mFinishedStreams.push_back(streamHandle);
+}
 
+void StreamLoop::removeStream(StreamHandleT streamHandle)
+{
 	StreamsOnLoopT::iterator it;
 	it = mStreamsOnLoop.find(streamHandle);
 	
@@ -74,9 +78,15 @@ void StreamLoop::onStreaming()
 		
 		StreamsOnLoopT::iterator it; 
 
-		for(it = mStreamsOnLoop.begin(); it != mStreamsOnLoop.end(); ++it)
+		for (it = mStreamsOnLoop.begin(); it != mStreamsOnLoop.end(); ++it)
 		{
 			it->second->nextStreamStep();
+		}
+
+		while (!mFinishedStreams.empty())
+		{
+			removeStream(mFinishedStreams.back());
+			mFinishedStreams.pop_back();
 		}
 	}
 }

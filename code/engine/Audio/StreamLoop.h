@@ -61,10 +61,14 @@ private:
 
 	void init(const std::vector<std::string>& filelist);
 	void onStreaming();
+	void removeStream(StreamHandleT streamHandle);
 
 	typedef std::map<StreamHandleT, boost::shared_ptr<Stream> > StreamsOnLoopT;
+	typedef std::vector<StreamHandleT> FinishedStreamsT;
+	
 	StreamHandleT mStreamHandleCounter;
-
+	FinishedStreamsT mFinishedStreams;
+	
 	StreamsOnLoopT mStreamsOnLoop;
 };
 

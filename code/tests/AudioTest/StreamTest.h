@@ -106,7 +106,9 @@ void streamTest()
 					break;
 				case 3:
 					audioObject->stop();
-					break;	
+					break;
+				default:
+					std::cout << "Default";
 			}
 		}
 
