@@ -29,6 +29,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <map>
 #include <string>
+#include <Controller/Defs.h>
 #include <EventSystem/Core/EventDefs.h>
 
 class EventLoop;
@@ -42,9 +43,9 @@ typedef std::map
 	std::string
 > ActionMapT;
 
-void fillWithDefaultActions(ActionMapT& actions);
+void CONTROLLER_API fillWithDefaultActions(ActionMapT& actions);
 
-void sendActionsToController(EventLoop* loop, const ActionMapT& actions);
+void CONTROLLER_API sendActionsToController(EventLoop* loop, const ActionMapT& actions);
 
 } // namespace Controller_
 } // namespace BFG

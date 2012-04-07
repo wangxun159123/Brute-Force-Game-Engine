@@ -48,7 +48,7 @@ namespace Controller_ {
 
 class State;
 
-class Controller
+class CONTROLLER_API Controller
 {
 public:
 	Controller(EventLoop* loop);

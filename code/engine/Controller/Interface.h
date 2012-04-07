@@ -29,6 +29,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/scoped_ptr.hpp>
 
+#include <Controller/Defs.h>
 #include <Base/CEntryPoint.h>
 
 namespace BFG {
@@ -37,7 +38,7 @@ namespace Controller_ {
 	class Controller;
 }
 
-class ControllerInterface
+class CONTROLLER_API ControllerInterface
 {
 public:
 	// This is your hooking place

@@ -27,6 +27,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #ifndef CONTROLLER_STATEINSERTION_H
 #define CONTROLLER_STATEINSERTION_H
 
+#include <Controller/Defs.h>
 #include <Core/CharArray.h>
 #include <Core/Types.h>
 #include <View/WindowAttributes.h>
@@ -34,7 +35,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace BFG {
 namespace Controller_ {
 
-struct StateInsertion
+struct CONTROLLER_API StateInsertion
 {
 	StateInsertion(const std::string& configurationFilename,
 	               const std::string& stateName,
