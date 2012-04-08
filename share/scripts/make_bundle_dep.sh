@@ -14,8 +14,10 @@ OGRE_URL='http://downloads.sourceforge.net/project/ogre/ogre/1.7/ogre_src_v1-7-3
 
 BOOST_FILENAME='boost_1_47_0.tar.bz2'
 OGRE_FILENAME='ogre_src_v1-7-3.tar.bz2'
+BOOST_DIR='boost_1_47_0'
 
 BOOST_LOG_REV='607'
+BOOST_GEOMETRY_EXTENSIONS_REV='77829'
 
 # Make sure only root can run our script
 if [ "$(id -u)" != "0" ]; then
@@ -53,13 +55,16 @@ function prelude
 	echo "Unpacking $BOOST_FILENAME ..."
 	/bin/tar -xjf $BOOST_FILENAME
 
+	echo "Adding Boost.Geometry arithmetic extension ..."
+	svn export -r $BOOST_GEOMETRY_EXTENSIONS_REV http://svn.boost.org/svn/boost/trunk/boost/geometry/extensions/arithmetic $BOOST_DIR/boost/geometry/extensions/arithmetic
+
 	echo "Unpacking $OGRE_FILENAME ..."
 	/bin/tar -xjf $OGRE_FILENAME
 
-	/bin/cp -r boost-log/* boost_1_47_0/
+	/bin/cp -r boost-log/* $BOOST_DIR
 
 	# Bjam
-	cd boost_1_47_0
+	cd $BOOST_DIR
 	./bootstrap.sh
 	cd ..
 }
@@ -69,17 +74,19 @@ function prelude
 
 function buildBoost
 {
-	cd boost_1_47_0
+	cd $BOOST_DIR
 	./b2                               \
 		--with-date_time           \
-		--with-thread              \
 		--with-filesystem          \
-		--with-program_options     \
-		--with-system              \
-		--with-regex               \
-		--with-serialization       \
 		--with-graph               \
 		--with-iostreams           \
+		--with-program_options     \
+		--with-random              \
+		--with-regex               \
+		--with-serialization       \
+		--with-system              \
+		--with-test                \
+		--with-thread              \
 		variant=release            \
 		threading=multi            \
 		link=shared                \
@@ -91,7 +98,7 @@ function buildBoost
 
 function buildBoostLog
 {
-	cd boost_1_47_0
+	cd $BOOST_DIR
 	./b2                               \
 		--with-log                 \
 		define=BOOST_LOG_USE_CHAR  \
