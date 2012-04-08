@@ -42,6 +42,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include <ostream>
 
+#include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
 #include <boost/geometry/util/write_dsv.hpp>
 

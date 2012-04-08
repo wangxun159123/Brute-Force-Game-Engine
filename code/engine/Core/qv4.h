@@ -40,7 +40,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #define BFG_QV4_H
 
 #include <ostream>
-#include <boost/geometry/arithmetic/cross_product.hpp>
+#include <boost/geometry/extensions/arithmetic/cross_product.hpp>
 
 #include <Core/v3.h>
 #include <Core/Types.h>

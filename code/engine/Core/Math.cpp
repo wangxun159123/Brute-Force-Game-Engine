@@ -26,7 +26,9 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Core/Math.h>
 
-#include <boost/geometry/arithmetic/cross_product.hpp>
+#include <stdexcept>
+
+#include <boost/geometry/extensions/arithmetic/cross_product.hpp>
 #include <boost/geometry/arithmetic/dot_product.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/equals.hpp>
@@ -196,14 +198,16 @@ bool nearEnough(const v3& position1,
                 const v3& position2,
                 f32 radius)
 {
-	f32 distance_squared = boost::geometry::distance
+	assert(! (radius < 0.0f));
+
+	f32 distance = boost::geometry::distance
 	(
 		position1,
 		position2,
 		boost::geometry::strategy::distance::pythagoras<v3,v3>()
-	).squared_value();
+	);
 
-	bool near_enough = ! (distance_squared > (radius * radius));
+	bool near_enough = ! (distance > radius);
 
 	return near_enough;
 }

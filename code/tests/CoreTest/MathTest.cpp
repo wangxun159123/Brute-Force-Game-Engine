@@ -17,3 +17,18 @@ BOOST_AUTO_TEST_CASE (distance)
 
 	BOOST_REQUIRE (resultCorrect);
 }
+
+BOOST_AUTO_TEST_CASE (nearEnough)
+{
+	// distance between `a' and `b' is 16.5563f
+	BFG::v3 a(-5.2, 3.8, 4.8);
+	BFG::v3 b(8.7, -4.1, 9.1);
+
+	bool resultNull = BFG::nearEnough(a, b, 0.0);
+	bool resultLower = BFG::nearEnough(a, b, 16.5);
+	bool resultUpper = BFG::nearEnough(a, b, 16.6);
+
+	BOOST_REQUIRE (resultNull == false);
+	BOOST_REQUIRE (resultUpper == true);
+	BOOST_REQUIRE (resultLower == false);
+}
