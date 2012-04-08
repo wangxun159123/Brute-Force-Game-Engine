@@ -56,7 +56,7 @@ function prelude
 	/bin/tar -xjf $BOOST_FILENAME
 
 	echo "Adding Boost.Geometry arithmetic extension ..."
-	svn export -r $BOOST_GEOMETRY_EXTENSIONS_REV http://svn.boost.org/svn/boost/trunk/boost/geometry/extensions/arithmetic $BOOST_DIR/boost/geometry/extensions/arithmetic
+	svn export -r $BOOST_GEOMETRY_EXTENSIONS_REV http://svn.boost.org/svn/boost/trunk/boost/geometry/extensions $BOOST_DIR/boost/geometry/extensions
 
 	echo "Unpacking $OGRE_FILENAME ..."
 	/bin/tar -xjf $OGRE_FILENAME
@@ -87,6 +87,8 @@ function buildBoost
 		--with-system              \
 		--with-test                \
 		--with-thread              \
+		define=BOOST_TEST_DYN_LINK \
+		define=BOOST_TEST_MAIN     \
 		variant=release            \
 		threading=multi            \
 		link=shared                \
