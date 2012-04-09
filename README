@@ -1,29 +1,29 @@
 About 
 =====
 
-The big strength of the Brute-Force Game Engine lies in the combination of powerful open source
-third party libraries. Our target is to connect these libs and build new higher-level 
-functionality on top of them, but we don't want to hide or wrap them.
+The big strength of the Brute-Force Game Engine lies in the combination of
+powerful open source third party libraries. Our target is to connect these libs
+and build new higher-level functionality on top of them, but we don't want to
+beautify or wrap them.
 
-Out of this purpose the engine allows direct control over several third party
-resources like OGRE, so that the user gains a lot of control and may use
-many cool features, but he also has to master the burden of many dependencies
-which may soon become a maintainers nightmare.
+Out of this purpose the engine sometimes allows direct control over several
+third party resources like OGRE, so that the user gains a lot of control and
+may use many cool features, but he also has to master the burden of many
+dependencies which may soon become a maintainers nightmare.
 
-The more dependencies a project has, the higher is the likelihood that it could break.
-It could constrain the future progress in features, could make interface changes or 
-porting to other platforms difficult or even impossible. This is indeed one of the 
-biggest problems we are dealing with. 
+The more dependencies a project has, the higher is the likelihood that it could
+break. It could constrain the future progress in features, could make interface
+changes or porting to other platforms difficult or even impossible. This is
+indeed one of the biggest problems we are dealing with.
 
-We have the highest ambitions to build stable interfaces and robust source code, but
-if you want to use our engine, prepare yourself that your code will break from
-time to time, because the engine is simply not done yet. We would never advice you to
-wrap our engine though, as this is entirely pointless.
+We have the highest ambitions to build stable interfaces and robust source
+code, but if you want to use our engine, prepare yourself that your code will
+break from time to time, because the engine is simply not done yet. We would
+never advice you to wrap our engine though, as this is entirely pointless.
 
-This engine was written with multi-platform support in mind, that are: Windows,
-Linux and Mac. We try to keep the first two always running, but Mac support
-has never been tested - We are looking forward to find some motivated mac developers
-who will start to support this.
+This engine was written with multi-platform support in mind. Currently we
+actively support Windows and Linux, but we'd like to see the engine running on
+MacOS as well. We're looking forward to find some motivated Mac developers!
 
 In near future we have two main goals:
 
@@ -38,8 +38,8 @@ code and maybe somebody can learn something from it.
 Important
 =========
 
-* Read the instructions within the INSTALL file, you won't be able to use the
-engine without them.
+* Read the instructions within the COMPILE file, you won't be able to build the
+  engine without them.
 
 * For more information visit:
 
