@@ -1,0 +1,76 @@
+This file describes how to compile the Brute-Force Game Engine.
+
+Dependencies
+============
+
+-> Windows
+   -------
+
+Download one of our dependency packages at:
+
+	https://forum.ultimatespaceproject.de/bundles
+
+and put the content of \bin into the engine's \bin.
+
+-> Debian / Ubuntu and derivates
+   -----------------------------
+
+Download one of our dependency packages:
+
+	https://forum.ultimatespaceproject.de/bundles
+
+If you can't find a package for your architecture please use our
+make_bundle_deb.sh script and try to build the package yourself. The $ARCH
+variable within the script must be manually changed in order to do this.
+
+install it:
+
+	sudo dpkg -i package.deb
+
+now install further dependencies:
+
+	sudo apt-get install -f
+
+At the time of this writing Boost 1.47.0 is quite new and I'm unable to find a
+debian package for it. This is why I included Boost within our dependency
+package which will conflict with older versions of Boost.  
+
+-> Other systems
+   -------------
+
+If you can't find a package for your environment you'll have to bite the
+bullet: All dependencies must be compiled manually.
+
+Take a look into our make_bundle_deb.sh script to see how we gathered all
+dependencies together.
+
+Compiling
+=========
+
+-> Linux
+   -----
+
+	make build && cd build
+	cmake .. && make
+
+-> Windows
+   -------
+
+Best is to use the CMake-GUI. After configuration, point the CMake-Variable
+BFG_DEPENDENCY_BUNDLE_PATH to the \bundle directory of the dependency package
+mentioned above. Configurate again and if successful, generate the build. Then
+open it and compile with your preferred IDE.
+
+Resources
+=========
+
+It's possible to use the engine without media, but we wouldn't recommend this.
+A simple media (resources) package to begin with can be downloaded at:
+
+	https://github.com/wITTus/Brute-Force-Game-Engine/downloads
+
+Extract the content right into this directory. You should have a "resources"
+directory then, in the same directory along with "code" and "thirdparty". For
+Linux a symlink will suffice.
+
+Have fun.
