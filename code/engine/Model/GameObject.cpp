@@ -514,49 +514,7 @@ void GameObject::vectorToModuleFromRoot(VD module, v3& vecResult, qv4& oriResult
 		current = source(*iei, mModules);
 	}
 
-	vecResult  = v3::ZERO;
-	oriResult  = qv4::IDENTITY;
-
-	std::vector<Adapter>::const_reverse_iterator rIt = adapters.rbegin();
-	for (; rIt != adapters.rend(); ++rIt)
-	{
-		const Adapter& a = *rIt;
-		v3 parentAdapterPos = oriResult * a.mParentPosition;
-		qv4 parentAdapterOri = oriResult * a.mParentOrientation;
-
-		dbglog << "xAngle: " << angleBetween(a.mChildOrientation.xAxis(), parentAdapterOri.xAxis()) * RAD2DEG;
-		dbglog << "yAngle: " << angleBetween(a.mChildOrientation.yAxis(), parentAdapterOri.yAxis()) * RAD2DEG;
-		dbglog << "zAngle: " << angleBetween(a.mChildOrientation.zAxis(), parentAdapterOri.zAxis()) * RAD2DEG;
-
-		qv4 firstOri = rotationTo(a.mChildOrientation.yAxis(), -parentAdapterOri.yAxis());
-
- 		qv4 childOri = firstOri * a.mChildOrientation;
- 		
-		// determine whether to turn left or right (using parent x-axis as the 
-		// normal of a plane and checking if the child z-axis is in front or 
-		// behind the plane)
-		f32 angleSign = sign(boost::geometry::dot_product(parentAdapterOri.xAxis(), childOri.zAxis()));
-		
-		qv4 secondOri;
-		f32 angle = angleBetween(childOri.zAxis(), parentAdapterOri.zAxis());
-		fromAngleAxis(secondOri, angleSign * angle, childOri.yAxis());
-	
-		oriResult = secondOri*firstOri;
-
-		// just for debug output purposes		
-		childOri = oriResult * a.mChildOrientation;
-		dbglog << "xAngle: " << angleBetween(childOri.xAxis(), parentAdapterOri.xAxis()) * RAD2DEG;
-		dbglog << "yAngle: " << angleBetween(childOri.yAxis(), parentAdapterOri.yAxis()) * RAD2DEG;
-		dbglog << "zAngle: " << angleBetween(childOri.zAxis(), parentAdapterOri.zAxis()) * RAD2DEG;
-
-		v3 childPos = oriResult * a.mChildPosition;
-		dbglog << "ChildPos: " << childPos;
-		dbglog << "ParentPos: " << a.mParentPosition;
-				
-		vecResult += parentAdapterPos - childPos;
-		dbglog << "VecResult: " << vecResult;
-	}
-
+	BFG::vectorToModuleFromRoot(adapters, vecResult, oriResult);
 }
 
 void GameObject::notifyPropertyConcepts(boost::shared_ptr<Module> module)
@@ -801,6 +759,54 @@ void GameObject::rebuildConceptUpdateOrder()
 		);
 		if (result == mConceptUpdateOrder.end())
 			mConceptUpdateOrder.push_back(conceptIt->second);
+	}
+}
+
+void vectorToModuleFromRoot(const std::vector<Adapter>& adapters,
+                            v3& vecResult,
+                            qv4& oriResult)
+{
+	vecResult  = v3::ZERO;
+	oriResult  = qv4::IDENTITY;
+
+	std::vector<Adapter>::const_reverse_iterator rIt = adapters.rbegin();
+	for (; rIt != adapters.rend(); ++rIt)
+	{
+		const Adapter& a = *rIt;
+		v3 parentAdapterPos = oriResult * a.mParentPosition;
+		qv4 parentAdapterOri = oriResult * a.mParentOrientation;
+
+		dbglog << "xAngle: " << angleBetween(a.mChildOrientation.xAxis(), parentAdapterOri.xAxis()) * RAD2DEG;
+		dbglog << "yAngle: " << angleBetween(a.mChildOrientation.yAxis(), parentAdapterOri.yAxis()) * RAD2DEG;
+		dbglog << "zAngle: " << angleBetween(a.mChildOrientation.zAxis(), parentAdapterOri.zAxis()) * RAD2DEG;
+
+		qv4 firstOri = rotationTo(a.mChildOrientation.yAxis(), -parentAdapterOri.yAxis());
+
+ 		qv4 childOri = firstOri * a.mChildOrientation;
+ 		
+		// determine whether to turn left or right (using parent x-axis as the 
+		// normal of a plane and checking if the child z-axis is in front or 
+		// behind the plane)
+		f32 angleSign = sign(boost::geometry::dot_product(parentAdapterOri.xAxis(), childOri.zAxis()));
+		
+		qv4 secondOri;
+		f32 angle = angleBetween(childOri.zAxis(), parentAdapterOri.zAxis());
+		fromAngleAxis(secondOri, angleSign * angle, childOri.yAxis());
+	
+		oriResult = secondOri*firstOri;
+
+		// just for debug output purposes		
+		childOri = oriResult * a.mChildOrientation;
+		dbglog << "xAngle: " << angleBetween(childOri.xAxis(), parentAdapterOri.xAxis()) * RAD2DEG;
+		dbglog << "yAngle: " << angleBetween(childOri.yAxis(), parentAdapterOri.yAxis()) * RAD2DEG;
+		dbglog << "zAngle: " << angleBetween(childOri.zAxis(), parentAdapterOri.zAxis()) * RAD2DEG;
+
+		v3 childPos = oriResult * a.mChildPosition;
+		dbglog << "ChildPos: " << childPos;
+		dbglog << "ParentPos: " << a.mParentPosition;
+				
+		vecResult += parentAdapterPos - childPos;
+		dbglog << "VecResult: " << vecResult;
 	}
 }
 

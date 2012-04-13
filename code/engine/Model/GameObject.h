@@ -326,6 +326,10 @@ private:
 	std::vector<Adapter> mRootAdapters;
 };
 
+void vectorToModuleFromRoot(const std::vector<Adapter>& adapters,
+                            v3& vecResult,
+                            qv4& oriResult);
+
 std::ostream& operator << (std::ostream& lhs, const GameObject& rhs);
 
 } // namespace BFG
