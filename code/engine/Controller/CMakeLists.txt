@@ -33,8 +33,11 @@ ADD_LIBRARY(bfgController SHARED
 )
 
 TARGET_LINK_LIBRARIES(bfgController
+	bfgEventCore
+	bfgCore
 	${OIS_LIBRARIES}
 	${Boost_LIBRARIES}
+	${BoostLog_LIBRARIES}
 )
 
 ADD_DEPENDENCIES(bfgController ControllerEnums bfgCore TinyXML)
