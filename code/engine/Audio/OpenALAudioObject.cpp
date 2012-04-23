@@ -49,8 +49,10 @@ OpenALAudioObject::OpenALAudioObject(std::string audioName,
 	OpenALAudioObject::~OpenALAudioObject() 
 	{
 		if (mSourceId)
+		{
 			alDeleteSources(1, &mSourceId);
-
+			alErrorHandler("OpenALAudioObject::~OpenALAudioObject", "Error occured calling alDeleteSources.");
+		}
 	}
 
 	void OpenALAudioObject::play()
@@ -59,6 +61,7 @@ OpenALAudioObject::OpenALAudioObject(std::string audioName,
 
 		ALint sourceState;
 		alGetSourcei(mSourceId, AL_SOURCE_STATE, &sourceState);
+		alErrorHandler("OpenALAudioObject::play", "Error occured calling alGetSourcei");
 		
 		switch (sourceState)
 		{
@@ -96,12 +99,17 @@ OpenALAudioObject::OpenALAudioObject(std::string audioName,
 		}
 		
 		alSourcePlay(mSourceId);
+		alErrorHandler("OpenALAudioObject::play", "Error occured calling alSourcePlay.");
 	}
 
 	void OpenALAudioObject::pause()
 	{
 		if (mSourceId)
+		{
 			alSourcePause(mSourceId);
+			alErrorHandler("OpenALAudioObject::pause", "Error occured calling alSourcePause.");
+
+		}
 	}
 
 	void OpenALAudioObject::stop()
@@ -109,9 +117,13 @@ OpenALAudioObject::OpenALAudioObject(std::string audioName,
 		if (mSourceId)
 		{
 			alSourceStop(mSourceId);
+			alErrorHandler("OpenALAudioObject::stop", "Error occured calling alSourceStop.");
+
 			mStreamLoop->removeMyStream(mStreamHandle);
 			mStreamHandle = 0;
+			
 			alDeleteSources(1, &mSourceId);
+			alErrorHandler("OpenALAudioObject::stop", "Error occured calling alDeleteSources.");
 			mSourceId = 0;
 		}
 	}
@@ -120,13 +132,9 @@ OpenALAudioObject::OpenALAudioObject(std::string audioName,
 	{
 		if (!mSourceId)
 		{
-			alGetError();
 			alGenSources(1, &mSourceId);
-
-			std::string result = stringifyAlError(alGetError());
-			dbglog << result << " at OpenALAudioObject::careOfSource";
-
-
+			alErrorHandler("OpenALAudioObject::careOfSource", "Error occured calling alGenSources.");
+			
 			if (!alIsSource(mSourceId))
 				throw std::logic_error("Not a valid source ID at OpenALAudioObject::careOfSource().");
 		}

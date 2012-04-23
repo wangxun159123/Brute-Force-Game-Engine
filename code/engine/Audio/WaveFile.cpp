@@ -30,6 +30,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <stdexcept>
 #include <stdlib.h>
 #include <Base/CLogger.h>
+#include <Audio/HelperFunctions.h>
 
 namespace BFG {
 namespace Audio {
@@ -76,7 +77,8 @@ void WaveFile::open()
 void WaveFile::read(ALuint bufferID)
 {
 	int bytesRead = static_cast<int>(sf_read_int(mSoundFile, mBuffer.get(), mBUFFER_SIZE));
-	alBufferData(bufferID, mFormat, mBuffer.get(), bytesRead, mBUFFER_SIZE);	
+	alBufferData(bufferID, mFormat, mBuffer.get(), bytesRead, mBUFFER_SIZE);
+	alErrorHandler("WaveFile::read", "Error occured calling alBufferData.");
 }
 
 } // namespace Audio

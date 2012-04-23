@@ -36,6 +36,9 @@ namespace Audio {
 
 std::string BFG_AUDIO_API stringifyAlError(ALenum errorCode);
 
+void BFG_AUDIO_API alErrorHandler(const std::string& errorText, const std::string& locationString);
+
+
 } // namespace Audio
 } // namespace BFG
 

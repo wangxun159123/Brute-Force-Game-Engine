@@ -30,6 +30,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <stdlib.h>
 #include <vorbis/vorbisfile.h>
 #include <Base/CLogger.h>
+#include <Audio/HelperFunctions.h>
 
 namespace BFG {
 namespace Audio {
@@ -71,6 +72,7 @@ void OggFile::read(ALuint bufferID)
 {
 	unsigned long bytesDecoded = decode(mBuffer.get(), BUFFER_SIZE);
 	alBufferData(bufferID, mFormat, mBuffer.get(), bytesDecoded, mFileInfo->rate);
+	alErrorHandler("OggFile::read", "Error occured calling alBufferData.");
 }
 
 unsigned long OggFile::decode(char *buffer, unsigned long bufferSize)

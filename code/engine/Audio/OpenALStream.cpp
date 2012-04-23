@@ -44,15 +44,15 @@ namespace Audio {
     {
 		mBufferIds.reset(new ALuint[mNUM_BUFFER]);
 		alGenBuffers(mNUM_BUFFER, mBufferIds.get());
-		std::string result = stringifyAlError(alGetError());
-		dbglog << result << " at OpenALStream constructor.";
-		
+		alErrorHandler("OpenALStream::OpenALStream", "Error occured calling alGenBuffers.");
+	
 		preload();
     }
 
 	OpenALStream::~OpenALStream()
 	{
 		alDeleteBuffers(mNUM_BUFFER, mBufferIds.get());
+		alErrorHandler("OpenALStream::~OpenALStream", "Error occured calling alDeleteBuffers.");
 	}
 
 	void OpenALStream::preload()
@@ -63,11 +63,7 @@ namespace Audio {
 		}
 
 		alSourceQueueBuffers(mSourceId, mNUM_BUFFER, mBufferIds.get());
-		std::string err = stringifyAlError(alGetError());
-
-		dbglog << err;
-
-		//dbglog << "Stream: "+mName+" preloaded";
+		alErrorHandler("OpenALStream::preload", "Error occured calling alSourceQueueBuffers.");
     }
 
 	void OpenALStream::nextStreamStep()
@@ -77,11 +73,14 @@ namespace Audio {
 
 		// Get the numbers of buffers that are already processed.
 		alGetSourcei(mSourceId, AL_BUFFERS_PROCESSED, &processedBuffers);
+		alErrorHandler("OpenALStream::nextStreamStep", "Error occured calling alGetSourcei.");
+
 
 		if (processedBuffers >= mNUM_BUFFER)
 		{
 			dbglog << "Stream '"+mAudioFile->toString()+"' finished.";
 			alSourceUnqueueBuffers(mSourceId, mNUM_BUFFER, mBufferIds.get());
+			alErrorHandler("OpenALStream::nextStreamStep", "Error occured calling alSourceUnqueueBuffers.");
 
 			// callback
 			mOnStreamFinished();
@@ -92,9 +91,15 @@ namespace Audio {
 		while (processedBuffers > 0)
 		{
 			alSourceUnqueueBuffers(mSourceId, 1, &tempBufferId);
+			alErrorHandler("OpenALStream::nextStreamStep", "Error occured calling alSourceUnqueueBuffers.");
+
 			mAudioFile->read(tempBufferId);
+			
 			alSourceQueueBuffers(mSourceId, 1, &tempBufferId);
+			alErrorHandler("OpenALStream::nextStreamStep", "Error occured calling alSourceQueueBuffers.");
+			
 			alGetSourcei(mSourceId, AL_BUFFERS_PROCESSED, &processedBuffers);
+			alErrorHandler("OpenALStream::nextStreamStep", "Error occured calling alGetSourcei.");
 		}
 	}
 

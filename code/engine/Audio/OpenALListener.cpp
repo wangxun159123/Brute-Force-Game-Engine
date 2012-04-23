@@ -30,6 +30,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Audio/Main.h>
 #include <Audio/Enums.hh>
+#include <Audio/HelperFunctions.h>
 
 namespace BFG {
 namespace Audio {
@@ -78,24 +79,29 @@ void OpenALListener::onVelocityPlayer(const AudioPayloadT& payload)
 {
 	v3 velocity = boost::get<v3>(payload);
 	alListener3f(AL_VELOCITY, velocity.x, velocity.y, velocity.z);
+	alErrorHandler("OpenALListener::onVelocityPlayer", "Error occured calling alListener3f.");
+
 }
 
 void OpenALListener::onOrientationPlayer(const AudioPayloadT& payload)
 {
 	v3 orientation = boost::get<v3>(payload);
 	alListener3f(AL_ORIENTATION, orientation.x, orientation.y, orientation.z);
+	alErrorHandler("OpenALListener::onOrientationPlayer", "Error occured calling alListener3f.");
 }
 
 void OpenALListener::onEventMasterGain(const AudioPayloadT& payload)
 {
 	ALfloat gain = static_cast<ALfloat>(boost::get<float>(payload));
 	alListenerf(AL_GAIN, gain);
+	alErrorHandler("OpenALListener::onEventMasterGain", "Error occured calling alListenerf.");
 }
 
 void OpenALListener::onEventPositionPlayer(const AudioPayloadT& payload)
 {
 	v3 position = boost::get<v3>(payload);
 	alListener3f(AL_POSITION, position.x, position.y, position.z);
+	alErrorHandler("OpenALListener::onEventPositionPlayer", "Error occured calling alListener3f.");
 }
 
 } // namespace Audio

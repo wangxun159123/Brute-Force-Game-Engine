@@ -48,5 +48,13 @@ std::string stringifyAlError(ALenum errorCode)
 	}
 }
 
+void alErrorHandler(const std::string& errorText, const std::string& locationString)
+{
+	ALenum error = alGetError();
+	
+	if (error != AL_NO_ERROR)
+		throw std::logic_error("OpenAL error: " + stringifyAlError(error) + " occured at " + locationString + ". " + errorText);
+}
+
 }
 }
