@@ -63,6 +63,8 @@ private:
 
 	void preload();
 
+	bool mFinished;
+
 	const s32 mNUM_BUFFER;
 	boost::scoped_array<ALuint> mBufferIds;
 

@@ -40,7 +40,8 @@ namespace Audio {
 	                           ALuint sourceId):
 		Stream(file, onStreamFinished),
 		mNUM_BUFFER(6),
-		mSourceId(sourceId)
+		mSourceId(sourceId),
+		mFinished(false)
     {
 		mBufferIds.reset(new ALuint[mNUM_BUFFER]);
 		alGenBuffers(mNUM_BUFFER, mBufferIds.get());
@@ -68,6 +69,9 @@ namespace Audio {
 
 	void OpenALStream::nextStreamStep()
 	{
+		if (mFinished)
+			return;
+
 		ALint processedBuffers = 0;
 		ALuint tempBufferId;
 
@@ -84,7 +88,8 @@ namespace Audio {
 
 			// callback
 			mOnStreamFinished();
-
+			mFinished = true;
+			
 			return;
 		}
 

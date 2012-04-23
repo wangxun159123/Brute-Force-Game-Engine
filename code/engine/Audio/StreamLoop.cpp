@@ -96,6 +96,8 @@ void StreamLoop::onStreaming()
 		{
 			mStreamsOnLoop[it->first] = it->second;
 		}
+
+		mNewStreams.clear();
 	}
 }
 

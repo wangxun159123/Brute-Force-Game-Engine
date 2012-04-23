@@ -98,17 +98,17 @@ std::vector<std::string> soundFileNames()
 	std::vector<std::string> fileNames;
 	Path path;
 
-	//fileNames.push_back(path.Get(ID::P_SOUND_MUSIC)+"6 Fleet's Arrival.ogg");
-	//fileNames.push_back(path.Get(ID::P_SOUND_MUSIC)+"02_Deimos - Flottenkommando.ogg");
-	//fileNames.push_back(path.Get(ID::P_SOUND_MUSIC)+"01_Deimos - Faint Sun.ogg");
+	fileNames.push_back(path.Get(ID::P_SOUND_MUSIC)+"6 Fleet's Arrival.ogg");
+	fileNames.push_back(path.Get(ID::P_SOUND_MUSIC)+"02_Deimos - Flottenkommando.ogg");
+	fileNames.push_back(path.Get(ID::P_SOUND_MUSIC)+"01_Deimos - Faint Sun.ogg");
 	//fileNames.push_back(path.Get(ID::P_SOUND_MUSIC)+"01_Deimos - Faint Sun.ogg");
 	
 	//fileNames.push_back(path.Get(ID::P_SOUND_EFFECTS)+"engine_light.ogg");
 	//fileNames.push_back(path.Get(ID::P_SOUND_EFFECTS)+"Destruction_ExplosionD9.wav");
-	fileNames.push_back(path.Get(ID::P_SOUND_EFFECTS)+"Laser_003.wav");
-	fileNames.push_back(path.Get(ID::P_SOUND_EFFECTS)+"Laser_003.wav");
-	fileNames.push_back(path.Get(ID::P_SOUND_EFFECTS)+"Laser_003.wav");
-	fileNames.push_back(path.Get(ID::P_SOUND_EFFECTS)+"Laser_003.wav");
+	//fileNames.push_back(path.Get(ID::P_SOUND_EFFECTS)+"Laser_003.wav");
+	//fileNames.push_back(path.Get(ID::P_SOUND_EFFECTS)+"Laser_003.wav");
+	//fileNames.push_back(path.Get(ID::P_SOUND_EFFECTS)+"Laser_003.wav");
+	//fileNames.push_back(path.Get(ID::P_SOUND_EFFECTS)+"Laser_003.wav");
 
 	return fileNames;
 }
