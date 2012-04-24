@@ -37,6 +37,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Audio/Interface.h>
 #include <Audio/AudioObject.h>
 #include <Audio/StreamLoop.h>
+#include <Audio/Playlist.h>
 #include <Base/CEntryPoint.h>
 #include <Base/CLogger.h>
 #include <Base/Cpp.h>
@@ -305,7 +306,7 @@ public:
 	
 	void playLaserSound() const
 	{
-		// isn't a cute solution. Will be substituded by a higher level audio class.
+		// Isn't a cute solution. Will be substituded by a higher level audio class later.
 		mLaserSound->play();
 	}
 
@@ -659,6 +660,14 @@ struct MainState : Emitter
 
 		mSector.reset(new Sector(loop, 1, "Blah", gof));
 		
+		std::vector<std::string> program;
+		program.push_back(p.Get(ID::P_SOUND_MUSIC)+"6 Fleet's Arrival.ogg");
+		program.push_back(p.Get(ID::P_SOUND_MUSIC)+"02_Deimos - Flottenkommando.ogg");
+		program.push_back(p.Get(ID::P_SOUND_MUSIC)+"01_Deimos - Faint Sun.ogg");
+		
+		mPlaylist.reset(new Audio::Playlist(program, true));
+		emit<Audio::AudioEvent>(ID::AE_PLAYLIST_PLAY, 0);
+		
 		View::SkyCreation sc("sky01");
 		emit<View::Event>(ID::VE_SET_SKY, sc);
 
@@ -739,6 +748,7 @@ struct MainState : Emitter
 
 	boost::shared_ptr<Sector> mSector;
 	boost::shared_ptr<Environment> mEnvironment;
+	boost::shared_ptr<Audio::Playlist> mPlaylist;
 	
 	boost::scoped_ptr<Clock::StopWatch> mClock;
 	
