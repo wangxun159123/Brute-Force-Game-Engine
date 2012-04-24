@@ -50,8 +50,7 @@ OpenALAudioObject::OpenALAudioObject(std::string audioName,
 	{
 		if (mSourceId)
 		{
-			alDeleteSources(1, &mSourceId);
-			alErrorHandler("OpenALAudioObject::~OpenALAudioObject", "Error occured calling alDeleteSources.");
+			stop();
 		}
 	}
 

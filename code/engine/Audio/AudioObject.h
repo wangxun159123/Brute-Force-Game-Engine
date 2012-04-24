@@ -63,9 +63,9 @@ protected:
 	boost::function<void (void)> mForwardCallback;
 };
 
-boost::shared_ptr<AudioObject> createAudioObject(std::string audioName, 
-	                                             boost::shared_ptr<StreamLoop> streamLoop,
-                                                 boost::function<void (void)> onFinishedForward = 0);
+boost::shared_ptr<AudioObject>	BFG_AUDIO_API createAudioObject(std::string audioName, 
+								                                boost::shared_ptr<StreamLoop> streamLoop,
+								                                boost::function<void (void)> onFinishedForward = 0);
 
 } // namespace Audio
 } // namespace BFG
