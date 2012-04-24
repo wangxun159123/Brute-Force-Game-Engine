@@ -33,10 +33,10 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <OgreSceneManager.h>
 #include <OgreParticleSystem.h>
 
-#include <Audio/Audio.h>
 #include <Audio/Enums.hh>
 #include <Audio/Interface.h>
-#include <Audio/Transport.h>
+#include <Audio/AudioObject.h>
+#include <Audio/StreamLoop.h>
 #include <Base/CEntryPoint.h>
 #include <Base/CLogger.h>
 #include <Base/Cpp.h>
@@ -221,12 +221,16 @@ public:
 	{
 		require("Physical");
 
+		Path path;
+		mStreamLoop.reset(new Audio::StreamLoop);
+		mLaserSound = Audio::createAudioObject(path.Get(ID::P_SOUND_EFFECTS)+"Laser_003.wav", mStreamLoop);
+
 		initvar(ID_PROJECTILE_SPEED);
 		initvar(ID_PROJECTILE_SPAWN_DISTANCE);
 
 		requestEvent(ID::GOE_FIRE_ROCKET);
 		requestEvent(ID::GOE_POWERUP);
-}
+	}
 
 	void internalOnEvent(EventIdT action,
 	                     Property::Value payload,
@@ -301,15 +305,15 @@ public:
 	
 	void playLaserSound() const
 	{
-		GameHandle audioObjectHandle = generateHandle();
-		Path path;
-		AOCreation ao(audioObjectHandle, path.Get(ID::P_SOUND_EFFECTS) + "Laser_003.wav");
-
-		emit<Audio::AudioEvent>(ID::AE_CREATE_AUDIO_OBJECT, ao);
-		emit<Audio::AudioEvent>(ID::AE_PLAY, true, audioObjectHandle);
+		// isn't a cute solution. Will be substituded by a higher level audio class.
+		mLaserSound->play();
 	}
 
 	s32 mAutoRocketAmmo;
+
+private:
+	boost::shared_ptr<Audio::StreamLoop> mStreamLoop;
+	boost::shared_ptr<Audio::AudioObject> mLaserSound;
 };
 
 class Collectable : public Property::Concept
@@ -669,9 +673,6 @@ struct MainState : Emitter
 		
 		mPlayer = playerShip->getHandle();
 
-		// \Hack This level is a static list at Audio::DummyLoader.. must be removed in advance of Audio development.
-		emit<Audio::AudioEvent>(ID::AE_SET_LEVEL_CURRENT, std::string("DummyLevel1"));
-
 		mClock->start();
 	}
 
@@ -968,9 +969,6 @@ void* SingleThreadEntryPoint(void *iPointer)
 		loop->connect(A_QUIT, ps, &MainState::ControllerEventHandler);
 		loop->connect(A_FPS, ps, &MainState::ControllerEventHandler);
 	}
-
-	// Init Audio
-	Audio::Audio* Audio = new Audio::Audio();
 
 	assert(loop);
 	loop->registerLoopEventListener(ps, &MainState::LoopEventHandler);
