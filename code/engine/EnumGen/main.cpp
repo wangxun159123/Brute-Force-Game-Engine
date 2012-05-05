@@ -157,9 +157,8 @@ bool mustGenerate(const std::string& inputFile,
 		return true;
 	}
 
-	// .hh empty or not existant?
-	if (fs::file_size(headerFile) == 0 ||
-	    !fs::exists(headerFile))
+	// .hh not existant or empty?
+	if (!fs::exists(headerFile) || fs::file_size(headerFile) == 0)
 		return true;
 
 	// .hh older than .xml or enumgen binary?
