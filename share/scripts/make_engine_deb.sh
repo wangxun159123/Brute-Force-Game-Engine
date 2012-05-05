@@ -9,24 +9,31 @@ ARCH="i386"
 
 CMAKE='/usr/bin/cmake'
 
+# Relative to the temporary build directory
+RELATIVE_BFG_ROOT_PATH="../../.."
+
 # Make sure only root can run our script
 if [ "$(id -u)" != "0" ]; then
 	echo "This script must be run as root" 1>&2
 	exit 1
 fi
 
-RELATIVE_BFG_ROOT_PATH="../.."
-
 # Prelude
 ##########
 
 function prelude
 {
-	/bin/mkdir -p $PREFIX
+	# Create and enter temporary build directory
+	mkdir MAKE_ENGINE_DEP
+	cd MAKE_ENGINE_DEP
 
-	cd $RELATIVE_BFG_ROOT_PATH
-	./enuminit.sh
-	cd -
+	/bin/mkdir -p $PREFIX
+}
+
+function postlude
+{
+	# Leave temporary build directory
+	cd ..
 }
 
 # Build Bfg
@@ -79,4 +86,5 @@ Description: The Brute Force Game Engine
 prelude
 buildBfg
 makePackage
+postlude
 
