@@ -34,6 +34,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 //#include <tests/AudioTest/3DSoundTest.h>
 #include <tests/AudioTest/StreamTest.h>
 #include <tests/AudioTest/PlaylistTest.h>
+#include <tests/AudioTest/SoundEmitterTest.h>
 
 //#include <tests/AudioTest/StreamWatchTest.h>
 
@@ -54,6 +55,7 @@ void menu()
 //		          << "4: 3DSoundTest\n"
 				  << "5: Stream Test\n"
 				  << "6: Playlist Test\n"
+                  << "7: Sound Emitter Test\n"
 		          << "0: end\n\n";
 
 		int choice;
@@ -90,6 +92,12 @@ void menu()
 				AudioTestLoader::registerTestFunction(&playlistTest);
 				AudioTestLoader testLoader;
 			}
+            case 7:
+            {
+                AudioTestLoader::registerTestFunction(&soundEmitterTest);
+                AudioTestLoader testLoader;
+                break;
+            }
 			case 0:
 				running = false;
 				break;

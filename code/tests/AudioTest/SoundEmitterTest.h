@@ -24,23 +24,25 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PLAYLIST_TEST_H_
-#define PLAYLIST_TEST_H_
+#ifndef SOUND_EMITTER_TEST_H_
+#define SOUND_EMITTER_TEST_H_
 
 #include <EventSystem/EventFactory.h>
 #include <Audio/Loader.h>
-#include <Audio/Playlist.h>
+#include <Audio/SoundEmitter.h>
 #include <tests/AudioTest/functions.h>
 
 
-void printPlaylistControls()
+void printSoundEmitterControls()
 {
 	std::cout << "0: Exit\n"
               << "1: Play\n"
-	          << "2: Pause\n";
+              << "2: Pause\n"
+              << "3: SingleSound\n"
+              << "4: MachineGun\n";
 }
 
-void playlistTest()
+void soundEmitterTest()
 {
 	using namespace BFG;
 
@@ -48,19 +50,21 @@ void playlistTest()
 	Audio::AudioInterface::getEntryPoint();
 	EventLoop* myEventLoop = Audio::AudioMain::eventLoop();
 	
-    std::vector<std::string> fileNameList = musicFileNames();
+    Path path;
 
-	dbglog << "CreatePlaylist";
-	Audio::Playlist playlist(fileNameList, true);
+    std::string laserSound =  path.Get(ID::P_SOUND_EFFECTS)+"Laser_003.wav";
 
-	EventFactory ef;
+    dbglog << "CreateSoundEmitter";
+    Audio::SoundEmitter soundEmitter;
+
+    //EventFactory ef;
 
 	bool noExit = true;
 	int choice = -1;
 	
 	while(noExit)
 	{
-		printPlaylistControls();			
+        printSoundEmitterControls();
 		std::cin >> choice;
 
 		switch (choice)
@@ -69,13 +73,23 @@ void playlistTest()
 				noExit = false;
 				break;
 			case 1:
-				ef.Create<Audio::AudioEvent>(myEventLoop, ID::AE_PLAYLIST_PLAY, 0);
-				myEventLoop->doLoop();
+                soundEmitter.play();
 				break;
 			case 2:
-				ef.Create<Audio::AudioEvent>(myEventLoop, ID::AE_PLAYLIST_PAUSE, 0);
-				myEventLoop->doLoop();
+                soundEmitter.pause();
 				break;
+            case 3:
+                soundEmitter.processSound(laserSound);
+                break;
+            case 4:
+            {
+                for (int i = 0; i < 30; ++i)
+                {
+                    soundEmitter.processSound(laserSound);
+                    boost::this_thread::sleep(boost::posix_time::millisec(100));
+                }
+                break;
+            }
 			default:
 				std::cout << "Default";
 		}
