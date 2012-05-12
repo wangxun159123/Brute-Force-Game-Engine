@@ -24,6 +24,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdexcept>
 #include <Audio/HelperFunctions.h>
 
 namespace BFG {
@@ -58,3 +59,4 @@ void alErrorHandler(const std::string& errorText, const std::string& locationStr
 
 }
 }
+

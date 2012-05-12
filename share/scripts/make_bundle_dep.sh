@@ -9,8 +9,9 @@ ARCH="i386"
 
 CMAKE='/usr/bin/cmake'
 
-BOOST_URL='http://downloads.sourceforge.net/project/boost/boost/1.47.0/boost_1_47_0.tar.bz2?r='
-OGRE_URL='http://downloads.sourceforge.net/project/ogre/ogre/1.7/ogre_src_v1-7-3.tar.bz2?r='
+USER_AGENT='Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.1.16) Gecko/20120421 Firefox/11.0'
+BOOST_URL='http://garr.dl.sourceforge.net/project/boost/boost/1.47.0/boost_1_47_0.tar.bz2'
+OGRE_URL="http://garr.dl.sourceforge.net/project/ogre/ogre/1.7/ogre_src_v1-7-3.tar.bz2"
 
 BOOST_FILENAME='boost_1_47_0.tar.bz2'
 OGRE_FILENAME='ogre_src_v1-7-3.tar.bz2'
@@ -30,6 +31,10 @@ fi
 
 function prelude
 {
+	# Create and enter temporary build directory
+	mkdir MAKE_BUNDLE_DEP
+	cd MAKE_BUNDLE_DEP
+
 	/usr/bin/apt-get install \
 		libois-dev       \
 		libzip-dev       \
@@ -45,8 +50,9 @@ function prelude
 
 	/bin/mkdir -p $PREFIX
 
-	/usr/bin/wget -c $BOOST_URL -O $BOOST_FILENAME
-	/usr/bin/wget -c $OGRE_URL -O $OGRE_FILENAME
+
+	/usr/bin/wget -U "$USER_AGENT" -c $BOOST_URL -O $BOOST_FILENAME
+	/usr/bin/wget -U "$USER_AGENT" -c $OGRE_URL -O $OGRE_FILENAME
 
 	/usr/bin/svn export -r $BOOST_LOG_REV https://boost-log.svn.sourceforge.net/svnroot/boost-log/trunk/boost-log boost-log
 	/usr/bin/svn export https://my-gui.svn.sourceforge.net/svnroot/my-gui/trunk my-gui
@@ -66,6 +72,12 @@ function prelude
 	# Bjam
 	cd $BOOST_DIR
 	./bootstrap.sh
+	cd ..
+}
+
+function postlude
+{
+	# Leave temporary build directory
 	cd ..
 }
 
@@ -208,4 +220,5 @@ buildBoostLog
 buildOgre
 buildMyGUI
 makePackage
+postlude
 
