@@ -35,8 +35,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Audio/Enums.hh>
 #include <Audio/Interface.h>
-#include <Audio/AudioObject.h>
-#include <Audio/StreamLoop.h>
 #include <Audio/Playlist.h>
 #include <Audio/SoundEmitter.h>
 #include <Base/CEntryPoint.h>
