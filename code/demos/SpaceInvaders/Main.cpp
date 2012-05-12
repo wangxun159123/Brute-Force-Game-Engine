@@ -38,6 +38,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Audio/AudioObject.h>
 #include <Audio/StreamLoop.h>
 #include <Audio/Playlist.h>
+#include <Audio/SoundEmitter.h>
 #include <Base/CEntryPoint.h>
 #include <Base/CLogger.h>
 #include <Base/Cpp.h>
@@ -223,8 +224,7 @@ public:
 		require("Physical");
 
 		Path path;
-		mStreamLoop.reset(new Audio::StreamLoop);
-		mLaserSound = Audio::createAudioObject(path.Get(ID::P_SOUND_EFFECTS)+"Laser_003.wav", mStreamLoop);
+        mLaserSound = path.Get(ID::P_SOUND_EFFECTS)+"Laser_003.wav";
 
 		initvar(ID_PROJECTILE_SPEED);
 		initvar(ID_PROJECTILE_SPAWN_DISTANCE);
@@ -262,7 +262,7 @@ public:
 		}
 	}
 
-	void fireRocket(bool autoRocket) const
+	void fireRocket(bool autoRocket)
 	{
 		std::vector<GameHandle> targets = environment()->find_all(isInvader);
 
@@ -295,7 +295,7 @@ public:
 		
 		emit<SectorEvent>(ID::S_CREATE_GO, op);
 
-		playLaserSound();
+        mSoundEmitter.processSound(mLaserSound);
 
 		if (autoRocket)
 		{
@@ -304,17 +304,11 @@ public:
 		}
 	}
 	
-	void playLaserSound() const
-	{
-		// Isn't a cute solution. Will be substituded by a higher level audio class later.
-		mLaserSound->play();
-	}
-
 	s32 mAutoRocketAmmo;
 
 private:
-	boost::shared_ptr<Audio::StreamLoop> mStreamLoop;
-	boost::shared_ptr<Audio::AudioObject> mLaserSound;
+    Audio::SoundEmitter mSoundEmitter;
+    std::string mLaserSound;
 };
 
 class Collectable : public Property::Concept
