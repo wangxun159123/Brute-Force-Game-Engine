@@ -52,9 +52,6 @@ public:
 		fileNames1.push_back(path.Get(ID::P_SOUND_EFFECTS)+"Laser_003.wav");
 		//fileNames1.push_back(path.Get(ID::P_SOUND_EFFECTS)+"Destruction_ExplosionD9.wav");
 
-		Level level1 = std::make_pair("DummyLevel1", fileNames1);
-		levels.push_back(level1);
-
 		std::vector<std::string> fileNames2;
 		fileNames2.push_back(path.Get(ID::P_SOUND_EFFECTS)+"Laser_008.wav");
 

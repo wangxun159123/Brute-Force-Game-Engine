@@ -141,9 +141,10 @@ OpenALAudioObject::OpenALAudioObject(std::string audioName,
 
 	void OpenALAudioObject::onStreamFinished()
 	{
+		stop();
+
 		if (mForwardCallback)
 			mForwardCallback();
-		stop();
 	}
 
 } // namespace Audio

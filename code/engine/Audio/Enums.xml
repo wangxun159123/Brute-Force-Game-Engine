@@ -34,7 +34,12 @@
       
           <value>AE_PLAYLIST_PLAY</value>
           <value>AE_PLAYLIST_PAUSE</value>
+
+          <value>AE_SOUND_EMITTER_PLAY</value>
+          <value>AE_SOUND_EMITTER_PAUSE</value>
+
       </enum>
+
 
       <enum name = "AudioObjectType" export = "BFG_AUDIO_API">
 
