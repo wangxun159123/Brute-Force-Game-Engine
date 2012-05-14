@@ -29,8 +29,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Core/ShowException.h>
 
 #include <tests/AudioTest/TestLoader.h>
-//#include <tests/AudioTest/CpuBurnTest.h>
-//#include <tests/AudioTest/MusicAndSoundTest.h>
+#include <tests/AudioTest/CpuBurnTest.h>
+#include <tests/AudioTest/MusicAndSoundTest.h>
 //#include <tests/AudioTest/3DSoundTest.h>
 #include <tests/AudioTest/StreamTest.h>
 #include <tests/AudioTest/PlaylistTest.h>
@@ -49,13 +49,12 @@ void menu()
 	while (running)
 	{
 		std::cout << "menu AudioTest\n"
-//		          << "1: StreamWatchTest\n"
-//		          << "2: BurnCPU Test\n"
-//		          << "3: AudioTest\n"
-//		          << "4: 3DSoundTest\n"
-				  << "5: Stream Test\n"
-				  << "6: Playlist Test\n"
-                  << "7: Sound Emitter Test\n"
+                  << "1: BurnCPU Test\n"
+                  << "2: Music and Sound test\n"
+//		          << "3: 3DSoundTest\n"
+                  << "4: Stream Test\n"
+                  << "5: Playlist Test\n"
+                  << "6: Sound Emitter Test\n"
 		          << "0: end\n\n";
 
 		int choice;
@@ -63,36 +62,33 @@ void menu()
 
 		switch (choice)
 		{
-			case 1:
-				//streamWatchTest();
+            case 1:
+                burnCPU();
 				break;
-			case 2:
-//				burnCPU();
-				break;
-			case 3:
+            case 2:
 			{
-//				AudioTestLoader::registerTestFunction(&musicAndSoundTest);
-//				AudioTestLoader testLoader;
+                AudioTestLoader::registerTestFunction(&musicAndSoundTest);
+                AudioTestLoader testLoader;
 				break;
 			}
-			case 4:
+            case 3:
 			{
 //				AudioTestLoader::registerTestFunction(&test3DSound);
 //				AudioTestLoader testLoader;
 				break;
 			}
-			case 5:
+            case 4:
 			{
 				AudioTestLoader::registerTestFunction(&streamTest);
 				AudioTestLoader testLoader;
 				break;
 			}
-			case 6:
+            case 5:
 			{
 				AudioTestLoader::registerTestFunction(&playlistTest);
 				AudioTestLoader testLoader;
 			}
-            case 7:
+            case 6:
             {
                 AudioTestLoader::registerTestFunction(&soundEmitterTest);
                 AudioTestLoader testLoader;
