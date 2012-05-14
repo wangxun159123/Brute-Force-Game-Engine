@@ -36,6 +36,9 @@ IF(NOT BFG_ENGINE_INCLUDE_DIR)
 	SET(BFG_ENGINE_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/code/engine/")
 ENDIF(NOT BFG_ENGINE_INCLUDE_DIR)
 
+ADD_DEFINITIONS(-DBOOST_LOG_DYN_LINK)                  # Use Boost.Log as shared lib
+ADD_DEFINITIONS(-DBOOST_ALL_DYN_LINK )                 # Use Boost as shared libs
+
 # ---------------------- #
 # Windows Specific Stuff #
 # -----------------------#
@@ -46,8 +49,6 @@ IF(WIN32)
 		ADD_DEFINITIONS(-D_WIN32_WINNT=0x0501)                 # Target: WinXP
 		ADD_DEFINITIONS(-D_SCL_SECURE_NO_WARNINGS)             # Disable std::copy warnings
 		ADD_DEFINITIONS(-D_CRT_SECURE_NO_WARNINGS)             # Disable sprintf warnings
-		ADD_DEFINITIONS(-DBOOST_LOG_DYN_LINK)                  # Use Boost.Log as shared lib
-		ADD_DEFINITIONS(-DBOOST_ALL_DYN_LINK )                 # Use Boost as shared libs
 		#ADD_DEFINITIONS(-DBOOST_LIB_DIAGNOSTIC)
 
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4251;4275") # Disable some DLL warnings

@@ -3,8 +3,8 @@
 
     <namespace name = "BFG">
 
-        <enum name = "ControllerAction">
-
+        <enum name = "ControllerAction" export="CONTROLLER_API">
+            <include>Controller/Defs.h</include>
             <!-- Default Actions -->
             <value set = "2000">A_FIRST_CONTROLLER_ACTION</value>
 
