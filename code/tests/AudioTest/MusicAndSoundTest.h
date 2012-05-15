@@ -29,48 +29,66 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Base/CLogger.h>
 #include <Core/Types.h>
-#include <Core/Utils.h>
 
 #include <EventSystem/EventFactory.h>
 
-#include <Audio/Audio.h>
 #include <tests/AudioTest/functions.h>
 
+#include <Audio/Playlist.h>
+#include <Audio/SoundEmitter.h>
+
+void printMenuControls()
+{
+	std::cout << "0: Exit\n"
+              << "1: Play\n"
+	          << "2: Pause\n";
+}
 
 void musicAndSoundTest()
 {
-	using namespace BFG;
+    using namespace BFG;
 
-	dbglog << "Get EventLoop";
-	EventLoop* myEventLoop = Audio::AudioMain::eventLoop();
+    dbglog << "Get EventLoop";
+    Audio::AudioInterface::getEntryPoint();
+    EventLoop* myEventLoop = Audio::AudioMain::eventLoop();
 
-	std::vector<std::string> fileNameList = soundFileNames();
+    std::vector<std::string> fileNameList = musicFileNames();
+    dbglog << "CreatePlaylist";
+    Audio::Playlist playlist(fileNameList, true);
 
-	dbglog << "Create Audio";
-	Audio::Audio Audio;
 
-	EventFactory ef;
+    dbglog << "CreateSoundEmitter";
+    Path path;
+    std::string laserSound =  path.Get(ID::P_SOUND_EFFECTS)+"Laser_003.wav";
+    Audio::SoundEmitter soundEmitter;
 
-	ef.Create<Audio::AudioEvent>(myEventLoop, ID::AE_SET_LEVEL_CURRENT, std::string("DummyLevel1"));
-	myEventLoop->doLoop();
+    EventFactory ef;
+    ef.Create<Audio::AudioEvent>(myEventLoop, ID::AE_PLAYLIST_PLAY, 0);
+    myEventLoop->doLoop();
 
-	AOCreation aoc
-	(
-		generateHandle(),
-		fileNameList[0]
-	);
+    for (int i = 0; i < 30; ++i)
+    {
+        soundEmitter.processSound(laserSound);
+        boost::this_thread::sleep(boost::posix_time::millisec(100));
+    }
 
-	ef.Create<Audio::AudioEvent>(myEventLoop, ID::AE_CREATE_AUDIO_OBJECT, aoc);
-	myEventLoop->doLoop();
+    bool noExit = true;
+    int choice = -1;
 
-	boost::this_thread::sleep(boost::posix_time::millisec(500));
+    while(noExit)
+    {
+        printMenuControls();
+        std::cin >> choice;
 
-	ef.Create<Audio::AudioEvent>(myEventLoop, ID::AE_PLAY, true, aoc.mHandle, NULL_HANDLE);
-	myEventLoop->doLoop();
-//	ef.Create<Audio::AudioEvent>(myEventLoop, ID::AE_PLAY, true, aoc.mHandle, NULL_HANDLE);
-	myEventLoop->doLoop();
-
-	block();
+        switch (choice)
+        {
+            case 0:
+                noExit = false;
+                break;
+            default:
+                std::cout << "Default";
+        }
+    }
 }
 
 

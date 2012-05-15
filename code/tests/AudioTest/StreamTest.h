@@ -34,17 +34,14 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 
 //! \Hack this won't work in further development!
-void printMenu()
+void printMenu(const std::vector<std::string>& fileNameList)
 {
 	using namespace BFG;
 
-	Audio::DummyLoader loader;
-	std::vector<Audio::DummyLoader::Level> level =  loader.loadAudioConfig();
+    std::cout << fileNameList.size() << ": Exit\n";
 
-	std::cout << level[0].second.size() << ": Exit\n";
-
-	for(unsigned int i = 0; i < level[0].second.size(); ++i)
-		std::cout << i << ": " << level[0].second[i] << "\n";
+    for(unsigned int i = 0; i < fileNameList.size(); ++i)
+        std::cout << i << ": " << fileNameList[i] << "\n";
 }
 
 void printControls()
@@ -71,7 +68,7 @@ void streamTest()
 
 	while(noExit)
 	{
-		printMenu();
+		printMenu(fileNameList);
 
 		std::cout << "Choose an audio file: ";
 		int choice = -1;

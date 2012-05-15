@@ -30,7 +30,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <tests/AudioTest/functions.h>
 
 #include <tests/AudioTest/TestLoader.h>
-//#include <tests/AudioTest/StreamWatchTest.h>
 #include <tests/AudioTest/MusicAndSoundTest.h>
 
 void burnThread()
