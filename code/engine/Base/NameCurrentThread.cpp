@@ -62,13 +62,6 @@ void nameCurrentThread(const std::string& name)
 	}
 }
 
-#elif __linux
-
-void nameCurrentThread(const std::string& name)
-{
-	prctl(PR_SET_NAME, name.c_str(), 0, 0, 0);
-}
-
 #endif
 
 } // namespace BFG

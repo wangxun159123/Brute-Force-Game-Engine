@@ -29,14 +29,23 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
 
-namespace BFG {
+#if defined(linux) || defined (__linux)
+#include <sys/prctl.h>
+#endif
 
-#if defined (_WIN32) or defined (__linux)
+namespace BFG {
 
 //! Names a thread. Useful for debugging
 //! \attention Call this from within the thread to be named
+#if defined (_WIN32)
 void nameCurrentThread(const std::string& name);
-
+#elif defined(linux) || defined (__linux)
+inline void nameCurrentThread(const std::string& name) 
+{
+	prctl(PR_SET_NAME, name.c_str(), 0, 0, 0);
+}
+#else
+inline void nameCurrentThread(const std::string& name) { /* Not Implemented */ }
 #endif
 
 } // namespace BFG
