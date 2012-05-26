@@ -134,19 +134,21 @@ SET(CPACK_PACKAGE_VERSION_MINOR "0")
 SET(CPACK_PACKAGE_VERSION_PATCH "0")
 SET(CPACK_PACKAGE_INSTALL_DIRECTORY "CMake ${CMake_VERSION_MAJOR}.${CMake_VERSION_MINOR}")
 
-
 IF(WIN32 AND NOT UNIX)
-	SET(CPACK_GENERATOR "NSIS")
 	# There is a bug in NSI that does not handle full unix paths properly. Make
 	# sure there is at least one set of four (4) backlasshes.
-	#SET(CPACK_PACKAGE_ICON "${CMake_SOURCE_DIR}/Utilities/Release\\\\InstallIcon.bmp")
-	#SET(CPACK_NSIS_INSTALLED_ICON_NAME "bin\\\\MyExecutable.exe")
-	SET(CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY} My Famous Project")
-	#SET(CPACK_NSIS_HELP_LINK "http:\\\\\\\\www.my-project-home-page.org")
+	SET(CPACK_GENERATOR "NSIS")
+	SET(CPACK_NSIS_DISPLAY_NAME "Brute-Force Game Engine")
 	SET(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\www.brute-force-games.com")
 	SET(CPACK_NSIS_CONTACT "contact@brute-force-games.com")
 	SET(CPACK_NSIS_MODIFY_PATH ON)
 	SET(CPACK_NSIS_COMPRESSOR "/SOLID lzma")
+
+	# Unused
+	#SET(CPACK_PACKAGE_ICON "${CMake_SOURCE_DIR}/Utilities/Release\\\\InstallIcon.bmp")
+	#SET(CPACK_NSIS_INSTALLED_ICON_NAME "bin\\\\MyExecutable.exe")
+	#SET(CPACK_NSIS_HELP_LINK "http:\\\\\\\\www.my-project-home-page.org")
+
 ELSEIF(UNIX)
 	SET(CPACK_GENERATOR "DEB")
 	SET(CPACK_DEBIAN_PACKAGE_NAME "libbfe-dev")
