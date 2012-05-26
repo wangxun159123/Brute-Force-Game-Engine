@@ -108,3 +108,51 @@ ENDIF(DOXYGEN_FOUND)
 # ---------------#
 
 INSTALL(DIRECTORY share/cmake DESTINATION "share/bfg")
+
+# --------- #
+# Packaging #
+# --------- #
+
+# http://stackoverflow.com/questions/4134725/installrequiredsystemlibraries-purpose
+INCLUDE(InstallRequiredSystemLibraries)
+
+SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "The Brute Force Game Engine")
+SET(CPACK_PACKAGE_VENDOR "Brute-Force-Games")
+SET(CPACK_PACKAGE_CONTACT "Sascha Wittkowski <w177us@gmail.com>")
+SET(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README")
+SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+
+# VERSION_RELEASE IS 0, hence 0.3.0.0
+SET(CPACK_PACKAGE_VERSION_MAJOR "3")
+SET(CPACK_PACKAGE_VERSION_MINOR "0")
+SET(CPACK_PACKAGE_VERSION_PATCH "0")
+SET(CPACK_PACKAGE_INSTALL_DIRECTORY "CMake ${CMake_VERSION_MAJOR}.${CMake_VERSION_MINOR}")
+
+
+IF(WIN32 AND NOT UNIX)
+	SET(CPACK_GENERATOR "NSIS")
+	# There is a bug in NSI that does not handle full unix paths properly. Make
+	# sure there is at least one set of four (4) backlasshes.
+	#SET(CPACK_PACKAGE_ICON "${CMake_SOURCE_DIR}/Utilities/Release\\\\InstallIcon.bmp")
+	#SET(CPACK_NSIS_INSTALLED_ICON_NAME "bin\\\\MyExecutable.exe")
+	SET(CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY} My Famous Project")
+	#SET(CPACK_NSIS_HELP_LINK "http:\\\\\\\\www.my-project-home-page.org")
+	SET(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\www.brute-force-games.com")
+	SET(CPACK_NSIS_CONTACT "contact@brute-force-games.com")
+	SET(CPACK_NSIS_MODIFY_PATH ON)
+	SET(CPACK_NSIS_COMPRESSOR "/SOLID lzma")
+ELSEIF(UNIX)
+	SET(CPACK_GENERATOR "DEB")
+	SET(CPACK_DEBIAN_PACKAGE_NAME "libbfe-dev")
+	SET(CPACK_DEBIAN_PACKAGE_VERSION "0.3.0")
+	SET(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "i386")
+	SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libbfe-dev-deps (>= 0.3.0)")
+	SET(CPACK_DEBIAN_PACKAGE_SECTION "libdevel")
+
+	SET(CPACK_STRIP_FILES TRUE)
+	SET(CPACK_SOURCE_STRIP_FILES "")
+
+	SET(CPACK_PACKAGE_FILE_NAME "libbfe-dev_${CPACK_DEBIAN_PACKAGE_VERSION}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
+ENDIF()
+INCLUDE(CPack)
+
