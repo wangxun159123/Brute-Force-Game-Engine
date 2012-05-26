@@ -74,29 +74,52 @@ void StreamLoop::onStreaming()
 {
 	while (mIsRunning)
 	{
+		// Sleep to save cpu time.
 		boost::this_thread::sleep(boost::posix_time::millisec(100));
 		boost::mutex::scoped_lock lockForStream(mStreamMutex);
 		
-		StreamsMapT::iterator it; 
+		StreamsMapT::iterator it;
 
+		// Process streaming...
 		for (it = mStreamsOnLoop.begin(); it != mStreamsOnLoop.end(); ++it)
 		{
 			it->second->nextStreamStep();
 		}
 
+		// A second mutex is needed to avoid a deadlock here.
+		// The reason ist that removeMyStream() is called by a
+		// chain of calls stated with the callback of Stream (if
+		// the stream is finished). So the cat would bite its own
+		// tail at this place.
+		//
+		//  StreamLoop       Stream       AudioObject
+		//      |               |              |
+		// nextStreamStep()-->  #              |
+		//      |               # callback --> #
+		//      |               |              #
+		//      # <--- removeMyStream()------  #
+		//   DEADLOCK           |              |
+		//      |               |              |
+		//      |               |              |
+		//      |               |              |
+
 		boost::mutex::scoped_lock lockForRefresh(mRefreshMutex);
 
+
+		// Remove every finished stream from the loop.
 		while (!mFinishedStreams.empty())
 		{
 			removeStream(mFinishedStreams.back());
 			mFinishedStreams.pop_back();
 		}
 	
+		// Add new streams to the loop.
 		for (it = mNewStreams.begin(); it != mNewStreams.end(); ++it)
 		{
 			mStreamsOnLoop[it->first] = it->second;
 		}
 
+		// Must be cleared that streams would not be added multible.
 		mNewStreams.clear();
 	}
 }

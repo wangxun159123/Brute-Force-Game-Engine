@@ -35,7 +35,9 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace BFG {
 namespace Audio {
 
-
+//! Abstract class for higher level audio modules.
+//! Every AudioModule owns a StreamLoop. This way scaling due
+//! multiprocessing is provided.
 class BFG_AUDIO_API AudioModule
 {
 

@@ -33,6 +33,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace BFG {
 namespace Audio {
 
+//! Plays a list of tracks. The playlist starts playing immediatly after creation.
 class BFG_AUDIO_API Playlist : public AudioModule
 {
 	enum State
@@ -51,11 +52,14 @@ public:
 
 protected:
 	
+	//! Will be called if a track is finished.
 	void onStreamFinishedForwarded();
 	void eventHandler(AudioEvent* AE);
 
 private:
 
+	//! Call it to resume from PAUSE or play the program again if FINISHED.
+	//! Calling if stated is PLAYING will be ingored.
 	void onEventPlay();
 	void onEventPause();
 

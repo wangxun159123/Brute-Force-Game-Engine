@@ -46,6 +46,7 @@ namespace Audio {
 
 class AudioFile;
 
+//! Provides the streaming of audio data with OpenAL
 class BFG_AUDIO_API OpenALStream : public Stream
 {
 
@@ -57,6 +58,8 @@ public:
 
 	~OpenALStream();
 
+	//! Refills the stream buffers and calls the stream finished callback.
+	//! This method will usually be called only from StreamLoop.
 	void nextStreamStep();
 
 private:

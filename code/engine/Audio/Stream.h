@@ -36,6 +36,7 @@ namespace Audio {
 
 class AudioFile;
 
+//! Abstract class for stream processing.
 class BFG_AUDIO_API Stream
 {
 
@@ -47,6 +48,8 @@ public:
 	mOnStreamFinished(onStreamFinished) 
 	{}
 
+	//! Will be called from StreamLoop to refill processed buffers
+	//! or call finished callback.
 	virtual void nextStreamStep() = 0;
 
 protected:

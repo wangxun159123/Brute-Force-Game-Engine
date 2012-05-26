@@ -80,19 +80,21 @@ namespace Audio {
 		alErrorHandler("OpenALStream::nextStreamStep", "Error occured calling alGetSourcei.");
 
 
+		// If all buffers are processed the stream is finished.
 		if (processedBuffers >= mNUM_BUFFER)
 		{
 			dbglog << "Stream '"+mAudioFile->toString()+"' finished.";
 			alSourceUnqueueBuffers(mSourceId, mNUM_BUFFER, mBufferIds.get());
 			alErrorHandler("OpenALStream::nextStreamStep", "Error occured calling alSourceUnqueueBuffers.");
 
-			// callback
+			// Calling callback.
 			mOnStreamFinished();
 			mFinished = true;
 			
 			return;
 		}
 
+		// Filling the processed buffers with fresh audio data.
 		while (processedBuffers > 0)
 		{
 			alSourceUnqueueBuffers(mSourceId, 1, &tempBufferId);

@@ -42,6 +42,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace BFG {
 namespace Audio {
 
+//! Initialize OpenAL
 class BFG_AUDIO_API OpenALInit : public Init
 {
 public:
@@ -55,6 +56,7 @@ private:
 	ALCcontext* mContext;
 };
 
+//! Contrete creation method for a OpenAL instance.
 boost::shared_ptr<Init> createInit() { return boost::shared_ptr<Init>(new OpenALInit()); }
 
 } // namespace Audio
