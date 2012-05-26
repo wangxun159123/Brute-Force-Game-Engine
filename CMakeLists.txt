@@ -113,6 +113,12 @@ INSTALL(DIRECTORY share/cmake DESTINATION "share/bfg")
 # Packaging #
 # --------- #
 
+# Don't warn about missing redistributables (VS 2010 Express has none)
+IF(WIN32 AND NOT DEFINED CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS)
+	SET(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
+ENDIF()
+
+
 # http://stackoverflow.com/questions/4134725/installrequiredsystemlibraries-purpose
 INCLUDE(InstallRequiredSystemLibraries)
 
