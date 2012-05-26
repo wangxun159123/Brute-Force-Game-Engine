@@ -39,6 +39,10 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace BFG {
 namespace Audio {
 
+//! This class is the owner of the stream thread. This class
+//! does not stream the data by itsself. It just provides an
+//! interface to register and unregister streams to the
+//! loop (the thread).
 class BFG_AUDIO_API StreamLoop
 {
 
@@ -49,15 +53,16 @@ public:
 
 	typedef u32 StreamHandleT;
 
-	//! An audio-object can demand a stream.
+    //! Registers a Stream to the loop.
 	StreamHandleT driveMyStream(boost::shared_ptr<Stream> stream);
-	void removeMyStream(StreamHandleT streamHandle);
+    //! Unregisters a Stream from the loop.
+    void removeMyStream(StreamHandleT streamHandle);
 
 private:
 
 	boost::thread mThread;
 	boost::mutex mStreamMutex;
-	boost::mutex mRefreshMutex;
+    boost::mutex mRefreshMutex;
 	
 	bool mIsRunning;
 
@@ -69,9 +74,9 @@ private:
 	typedef std::vector<StreamHandleT> FinishedStreamsT;
 	
 	StreamHandleT mStreamHandleCounter;
-	FinishedStreamsT mFinishedStreams;
-	
-	StreamsMapT mStreamsOnLoop;
+
+    StreamsMapT mStreamsOnLoop;
+    FinishedStreamsT mFinishedStreams;
 	StreamsMapT mNewStreams;
 };
 

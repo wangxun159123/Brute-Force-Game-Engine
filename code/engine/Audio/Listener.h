@@ -44,6 +44,9 @@ namespace Audio {
 
 struct Level;
 
+//! Listener means the human who is listening in other words the user.
+//! The class provides the location of the "listener" in 3d space and
+//! the master gain. This class is complete event driven.
 class BFG_AUDIO_API Listener
 {
 public:
@@ -60,6 +63,7 @@ private:
 	virtual void onEventPositionPlayer(const AudioPayloadT& payload) = 0;
 };
 
+//! Abstract creation method for Listener instance.
 boost::shared_ptr<Listener> createListener();
 
 

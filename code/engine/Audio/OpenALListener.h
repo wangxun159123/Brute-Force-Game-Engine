@@ -37,6 +37,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace BFG {
 namespace Audio {
 
+//! Provides the listener features in OpenAL context.
 class BFG_AUDIO_API OpenALListener : public Listener
 {
 public:
@@ -55,7 +56,7 @@ private:
 	void onEventPositionPlayer(const AudioPayloadT& payload);
 };
 
-
+// Concrete creation method for OpenAL listener instance.
 boost::shared_ptr<Listener> createListener() { return boost::shared_ptr<Listener>(new OpenALListener()); }
 
 

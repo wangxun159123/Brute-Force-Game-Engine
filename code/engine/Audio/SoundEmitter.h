@@ -36,6 +36,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace BFG {
 namespace Audio {
 
+//! This higher level module provides a "fire and forget" feature for playing sounds.
+//! It queues the audioObjects until they are finished.
 class BFG_AUDIO_API SoundEmitter : public AudioModule
 {
 	enum State
@@ -45,6 +47,8 @@ class BFG_AUDIO_API SoundEmitter : public AudioModule
     };
 
 
+	//! The soundhandle provides an ID and a callback.
+	//! If the sound is finished the callback removes the audioObject out of the queue.
     class BFG_AUDIO_API SoundHandle
     {
 
@@ -58,7 +62,7 @@ class BFG_AUDIO_API SoundEmitter : public AudioModule
 
         void onStreamFinishedForwarded()
         {
-            mSoundEmitter.soundFinished(mId);
+			mSoundEmitter.soundFinished(mId);
         }
 
     private:
@@ -75,13 +79,14 @@ public:
     void processSound(const std::string& name);
     void soundFinished(int id);
 	
+	//! Just to resume from PAUSE
 	void play();
 	void pause();
 
 protected:
 	
 	void eventHandler(AudioEvent* AE);
-    void onStreamFinishedForwarded() { /*NOT USED*/ }
+	void onStreamFinishedForwarded() { /*NOT USED FOR THIS MODULE*/ }
 
 private:
 

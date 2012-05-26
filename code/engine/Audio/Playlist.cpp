@@ -100,6 +100,10 @@ void Playlist::onEventPlay()
 {
 	if (mState == PLAYING)
 		return;
+
+	if (mState == FINISHED)
+		mCurrentTrack = mProgram.begin();
+
 	(*mCurrentTrack)->play();
 	mState = PLAYING;
 }

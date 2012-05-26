@@ -40,7 +40,7 @@ struct vorbis_info;
 namespace BFG {
 namespace Audio {
 
-//! This class read and decode audio-data from an OGG vorbis files.
+//! This class reads and decodes audio-data from an OGG vorbis files.
 class BFG_AUDIO_API OggFile : public AudioFile
 {
 

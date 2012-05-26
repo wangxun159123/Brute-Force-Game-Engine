@@ -35,7 +35,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace BFG {
 namespace Audio {
 
-//! This is an Interface for reading AudioData out of several file formats.
+//! This is an interface for reading AudioData out of several file formats.
 class BFG_AUDIO_API AudioFile
 {
 public:

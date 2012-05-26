@@ -37,6 +37,7 @@ class EventLoop;
 namespace BFG {
 namespace Audio {
 
+//! This is the ancor of the module.
 class BFG_AUDIO_API AudioMain
 {
 public:

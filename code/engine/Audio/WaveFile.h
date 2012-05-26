@@ -38,6 +38,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace BFG {
 namespace Audio {
 
+//! This class reads audio data from a wave file.
 class BFG_AUDIO_API WaveFile : public AudioFile
 {
 

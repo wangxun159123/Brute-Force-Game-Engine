@@ -38,6 +38,7 @@ class BFG_AUDIO_API Init
 {
 };
 
+//! Abstract creation method for Init instance.
 boost::shared_ptr<Init> createInit();
 
 } // namespace Audio
