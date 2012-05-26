@@ -202,8 +202,7 @@ Suggests: doxygen, cmake
 Conflicts: libboost-dev, libogre-dev
 Installed-Size: `du -s $PREFIX | perl -pe 's#[\t]+.+##g'` 
 Maintainer: Sascha Wittkowski <w177us@gmail.com>
-Description: Developer package (dependencies) for the Brute Force Game Engine
-	" > $PACKAGE/DEBIAN/control
+Description: Developer package (dependencies) for the Brute Force Game Engine" > $PACKAGE/DEBIAN/control
 
 	PACKET_FILENAME="libbfe-dev-deps_"$VERSION"_"$ARCH".deb"
 	/usr/bin/dpkg --build $PACKAGE $PACKET_FILENAME

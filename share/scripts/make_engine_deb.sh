@@ -67,13 +67,12 @@ Version: $VERSION
 Section: libdevel
 Priority: optional
 Architecture: $ARCH
-Depends: libbfe-dev-deps
-Suggests: 
+Depends: 
+Suggests: libbfe-dev-deps
 Conflicts: 
 Installed-Size: `du -s $PREFIX | perl -pe 's#[\t]+.+##g'` 
 Maintainer: Sascha Wittkowski <w177us@gmail.com>
-Description: The Brute Force Game Engine
-	" > $PACKAGE/DEBIAN/control
+Description: The Brute Force Game Engine" > $PACKAGE/DEBIAN/control
 
 	PACKET_FILENAME="libbfe-dev_"$VERSION"_"$ARCH".deb"
 	/usr/bin/dpkg --build $PACKAGE $PACKET_FILENAME
