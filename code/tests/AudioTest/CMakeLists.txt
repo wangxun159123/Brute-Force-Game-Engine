@@ -28,5 +28,5 @@ TARGET_LINK_LIBRARIES(bfgAudioTest
 
 INSTALL(TARGETS bfgAudioTest
         RUNTIME DESTINATION ${BFG_BIN_DIR}
-        COMPONENT runtime
+        COMPONENT devel
 )

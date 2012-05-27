@@ -107,7 +107,10 @@ ENDIF(DOXYGEN_FOUND)
 # Install Shared #
 # ---------------#
 
-INSTALL(DIRECTORY share/cmake DESTINATION "share/bfg")
+INSTALL(DIRECTORY share/cmake
+	DESTINATION "share/bfg"
+	COMPONENT devel
+)
 
 # --------- #
 # Packaging #
@@ -138,7 +141,7 @@ IF(WIN32 AND NOT UNIX)
 	# There is a bug in NSI that does not handle full unix paths properly. Make
 	# sure there is at least one set of four (4) backlasshes.
 	SET(CPACK_GENERATOR "NSIS")
-	SET(CPACK_NSIS_DISPLAY_NAME "Brute-Force Game Engine")
+	SET(CPACK_NSIS_DISPLAY_NAME "BFG-Engine")
 	SET(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\www.brute-force-games.com")
 	SET(CPACK_NSIS_CONTACT "contact@brute-force-games.com")
 	SET(CPACK_NSIS_MODIFY_PATH ON)

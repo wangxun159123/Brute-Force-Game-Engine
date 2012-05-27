@@ -35,4 +35,5 @@ TARGET_LINK_LIBRARIES(bfgSerializationTest
 
 INSTALL(TARGETS bfgSerializationTest
 	RUNTIME DESTINATION ${BFG_BIN_DIR}
-	COMPONENT runtime)
+	COMPONENT devel
+)
