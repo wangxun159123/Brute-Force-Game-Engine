@@ -339,7 +339,7 @@ GameObjectFactory::createCamera(const CameraParameter& cameraParameter,
 	(
 		camHandle,
 		camHandle,
-		"cube.mesh",
+		"Cube.mesh",
 		ID::CM_Disabled,
 		v3::ZERO,
 		qv4::IDENTITY,
