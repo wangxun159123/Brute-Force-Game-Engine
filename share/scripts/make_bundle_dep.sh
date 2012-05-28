@@ -19,6 +19,7 @@ BOOST_DIR='boost_1_47_0'
 
 BOOST_LOG_REV='607'
 BOOST_GEOMETRY_EXTENSIONS_REV='77829'
+MYGUI_REV='4431'
 
 # Make sure only root can run our script
 if [ "$(id -u)" != "0" ]; then
@@ -55,7 +56,7 @@ function prelude
 	/usr/bin/wget -U "$USER_AGENT" -c $OGRE_URL -O $OGRE_FILENAME
 
 	/usr/bin/svn export -r $BOOST_LOG_REV https://boost-log.svn.sourceforge.net/svnroot/boost-log/trunk/boost-log boost-log
-	/usr/bin/svn export https://my-gui.svn.sourceforge.net/svnroot/my-gui/trunk my-gui
+	/usr/bin/svn export -r $MYGUI_REV https://my-gui.svn.sourceforge.net/svnroot/my-gui/trunk my-gui
 	#/usr/bin/svn export svn://connect.creativelabs.com/OpenAL/trunk OpenAL
 
 	echo "Unpacking $BOOST_FILENAME ..."
