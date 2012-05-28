@@ -54,11 +54,12 @@ namespace Tool
 
 			xPos += w->getWidth();
 		}
+
 		mMenuButton = menuBox->createWidget<MyGUI::Button>
 			("Button", xPos, 0, 24, 24, MyGUI::Align::Default);
 
 		mMenuButton->setCaption(mName);
-		MyGUI::IntSize textSize = mMenuButton->getSubWidgetText()->getTextSize();
+		MyGUI::IntSize textSize = mMenuButton->getTextSize();
 		mMenuButton->setSize(textSize.width + 4, 24);
 		mMenuButton->eventMouseButtonClick += 
 			MyGUI::newDelegate(this, &BaseFeature::onButtonClicked);
