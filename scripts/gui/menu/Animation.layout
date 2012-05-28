@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MyGUI type="Layout" version="3.2.0">
-    <Widget type="Window" skin="WindowC" position="60 125 496 96" align="Right Bottom" layer="Menu">
+    <Widget type="Window" skin="WindowCX" position="60 125 496 96" align="Right Bottom" layer="Menu">
         <Property key="Caption" value="Animation"/>
         <Widget type="ComboBox" skin="ComboBox" position="122 2 364 22" name="animStates">
             <Property key="MultiLine" value="false"/>
@@ -10,7 +10,7 @@
             <Property key="Caption" value="AnimationState:"/>
             <Property key="TextAlign" value="Left VCenter"/>
         </Widget>
-        <Widget type="Widget" skin="Transparent" position="2 26 484 32">
+        <Widget type="Widget" skin="PanelEmpty" position="2 26 484 32">
             <Widget type="ScrollBar" skin="HSlider" position="98 2 382 22" name="animSlider">
                 <Property key="Range" value="100"/>
                 <Property key="RangePosition" value="0"/>

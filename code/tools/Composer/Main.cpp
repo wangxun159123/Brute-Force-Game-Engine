@@ -163,6 +163,11 @@ public:
 		mLoadedFeatures.push_back(new Tool::TextureControl(mData));
 
 		onUpdateFeatures();
+
+		Ogre::SceneManager* sceneMan = 
+			Ogre::Root::getSingletonPtr()->getSceneManager(BFG_SCENEMANAGER);
+		sceneMan->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);
+		sceneMan->setShadowColour(Ogre::ColourValue(0, 0, 0));
 	}
 
 	~ViewComposerState()
@@ -185,16 +190,18 @@ public:
 
 	void createGui()
 	{
-  		MyGUI::LayoutManager* layMan = MyGUI::LayoutManager::getInstancePtr();
+		using namespace MyGUI;
+
+  		LayoutManager* layMan = LayoutManager::getInstancePtr();
 		mContainer = layMan->load("Composer.layout");
 
-		MyGUI::Gui& gui = MyGUI::Gui::getInstance();
-		MyGUI::Widget* box = gui.findWidgetT("MenuBox");
+		Gui& gui = Gui::getInstance();
+		Widget* box = gui.findWidgetT("MenuBox");
 		if (!box)
 			throw std::runtime_error("MenuBox not found!");
 
-		MyGUI::IntSize boxSize = box->getSize();
-		MyGUI::IntSize size = gui.getViewSize();
+		IntSize boxSize = box->getSize();
+		IntSize size = gui.getViewSize();
 		// leave 1 pixel space to the sides
 		box->setSize(size.width - 2, boxSize.height);  
 	}
@@ -335,7 +342,6 @@ void* SingleThreadEntryPoint(void *iPointer)
 		actions[A_ANIMATION] = "A_ANIMATION";
 		actions[A_ADAPTER] = "A_ADAPTER";
 
-		actions[A_MOUSE_MIDDLE_PRESSED] = "A_MOUSE_MIDDLE_PRESSED";
 		actions[A_UPDATE_FEATURES] = "A_UPDATE_FEATURES";
 
 		BFG::Controller_::fillWithDefaultActions(actions);	
@@ -388,7 +394,7 @@ void* SingleThreadEntryPoint(void *iPointer)
 		loop->connect(A_CAMERA_MOUSE_Z, vps, &ViewComposerState::controllerEventHandler);
 		loop->connect(A_CAMERA_MOUSE_MOVE, vps, &ViewComposerState::controllerEventHandler);
 
-		loop->connect(A_MOUSE_MIDDLE_PRESSED, vps, &ViewComposerState::controllerEventHandler);
+		loop->connect(BFG::ID::A_MOUSE_MIDDLE_PRESSED, vps, &ViewComposerState::controllerEventHandler);
 		loop->connect(BFG::ID::A_MOUSE_LEFT_PRESSED, vps, &ViewComposerState::controllerEventHandler);
 		loop->connect(BFG::ID::A_MOUSE_RIGHT_PRESSED, vps, &ViewComposerState::controllerEventHandler);
 

@@ -48,89 +48,98 @@ void LightControl::load()
 	if (mLoaded)
 		return;
 
-	MyGUI::LayoutManager* layMan = MyGUI::LayoutManager::getInstancePtr();
+	using namespace MyGUI;
+
+	LayoutManager* layMan = LayoutManager::getInstancePtr();
 	mContainer = layMan->loadLayout("Light.layout");
 
-	mDiffuse = mGui->findWidget<MyGUI::EditBox>("diffuse");
+	if (mContainer.empty())
+		throw std::runtime_error("Light.layout loaded incorrectly!");
+
+	Window* window = mContainer.front()->castType<Window>();
+	window->eventWindowButtonPressed +=
+		newDelegate(this, &LightControl::onCloseClicked);
+
+	mDiffuse = window->findWidget("diffuse")->castType<EditBox>();
 	mDiffuse->eventEditTextChange += 
-		MyGUI::newDelegate(this, &LightControl::onDiffuseChange);
+		newDelegate(this, &LightControl::onDiffuseChange);
 
-	mSpecular = mGui->findWidget<MyGUI::EditBox>("specular");
+	mSpecular = window->findWidget("specular")->castType<EditBox>();
 	mSpecular->eventEditTextChange +=
-		MyGUI::newDelegate(this, &LightControl::onSpecularChange);
+		newDelegate(this, &LightControl::onSpecularChange);
 
-	mPower = mGui->findWidget<MyGUI::EditBox>("power");
-	mPosition = mGui->findWidget<MyGUI::EditBox>("position");
-	mDirection = mGui->findWidget<MyGUI::EditBox>("direction");
-	mRange = mGui->findWidget<MyGUI::EditBox>("range");
-	mConstant = mGui->findWidget<MyGUI::EditBox>("constant");
-	mLinear = mGui->findWidget<MyGUI::EditBox>("linear");
-	mQuadric = mGui->findWidget<MyGUI::EditBox>("quadric");
-	mFalloff = mGui->findWidget<MyGUI::EditBox>("falloff");
-	mInnerRadius = mGui->findWidget<MyGUI::EditBox>("innerRadius");
-	mOuterRadius = mGui->findWidget<MyGUI::EditBox>("outerRadius");
+	mPower = window->findWidget("power")->castType<EditBox>();
+	mPosition = window->findWidget("position")->castType<EditBox>();
+	mDirection = window->findWidget("direction")->castType<EditBox>();
+	mRange = window->findWidget("range")->castType<EditBox>();
+	mConstant = window->findWidget("constant")->castType<EditBox>();
+	mLinear = window->findWidget("linear")->castType<EditBox>();
+	mQuadric = window->findWidget("quadric")->castType<EditBox>();
+	mFalloff = window->findWidget("falloff")->castType<EditBox>();
+	mInnerRadius = window->findWidget("innerRadius")->castType<EditBox>();
+	mOuterRadius = window->findWidget("outerRadius")->castType<EditBox>();
 
-	mDif = mGui->findWidget<MyGUI::TextBox>("tDif");
-	mSpe = mGui->findWidget<MyGUI::TextBox>("tSpe");
-	mPow = mGui->findWidget<MyGUI::TextBox>("tPow");
-	mPos = mGui->findWidget<MyGUI::TextBox>("tPos");
-	mDir = mGui->findWidget<MyGUI::TextBox>("tDir");
-	mRan = mGui->findWidget<MyGUI::TextBox>("tRan");
-	mCon = mGui->findWidget<MyGUI::TextBox>("tCon");
-	mLin = mGui->findWidget<MyGUI::TextBox>("tLin");
-	mQua = mGui->findWidget<MyGUI::TextBox>("tQua");
-	mFal = mGui->findWidget<MyGUI::TextBox>("tFal");
-	mInn = mGui->findWidget<MyGUI::TextBox>("tInn");
-	mOut = mGui->findWidget<MyGUI::TextBox>("tOut");
+	mDif = window->findWidget("tDif")->castType<TextBox>();
+	mSpe = window->findWidget("tSpe")->castType<TextBox>();
+	mPow = window->findWidget("tPow")->castType<TextBox>();
+	mPos = window->findWidget("tPos")->castType<TextBox>();
+	mDir = window->findWidget("tDir")->castType<TextBox>();
+	mRan = window->findWidget("tRan")->castType<TextBox>();
+	mCon = window->findWidget("tCon")->castType<TextBox>();
+	mLin = window->findWidget("tLin")->castType<TextBox>();
+	mQua = window->findWidget("tQua")->castType<TextBox>();
+	mFal = window->findWidget("tFal")->castType<TextBox>();
+	mInn = window->findWidget("tInn")->castType<TextBox>();
+	mOut = window->findWidget("tOut")->castType<TextBox>();
 
-	mLightBox = mGui->findWidget<MyGUI::ComboBox>("lightBox");
+	mLightBox = window->findWidget("lightBox")->castType<ComboBox>();
 	mLightBox->eventComboChangePosition +=
-		MyGUI::newDelegate(this, &LightControl::onLightIndexChanged);
+		newDelegate(this, &LightControl::onLightIndexChanged);
 
-	mApplyChange = mGui->findWidget<MyGUI::Button>("applyChange");
+	mApplyChange = window->findWidget("applyChange")->castType<Button>();
 	mApplyChange->eventMouseButtonClick = 
-		MyGUI::newDelegate(this, &LightControl::onApplyChange);
+		newDelegate(this, &LightControl::onApplyChange);
 	mApplyChange->setEnabled(false);
 
-	mDeleteLight = mGui->findWidget<MyGUI::Button>("deleteLight");
+	mDeleteLight = window->findWidget("deleteLight")->castType<Button>();
 	mDeleteLight->eventMouseButtonClick =
-		MyGUI::newDelegate(this, &LightControl::onDeleteLight);
+		newDelegate(this, &LightControl::onDeleteLight);
 	mDeleteLight->setEnabled(false);
 
-	mSetAmbient = mGui->findWidget<MyGUI::Button>("setAmbient");
+	mSetAmbient = window->findWidget("setAmbient")->castType<Button>();
 	mSetAmbient->eventMouseButtonClick = 
-		MyGUI::newDelegate(this, &LightControl::onSetAmbient);
+		newDelegate(this, &LightControl::onSetAmbient);
 	mSetAmbient->eventMouseSetFocus =
-		MyGUI::newDelegate(this, &LightControl::onSetFocus);
+		newDelegate(this, &LightControl::onSetFocus);
 	mSetAmbient->eventMouseLostFocus =
-		MyGUI::newDelegate(this, &LightControl::onLostFocus);
+		newDelegate(this, &LightControl::onLostFocus);
 
-	mCreateDirection = mGui->findWidget<MyGUI::Button>("createDirection");
+	mCreateDirection = window->findWidget("createDirection")->castType<Button>();
 	mCreateDirection->eventMouseButtonClick = 
-		MyGUI::newDelegate(this, &LightControl::onCreateDirection);
+		newDelegate(this, &LightControl::onCreateDirection);
 	mCreateDirection->eventMouseSetFocus =
-		MyGUI::newDelegate(this, &LightControl::onSetFocus);
+		newDelegate(this, &LightControl::onSetFocus);
 	mCreateDirection->eventMouseLostFocus =
-		MyGUI::newDelegate(this, &LightControl::onLostFocus);
+		newDelegate(this, &LightControl::onLostFocus);
 
-	mCreatePoint = mGui->findWidget<MyGUI::Button>("createPoint");
+	mCreatePoint = window->findWidget("createPoint")->castType<Button>();
 	mCreatePoint->eventMouseButtonClick =
-		MyGUI::newDelegate(this, &LightControl::onCreatePoint);
+		newDelegate(this, &LightControl::onCreatePoint);
 	mCreatePoint->eventMouseSetFocus =
-		MyGUI::newDelegate(this, &LightControl::onSetFocus);
+		newDelegate(this, &LightControl::onSetFocus);
 	mCreatePoint->eventMouseLostFocus =
-		MyGUI::newDelegate(this, &LightControl::onLostFocus);
+		newDelegate(this, &LightControl::onLostFocus);
 
-	mCreateSpot = mGui->findWidget<MyGUI::Button>("createSpot");
+	mCreateSpot = window->findWidget("createSpot")->castType<Button>();
 	mCreateSpot->eventMouseButtonClick =
-		MyGUI::newDelegate(this, &LightControl::onCreateSpot);
+		newDelegate(this, &LightControl::onCreateSpot);
 	mCreateSpot->eventMouseSetFocus =
-		MyGUI::newDelegate(this, &LightControl::onSetFocus);
+		newDelegate(this, &LightControl::onSetFocus);
 	mCreateSpot->eventMouseLostFocus =
-		MyGUI::newDelegate(this, &LightControl::onLostFocus);
+		newDelegate(this, &LightControl::onLostFocus);
 
-	mColDif = mGui->findWidgetT("colDif");
-	mColSpec = mGui->findWidgetT("colSpec");
+	mColDif = window->findWidget("colDif");
+	mColSpec = window->findWidget("colSpec");
 
 	mLoaded = true;
 	deactivate();
@@ -179,6 +188,12 @@ void LightControl::deactivate()
 	mActive = false;
 }
 
+void LightControl::onCloseClicked(MyGUI::Window*, const std::string& button)
+{
+	if (button == "close")
+		deactivate();
+}
+
 void LightControl::onDiffuseChange(MyGUI::EditBox* edit)
 {
 	cv4 col = MyGUI::utility::parseValueEx3<cv4, float>(edit->getCaption());
@@ -191,7 +206,7 @@ void LightControl::onSpecularChange(MyGUI::EditBox* edit)
 	mColSpec->setColour(MyGUI::Colour(col.r, col.g, col.b));
 }
 
-void LightControl::onSetAmbient(MyGUI::Widget* button)
+void LightControl::onSetAmbient(MyGUI::Widget*)
 {
 	cv4 diffuse = MyGUI::utility::parseValueEx3<cv4, float>(mDiffuse->getCaption());
 	
@@ -206,10 +221,12 @@ BFG::View::DirectionalLightCreation LightControl::getDirectionalLightValues(BFG:
 	if (handle == NULL_HANDLE)
 		handle = BFG::generateHandle();
 
-	v3 direction = MyGUI::utility::parseValueEx3<v3, float>(mDirection->getCaption());
-	cv4 diffuse = MyGUI::utility::parseValueEx3<cv4, float>(mDiffuse->getCaption());
-	cv4 specular = MyGUI::utility::parseValueEx3<cv4, float>(mSpecular->getCaption());
-	f32 power = MyGUI::utility::parseFloat(mPower->getCaption());
+	using namespace MyGUI;
+
+	v3 direction = utility::parseValueEx3<v3, float>(mDirection->getCaption());
+	cv4 diffuse = utility::parseValueEx3<cv4, float>(mDiffuse->getCaption());
+	cv4 specular = utility::parseValueEx3<cv4, float>(mSpecular->getCaption());
+	f32 power = utility::parseFloat(mPower->getCaption());
 
 	return BFG::View::DirectionalLightCreation
 	(
@@ -221,7 +238,7 @@ BFG::View::DirectionalLightCreation LightControl::getDirectionalLightValues(BFG:
 	);
 }
 
-void LightControl::onCreateDirection(MyGUI::Widget* button)
+void LightControl::onCreateDirection(MyGUI::Widget*)
 {
 	BFG::View::DirectionalLightCreation dlc = getDirectionalLightValues(NULL_HANDLE);
 
@@ -234,14 +251,16 @@ BFG::View::PointLightCreation LightControl::getPointLightValues(BFG::GameHandle 
 	if (handle == NULL_HANDLE)
 		handle = BFG::generateHandle();
 
-	v3 position = MyGUI::utility::parseValueEx3<v3, float>(mPosition->getCaption());
-	cv4 diffuse = MyGUI::utility::parseValueEx3<cv4, float>(mDiffuse->getCaption());
-	cv4 specular = MyGUI::utility::parseValueEx3<cv4, float>(mSpecular->getCaption());
-	f32 power = MyGUI::utility::parseFloat(mPower->getCaption());
-	f32 range = MyGUI::utility::parseFloat(mRange->getCaption());
-	f32 constant = MyGUI::utility::parseFloat(mConstant->getCaption());
-	f32 linear = MyGUI::utility::parseFloat(mLinear->getCaption());
-	f32 quadric = MyGUI::utility::parseFloat(mQuadric->getCaption());
+	using namespace MyGUI;
+
+	v3 position = utility::parseValueEx3<v3, float>(mPosition->getCaption());
+	cv4 diffuse = utility::parseValueEx3<cv4, float>(mDiffuse->getCaption());
+	cv4 specular = utility::parseValueEx3<cv4, float>(mSpecular->getCaption());
+	f32 power = utility::parseFloat(mPower->getCaption());
+	f32 range = utility::parseFloat(mRange->getCaption());
+	f32 constant = utility::parseFloat(mConstant->getCaption());
+	f32 linear = utility::parseFloat(mLinear->getCaption());
+	f32 quadric = utility::parseFloat(mQuadric->getCaption());
 
 	return BFG::View::PointLightCreation
 	(
@@ -257,7 +276,7 @@ BFG::View::PointLightCreation LightControl::getPointLightValues(BFG::GameHandle 
 	);
 }
 
-void LightControl::onCreatePoint(MyGUI::Widget* button)
+void LightControl::onCreatePoint(MyGUI::Widget*)
 {
 	BFG::View::PointLightCreation plc = getPointLightValues(NULL_HANDLE);
 
@@ -270,18 +289,20 @@ BFG::View::SpotLightCreation LightControl::getSpotLightValues(BFG::GameHandle ha
 	if (handle == NULL_HANDLE)
 		handle = BFG::generateHandle();
 
-	v3 position = MyGUI::utility::parseValueEx3<v3, float>(mPosition->getCaption());
-	v3 direction = MyGUI::utility::parseValueEx3<v3, float>(mDirection->getCaption());
-	cv4 diffuse = MyGUI::utility::parseValueEx3<cv4, float>(mDiffuse->getCaption());
-	cv4 specular = MyGUI::utility::parseValueEx3<cv4, float>(mSpecular->getCaption());
-	f32 power = MyGUI::utility::parseFloat(mPower->getCaption());
-	f32 range = MyGUI::utility::parseFloat(mRange->getCaption());
-	f32 constant = MyGUI::utility::parseFloat(mConstant->getCaption());
-	f32 linear = MyGUI::utility::parseFloat(mLinear->getCaption());
-	f32 quadric = MyGUI::utility::parseFloat(mQuadric->getCaption());
-	f32 falloff = MyGUI::utility::parseFloat(mFalloff->getCaption());
-	f32 inner = MyGUI::utility::parseFloat(mInnerRadius->getCaption());
-	f32 outer = MyGUI::utility::parseFloat(mOuterRadius->getCaption());
+	using namespace MyGUI;
+
+	v3 position = utility::parseValueEx3<v3, float>(mPosition->getCaption());
+	v3 direction = utility::parseValueEx3<v3, float>(mDirection->getCaption());
+	cv4 diffuse = utility::parseValueEx3<cv4, float>(mDiffuse->getCaption());
+	cv4 specular = utility::parseValueEx3<cv4, float>(mSpecular->getCaption());
+	f32 power = utility::parseFloat(mPower->getCaption());
+	f32 range = utility::parseFloat(mRange->getCaption());
+	f32 constant = utility::parseFloat(mConstant->getCaption());
+	f32 linear = utility::parseFloat(mLinear->getCaption());
+	f32 quadric = utility::parseFloat(mQuadric->getCaption());
+	f32 falloff = utility::parseFloat(mFalloff->getCaption());
+	f32 inner = utility::parseFloat(mInnerRadius->getCaption());
+	f32 outer = utility::parseFloat(mOuterRadius->getCaption());
 
 	return BFG::View::SpotLightCreation
 	(
@@ -301,7 +322,7 @@ BFG::View::SpotLightCreation LightControl::getSpotLightValues(BFG::GameHandle ha
 	);
 }
 
-void LightControl::onCreateSpot(MyGUI::Widget* button)
+void LightControl::onCreateSpot(MyGUI::Widget*)
 {
 	BFG::View::SpotLightCreation slc = getSpotLightValues(NULL_HANDLE);
 	
@@ -327,16 +348,19 @@ void LightControl::onSetFocus(MyGUI::Widget* button, MyGUI::Widget*)
 	setTextColour(button, col);
 }
 
-void LightControl::onApplyChange(MyGUI::Widget* button)
+void LightControl::onApplyChange(MyGUI::Widget*)
 {	
 	size_t index = mLightBox->getIndexSelected();
 	std::string handleString = mLightBox->getItemNameAt(index);
 
-	Ogre::SceneManager* sceneMan = 
-		Ogre::Root::getSingletonPtr()->getSceneManager(BFG_SCENEMANAGER);
-	Ogre::Light* light = sceneMan->getLight(handleString);
+	using namespace Ogre;
 
-	Ogre::Light::LightTypes lightType = light->getType();
+	SceneManager* sceneMan = 
+		Root::getSingletonPtr()->getSceneManager(BFG_SCENEMANAGER);
+
+	Light* light = sceneMan->getLight(handleString);
+
+	Light::LightTypes lightType = light->getType();
 
 	BFG::GameHandle handle = BFG::destringify(handleString);
 
@@ -344,19 +368,19 @@ void LightControl::onApplyChange(MyGUI::Widget* button)
 
 	switch (lightType)
 	{
-	case Ogre::Light::LT_DIRECTIONAL:
+	case Light::LT_DIRECTIONAL:
 		{
 			BFG::View::DirectionalLightCreation dlc = getDirectionalLightValues(handle);
 			mLights[handle] = new BFG::View::Light(dlc);
 		}
 		break;
-	case Ogre::Light::LT_POINT:
+	case Light::LT_POINT:
 		{
 			BFG::View::PointLightCreation plc = getPointLightValues(handle);
 			mLights[handle] = new BFG::View::Light(plc);
 		}
 		break;
-	case Ogre::Light::LT_SPOTLIGHT:
+	case Light::LT_SPOTLIGHT:
 		{
 			BFG::View::SpotLightCreation slc = getSpotLightValues(handle);
 			mLights[handle] = new BFG::View::Light(slc);
@@ -390,18 +414,20 @@ void LightControl::onLightIndexChanged(MyGUI::ComboBox* sender, size_t index)
 
 void LightControl::fillBoxes(Ogre::Light* light)
 {
-	BFG::cv4 diffuse = light->getDiffuseColour();
-	BFG::cv4 specular = light->getSpecularColour();
-	BFG::f32 power = light->getPowerScale();
-	BFG::v3 position = BFG::View::toBFG(light->getPosition());
-	BFG::v3 direction = BFG::View::toBFG(light->getDirection());
-	BFG::f32 range = light->getAttenuationRange();
-	BFG::f32 constant = light->getAttenuationConstant();
-	BFG::f32 linear = light->getAttenuationLinear();
-	BFG::f32 quadric = light->getAttenuationQuadric();
-	BFG::f32 falloff = light->getSpotlightFalloff();
-	BFG::f32 innerRadius = light->getSpotlightInnerAngle().valueDegrees();
-	BFG::f32 outerRadius = light->getSpotlightOuterAngle().valueDegrees();
+	using namespace BFG;
+
+	cv4 diffuse = light->getDiffuseColour();
+	cv4 specular = light->getSpecularColour();
+	f32 power = light->getPowerScale();
+	v3 position = View::toBFG(light->getPosition());
+	v3 direction = View::toBFG(light->getDirection());
+	f32 range = light->getAttenuationRange();
+	f32 constant = light->getAttenuationConstant();
+	f32 linear = light->getAttenuationLinear();
+	f32 quadric = light->getAttenuationQuadric();
+	f32 falloff = light->getSpotlightFalloff();
+	f32 innerRadius = light->getSpotlightInnerAngle().valueDegrees();
+	f32 outerRadius = light->getSpotlightOuterAngle().valueDegrees();
 
 	std::stringstream ss;
 	
@@ -413,7 +439,9 @@ void LightControl::fillBoxes(Ogre::Light* light)
 	mSpecular->setCaption(ss.str());
 	ss.str("");
 
-	mPower->setCaption(MyGUI::utility::toString(power));
+	using namespace MyGUI;
+
+	mPower->setCaption(utility::toString(power));
 
 	ss << position.x << " " << position.y << " " << position.z;
 	mPosition->setCaption(ss.str());
@@ -423,13 +451,13 @@ void LightControl::fillBoxes(Ogre::Light* light)
 	mDirection->setCaption(ss.str());
 	ss.str("");
 
-	mRange->setCaption(MyGUI::utility::toString(range));
-	mConstant->setCaption(MyGUI::utility::toString(constant));
-	mLinear->setCaption(MyGUI::utility::toString(linear));
-	mQuadric->setCaption(MyGUI::utility::toString(quadric));
-	mFalloff->setCaption(MyGUI::utility::toString(falloff));
-	mInnerRadius->setCaption(MyGUI::utility::toString(innerRadius));
-	mOuterRadius->setCaption(MyGUI::utility::toString(outerRadius));
+	mRange->setCaption(utility::toString(range));
+	mConstant->setCaption(utility::toString(constant));
+	mLinear->setCaption(utility::toString(linear));
+	mQuadric->setCaption(utility::toString(quadric));
+	mFalloff->setCaption(utility::toString(falloff));
+	mInnerRadius->setCaption(utility::toString(innerRadius));
+	mOuterRadius->setCaption(utility::toString(outerRadius));
 }
 
 void LightControl::updateLightBox()
@@ -484,7 +512,7 @@ void LightControl::setTextColour(MyGUI::Widget* button, const MyGUI::Colour& col
 	}
 }
 
-void LightControl::onDeleteLight(MyGUI::Widget* button)
+void LightControl::onDeleteLight(MyGUI::Widget*)
 {
 	size_t index = mLightBox->getIndexSelected();
 	std::string handleString = mLightBox->getItemNameAt(index);
