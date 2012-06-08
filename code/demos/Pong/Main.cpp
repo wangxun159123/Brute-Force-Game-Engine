@@ -68,7 +68,7 @@ void* ClientEntryPoint(void *iPointer)
 		BFG::Controller_::sendActionsToController(loop, actions);
 	
 		BFG::Path path;
-		const std::string config_path = path.Expand("Pong.lua");
+		const std::string config_path = path.Expand("Pong.xml");
 		const std::string state_name = "Pong";
 
 		BFG::View::WindowAttributes wa;
@@ -152,7 +152,7 @@ int main( int argc, const char* argv[] ) try
 	else
 	{
 		std::string ip;
-		BFG::Base::resolveDns("79.215.142.134", ip);
+		BFG::Base::resolveDns("127.0.0.1", ip);
 		EventManager::getInstance()->connect(ip, 1337);
 
 		EventLoop iLoop
@@ -161,14 +161,14 @@ int main( int argc, const char* argv[] ) try
 			new EventSystem::BoostThread<>("Loop1"),
 			new EventSystem::InterThreadCommunication()
 		);
-
-		size_t controllerFrequency = 1000;
-
-		iLoop.addEntryPoint(BFG::View::Interface::getEntryPoint("Engine Test 01: Pong"));
-		iLoop.addEntryPoint(BFG::ControllerInterface::getEntryPoint(controllerFrequency));
-		iLoop.addEntryPoint(new BFG::Base::CEntryPoint(ClientEntryPoint));
-		iLoop.run();
-		
+// 
+// 		size_t controllerFrequency = 1000;
+// 
+// 		iLoop.addEntryPoint(BFG::View::Interface::getEntryPoint("Engine Test 01: Pong"));
+// 		iLoop.addEntryPoint(BFG::ControllerInterface::getEntryPoint(controllerFrequency));
+// 		iLoop.addEntryPoint(new BFG::Base::CEntryPoint(ClientEntryPoint));
+// 		iLoop.run();
+// 		
 		BFG::Base::pause();
 	}
 
