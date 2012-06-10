@@ -136,7 +136,7 @@ void CameraControl::eventHandler(BFG::Controller_::VipEvent* ve)
 		mCamOrbit = boost::get<bool>(ve->getData());
 		break;
 	}
-	case A_MOUSE_MIDDLE_PRESSED:
+	case BFG::ID::A_MOUSE_MIDDLE_PRESSED:
 	{
 		if ( boost::get<bool>(ve->getData()) )
 			mMouseCamPitchYaw = true;

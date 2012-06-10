@@ -4,7 +4,7 @@ Dependencies
 Boost      : 1.47.0 (+ Geometry Extensions from Boost r77829)
 Boost.Log  : r616 (Windows)
 Boost.Log  : r607 (Linux)
-MyGUI      : r4332
+MyGUI      : r4431
 OGRE       : 1.7.3
 OpenAL     : r2921
 ODE        : r1727

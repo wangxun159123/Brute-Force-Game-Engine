@@ -63,6 +63,8 @@ public:
 	virtual void update(const Ogre::FrameEvent& evt);
 private:
 
+	void onCloseClicked(MyGUI::Window*, const std::string& button);
+
 	void checkForChanges();
 
 	boost::shared_ptr<SharedData> mData;

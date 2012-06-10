@@ -55,7 +55,13 @@ void AdapterControl::load()
 	LayoutManager* layMan = LayoutManager::getInstancePtr();
 	mContainer = layMan->loadLayout("Adapter.layout");
 	
-	Widget* window = mContainer.front();
+	if (mContainer.empty())
+		throw std::runtime_error("Adapter.layout loaded incorrectly!");
+
+	Window* window = mContainer.front()->castType<Window>();
+
+	window->eventWindowButtonPressed +=
+		MyGUI::newDelegate(this, &AdapterControl::onCloseClicked);
 	
 	// store elements
 	mGroupName = window->findWidget("newGroupEdit")->castType<EditBox>();
@@ -131,6 +137,8 @@ void AdapterControl::load()
 	Ogre::SceneNode* rootSceneNode = sceneMan->getRootSceneNode();
 	mMarkerNode = rootSceneNode->createChildSceneNode("MarkerNode");
 	Ogre::Entity* ent = sceneMan->createEntity("AdapterMarker", "Marker.mesh");
+	ent->setCastShadows(false);
+
 	mMarkerNode->attachObject(ent);
 	mMarkerNode->setDirection(Ogre::Vector3::UNIT_Y);
 	mMarkerNode->setVisible(false);
@@ -188,6 +196,12 @@ void AdapterControl::setVisible(bool visible)
 	{
 		(*it)->setVisible(visible);
 	}
+}
+
+void AdapterControl::onCloseClicked(MyGUI::Window*, const std::string& button)
+{
+	if (button == "close")
+		deactivate();
 }
 
 void AdapterControl::onPickClicked(MyGUI::Widget*)

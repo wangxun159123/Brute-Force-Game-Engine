@@ -79,7 +79,7 @@ public:
 			MyGUI::newDelegate(this, &Module::onAdapterSelected);
 		mAdapter->setEnabled(false);
 
-		mClose->eventMouseButtonClick = closeHandler;
+		mClose->eventMouseButtonClick += closeHandler;
 		mClose->setUserData(this);
 	}
 

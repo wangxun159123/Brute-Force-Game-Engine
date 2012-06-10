@@ -30,16 +30,13 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/filesystem/config.hpp>  // for filesystem
 #include <boost/filesystem/fstream.hpp>  // for ofstream
 #include <boost/filesystem/operations.hpp>  // for exists, last_write_time, etc
-#include <boost/filesystem/path.hpp>    // for path, native
 
 #include <boost/program_options.hpp>
 
 #include <boost/array.hpp>
 #include <boost/crc.hpp>
 
-#if defined(__linux) || defined(linux)
-#include <errno.h> // program_invocation_name
-#endif
+#include <Base/CompileDateTime.h>
 
 #include "Parser.h"
 #include "Generator.h"
@@ -55,7 +52,6 @@ static const string HelpString = "help";
 static const string ForceString = "force";
 
 using namespace EnumGen;
-
 
 std::string calculateFileCRC(const std::string& Filename)
 {
@@ -135,27 +131,27 @@ bool firstFileIsNewer(const std::string& first, const std::string& second)
 	return firstLastWriteTime > secondLastWriteTime;
 }
 
+bool enumgenIsNewerThanFile(const std::string& filepath)
+{
+	static const boost::posix_time::ptime COMPILE_DATE_TIME = BFG::compileDateTime();
+
+	// ptime to time_t
+	static const boost::posix_time::ptime epoch(boost::gregorian::date(1970,1,1));
+        static const boost::posix_time::time_duration::sec_type x = (COMPILE_DATE_TIME - epoch).total_seconds();
+	static const time_t enumgenWriteTime(x);
+
+	time_t lastWriteTime = fs::last_write_time(filepath);
+	
+	return enumgenWriteTime > lastWriteTime;
+}
+
 bool mustGenerate(const std::string& inputFile,
                   const std::string& headerFile,
                   const std::string& sourceFile,
-                  const std::string& enumgenFile,
                   bool forceGeneration)
 {
 	if (forceGeneration)
 		return true;
-
-	// Generate, if we can't determine if the enumgen binary is newer or not.
-	if (!(fs::exists(enumgenFile) &&
-	      fs::is_regular_file(enumgenFile)))
-	{
-		cout << "Warning, unable to test if "
-		        "EnumGen itself is newer than the "
-		        "output file. Got: \""
-		     << enumgenFile
-		     << "\" instead of "
-		        "EnumGen.exe" << endl;
-		return true;
-	}
 
 	// .hh not existant or empty?
 	if (!fs::exists(headerFile) || fs::file_size(headerFile) == 0)
@@ -163,7 +159,7 @@ bool mustGenerate(const std::string& inputFile,
 
 	// .hh older than .xml or enumgen binary?
 	if (firstFileIsNewer(inputFile, headerFile) ||
-	    firstFileIsNewer(enumgenFile, headerFile))
+	    enumgenIsNewerThanFile(headerFile))
 		return true;
 
 	if (! sourceFile.empty())
@@ -175,7 +171,7 @@ bool mustGenerate(const std::string& inputFile,
 
 		// .cpp older than .xml or enumgen binary?
 		if (firstFileIsNewer(inputFile, sourceFile) ||
-		    firstFileIsNewer(enumgenFile, sourceFile))
+		    enumgenIsNewerThanFile(sourceFile))
 			return true;
 	}
 	
@@ -184,25 +180,6 @@ bool mustGenerate(const std::string& inputFile,
 
 int main(int argc, char* argv[]) try
 {
-#if defined (_WIN32)
-	std::string RunCommand(argv[0]);
-#elif defined (linux) || defined (__linux) || (_POSIX_VERSION >= 200112L)
-	std::string RunCommand(program_invocation_name);
-#else
-  #error Implement this Platform
-#endif
-	assert(! RunCommand.empty());
-	fs::path full_path(fs::initial_path());
-	full_path = fs::system_complete(fs::path(RunCommand));
-	std::string PathEnumGenExe = full_path.string();
-
-#if defined (_WIN32)
-	assert(PathEnumGenExe.length() > 4);
-	if (PathEnumGenExe.substr(PathEnumGenExe.length()-4, 4) != ".exe")
-		PathEnumGenExe.append(".exe");
-#endif
-
-
 	po::options_description desc("Allowed options");
 	desc.add_options()
 		(HelpString.c_str(),
@@ -261,7 +238,6 @@ int main(int argc, char* argv[]) try
 			inputFile,
 			headerFile,
 			sourceFile,
-			PathEnumGenExe,
 			forceGeneration
 		);
 

@@ -74,6 +74,8 @@ private:
 
 	void setVisible(bool visible);
 
+	void onCloseClicked(MyGUI::Window*, const std::string& button);
+
 	void onPositionChanged(MyGUI::Edit*);
 	void onPitchChanged(MyGUI::Edit* sender);
 	void onYawChanged(MyGUI::Edit* sender);

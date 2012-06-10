@@ -2,7 +2,7 @@
 # This is the root CMakeLists.txt #
 # ------------------------------- #
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.7)
 CMAKE_POLICY(SET CMP0011 NEW) # :TODO: verify need of this policy
 
 # Our helper scripts are located in this folder
@@ -31,6 +31,7 @@ INCLUDE(FindAllDependencies)
 # --------------------#
 
 BFG_INIT_PROJECT("Brute-Force Game Engine" "bfg")
+SET(CMAKE_PROJECT_NAME "BFG-Engine")
 
 IF(NOT BFG_ENGINE_INCLUDE_DIR)
 	SET(BFG_ENGINE_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/code/engine/")

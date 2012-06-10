@@ -73,6 +73,7 @@ public:
 	virtual void toolEventHandler(Event* te);
 
 private:
+	void onCloseClicked(MyGUI::Window*, const std::string& name);
 
 	void onAddModuleClicked(MyGUI::Widget*);
 	void onCloseModuleClicked(MyGUI::Widget* sender);

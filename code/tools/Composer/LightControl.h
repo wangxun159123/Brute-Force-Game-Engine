@@ -65,14 +65,15 @@ public:
 
 private:
 
+	void onCloseClicked(MyGUI::Window*, const std::string& button);
 	void onDiffuseChange(MyGUI::EditBox* edit);
 	void onSpecularChange(MyGUI::EditBox* edit);
-	void onSetAmbient(MyGUI::Widget* button);
-	void onCreateDirection(MyGUI::Widget* button);
-	void onCreatePoint(MyGUI::Widget* button);
-	void onCreateSpot(MyGUI::Widget* button);
-	void onApplyChange(MyGUI::Widget* button);
-	void onDeleteLight(MyGUI::Widget* button);
+	void onSetAmbient(MyGUI::Widget*);
+	void onCreateDirection(MyGUI::Widget*);
+	void onCreatePoint(MyGUI::Widget*);
+	void onCreateSpot(MyGUI::Widget*);
+	void onApplyChange(MyGUI::Widget*);
+	void onDeleteLight(MyGUI::Widget*);
 
 	void onLostFocus(MyGUI::Widget* button, MyGUI::Widget*);
 	void onSetFocus(MyGUI::Widget* button, MyGUI::Widget*);
@@ -86,7 +87,6 @@ private:
 	BFG::View::SpotLightCreation getSpotLightValues(BFG::GameHandle handle);
 	BFG::View::PointLightCreation getPointLightValues(BFG::GameHandle handle);
 	BFG::View::DirectionalLightCreation getDirectionalLightValues(BFG::GameHandle handle);
-
 	boost::shared_ptr<SharedData> mData;
 
 	MyGUI::EditBox* mDiffuse;
