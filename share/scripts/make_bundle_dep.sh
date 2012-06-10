@@ -5,7 +5,8 @@ PREFIX=$PACKAGE/usr
 CPUS=`grep -c processor /proc/cpuinfo`
 JOBS=`echo $CPUS + 1 | bc`
 VERSION="0.3.0"
-ARCH="i386"
+DEBIAN_ARCH="i386"
+#DEBIAN_ARCH="amd64"
 
 CMAKE='/usr/bin/cmake'
 
@@ -197,7 +198,7 @@ Package: libbfe-dev-deps
 Version: $VERSION
 Section: libdevel
 Priority: optional
-Architecture: $ARCH
+Architecture: $DEBIAN_ARCH
 Depends: libsndfile-dev, libopenal-dev, libasound-dev, libois-dev, uuid-dev, libbz2-dev, libzip-dev, libbz2-dev, libfreeimage-dev, libzzip-dev
 Suggests: doxygen, cmake
 Conflicts: libboost-dev, libogre-dev
@@ -205,7 +206,7 @@ Installed-Size: `du -s $PREFIX | perl -pe 's#[\t]+.+##g'`
 Maintainer: Sascha Wittkowski <w177us@gmail.com>
 Description: Developer package (dependencies) for the Brute Force Game Engine" > $PACKAGE/DEBIAN/control
 
-	PACKET_FILENAME="libbfe-dev-deps_"$VERSION"_"$ARCH".deb"
+	PACKET_FILENAME="libbfe-dev-deps_"$VERSION"_"$DEBIAN_ARCH".deb"
 	/usr/bin/dpkg --build $PACKAGE $PACKET_FILENAME
 	/usr/bin/md5sum $PACKET_FILENAME > $PACKET_FILENAME.md5
 }

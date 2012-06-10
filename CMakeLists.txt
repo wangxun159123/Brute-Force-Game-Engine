@@ -141,7 +141,7 @@ SET(BFG_ENGINE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_M
 
 IF(WIN32 AND NOT UNIX)
 	# There is a bug in NSI that does not handle full unix paths properly. Make
-	# sure there is at least one set of four (4) backlasshes.
+	# sure there is at least one set of four (4) backslashes.
 	SET(CPACK_GENERATOR "NSIS")
 	SET(CPACK_NSIS_DISPLAY_NAME "BFG-Engine")
 	SET(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\www.brute-force-games.com")
@@ -159,6 +159,7 @@ ELSEIF(UNIX)
 	SET(CPACK_DEBIAN_PACKAGE_NAME "libbfe-dev")
 	SET(CPACK_DEBIAN_PACKAGE_VERSION ${BFG_ENGINE_VERSION})
 	SET(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "i386")
+	#SET(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
 	SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libbfe-dev-deps (>= 0.3.0)")
 	SET(CPACK_DEBIAN_PACKAGE_SECTION "libdevel")
 
