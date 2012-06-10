@@ -5,7 +5,8 @@ PREFIX=$PACKAGE/usr
 CPUS=`grep -c processor /proc/cpuinfo`
 JOBS=`echo $CPUS + 1 | bc`
 VERSION="0.3.0"
-ARCH="i386"
+DEBIAN_ARCH="i386"
+#DEBIAN_ARCH="amd64"
 
 CMAKE='/usr/bin/cmake'
 
@@ -66,7 +67,7 @@ Package: libbfe-dev
 Version: $VERSION
 Section: libdevel
 Priority: optional
-Architecture: $ARCH
+Architecture: $DEBIAN_ARCH
 Depends: 
 Suggests: libbfe-dev-deps
 Conflicts: 
@@ -74,7 +75,7 @@ Installed-Size: `du -s $PREFIX | perl -pe 's#[\t]+.+##g'`
 Maintainer: Sascha Wittkowski <w177us@gmail.com>
 Description: The Brute Force Game Engine" > $PACKAGE/DEBIAN/control
 
-	PACKET_FILENAME="libbfe-dev_"$VERSION"_"$ARCH".deb"
+	PACKET_FILENAME="libbfe-dev_"$VERSION"_"$DEBIAN_ARCH".deb"
 	/usr/bin/dpkg --build $PACKAGE $PACKET_FILENAME
 	/usr/bin/md5sum $PACKET_FILENAME > $PACKET_FILENAME.md5
 }
