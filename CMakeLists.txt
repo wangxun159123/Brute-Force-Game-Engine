@@ -113,6 +113,37 @@ INSTALL(DIRECTORY ${PROJECT_SOURCE_DIR}/share/cmake
 	COMPONENT devel
 )
 
+# ---------------------------------#
+# Install Dependency DLLs on Win32 #
+# ---------------------------------#
+
+IF(WIN32)
+
+	FILE(GLOB_RECURSE BFG_DEPENDENCY_DLLS
+		"${PROJECT_SOURCE_DIR}/bin/boost_*.dll"
+		"${PROJECT_SOURCE_DIR}/bin/cg.dll"
+		"${PROJECT_SOURCE_DIR}/bin/libsndfile-1.dll"
+		"${PROJECT_SOURCE_DIR}/bin/MyGUI*.dll"
+		"${PROJECT_SOURCE_DIR}/bin/ogg*.dll"
+		"${PROJECT_SOURCE_DIR}/bin/Ogre*.dll"
+		"${PROJECT_SOURCE_DIR}/bin/OIS*.dll"
+		"${PROJECT_SOURCE_DIR}/bin/OpenAL32.dll"
+		"${PROJECT_SOURCE_DIR}/bin/Plugin*.dll"
+		"${PROJECT_SOURCE_DIR}/bin/RenderSystem*.dll"
+	)
+
+	IF(BFG_DEPENDENCY_DLLS)
+		INSTALL(FILES ${BFG_DEPENDENCY_DLLS}
+			DESTINATION "bin"
+			COMPONENT runtime
+		)
+	ELSE()
+		LOG("You should copy the content of the /bin directory from our dependency")
+		LOG(" bundle into the engine's /bin directory or you probably won't")
+		LOG(" be able to use the engine after its compilation.")
+	ENDIF()
+ENDIF(WIN32)
+
 # --------- #
 # Packaging #
 # --------- #
