@@ -50,7 +50,7 @@ Compiling
 -> Linux
    -----
 
-	make build && cd build
+	mkdir build && cd build
 	cmake .. && make
 
 -> Windows
@@ -60,6 +60,12 @@ Best is to use the CMake-GUI. After configuration, point the CMake-Variable
 BFG_DEPENDENCY_BUNDLE_PATH to the \bundle directory of the dependency package
 mentioned above. Configurate again and if successful, generate the build. Then
 open it and compile with your preferred IDE.
+
+Installing
+==========
+
+In order to generate an installer there is a "package" build target. CPack will
+generate a Debian package on Linux and a Nullsoft installer on Windows.
 
 Resources
 =========
