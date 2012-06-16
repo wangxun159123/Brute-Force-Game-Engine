@@ -26,6 +26,8 @@ ADD_DEFINITIONS(-DTIXML_USE_STL)
 
 ADD_EXECUTABLE(bfgSpaceInvaders ${SpaceInvaders_SOURCES} ${SpaceInvaders_HEADERS})
 
+SET_TARGET_PROPERTIES(bfgSpaceInvaders PROPERTIES OUTPUT_NAME_DEBUG "bfgSpaceInvaders_d")
+
 TARGET_LINK_LIBRARIES(bfgSpaceInvaders
 	bfgAudio
 	bfgBase

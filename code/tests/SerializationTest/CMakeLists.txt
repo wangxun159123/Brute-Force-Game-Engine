@@ -22,6 +22,8 @@ ADD_DEFINITIONS(-DTIXML_USE_STL)
 
 ADD_EXECUTABLE(bfgSerializationTest ${SOURCES} ${HEADERS})
 
+SET_TARGET_PROPERTIES(bfgSerializationTest PROPERTIES OUTPUT_NAME_DEBUG "bfgSerializationTest_d")
+
 TARGET_LINK_LIBRARIES(bfgSerializationTest
 	${Boost_LIBRARIES}
 	${BoostLog_LIBRARIES}

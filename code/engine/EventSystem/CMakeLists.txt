@@ -32,6 +32,9 @@ ADD_LIBRARY(bfgEventCore STATIC
 	${EventNetwork_SOURCES}
 	${EventNetwork_HEADERS}
 )
+
+SET_TARGET_PROPERTIES(bfgEventCore PROPERTIES OUTPUT_NAME_DEBUG "bfgEventCore_d")
+
 TARGET_LINK_LIBRARIES(bfgEventCore
 	${Boost_LIBRARIES}
 	${BoostLog_LIBRARIES}

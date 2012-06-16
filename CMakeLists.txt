@@ -119,25 +119,49 @@ INSTALL(DIRECTORY ${PROJECT_SOURCE_DIR}/share/cmake
 
 IF(WIN32)
 
-	FILE(GLOB_RECURSE BFG_DEPENDENCY_DLLS
-		"${PROJECT_SOURCE_DIR}/bin/boost_*.dll"
-		"${PROJECT_SOURCE_DIR}/bin/cg.dll"
-		"${PROJECT_SOURCE_DIR}/bin/libsndfile-1.dll"
-		"${PROJECT_SOURCE_DIR}/bin/MyGUI*.dll"
-		"${PROJECT_SOURCE_DIR}/bin/ogg*.dll"
-		"${PROJECT_SOURCE_DIR}/bin/Ogre*.dll"
-		"${PROJECT_SOURCE_DIR}/bin/OIS*.dll"
-		"${PROJECT_SOURCE_DIR}/bin/OpenAL32.dll"
-		"${PROJECT_SOURCE_DIR}/bin/Plugin*.dll"
-		"${PROJECT_SOURCE_DIR}/bin/RenderSystem*.dll"
+	FILE(GLOB BFG_DEPENDENCY_DLLS_DEBUG
+		"${PROJECT_SOURCE_DIR}/bin/Debug/boost_*.dll"
+		"${PROJECT_SOURCE_DIR}/bin/Debug/cg.dll"
+		"${PROJECT_SOURCE_DIR}/bin/Debug/libsndfile-1.dll"
+		"${PROJECT_SOURCE_DIR}/bin/Debug/MyGUI*.dll"
+		"${PROJECT_SOURCE_DIR}/bin/Debug/ogg*.dll"
+		"${PROJECT_SOURCE_DIR}/bin/Debug/Ogre*.dll"
+		"${PROJECT_SOURCE_DIR}/bin/Debug/OIS*.dll"
+		"${PROJECT_SOURCE_DIR}/bin/Debug/OpenAL32.dll"
+		"${PROJECT_SOURCE_DIR}/bin/Debug/Plugin*.dll"
+		"${PROJECT_SOURCE_DIR}/bin/Debug/RenderSystem*.dll"
 	)
 
-	IF(BFG_DEPENDENCY_DLLS)
-		INSTALL(FILES ${BFG_DEPENDENCY_DLLS}
+	FILE(GLOB BFG_DEPENDENCY_DLLS_RELEASE
+		"${PROJECT_SOURCE_DIR}/bin/Release/boost_*.dll"
+		"${PROJECT_SOURCE_DIR}/bin/Release/cg.dll"
+		"${PROJECT_SOURCE_DIR}/bin/Release/libsndfile-1.dll"
+		"${PROJECT_SOURCE_DIR}/bin/Release/MyGUI*.dll"
+		"${PROJECT_SOURCE_DIR}/bin/Release/ogg*.dll"
+		"${PROJECT_SOURCE_DIR}/bin/Release/Ogre*.dll"
+		"${PROJECT_SOURCE_DIR}/bin/Release/OIS*.dll"
+		"${PROJECT_SOURCE_DIR}/bin/Release/OpenAL32.dll"
+		"${PROJECT_SOURCE_DIR}/bin/Release/Plugin*.dll"
+		"${PROJECT_SOURCE_DIR}/bin/Release/RenderSystem*.dll"
+	)
+
+	IF(BFG_DEPENDENCY_DLLS_DEBUG)
+		INSTALL(FILES ${BFG_DEPENDENCY_DLLS_DEBUG}
 			DESTINATION "bin"
 			COMPONENT runtime
+			CONFIGURATIONS Debug
 		)
-	ELSE()
+	ENDIF()
+	
+	IF(BFG_DEPENDENCY_DLLS_RELEASE)
+		INSTALL(FILES ${BFG_DEPENDENCY_DLLS_RELEASE}
+			DESTINATION "bin"
+			COMPONENT runtime
+			CONFIGURATIONS Release
+		)
+	ENDIF()
+
+	IF(NOT BFG_DEPENDENCY_DLLS_DEBUG OR BFG_DEPENDENCY_DLLS_RELEASE)
 		LOG("You should copy the content of the /bin directory from our dependency")
 		LOG(" bundle into the engine's /bin directory or you probably won't")
 		LOG(" be able to use the engine after its compilation.")

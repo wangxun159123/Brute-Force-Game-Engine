@@ -32,6 +32,8 @@ ADD_LIBRARY(bfgController SHARED
 	${Controller_SCRIPTS}
 )
 
+SET_TARGET_PROPERTIES(bfgController PROPERTIES OUTPUT_NAME_DEBUG "bfgController_d")
+
 TARGET_LINK_LIBRARIES(bfgController
 	bfgEventCore
 	bfgCore

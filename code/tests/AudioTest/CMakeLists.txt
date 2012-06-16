@@ -16,6 +16,8 @@ INCLUDE_DIRECTORIES(../..)
 
 ADD_EXECUTABLE(bfgAudioTest ${AudioTest_SOURCES} ${AudioTest_HEADERS})
 
+SET_TARGET_PROPERTIES(bfgAudioTest PROPERTIES OUTPUT_NAME_DEBUG "bfgAudioTest_d")
+
 TARGET_LINK_LIBRARIES(bfgAudioTest
 	bfgAudio
 	bfgEventCore

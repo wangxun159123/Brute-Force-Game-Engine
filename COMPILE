@@ -65,7 +65,11 @@ Installing
 ==========
 
 In order to generate an installer there is a "package" build target. CPack will
-generate a Debian package on Linux and a Nullsoft installer on Windows.
+generate a Debian package on Linux and a Nullsoft installer on Windows for the
+currently chosen configuration.
+
+On Windows, note that only one package may be installed at a time since the
+registry entries get overwritten.
 
 Resources
 =========
