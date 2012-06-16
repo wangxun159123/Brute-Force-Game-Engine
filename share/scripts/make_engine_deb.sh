@@ -69,7 +69,7 @@ Section: libdevel
 Priority: optional
 Architecture: $DEBIAN_ARCH
 Depends: 
-Suggests: libbfe-dev-deps
+Recommends: libbfe-dev-deps
 Conflicts: 
 Installed-Size: `du -s $PREFIX | perl -pe 's#[\t]+.+##g'` 
 Maintainer: Sascha Wittkowski <w177us@gmail.com>
