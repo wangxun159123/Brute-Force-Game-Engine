@@ -406,17 +406,50 @@ void Interpreter::interpretRaceCondition(const TagWithAttributesT& definitions,
 
 
 void Interpreter::interpretLightDefinition(const TagWithAttributesT& definitions,
-                                           LightParameters& lightParameters) const
+                                           View::LightParameters& lightParameters) const
 {
 	std::string bufferString = "";
 	
 	grab(Tag::name, definitions, lightParameters.mName);
 
 	grab(Tag::type, definitions, bufferString);
-	lightParameters.mLightType = ID::asLightType(bufferString);			
+	lightParameters.mType = ID::asLightType(bufferString);			
 
-	grab(Tag::direction, definitions, bufferString);
-	interpret<v3>(bufferString, lightParameters.mOrientation);
+	if(grab(Tag::position, definitions, bufferString, true))
+		interpret<v3>(bufferString, lightParameters.mPosition);
+
+	if(grab(Tag::direction, definitions, bufferString, true))
+		interpret<v3>(bufferString, lightParameters.mDirection);
+
+	if (grab(Tag::range, definitions, bufferString, true))
+		interpret<f32>(bufferString, lightParameters.mRange);
+
+	if (grab(Tag::constant, definitions, bufferString, true))
+		interpret<f32>(bufferString, lightParameters.mConstant);
+
+	if (grab(Tag::linear, definitions, bufferString, true))
+		interpret<f32>(bufferString, lightParameters.mLinear);
+
+	if (grab(Tag::quadric, definitions, bufferString, true))
+		interpret<f32>(bufferString, lightParameters.mQuadric);
+
+	if (grab(Tag::falloff, definitions, bufferString, true))
+		interpret<f32>(bufferString, lightParameters.mFalloff);
+
+	if (grab(Tag::innerRadius, definitions, bufferString, true))
+		interpret<f32>(bufferString, lightParameters.mInnerRadius);
+
+	if (grab(Tag::outerRadius, definitions, bufferString, true))
+		interpret<f32>(bufferString, lightParameters.mOuterRadius);
+
+	if (grab(Tag::diffuseRGB, definitions, bufferString, true))
+		interpret<cv4>(bufferString, lightParameters.mDiffuseColor);
+
+	if (grab(Tag::specularRGB, definitions, bufferString, true))
+		interpret<cv4>(bufferString, lightParameters.mSpecularColor);
+
+	if (grab(Tag::power, definitions, bufferString, true))
+		interpret<f32>(bufferString, lightParameters.mPower);
 }
 
 void Interpreter::interpretCameraDefinition(const TagWithAttributesT& definitions, 
@@ -552,6 +585,15 @@ void Interpreter::convert(const std::string& in, bool& out) const
 {
 	if      (in == "yes" || in == "true" || in == "1") out = true;
 	else if (in == "no" || in == "false" || in == "0") out = false;
+}
+
+void Interpreter::convert(const std::string& in, cv4& out) const
+{
+	v3 vector;
+	stringToVector3(in, vector);
+	out.r = vector.x;
+	out.g = vector.y;
+	out.b = vector.z;
 }
 
 } // namespace Loader

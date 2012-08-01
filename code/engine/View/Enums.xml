@@ -24,9 +24,7 @@
             <value>VE_CREATE_OBJECT</value>
             <value>VE_DESTROY_OBJECT</value>
             <value>VE_CREATE_CAMERA</value>
-            <value>VE_CREATE_POINTLIGHT</value>
-            <value>VE_CREATE_DIRECTIONALLIGHT</value>
-            <value>VE_CREATE_SPOTLIGHT</value>
+            <value>VE_CREATE_LIGHT</value>
             <value>VE_SCREENSHOT</value>
             <value>VE_EFFECT</value>
             <value>VE_SET_AMBIENT</value>

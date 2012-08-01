@@ -33,6 +33,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <EventSystem/Event_fwd.h>
 #include <View/Enums.hh>
 #include <View/Event_fwd.h>
+#include <View/Light.h>
 
 class EventLoop;
 
@@ -56,12 +57,16 @@ protected:
 	void destroyObject(GameHandle handle);
 	void createCamera(CameraCreation& CC);
 	void setSky(SkyCreation& SC);
+	void createLight(LightParameters& LC);
+	void setAmbient(cv4& colour);
 
 	typedef std::map<GameHandle, boost::shared_ptr<RenderObject> > ObjectMapT;
+	typedef	std::map<BFG::GameHandle, boost::shared_ptr<Light> > LightMapT;
 
 	ObjectMapT                              mObjects;
 	std::vector<boost::shared_ptr<Camera> > mCameras;
 	boost::scoped_ptr<Skybox>               mSky;
+	LightMapT                               mLights;
 	
 	EventLoop*                  mLoop;
 	std::vector<ID::ViewAction> mViewEvents;

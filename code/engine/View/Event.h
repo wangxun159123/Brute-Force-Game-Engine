@@ -34,7 +34,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <View/CameraCreation.h>
 #include <View/MenuEventData.h>
 #include <View/ObjectCreation.h>
-#include <View/LightCreation.h>
+#include <View/LightParameters.h>
 #include <View/SkyCreation.h>
 
 #endif

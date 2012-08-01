@@ -44,12 +44,10 @@ namespace BFG {
 namespace View {
 
 struct CameraCreation;
-struct DirectionalLightCreation;
+struct LightParameters;
 struct MenuEventData;
 struct ObjectCreation;
-struct PointLightCreation;
 struct SkyCreation;
-struct SpotLightCreation;
 
 typedef boost::tuple
 <
@@ -70,13 +68,11 @@ typedef boost::variant
 	GameHandle,
 	ID::ViewAction,
 	CameraCreation,
-	DirectionalLightCreation,
+	LightParameters,
 	EffectCreation,
 	MenuEventData,
 	ObjectCreation,
-	PointLightCreation,
-	SkyCreation,
-	SpotLightCreation
+	SkyCreation
 >
 ViewPayloadT;
 

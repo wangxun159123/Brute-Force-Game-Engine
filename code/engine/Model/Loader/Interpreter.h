@@ -32,6 +32,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Model/Loader/Exceptions.h>
 #include <Model/Property/Plugin.h>
 
+#include <View/LightParameters.h>
+
 namespace BFG {
 
 class Environment;
@@ -86,7 +88,7 @@ public:
 #endif
 	                            
 	void interpretLightDefinition(const TagWithAttributesT& definitions,
-	                              LightParameters& lightParameters) const;
+	                              View::LightParameters& lightParameters) const;
 	                              
 	void interpretCameraDefinition(const TagWithAttributesT& definitions,
 	                               CameraParameter& cameraParameters,
@@ -118,6 +120,7 @@ private:
 	void convert(const std::string& in, qv4& out) const;
 	void convert(const std::string& in, v3& out) const;
 	void convert(const std::string& in, bool& out) const;
+	void convert(const std::string& in, cv4& out) const;
 };
 
 } // namespace Loader

@@ -24,37 +24,52 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BFG_VIEW_LIGHT_H
-#define BFG_VIEW_LIGHT_H
+#ifndef BFG_VIEW_LIGHTPARAMETERS_H
+#define BFG_VIEW_LIGHTPARAMETERS_H
 
-#include <Core/Types.h>
+#include <Core/ExternalTypes.h>
+#include <Core/v3.h>
 
-#include <View/Event_fwd.h>
-
-namespace Ogre
-{
-class Light;
-}
+#include <View/Enums.hh>
 
 namespace BFG {
 namespace View {
 
-struct LightParameters;
-
-class VIEW_API Light
+struct VIEW_API LightParameters
 {
-public:
-	Light(const LightParameters& LC);
-	virtual ~Light();
-	
-private:
-	void createSpotLight(const LightParameters& LC, Ogre::Light*& light);
-	void createDirectionalLight(const LightParameters& LC, Ogre::Light*& light);
-	void createPointLight(const LightParameters& LC, Ogre::Light*& light);
+	LightParameters() : 
+	mDirection(v3::ZERO),
+	mPosition(v3::ZERO),
+	mRange(100000.0f),
+	mConstant(1.0f),
+	mLinear(0.0f),
+	mQuadric(0.0f),
+	mFalloff(1.0f),
+	mInnerRadius(30.0f),
+	mOuterRadius(40.0f),
+	mDiffuseColor(cv4::White),
+	mSpecularColor(cv4::Black),
+	mPower(1.0f)
+	{}
 
-	GameHandle mHandle;
+	std::string   mName;
+	GameHandle    mHandle;
+	ID::LightType mType;
+	v3            mDirection;
+	v3            mPosition;
+	f32           mRange;
+	f32           mConstant;
+	f32           mLinear;
+	f32           mQuadric;
+	f32           mFalloff;
+	f32           mInnerRadius;
+	f32           mOuterRadius;
+	cv4           mDiffuseColor;
+	cv4           mSpecularColor;
+	f32           mPower;
 };
 
 } // namespace View
 } // namespace BFG
+
 #endif

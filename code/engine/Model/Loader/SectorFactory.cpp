@@ -103,7 +103,7 @@ SectorFactory::createSector(const std::string& fileSectorConfig,
 	}
 
 	// Setup View
-	emit<View::Event>(ID::VE_SET_AMBIENT, cv4(0.1f, 0.1f, 0.1f));
+	emit<View::Event>(ID::VE_SET_AMBIENT, cv4(0.1f, 0.1f, 0.1f), mViewState);
 
 	TagWithAttributesT::iterator skyIt = sectorDraft.mSkybox->begin();
 	if (skyIt == sectorDraft.mSkybox->end())
@@ -117,12 +117,13 @@ SectorFactory::createSector(const std::string& fileSectorConfig,
 	// Create all lights
 	BOOST_FOREACH(ManyTagsT::value_type em, *sectorDraft.mLights)
 	{
-		LightParameters lightParameters;
+		View::LightParameters lightParameters;
 
 		mInterpreter->interpretLightDefinition(*em, lightParameters);
 	
-		View::DirectionalLightCreation dlc(generateHandle(), lightParameters.mOrientation);
-		emit<View::Event>(ID::VE_CREATE_DIRECTIONALLIGHT, dlc);
+		lightParameters.mHandle = generateHandle();
+
+		emit<View::Event>(ID::VE_CREATE_LIGHT, lightParameters, mViewState);
 	}
 
 	// Create all cameras

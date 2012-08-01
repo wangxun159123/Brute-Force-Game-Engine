@@ -52,6 +52,8 @@ mLoop(loop)
 	loop->connect(ID::VE_DESTROY_OBJECT, this, &Owner::eventHandler);
 	loop->connect(ID::VE_CREATE_CAMERA, this, &Owner::eventHandler, stateHandle);
 	loop->connect(ID::VE_SET_SKY, this, &Owner::eventHandler, stateHandle);
+	loop->connect(ID::VE_CREATE_LIGHT, this, &Owner::eventHandler, stateHandle);
+	loop->connect(ID::VE_SET_AMBIENT, this, &Owner::eventHandler, stateHandle);
 }
 
 Owner::~Owner()
@@ -60,6 +62,8 @@ Owner::~Owner()
 	mLoop->disconnect(ID::VE_DESTROY_OBJECT, this);
 	mLoop->disconnect(ID::VE_CREATE_CAMERA, this);
 	mLoop->disconnect(ID::VE_SET_SKY, this);
+	mLoop->disconnect(ID::VE_CREATE_LIGHT, this);
+	mLoop->disconnect(ID::VE_SET_AMBIENT, this);
 }
 
 void Owner::eventHandler(Event* VE)
@@ -80,6 +84,14 @@ void Owner::eventHandler(Event* VE)
 
 	case ID::VE_SET_SKY:
 		setSky(boost::get<View::SkyCreation>(VE->getData()));
+		break;
+
+	case ID::VE_CREATE_LIGHT:
+		createLight(boost::get<View::LightParameters>(VE->getData()));
+		break;
+
+	case ID::VE_SET_AMBIENT:
+		setAmbient(boost::get<BFG::cv4>(VE->getData()));
 		break;
 
 	default:
@@ -144,6 +156,22 @@ void Owner::setSky(SkyCreation& SC)
 {
 	mSky.reset();   // fix (skybox dtor must be called explicitly) 
 	mSky.reset(new Skybox(SC.mMatName.c_array()));
+}
+
+void Owner::createLight(LightParameters& LC)
+{
+	boost::shared_ptr<Light> light;
+	light.reset(new Light(LC));
+	mLights[LC.mHandle] = light;
+}
+
+void Owner::setAmbient(cv4& colour)
+{
+	Ogre::Root& root = Ogre::Root::getSingleton();
+	Ogre::SceneManager* sceneMgr =
+		root.getSceneManager(BFG_SCENEMANAGER);
+
+	sceneMgr->setAmbientLight(colour);
 }
 
 } // namespace View

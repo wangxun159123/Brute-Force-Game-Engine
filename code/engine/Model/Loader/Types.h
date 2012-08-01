@@ -32,6 +32,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/unordered_map.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include <Core/ExternalTypes_fwd.h>
 #include <Core/Location.h>
 #include <Core/Types.h>
 #include <Model/Adapter.h>
@@ -167,14 +168,7 @@ struct SectorParameter
 
 typedef Serializer<SectorParameter> SectorSerializer;
 
-struct LightParameters
-{
-	LightParameters() : mOrientation(v3::ZERO) {}	
-
-	std::string   mName;
-	ID::LightType mLightType;
-	v3            mOrientation;
-};
+// struct LightParameters now only defined in View to avoid having 2 identical structures.
 
 //! Contains the complete data for all objectTypes ready for creation.
 typedef std::vector<boost::shared_ptr<ObjectParameter> > ObjectDefinitionsT;

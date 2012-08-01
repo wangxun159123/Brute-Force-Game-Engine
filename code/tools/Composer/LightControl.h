@@ -84,9 +84,9 @@ private:
 	void updateLightBox();
 	void fillBoxes(Ogre::Light* light);
 
-	BFG::View::SpotLightCreation getSpotLightValues(BFG::GameHandle handle);
-	BFG::View::PointLightCreation getPointLightValues(BFG::GameHandle handle);
-	BFG::View::DirectionalLightCreation getDirectionalLightValues(BFG::GameHandle handle);
+	BFG::View::LightParameters getSpotLightValues(BFG::GameHandle handle);
+	BFG::View::LightParameters getPointLightValues(BFG::GameHandle handle);
+	BFG::View::LightParameters getDirectionalLightValues(BFG::GameHandle handle);
 	boost::shared_ptr<SharedData> mData;
 
 	MyGUI::EditBox* mDiffuse;

@@ -35,12 +35,12 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <View/Convert.h>
 #include <View/Defs.h>
-#include <View/LightCreation.h>
+#include <View/LightParameters.h>
 
 namespace BFG {
 namespace View {
 
-Light::Light(const LightCreation& LC) :
+Light::Light(const LightParameters& LC) :
 mHandle(LC.mHandle)
 {
 	Ogre::Root& root = Ogre::Root::getSingleton();
@@ -49,8 +49,8 @@ mHandle(LC.mHandle)
 	Ogre::Light* light = sceneMgr->createLight(stringify(LC.mHandle));
 
 	light->setType(static_cast<Ogre::Light::LightTypes>(LC.mType));
-	light->setDiffuseColour(LC.mDiffuse);
-	light->setSpecularColour(LC.mSpecular);
+	light->setDiffuseColour(LC.mDiffuseColor);
+	light->setSpecularColour(LC.mSpecularColor);
 	light->setPowerScale(LC.mPower);
 	
 	switch(LC.mType)
@@ -80,45 +80,39 @@ Light::~Light()
 	sceneMgr->destroyLight(stringify(mHandle));
 }
 
-void Light::createSpotLight(const LightCreation& LC, Ogre::Light*& light)
+void Light::createSpotLight(const LightParameters& LC, Ogre::Light*& light)
 {
-	const SpotLightCreation& slc = 
-		static_cast<const SpotLightCreation&>(LC);
-	light->setPosition(toOgre(slc.mPosition));
-	light->setDirection(toOgre(slc.mDirection));
+	light->setPosition(toOgre(LC.mPosition));
+	light->setDirection(toOgre(LC.mDirection));
 	light->setAttenuation
 	(
-		slc.mRange,
-		slc.mConstant,
-		slc.mLinear,
-		slc.mQuadric
+		LC.mRange,
+		LC.mConstant,
+		LC.mLinear,
+		LC.mQuadric
 	);
 	light->setSpotlightRange
 	(
-		Ogre::Radian(slc.mInnerRadius),
-		Ogre::Radian(slc.mOuterRadius),
-		slc.mFalloff
+		Ogre::Degree(LC.mInnerRadius),
+		Ogre::Degree(LC.mOuterRadius),
+		LC.mFalloff
 	);
 }
 
-void Light::createDirectionalLight(const LightCreation& LC, Ogre::Light*& light)
+void Light::createDirectionalLight(const LightParameters& LC, Ogre::Light*& light)
 {
-	const DirectionalLightCreation& dlc = 
-		static_cast<const DirectionalLightCreation&>(LC);
-	light->setDirection(toOgre(dlc.mDirection));
+	light->setDirection(toOgre(LC.mDirection));
 }
 
-void Light::createPointLight(const LightCreation& LC, Ogre::Light*& light)
+void Light::createPointLight(const LightParameters& LC, Ogre::Light*& light)
 {
-	const PointLightCreation& plc = 
-		static_cast<const PointLightCreation&>(LC);
-	light->setPosition(toOgre(plc.mPosition));
+	light->setPosition(toOgre(LC.mPosition));
 	light->setAttenuation
 	(
-		plc.mRange,
-		plc.mConstant,
-		plc.mLinear,
-		plc.mQuadric
+		LC.mRange,
+		LC.mConstant,
+		LC.mLinear,
+		LC.mQuadric
 	);
 }
 

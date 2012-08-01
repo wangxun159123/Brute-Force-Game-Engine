@@ -103,6 +103,19 @@ TagT stiffness = "stiffness";
 //! SectorProperties
 TagT playerObject = "playerObject";
 
+//! LightProperties
+TagT range = "range";
+TagT constant = "constant";
+TagT linear = "linear";
+TagT quadric = "quadric";
+TagT falloff = "falloff";
+TagT innerRadius = "innerRadius";
+TagT outerRadius = "outerRadius";
+TagT diffuseRGB = "diffuse";
+TagT specularRGB = "specular";
+TagT power = "power";
+
+
 
 //! PropertieConcepts
 

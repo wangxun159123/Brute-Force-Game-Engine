@@ -34,7 +34,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Core/Types.h>
 #include <Core/Utils.h>
 #include <View/Convert.h>
-#include <View/LightCreation.h>
+#include <View/LightParameters.h>
+
 
 
 namespace Tool
@@ -216,115 +217,94 @@ void LightControl::onSetAmbient(MyGUI::Widget*)
 	sceneMgr->setAmbientLight(diffuse);
 }
 
-BFG::View::DirectionalLightCreation LightControl::getDirectionalLightValues(BFG::GameHandle handle)
+BFG::View::LightParameters LightControl::getDirectionalLightValues(BFG::GameHandle handle)
 {
 	if (handle == NULL_HANDLE)
 		handle = BFG::generateHandle();
 
 	using namespace MyGUI;
 
-	v3 direction = utility::parseValueEx3<v3, float>(mDirection->getCaption());
-	cv4 diffuse = utility::parseValueEx3<cv4, float>(mDiffuse->getCaption());
-	cv4 specular = utility::parseValueEx3<cv4, float>(mSpecular->getCaption());
-	f32 power = utility::parseFloat(mPower->getCaption());
+	BFG::View::LightParameters LP;
 
-	return BFG::View::DirectionalLightCreation
-	(
-		handle,
-		direction,
-		diffuse,
-		specular,
-		power
-	);
+	LP.mHandle = handle;
+	LP.mType = BFG::ID::LT_Directional;
+	LP.mDirection = utility::parseValueEx3<v3, float>(mDirection->getCaption());
+	LP.mDiffuseColor = utility::parseValueEx3<cv4, float>(mDiffuse->getCaption());
+	LP.mSpecularColor = utility::parseValueEx3<cv4, float>(mSpecular->getCaption());
+	LP.mPower = utility::parseFloat(mPower->getCaption());
+
+	return LP;
 }
 
 void LightControl::onCreateDirection(MyGUI::Widget*)
 {
-	BFG::View::DirectionalLightCreation dlc = getDirectionalLightValues(NULL_HANDLE);
+	BFG::View::LightParameters dlc = getDirectionalLightValues(NULL_HANDLE);
 
 	mLights.insert(std::make_pair(dlc.mHandle, new BFG::View::Light(dlc)));
 	updateLightBox();
 }
 
-BFG::View::PointLightCreation LightControl::getPointLightValues(BFG::GameHandle handle)
+BFG::View::LightParameters LightControl::getPointLightValues(BFG::GameHandle handle)
 {
 	if (handle == NULL_HANDLE)
 		handle = BFG::generateHandle();
 
 	using namespace MyGUI;
 
-	v3 position = utility::parseValueEx3<v3, float>(mPosition->getCaption());
-	cv4 diffuse = utility::parseValueEx3<cv4, float>(mDiffuse->getCaption());
-	cv4 specular = utility::parseValueEx3<cv4, float>(mSpecular->getCaption());
-	f32 power = utility::parseFloat(mPower->getCaption());
-	f32 range = utility::parseFloat(mRange->getCaption());
-	f32 constant = utility::parseFloat(mConstant->getCaption());
-	f32 linear = utility::parseFloat(mLinear->getCaption());
-	f32 quadric = utility::parseFloat(mQuadric->getCaption());
+	BFG::View::LightParameters LP;
 
-	return BFG::View::PointLightCreation
-	(
-		handle,
-		position,
-		range,
-		constant,
-		linear,
-		quadric,
-		diffuse,
-		specular,
-		power
-	);
+	LP.mHandle = handle;
+	LP.mType = BFG::ID::LT_Point;
+	LP.mPosition = utility::parseValueEx3<v3, float>(mPosition->getCaption());
+	LP.mDiffuseColor = utility::parseValueEx3<cv4, float>(mDiffuse->getCaption());
+	LP.mSpecularColor = utility::parseValueEx3<cv4, float>(mSpecular->getCaption());
+	LP.mPower = utility::parseFloat(mPower->getCaption());
+	LP.mRange = utility::parseFloat(mRange->getCaption());
+	LP.mConstant = utility::parseFloat(mConstant->getCaption());
+	LP.mLinear = utility::parseFloat(mLinear->getCaption());
+	LP.mQuadric = utility::parseFloat(mQuadric->getCaption());
+
+	return LP;
 }
 
 void LightControl::onCreatePoint(MyGUI::Widget*)
 {
-	BFG::View::PointLightCreation plc = getPointLightValues(NULL_HANDLE);
+	BFG::View::LightParameters plc = getPointLightValues(NULL_HANDLE);
 
 	mLights.insert(std::make_pair(plc.mHandle, new BFG::View::Light(plc)));
 	updateLightBox();
 }
 
-BFG::View::SpotLightCreation LightControl::getSpotLightValues(BFG::GameHandle handle)
+BFG::View::LightParameters LightControl::getSpotLightValues(BFG::GameHandle handle)
 {
 	if (handle == NULL_HANDLE)
 		handle = BFG::generateHandle();
 
 	using namespace MyGUI;
 
-	v3 position = utility::parseValueEx3<v3, float>(mPosition->getCaption());
-	v3 direction = utility::parseValueEx3<v3, float>(mDirection->getCaption());
-	cv4 diffuse = utility::parseValueEx3<cv4, float>(mDiffuse->getCaption());
-	cv4 specular = utility::parseValueEx3<cv4, float>(mSpecular->getCaption());
-	f32 power = utility::parseFloat(mPower->getCaption());
-	f32 range = utility::parseFloat(mRange->getCaption());
-	f32 constant = utility::parseFloat(mConstant->getCaption());
-	f32 linear = utility::parseFloat(mLinear->getCaption());
-	f32 quadric = utility::parseFloat(mQuadric->getCaption());
-	f32 falloff = utility::parseFloat(mFalloff->getCaption());
-	f32 inner = utility::parseFloat(mInnerRadius->getCaption());
-	f32 outer = utility::parseFloat(mOuterRadius->getCaption());
+	BFG::View::LightParameters LP;
 
-	return BFG::View::SpotLightCreation
-	(
-		handle,
-		position,
-		direction,
-		range,
-		constant,
-		linear,
-		quadric,
-		falloff,
-		inner,
-		outer,
-		diffuse,
-		specular,
-		power
-	);
+	LP.mHandle = handle;
+	LP.mType = BFG::ID::LT_Spot;
+	LP.mPosition = utility::parseValueEx3<v3, float>(mPosition->getCaption());
+	LP.mDirection = utility::parseValueEx3<v3, float>(mDirection->getCaption());
+	LP.mDiffuseColor = utility::parseValueEx3<cv4, float>(mDiffuse->getCaption());
+	LP.mSpecularColor = utility::parseValueEx3<cv4, float>(mSpecular->getCaption());
+	LP.mPower = utility::parseFloat(mPower->getCaption());
+	LP.mRange = utility::parseFloat(mRange->getCaption());
+	LP.mConstant = utility::parseFloat(mConstant->getCaption());
+	LP.mLinear = utility::parseFloat(mLinear->getCaption());
+	LP.mQuadric = utility::parseFloat(mQuadric->getCaption());
+	LP.mFalloff = utility::parseFloat(mFalloff->getCaption());
+	LP.mInnerRadius = utility::parseFloat(mInnerRadius->getCaption());
+	LP.mOuterRadius = utility::parseFloat(mOuterRadius->getCaption());
+	
+	return LP;
 }
 
 void LightControl::onCreateSpot(MyGUI::Widget*)
 {
-	BFG::View::SpotLightCreation slc = getSpotLightValues(NULL_HANDLE);
+	BFG::View::LightParameters slc = getSpotLightValues(NULL_HANDLE);
 	
 	mLights.insert(std::make_pair(slc.mHandle, new BFG::View::Light(slc)));
 	updateLightBox();
@@ -370,19 +350,19 @@ void LightControl::onApplyChange(MyGUI::Widget*)
 	{
 	case Light::LT_DIRECTIONAL:
 		{
-			BFG::View::DirectionalLightCreation dlc = getDirectionalLightValues(handle);
+			BFG::View::LightParameters dlc = getDirectionalLightValues(handle);
 			mLights[handle] = new BFG::View::Light(dlc);
 		}
 		break;
 	case Light::LT_POINT:
 		{
-			BFG::View::PointLightCreation plc = getPointLightValues(handle);
+			BFG::View::LightParameters plc = getPointLightValues(handle);
 			mLights[handle] = new BFG::View::Light(plc);
 		}
 		break;
 	case Light::LT_SPOTLIGHT:
 		{
-			BFG::View::SpotLightCreation slc = getSpotLightValues(handle);
+			BFG::View::LightParameters slc = getSpotLightValues(handle);
 			mLights[handle] = new BFG::View::Light(slc);
 		}
 		break;
