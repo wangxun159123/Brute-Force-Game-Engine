@@ -72,6 +72,13 @@ void AutoNavigator::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 	operate();
 }
 
+void AutoNavigator::internalSynchronize()
+{
+	emit<GameObjectEvent>(ID::GOE_CONTROL_PITCH, mRotationFactorPitch, ownerHandle());
+	emit<GameObjectEvent>(ID::GOE_CONTROL_YAW, mRotationFactorYaw, ownerHandle());
+	emit<GameObjectEvent>(ID::GOE_CONTROL_THRUST,mAccelerationFactor, ownerHandle());
+}
+
 void AutoNavigator::internalOnEvent(EventIdT action,
                                     Property::Value payload,
                                     GameHandle module,
@@ -140,7 +147,7 @@ void AutoNavigator::operate()
  	accelerate((f32)VectorToTarget.z * mMaxSpeed);
 }
 
-void AutoNavigator::rotate(const qv4& rotation) const
+void AutoNavigator::rotate(const qv4& rotation)
 {
 	const v3& currentRotationVel = getGoValue<v3>(ID::PV_RelativeRotationVelocity, pluginId());
 
@@ -159,13 +166,13 @@ void AutoNavigator::rotate(const qv4& rotation) const
 	if ((factor * pitch) > (b.x * si::radian))
 	{
 		if ((factor * pitch) > mOptimalAngle)
-			emit<GameObjectEvent>(ID::GOE_CONTROL_PITCH, 1.0f * factor, ownerHandle());
+			mRotationFactorPitch = 1.0f * factor;
 		else
-			emit<GameObjectEvent>(ID::GOE_CONTROL_PITCH, 0.05f * factor, ownerHandle());
+			mRotationFactorPitch = 0.05f * factor;
 	}
 	else
 	{
-		emit<GameObjectEvent>(ID::GOE_CONTROL_PITCH, 0.0f, ownerHandle());
+		mRotationFactorPitch = 0.0f;
 	}
 
 	// get the sign
@@ -174,27 +181,17 @@ void AutoNavigator::rotate(const qv4& rotation) const
 	if ((factor * yaw) > (b.y * si::radian))
 	{
 		if ((factor * yaw) > mOptimalAngle)
-			emit<GameObjectEvent>(ID::GOE_CONTROL_YAW, 1.0f * factor, ownerHandle());
+			mRotationFactorYaw = 1.0f * factor;
 		else
-			emit<GameObjectEvent>(ID::GOE_CONTROL_YAW, 0.05f * factor, ownerHandle());
+			mRotationFactorYaw = 0.05f * factor;
 	}
 	else
-		emit<GameObjectEvent>(ID::GOE_CONTROL_YAW, 0.0f, ownerHandle());
+		mRotationFactorYaw = 0.0f;
 }
 
-void AutoNavigator::accelerate(quantity<si::velocity, f32> targetSpeed) const
+void AutoNavigator::accelerate(quantity<si::velocity, f32> targetSpeed)
 {
-	quantity<si::dimensionless, f32> factor =
-	(
-		targetSpeed / mMaxSpeed
-	);
-
-	emit<GameObjectEvent>
-	(
-		ID::GOE_CONTROL_THRUST,
-		factor,
-		ownerHandle()
-	);
+	mAccelerationFactor = targetSpeed.value() / mMaxSpeed.value();
 }
 
 void AutoNavigator::recalculateParameters()

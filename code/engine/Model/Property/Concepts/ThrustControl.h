@@ -54,6 +54,7 @@ public:
 private:
 
 	virtual void internalUpdate(quantity<si::time, f32> timeSinceLastFrame);
+	virtual void internalSynchronize();
 	virtual void internalOnEvent(EventIdT action, Property::Value payload, GameHandle module, GameHandle sender);
 	
 	v3 calculateForce(const v3& targetSpeed,
@@ -70,6 +71,9 @@ private:
 	void magicStop();
 	
 	void calculateEngineAttributes();
+
+	v3                                      mForce;
+	v3                                      mTorque;
 
 	quantity<si::mass, f32>                 mTotalWeight;
 	quantity<si::force, f32>                mTotalEngineForce;

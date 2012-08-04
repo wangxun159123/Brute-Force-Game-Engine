@@ -384,6 +384,20 @@ void GameObject::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 	}
 }
 
+void GameObject::internalSynchronize()
+{
+	//! \see  GameObject::rebuildConceptUpdateOrder()
+	UpdateOrderContainerT::const_iterator it = mConceptUpdateOrder.begin();
+	for(; it != mConceptUpdateOrder.end(); ++it)
+	{
+		if (mActivated)
+		{
+			boost::shared_ptr<Property::Concept> pc = it->lock();
+			pc->synchronize();
+		}
+	}
+}
+
 void GameObject::registerNeedForEvent(boost::shared_ptr<Property::Concept> concept,
                                       EventIdT action)
 {

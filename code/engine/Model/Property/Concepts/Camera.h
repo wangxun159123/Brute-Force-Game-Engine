@@ -94,6 +94,7 @@ struct CameraParameter
 	bool mFullscreen;
 
 	quantity<si::dimensionless, f32> mStiffness;
+
 };
 
 class Camera : public Property::Concept
@@ -104,6 +105,7 @@ public:
 
 private:
 	virtual void internalUpdate(quantity<si::time, f32> timeSinceLastFrame);
+	virtual void internalSynchronize();
 	virtual void internalOnEvent(EventIdT action, Property::Value payload, GameHandle module, GameHandle sender);
 
 	virtual void internalOnModuleAttached(GameHandle module);
@@ -121,6 +123,7 @@ private:
 
 	Location mLastObjLocation;
 	Location mOwnLocation;
+	Location mNewLocation;
 
 	v3 mMaxRotationVelocity;
 	v3 mRotationInput;

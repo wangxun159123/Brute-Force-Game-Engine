@@ -86,14 +86,12 @@ void ThrustControl::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 	assert(mModules.begin()->first == rootModule() &&
 		"ThrustControl: Must be in charge of the root module!");
 
-	v3 force = v3::ZERO;
-	v3 torque = v3::ZERO;
+	mForce = v3::ZERO;
+	mTorque = v3::ZERO;
 
 	const v3& currentSpeed = getGoValue<v3>(ID::PV_RelativeVelocity, pluginId());
 
-	emit<GameObjectEvent>(ID::GOE_VELOCITY, currentSpeed, 0, ownerHandle());
-
-	force = calculateForce
+	mForce = calculateForce
 	(
 		mTargetSpeed,
 		currentSpeed,
@@ -105,7 +103,7 @@ void ThrustControl::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 
 	const m3x3& inertia = getGoValue<m3x3>(ID::PV_Inertia, pluginId());
 
-	torque = calculateTorque
+	mTorque = calculateTorque
 	(
 		mTargetRotationSpeed,
 		currentRotSpeed,
@@ -114,8 +112,15 @@ void ThrustControl::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 		timeSinceLastFrame
 	);
 	
-	emit<Physics::Event>(ID::PE_APPLY_FORCE, force, ownerHandle());
-	emit<Physics::Event>(ID::PE_APPLY_TORQUE, torque, ownerHandle());
+}
+
+void ThrustControl::internalSynchronize()
+{
+	const v3& currentSpeed = getGoValue<v3>(ID::PV_RelativeVelocity, pluginId());
+	emit<GameObjectEvent>(ID::GOE_VELOCITY, currentSpeed, 0, ownerHandle());
+
+	emit<Physics::Event>(ID::PE_APPLY_FORCE, mForce, ownerHandle());
+	emit<Physics::Event>(ID::PE_APPLY_TORQUE, mTorque, ownerHandle());
 }
 
 void ThrustControl::internalOnEvent(EventIdT action,
@@ -198,8 +203,12 @@ v3 ThrustControl::calculateForce(const v3& targetSpeed,
 								 quantity<si::force, f32> forceLimit,
 								 quantity<si::time, f32> timestep)
 {
+	v3 speedDif = targetSpeed - currentSpeed;
+	if (length(speedDif) < 10.0e-5)
+		return v3::ZERO;
+
 	// Calculate the force we need to reach the target speed
-	v3 acceleration((targetSpeed - currentSpeed) / timestep.value());
+	v3 acceleration(speedDif / timestep.value());
 
 	v3 force = acceleration * mTotalWeight.value();
 	
@@ -313,8 +322,8 @@ void ThrustControl::calculateEngineAttributes()
 
 		if(l.value() < EPSILON_F)
 		{
-			dbglog << "ThrustControl::calculateEngineAttributes: An engine should not "
-			          "be at (0,0,0)! Using default (0,0,-1).";
+// 			dbglog << "ThrustControl::calculateEngineAttributes: An engine should not "
+// 			          "be at (0,0,0)! Using default (0,0,-1).";
 			mRelativeEnginePosition = v3(0.0f, 0.0f, -1.0f);
 			l = 1.0f * si::meter;
 		}

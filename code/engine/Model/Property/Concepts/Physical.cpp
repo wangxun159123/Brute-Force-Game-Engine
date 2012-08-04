@@ -61,7 +61,7 @@ Physical::~Physical()
 
 }
 
-void Physical::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
+void Physical::internalSynchronize()
 {
 	assert(ownerHandle() != NULL_HANDLE);
 	

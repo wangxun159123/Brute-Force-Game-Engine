@@ -180,6 +180,7 @@ private:
 	friend class Property::Concept;
 
 	virtual void internalUpdate(quantity<si::time, f32> timeSinceLastFrame);
+	virtual void internalSynchronize();
 
 	//! PropertyConcepts need events too. They register their needs indirectly
 	//! through their base class which then calls this function.

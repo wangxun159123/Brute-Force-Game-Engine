@@ -125,6 +125,7 @@ void Destroyable::updateGui(f32 damage, f32 armor)
 {
 	f32 remainingArmor = (1.0f - damage / armor) * 100;
 	s32 value = clamp((s32)remainingArmor, 0, 100);
+	// TODO: separate calculation and emitting
 	emit<GameObjectEvent>(ID::GOE_ARMOR, value, 0, ownerHandle());
 }
 
@@ -156,6 +157,7 @@ void Destroyable::destroy(GameHandle module, bool respawns)
 	
 	View::EffectCreation ec(effect, go.position, intensity);
 	warnlog << "Destroyable: VE_EFFECT event may arrive at undesired locations due to unknown view state handle";
+	// TODO: separate calculation and emitting
 	emit<View::Event>(ID::VE_EFFECT, ec);
 
 	if (respawns)

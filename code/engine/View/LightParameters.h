@@ -38,7 +38,7 @@ namespace View {
 struct VIEW_API LightParameters
 {
 	LightParameters() : 
-	mDirection(v3::ZERO),
+	mDirection(v3::UNIT_Z),
 	mPosition(v3::ZERO),
 	mRange(100000.0f),
 	mConstant(1.0f),

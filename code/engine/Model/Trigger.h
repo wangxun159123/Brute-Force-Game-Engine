@@ -122,8 +122,10 @@ public:
 	
 private:
 	virtual void internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
-	{
-	}
+	{}
+
+	virtual void internalSynchronize()
+	{}
 
 	void onCheckLocation(GameHandle handle, const v3& position)
 	{

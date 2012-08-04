@@ -166,6 +166,14 @@ void Camera::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 		"Camera: Must be in charge of the root module!");
 
 	(this->*specificUpdate)(timeSinceLastFrame);
+
+	setGoValue(ID::PV_Location, pluginId(), mNewLocation);
+}
+
+void Camera::internalSynchronize()
+{
+	emit<Physics::Event>(ID::PE_UPDATE_ORIENTATION, mNewLocation.orientation, ownerHandle());
+	emit<Physics::Event>(ID::PE_UPDATE_POSITION, mNewLocation.position, ownerHandle());
 }
 
 void Camera::internalOnModuleAttached(GameHandle module)
@@ -274,15 +282,11 @@ void Camera::updateFixed(quantity<si::time, f32> timeSinceLastFrame)
 
 	updateOwnLocation(timeSinceLastFrame);
 
-	qv4 newOri = target.orientation * mOwnLocation.orientation;
-
-	v3 newPos = target.position + (newOri * mOffset);
+	mNewLocation.orientation = target.orientation * mOwnLocation.orientation;
+	mNewLocation.position = target.position + (mNewLocation.orientation * mOffset);
 #if 0
 	v3 newPos = target.position + (newOri * (mOffset * mOffsetFactor));
 #endif
-
-	emit<Physics::Event>(ID::PE_UPDATE_ORIENTATION, newOri, ownerHandle());
-	emit<Physics::Event>(ID::PE_UPDATE_POSITION, newPos, ownerHandle());
 }
 
 #if 0

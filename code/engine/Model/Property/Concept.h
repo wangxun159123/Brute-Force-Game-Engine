@@ -87,6 +87,7 @@ public:
 	void onModuleDetached(GameHandle);
 
 	void update(quantity<si::time, f32> timeSinceLastFrame);
+	void synchronize();
 
 	void onEvent(EventIdT, Value payload, GameHandle module, GameHandle sender);
 
@@ -103,6 +104,9 @@ protected:
 	//! \see GameObject::update()
 	virtual void internalUpdate(quantity<si::time, f32> timeSinceLastFrame);
 
+	//! TODO
+	virtual void internalSynchronize();
+	
 	/** \bug
 		Do not call setGoValue within this function.
 		The application will crash and the reason is, that Concept 's

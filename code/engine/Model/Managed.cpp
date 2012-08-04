@@ -56,4 +56,9 @@ void Managed::update(quantity<si::time, f32> timeSinceLastFrame)
 	internalUpdate(timeSinceLastFrame);
 }
 
+void Managed::synchronize()
+{
+	internalSynchronize();
+}
+
 }

@@ -59,6 +59,9 @@ struct Module : public Managed
 
 	virtual void internalUpdate(quantity<si::time, f32> /*timeSinceLastFrame*/)
 	{}
+
+	virtual void internalSynchronize()
+	{}
 };
 
 } // namespace BFG

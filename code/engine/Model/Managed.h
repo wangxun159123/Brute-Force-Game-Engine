@@ -53,9 +53,11 @@ public:
 	ID::ObjectType getObjectType() const {return mType;}
 
 	void update(quantity<si::time, f32> timeSinceLastFrame);
+	void synchronize();
 
 protected:
 	virtual void internalUpdate(quantity<si::time, f32> timeSinceLastFrame) = 0;
+	virtual void internalSynchronize() = 0;
 
 	// It's the ID for the Managed at the moment.
 	GameHandle mHandle;

@@ -76,6 +76,7 @@ public:
 
 private:
 	void internalUpdate(quantity<si::time, f32> timeSinceLastFrame);
+	void internalSynchronize();
 
 	void deleteMarkedObjectsForRemoval();
 

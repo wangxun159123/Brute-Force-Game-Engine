@@ -52,14 +52,15 @@ private:
 	typedef std::vector<GameHandle> TargetContainerT;
 
 	virtual void internalUpdate(quantity<si::time, f32> timeSinceLastFrame);
+	virtual void internalSynchronize();
 	virtual void internalOnEvent(EventIdT action,
 	                             Property::Value payload,
 	                             GameHandle module,
 	                             GameHandle sender);
 
 	void operate();
-	void rotate(const qv4& rotation) const;
-	void accelerate(quantity<si::velocity, f32> targetSpeed) const;
+	void rotate(const qv4& rotation);
+	void accelerate(quantity<si::velocity, f32> targetSpeed);
 
 	void recalculateParameters();
 
@@ -70,6 +71,10 @@ private:
 	quantity<si::angular_acceleration, f32> mMaxAngularAcceleration;
 	quantity<si::length, f32>               mRadius;
 	quantity<si::time,f32>                  mTime;
+
+	f32 mRotationFactorPitch;
+	f32 mRotationFactorYaw;
+	f32 mAccelerationFactor;
 
 	v3 mMaxAngularVelocity;
 };

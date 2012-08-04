@@ -70,6 +70,11 @@ void Concept::update(quantity<si::time, f32> timeSinceLastFrame)
 	this->internalUpdate(timeSinceLastFrame);
 }
 
+void Concept::synchronize()
+{
+	this->internalSynchronize();
+}
+
 void Concept::onEvent(EventIdT action,
                       Value payload,
                       GameHandle module,
@@ -79,6 +84,10 @@ void Concept::onEvent(EventIdT action,
 }
 
 void Concept::internalUpdate(quantity<si::time, f32> /*timeSinceLastFrame*/)
+{
+}
+
+void Concept::internalSynchronize()
 {
 }
 

@@ -90,6 +90,16 @@ void Sector::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 	{
 		it->second->update(timeSinceLastFrame);
 	}
+	internalSynchronize();
+}
+
+void Sector::internalSynchronize()
+{
+	ObjectMapT::iterator it = mObjectMap.begin();
+	for(; it != mObjectMap.end(); ++it)
+	{
+		it->second->synchronize();
+	}
 }
 
 void Sector::deleteMarkedObjectsForRemoval()

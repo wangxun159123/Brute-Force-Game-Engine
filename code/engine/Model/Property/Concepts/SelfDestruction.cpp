@@ -57,9 +57,20 @@ void SelfDestruction::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 		{
 			mDone[moduleHandle] = true;
 			
-			emit<GameObjectEvent>(ID::PE_CONTACT, 999999.0f, ownerHandle());
+			mToDestroy.push(moduleHandle);
 		}
 	}
+}
+
+void SelfDestruction::internalSynchronize()
+{
+	while (!mToDestroy.empty())
+	{
+		emit<GameObjectEvent>(ID::PE_CONTACT, 999999.0f, ownerHandle());
+		mToDestroy.pop();
+	}	// TODO: separate calculation and emitting
+	
+
 }
 
 } // namespace BFG

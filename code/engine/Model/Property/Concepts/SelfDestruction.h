@@ -38,9 +38,11 @@ public:
 	
 private:
 	virtual void internalUpdate(quantity<si::time, f32> timeSinceLastFrame);
+	virtual void internalSynchronize();
 	
 	std::map<GameHandle, bool>                     mDone;
 	std::map<GameHandle, quantity<si::time, f32> > mPassedTime;
+	std::queue<GameHandle>                         mToDestroy;
 };
 
 } // namespace BFG

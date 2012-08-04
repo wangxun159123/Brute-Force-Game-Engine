@@ -41,7 +41,7 @@ public:
 	~Physical();
 
 private:
-	virtual void internalUpdate(quantity<si::time, f32> timeSinceLastFrame);
+	virtual void internalSynchronize();
 
 	virtual void onPhysicsEvent(Physics::Event*);
 
