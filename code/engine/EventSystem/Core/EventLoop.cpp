@@ -90,7 +90,10 @@ long EventLoop::doLoop()
 		while (mFrontPool->size() > 0)
 		{
 			// 1. Switch Buffers
+			
+			lock();
 			std::swap(mFrontPool, mBackPool);
+			unlock();
 
 			// 2. Process BackPool
 			eventCount += processEventsCount(mBackPool, 0);

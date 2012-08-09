@@ -97,6 +97,16 @@ public:
 	//! EntryPoint for the Business-Logic
 	virtual void entry();
 
+	void lock()
+	{
+		mMutex.lock();
+	}
+
+	void unlock()
+	{
+		mMutex.unlock();
+	}
+
 	//! Perform internal Cleanup, proper usage of this function should avoid memory leaks
 	virtual void cleanUpEventSystem();
 
@@ -150,6 +160,7 @@ private:
 
 	bool mMultiLoop;
 
+	boost::mutex mMutex;
 
 };
 

@@ -53,6 +53,7 @@ struct EventFactory
 	{
 		assert(Loop != NULL);
 
+		Loop->lock();
 		EventT* e = new
 		(
 			static_cast
@@ -66,6 +67,7 @@ struct EventFactory
 
 		check(e);
 		
+		Loop->unlock();
 		return e;
 	}
 	
@@ -78,6 +80,7 @@ struct EventFactory
 	{
 		assert(Loop != NULL);
 	
+		Loop->lock();
 		EventT* e = new
 		(
 			static_cast
@@ -90,7 +93,7 @@ struct EventFactory
 		) EventT(action, payload, destination, sender);
 
 		check(e);
-		
+		Loop->unlock();
 		return e;
 	}
 	
