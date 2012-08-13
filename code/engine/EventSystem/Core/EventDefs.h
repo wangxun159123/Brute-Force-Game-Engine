@@ -32,8 +32,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #endif 
 
 #include <EventSystem/Core/EventHeader.h>
-#include <EventSystem/Core/EventIds.h>
-
 
 //! \attention
 //!		Please use this type with high caution. Check first if
