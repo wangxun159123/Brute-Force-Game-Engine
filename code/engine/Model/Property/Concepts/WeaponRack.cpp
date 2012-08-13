@@ -26,7 +26,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Model/Property/Concepts/WeaponRack.h>
 
-#include <Base/CLogger.h>
+#include <Base/Logger.h>
 
 #include <Core/Utils.h> // generateHandle()
 

@@ -29,7 +29,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
-#include "CDummyMutex.h"
+#include <Base/DummyMutex.h>
 
 namespace BFG {
 namespace Base {

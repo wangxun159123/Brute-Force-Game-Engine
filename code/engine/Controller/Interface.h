@@ -30,7 +30,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/scoped_ptr.hpp>
 
 #include <Controller/Defs.h>
-#include <Base/CEntryPoint.h>
+#include <Base/EntryPoint.h>
 
 namespace BFG {
 

@@ -34,7 +34,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/range/adaptors.hpp>
 #include <boost/range/algorithm/for_each.hpp>
 
-#include <Base/CLogger.h>
+#include <Base/Logger.h>
 #include <Base/Cpp.h>
 #include <Core/Math.h>
 #include <EventSystem/Core/EventLoop.h>

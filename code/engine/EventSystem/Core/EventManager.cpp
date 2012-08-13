@@ -36,7 +36,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_oarchive.hpp>
 
 #include <Base/Cpp.h>
-#include <Base/CLogger.h>
+#include <Base/Logger.h>
 #include <Base/NameCurrentThread.h>
 #include <EventSystem/Core/EventLoop.h>
 #include <EventSystem/Core/EventManager.h>

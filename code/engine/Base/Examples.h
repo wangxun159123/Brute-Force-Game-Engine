@@ -28,8 +28,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #define __BASE_EXAMPLES_H_
 
 
-#include "CDummyMutex.h"
-#include "CSingleton.h"
+#include <Base/DummyMutex.h>
+#include <Base/Singleton.h>
 
 namespace BFG {
 namespace Base {

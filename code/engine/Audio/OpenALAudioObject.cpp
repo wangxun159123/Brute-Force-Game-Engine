@@ -28,7 +28,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef ENABLE_OPENAL
 
-#include <Base/CLogger.h>
+#include <Base/Logger.h>
 
 #include <Audio/OpenALStream.h>
 #include <Audio/FileFactory.h>

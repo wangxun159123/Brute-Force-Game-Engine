@@ -28,7 +28,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
-#include <Base/CLogger.h>
+#include <Base/Logger.h>
 #include <Core/Path.h>
 
 bool FileInfo::operator < (const FileInfo& rhs) const

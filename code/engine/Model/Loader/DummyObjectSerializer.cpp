@@ -26,7 +26,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Model/Loader/DummyObjectSerializer.h>
 
-#include <Base/CLogger.h>
+#include <Base/Logger.h>
 
 namespace BFG {
 namespace Loader {

@@ -37,8 +37,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Audio/Interface.h>
 #include <Audio/Playlist.h>
 #include <Audio/SoundEmitter.h>
-#include <Base/CEntryPoint.h>
-#include <Base/CLogger.h>
+#include <Base/EntryPoint.h>
+#include <Base/Logger.h>
 #include <Base/Cpp.h>
 #include <Base/Pause.h>
 #include <Controller/Action.h>

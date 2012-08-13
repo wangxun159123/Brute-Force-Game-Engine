@@ -26,7 +26,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/utility.hpp>
 
-#include <Base/CLogger.h>
+#include <Base/Logger.h>
 #include <Base/Cpp.h>
 #include <Base/Network.h>
 #include <Base/Pause.h>

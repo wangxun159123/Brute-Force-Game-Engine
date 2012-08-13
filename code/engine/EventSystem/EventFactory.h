@@ -27,7 +27,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #ifndef BFG_EVENTSYSTEM_EVENT_FACTORY_H_
 #define BFG_EVENTSYSTEM_EVENT_FACTORY_H_
 
-#include <Base/CLogger.h>
+#include <Base/Logger.h>
 #include <EventSystem/Core/EventDefs.h>
 #include <EventSystem/Core/EventLoop.h>
 #include <EventSystem/Core/EventPool.h>

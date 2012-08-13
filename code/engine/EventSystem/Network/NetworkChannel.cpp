@@ -28,7 +28,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/make_shared.hpp>
 
-#include <Base/CLogger.h>
+#include <Base/Logger.h>
 #include <EventSystem/Core/EventManager.h>
 
 namespace EventSystem {

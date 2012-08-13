@@ -27,7 +27,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #ifndef MUSIC_AND_SOUND_TEST_H_
 #define MUSIC_AND_SOUND_TEST_H_
 
-#include <Base/CLogger.h>
+#include <Base/Logger.h>
 #include <Core/Types.h>
 
 #include <EventSystem/EventFactory.h>

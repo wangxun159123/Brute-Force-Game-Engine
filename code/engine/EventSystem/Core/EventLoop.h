@@ -33,7 +33,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #ifndef EVENT_LOOP_H
 #define EVENT_LOOP_H
 
-#include <Base/CEntryPoint.h>
+#include <Base/EntryPoint.h>
 #include <Base/Compiler.h>
 
 #include <EventSystem/Core/CommunicationPolicy.h>

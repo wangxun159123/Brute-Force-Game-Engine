@@ -29,7 +29,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdexcept>
 #include <stdlib.h>
-#include <Base/CLogger.h>
+#include <Base/Logger.h>
 #include <Audio/HelperFunctions.h>
 
 namespace BFG {

@@ -28,7 +28,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <map>
 #include <tinyxml.h>
-#include <Base/CLogger.h>
+#include <Base/Logger.h>
 
 namespace BFG {
 namespace Loader {

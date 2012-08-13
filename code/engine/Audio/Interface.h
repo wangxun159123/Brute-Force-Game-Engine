@@ -28,7 +28,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #define BFG_AUDIO_INTERFACE_H
 
 #include <boost/scoped_ptr.hpp>
-#include <Base/CEntryPoint.h>
+#include <Base/EntryPoint.h>
 #include <Audio/Defines.h>
 
 namespace BFG {

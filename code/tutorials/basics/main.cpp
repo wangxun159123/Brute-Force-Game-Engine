@@ -40,8 +40,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <OgreException.h>
 
 // BFG libraries
-#include <Base/CEntryPoint.h>
-#include <Base/CLogger.h>
+#include <Base/EntryPoint.h>
+#include <Base/Logger.h>
 #include <Controller/Action.h>
 #include <Controller/ControllerEvents.h>
 #include <Controller/Interface.h>

@@ -32,7 +32,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/foreach.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include <Base/CLogger.h>
+#include <Base/Logger.h>
 #include <Base/Cpp.h>
 
 #include <Model/Events/GameObjectEvent.h>

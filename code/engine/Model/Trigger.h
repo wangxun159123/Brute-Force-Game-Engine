@@ -29,7 +29,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <set>
 
-#include <Base/CLogger.h>
+#include <Base/Logger.h>
 #include <Core/Math.h>
 
 #include <EventSystem/Emitter.h>

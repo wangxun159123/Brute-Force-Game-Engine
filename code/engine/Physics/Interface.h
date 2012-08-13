@@ -28,7 +28,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #define BFG_PHYSICS_INTERFACE_H
 
 #include <boost/shared_ptr.hpp>
-#include <Base/CEntryPoint.h>
+#include <Base/EntryPoint.h>
 #include <Physics/Defs.h>
 
 namespace BFG {

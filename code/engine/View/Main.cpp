@@ -48,7 +48,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <MyGUI.h>
 #include <MyGUI_OgrePlatform.h>
 
-#include <Base/CLogger.h>
+#include <Base/Logger.h>
 #include <Core/Enums.hh>
 #include <Core/Path.h>
 #include <Core/Utils.h> // generateHandle()

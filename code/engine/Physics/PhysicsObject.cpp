@@ -31,7 +31,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <ode/../../ode/src/objects.h>   // for debugOutput()
 #include <ode/../../ode/src/collision_kernel.h>   // for debugOutput()
 
-#include <Base/CLogger.h>
+#include <Base/Logger.h>
 
 #include <Core/ExternalTypes.h>
 #include <Core/Math.h>

@@ -43,7 +43,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 
-#include <Base/CSingleton.h>
+#include <Base/Singleton.h>
 
 #include <EventSystem/Core/EventPool.h>
 #include <EventSystem/Core/EventChannel.h>

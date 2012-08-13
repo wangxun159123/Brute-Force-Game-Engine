@@ -4,7 +4,7 @@
 
 #include <tinyxml.h>
 
-#include <Base/CLogger.h>
+#include <Base/Logger.h>
 #include <Core/Path.h>
 #include <Core/qv4.h>
 #include <Model/Loader/DummyObjectSerializer.h>

@@ -32,7 +32,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <sstream>
 
-#include <Base/CLogger.h>
+#include <Base/Logger.h>
 
 #include <Model/Loader/Exceptions.h>
 #include <Model/Loader/Tags.h>

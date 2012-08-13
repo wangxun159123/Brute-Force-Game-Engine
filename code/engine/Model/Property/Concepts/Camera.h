@@ -34,7 +34,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/units/systems/si/dimensionless.hpp>
 
 #include <Core/Types.h>
-#include <Base/CInterpolate.h>
+#include <Base/Interpolate.h>
 #include <Model/Waypoint.h>
 #include <Model/Property/Concept.h>
 

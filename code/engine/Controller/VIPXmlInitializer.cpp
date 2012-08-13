@@ -28,7 +28,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/lexical_cast.hpp>
 #include <boost/typeof/typeof.hpp>
-#include <Base/CLogger.h>
+#include <Base/Logger.h>
 #include <Controller/State.h>
 #include <Controller/VIPEnumToType.h>
 #include <Core/Path.h>

@@ -28,7 +28,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/archive/text_iarchive.hpp>
 
-#include <Base/CLogger.h>
+#include <Base/Logger.h>
 #include <EventSystem/Core/EventPool.h>
 #include <EventSystem/Core/EventManager.h>
 

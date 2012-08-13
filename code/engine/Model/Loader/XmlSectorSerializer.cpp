@@ -27,7 +27,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Model/Loader/XmlSectorSerializer.h>
 
 #include <tinyxml.h>
-#include <Base/CLogger.h>
+#include <Base/Logger.h>
 #include <Model/Loader/Types.h>
 #include <Model/Loader/XmlObjectSerializer.h>
 
