@@ -33,6 +33,9 @@
           <value>AE_VELOCITY</value>
       
           <value>AE_SOUND_EMITTER_PROCESS_SOUND</value>
+          
+          <!-- Effects -->
+          <value>AE_SOUND_EFFECT</value>
 
       </enum>
 

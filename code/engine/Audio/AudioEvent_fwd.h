@@ -31,6 +31,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Core/Types.h>
 #include <Core/v3.h>
+#include <Core/CharArray.h>
 #include <EventSystem/Event_fwd.h>
 
 #include <Audio/Enums.hh>
@@ -45,7 +46,8 @@ typedef boost::variant
 	s32,
 	v3,
 	GameHandle,
-	std::string
+	std::string,
+	CharArray128T
 >
 AudioPayloadT;
 

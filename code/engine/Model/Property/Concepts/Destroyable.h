@@ -54,6 +54,7 @@ private:
 	const f32 mDamageMultiplier;
 	
 	std::map<GameHandle, f32> mTimeSinceDestruction;
+
 };
 
 } // namespace BFG

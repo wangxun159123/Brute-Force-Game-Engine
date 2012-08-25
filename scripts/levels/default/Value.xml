@@ -16,6 +16,7 @@
     <PV id="Damage" value="0.0" />
     <PV id="RespawnCountdown" value="0" />
     <PV id="Effect" value="Explosion_2" />
+    <PV id="SoundEffect" value="Explosion_medium" />
   </ValueConfig>
 
   <ValueConfig name="RocketEngine">

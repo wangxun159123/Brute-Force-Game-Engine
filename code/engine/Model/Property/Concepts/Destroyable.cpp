@@ -31,6 +31,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Base/Logger.h>
 #include <Core/Math.h>
 
+#include <Audio/AudioEvent.h>
+
 #include <Model/Environment.h>
 #include <Model/GameObject.h>
 #include <Model/Module.h>
@@ -151,7 +153,8 @@ void Destroyable::destroy(GameHandle module, bool respawns)
 	const Location& go = getGoValue<Location>(ID::PV_Location, pluginId());
 
 	CharArray128T effect = value<CharArray128T>(ID::PV_Effect, module);
-
+	CharArray128T soundEffect = value<CharArray128T>(ID::PV_SoundEffect, module);
+	
 	//! \todo calculate intensity
 	f32 intensity = 1.0f + (f32)isHeavy(module);
 	
@@ -159,6 +162,7 @@ void Destroyable::destroy(GameHandle module, bool respawns)
 	warnlog << "Destroyable: VE_EFFECT event may arrive at undesired locations due to unknown view state handle";
 	// TODO: separate calculation and emitting
 	emit<View::Event>(ID::VE_EFFECT, ec);
+	emit<Audio::AudioEvent>(ID::AE_SOUND_EFFECT, soundEffect);
 
 	if (respawns)
 	{

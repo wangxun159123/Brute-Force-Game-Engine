@@ -13,6 +13,7 @@
     <PV id="Damage" value="0.0" />
     <PV id="RespawnCountdown" value="0" />
     <PV id="Effect" value="Powerup_1" />
+    <PV id="SoundEffect" value="Explosion_small" />
   </ValueConfig>
 
   <ValueConfig name="PlayerDestroyable">
@@ -22,6 +23,7 @@
     <PV id="Damage" value="0.0" />
     <PV id="RespawnCountdown" value="0" />
     <PV id="Effect" value="Explosion_1" />
+    <PV id="SoundEffect" value="Explosion_big" />
   </ValueConfig>
 </ValueConfigs>
 

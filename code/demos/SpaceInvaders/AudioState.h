@@ -43,9 +43,13 @@ public:
 private:
 
 	void AudioState::audioStateEventHandler(Audio::AudioEvent* AE);
+	void onSoundEffect(const Audio::AudioPayloadT& payload);
 
 	boost::scoped_ptr<Audio::Playlist> mPlaylist;
 	Audio::SoundEmitter mSoundEmitter;
+	
+	typedef std::map<CharArray128T, std::string> SoundEffectMapT;
+	SoundEffectMapT mSoundEffectMap;
 };
 
 #endif

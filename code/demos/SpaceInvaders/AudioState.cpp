@@ -26,6 +26,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AudioState.h"
 #include <Core/Path.h>
+
 #include <EventSystem/Core/EventLoop.h>
 #include <Audio/Main.h>
 
@@ -43,11 +44,19 @@ AudioState::AudioState()
 	Audio::AudioMain::eventLoop()->connect(ID::AE_SOUND_EMITTER_PROCESS_SOUND,
 	                                       this,
 	                                       &AudioState::audioStateEventHandler);
+	Audio::AudioMain::eventLoop()->connect(ID::AE_SOUND_EFFECT,
+	                                       this,
+	                                       &AudioState::audioStateEventHandler);
+
+	mSoundEffectMap[stringToArray<128>("Explosion_big")] = p.Get(ID::P_SOUND_EFFECTS)+"Destruction_ExplosionD9.wav";
+	mSoundEffectMap[stringToArray<128>("Explosion_small")] = p.Get(ID::P_SOUND_EFFECTS)+"Destruction_ExplosionD9.wav";
+	mSoundEffectMap[stringToArray<128>("Explosion_medium")] = p.Get(ID::P_SOUND_EFFECTS)+"Destruction_ExplosionD9.wav";
 }
 
 AudioState::~AudioState()
 {
 	Audio::AudioMain::eventLoop()->disconnect(ID::AE_SOUND_EMITTER_PROCESS_SOUND, this);
+	Audio::AudioMain::eventLoop()->disconnect(ID::AE_SOUND_EFFECT, this);
 }
 
 void AudioState::audioStateEventHandler(Audio::AudioEvent* AE)
@@ -57,7 +66,35 @@ void AudioState::audioStateEventHandler(Audio::AudioEvent* AE)
 		case ID::AE_SOUND_EMITTER_PROCESS_SOUND:
 			mSoundEmitter.processSound(boost::get<std::string>(AE->getData()));
 			break;
+		case ID::AE_SOUND_EFFECT:
+			onSoundEffect(AE->getData());			
+			break;
 		default:
 			throw std::logic_error("AudioState::eventHandler: received unhandled event!");
 	}
 }
+
+void AudioState::onSoundEffect(const Audio::AudioPayloadT& payload)
+{
+	CharArray128T effect = boost::get<CharArray128T>(payload);
+
+	SoundEffectMapT::iterator it;
+	
+	it = mSoundEffectMap.find(effect);
+
+	mSoundEmitter.processSound(it->second);
+	
+	//if (effect == "Explosion_big")
+	//{
+
+	//}
+	//else if (effect == "Explosion_small")
+	//{
+
+	//}
+	//else if (effect == "Explosion_medium")
+	//{
+
+	//}
+}
+
