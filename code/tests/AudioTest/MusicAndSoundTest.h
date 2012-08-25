@@ -62,10 +62,6 @@ void musicAndSoundTest()
     std::string laserSound =  path.Get(ID::P_SOUND_EFFECTS)+"Laser_003.wav";
     Audio::SoundEmitter soundEmitter;
 
-    EventFactory ef;
-    ef.Create<Audio::AudioEvent>(myEventLoop, ID::AE_PLAYLIST_PLAY, 0);
-    myEventLoop->doLoop();
-
     for (int i = 0; i < 30; ++i)
     {
         soundEmitter.processSound(laserSound);

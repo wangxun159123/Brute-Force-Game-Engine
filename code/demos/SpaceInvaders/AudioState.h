@@ -42,7 +42,7 @@ public:
 
 private:
 
-	void AudioState::audioStateEventHandler(Audio::AudioEvent* AE);
+	void audioStateEventHandler(Audio::AudioEvent* AE);
 	void onSoundEffect(const Audio::AudioPayloadT& payload);
 
 	boost::scoped_ptr<Audio::Playlist> mPlaylist;

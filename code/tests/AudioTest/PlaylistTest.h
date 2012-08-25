@@ -45,15 +45,13 @@ void playlistTest()
 	using namespace BFG;
 
 	dbglog << "Get EventLoop";
-	Audio::AudioInterface::getEntryPoint();
-	EventLoop* myEventLoop = Audio::AudioMain::eventLoop();
+	//Audio::AudioInterface::getEntryPoint();
+	//EventLoop* myEventLoop = Audio::AudioMain::eventLoop();
 	
     std::vector<std::string> fileNameList = musicFileNames();
 
 	dbglog << "CreatePlaylist";
 	Audio::Playlist playlist(fileNameList, true);
-
-	EventFactory ef;
 
 	bool noExit = true;
 	int choice = -1;
@@ -69,12 +67,10 @@ void playlistTest()
 				noExit = false;
 				break;
 			case 1:
-				ef.Create<Audio::AudioEvent>(myEventLoop, ID::AE_PLAYLIST_PLAY, 0);
-				myEventLoop->doLoop();
+				playlist.play();
 				break;
 			case 2:
-				ef.Create<Audio::AudioEvent>(myEventLoop, ID::AE_PLAYLIST_PAUSE, 0);
-				myEventLoop->doLoop();
+				playlist.pause();
 				break;
 			default:
 				std::cout << "Default";
