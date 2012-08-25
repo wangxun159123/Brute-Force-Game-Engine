@@ -7,6 +7,10 @@
 
           <!-- For BFG_AUDIO_API definition -->
           <include>Audio/Defines.h</include>
+    
+          <!-- Global Audio Events -->
+          <value>AE_PLAY</value>
+          <value>AE_PAUSE</value>
 
           <!-- Audio Events Master -->
           <value set =" 5000">AE_POSITION_PLAYER</value>
@@ -17,10 +21,6 @@
           <value>AE_SET_LEVEL_CURRENT</value>
 
           <!-- Audio Events for AudioObject-->   
-          <value>AE_PLAY</value>
-          <value>AE_STOP</value>
-          <value>AE_PAUSE</value>
-          <value>AE_REWIND</value>
           <value>AE_PITCH</value>
           <value>AE_GAIN</value>
           <value>AE_ROLLOFF_FACTOR</value>
@@ -32,33 +32,7 @@
           <value>AE_ORIENTATION</value>
           <value>AE_VELOCITY</value>
       
-          <value>AE_PLAYLIST_PLAY</value>
-          <value>AE_PLAYLIST_PAUSE</value>
-
-          <value>AE_SOUND_EMITTER_PLAY</value>
-          <value>AE_SOUND_EMITTER_PAUSE</value>
-
-      </enum>
-
-
-      <enum name = "AudioObjectType" export = "BFG_AUDIO_API">
-
-        <!-- For BFG_AUDIO_API definition -->
-        <include>Audio/Defines.h</include>
-
-        <!-- Audio Object Types-->
-        <value>AOT_SINGLE_SERVING</value>
-        <value>AOT_PERMANENT</value>
-      </enum>
-
-      <enum name = "AudioPreset" export = "BFG_AUDIO_API">
-        <!-- For BFG_AUDIO_API definition -->
-        <include>Audio/Defines.h</include>
-
-        <!-- Audio Object Presets-->
-        <value>AOP_DEFAULT_MUSIC</value>
-        <value>AOP_DEFAULT_SOUND</value>
-        <value>AOP_DEFAULT_3DSOUND</value>
+          <value>AE_SOUND_EMITTER_PROCESS_SOUND</value>
 
       </enum>
 

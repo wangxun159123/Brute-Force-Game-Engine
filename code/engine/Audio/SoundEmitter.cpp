@@ -34,29 +34,6 @@ SoundEmitter::SoundEmitter():
     mState(PLAYING),
     mIdCounter(0)
 {
-    AudioMain::eventLoop()->connect(ID::AE_SOUND_EMITTER_PLAY, this, &SoundEmitter::eventHandler);
-    AudioMain::eventLoop()->connect(ID::AE_SOUND_EMITTER_PAUSE, this, &SoundEmitter::eventHandler);
-}
-
-SoundEmitter::~SoundEmitter()
-{
-	AudioMain::eventLoop()->disconnect(ID::AE_SOUND_EMITTER_PLAY, this);
-    AudioMain::eventLoop()->disconnect(ID::AE_SOUND_EMITTER_PAUSE, this);
-}
-
-void SoundEmitter::eventHandler(AudioEvent* AE)
-{
-	switch (AE->getId())
-	{
-        case ID::AE_SOUND_EMITTER_PLAY:
-            play();
-			break;
-        case ID::AE_SOUND_EMITTER_PAUSE:
-            pause();
-			break;
-		default:
-			throw std::logic_error("Unhandled event on Playlist::eventHandler()!");
-	}
 }
 
 void SoundEmitter::play()

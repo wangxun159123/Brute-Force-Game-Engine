@@ -74,18 +74,16 @@ class BFG_AUDIO_API SoundEmitter : public AudioModule
 public:
 
     SoundEmitter();
-    ~SoundEmitter();
 
     void processSound(const std::string& name);
     void soundFinished(int id);
 	
-	//! Just to resume from PAUSE
+	//! Just to resume from PAUSE.
 	void play();
 	void pause();
 
 protected:
 	
-	void eventHandler(AudioEvent* AE);
 	void onStreamFinishedForwarded() { /*NOT USED FOR THIS MODULE*/ }
 
 private:

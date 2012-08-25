@@ -49,19 +49,12 @@ Playlist::Playlist(const std::vector<std::string>& program,
 		mProgram.push_back(createAudioObject(sound, mStreamLoop, onFinishedCallback));
 	}
 	
-	AudioMain::eventLoop()->connect(ID::AE_PLAYLIST_PLAY, this, &Playlist::eventHandler);
-	AudioMain::eventLoop()->connect(ID::AE_PLAYLIST_PAUSE, this, &Playlist::eventHandler);
 
 	mCurrentTrack = mProgram.begin();
 	(*mCurrentTrack)->play();
 	mState = PLAYING;
 }
 
-Playlist::~Playlist()
-{
-	AudioMain::eventLoop()->disconnect(ID::AE_PLAYLIST_PLAY, this);
-	AudioMain::eventLoop()->disconnect(ID::AE_PLAYLIST_PAUSE, this);
-}
 
 void Playlist::onStreamFinishedForwarded()
 {
@@ -81,22 +74,7 @@ void Playlist::onStreamFinishedForwarded()
 		(*mCurrentTrack)->play();
 }
 
-void Playlist::eventHandler(AudioEvent* AE)
-{
-	switch (AE->getId())
-	{
-		case ID::AE_PLAYLIST_PLAY:
-			onEventPlay();
-			break;
-		case ID::AE_PLAYLIST_PAUSE:
-			onEventPause();
-			break;
-		default:
-			throw std::logic_error("Unhandled event on Playlist::eventHandler()!");
-	}
-}
-
-void Playlist::onEventPlay()
+void Playlist::play()
 {
 	if (mState == PLAYING)
 		return;
@@ -108,7 +86,7 @@ void Playlist::onEventPlay()
 	mState = PLAYING;
 }
 
-void Playlist::onEventPause()
+void Playlist::pause()
 {
 	(*mCurrentTrack)->pause();
 	mState = PAUSE;

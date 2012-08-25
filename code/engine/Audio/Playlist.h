@@ -48,18 +48,18 @@ public:
 	Playlist(const std::vector<std::string>& program,
 		     bool repeatAll);
 
-	~Playlist();
+	void pause();
+	//! Call it to resume from PAUSE or play the program again if FINISHED.
+	//! A call while stated PLAYING is active will be ingored.
+	void play();
 
 protected:
 	
 	//! Will be called if a track is finished.
 	void onStreamFinishedForwarded();
-	void eventHandler(AudioEvent* AE);
 
 private:
-
-	//! Call it to resume from PAUSE or play the program again if FINISHED.
-	//! Calling if stated is PLAYING will be ingored.
+	
 	void onEventPlay();
 	void onEventPause();
 
@@ -68,7 +68,6 @@ private:
 	ProgramT::iterator mCurrentTrack;
 
 	State mState;
-	
 	bool mRepeatAll;
 };
 

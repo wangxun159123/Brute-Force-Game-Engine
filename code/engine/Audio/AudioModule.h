@@ -30,7 +30,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Audio/Defines.h>
 #include <boost/shared_ptr.hpp>
 #include <Audio/StreamLoop.h>
-#include <Audio/AudioEvent.h>
 
 namespace BFG {
 namespace Audio {
@@ -46,7 +45,6 @@ public:
 
 protected:
 	virtual void onStreamFinishedForwarded() = 0;
-	virtual void eventHandler(AudioEvent* AE) = 0;
 	
 	boost::shared_ptr<StreamLoop> mStreamLoop;
 };
