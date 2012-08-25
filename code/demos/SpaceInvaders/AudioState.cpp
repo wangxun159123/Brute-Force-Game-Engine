@@ -83,18 +83,5 @@ void AudioState::onSoundEffect(const Audio::AudioPayloadT& payload)
 	it = mSoundEffectMap.find(effect);
 
 	mSoundEmitter.processSound(it->second);
-	
-	//if (effect == "Explosion_big")
-	//{
-
-	//}
-	//else if (effect == "Explosion_small")
-	//{
-
-	//}
-	//else if (effect == "Explosion_medium")
-	//{
-
-	//}
 }
 
