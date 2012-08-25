@@ -1,0 +1,124 @@
+/*    ___  _________     ____          __
+	 / _ )/ __/ ___/____/ __/___ ___ _/_/___ ___
+	/ _  / _// (_ //___/ _/ / _ | _ `/ // _ | -_)
+   /____/_/  \___/    /___//_//_|_, /_//_//_|__/
+							   /___/
+
+This file is part of the Brute-Force Game Engine, BFG-Engine
+
+For the latest info, see http://www.brute-force-games.com
+
+Copyright (c) 2011 Brute-Force Games GbR
+
+The BFG-Engine is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+The BFG-Engine is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#include "Cannon.h"
+
+#include <Core/Path.h>
+#include <Audio/AudioEvent.h>
+#include <Model/Environment.h>
+#include <Model/Loader/GameObjectFactory.h>
+#include <Model/Sector.h>
+
+#include "Globals.h"
+
+
+Cannon::Cannon(GameObject& Owner, BFG::PluginId pid) :
+	Property::Concept(Owner, "Cannon", pid),
+	mAutoRocketAmmo(0)
+{
+	require("Physical");
+
+	Path path;
+	mLaserSound = path.Get(ID::P_SOUND_EFFECTS)+"Laser_003.wav";
+
+	initvar(ID_PROJECTILE_SPEED);
+	initvar(ID_PROJECTILE_SPAWN_DISTANCE);
+
+	requestEvent(ID::GOE_FIRE_ROCKET);
+	requestEvent(ID::GOE_POWERUP);
+}
+
+void Cannon::internalOnEvent(EventIdT action,
+							 Property::Value payload,
+							 GameHandle module,
+							 GameHandle sender)
+{
+	switch(action)
+	{
+		case ID::GOE_FIRE_ROCKET:
+		{
+			if (mAutoRocketAmmo > 0)
+			{
+				fireRocket(true);
+				--mAutoRocketAmmo;
+			}
+			else
+			{
+				fireRocket(false);
+			}
+			break;
+		}
+		case ID::GOE_POWERUP:
+		{
+			s32 newAmmo = payload;
+			mAutoRocketAmmo += newAmmo;
+			break;
+		}
+	}
+}
+
+void Cannon::fireRocket(bool autoRocket)
+{
+	std::vector<GameHandle> targets = environment()->find_all(isInvader);
+
+	if (autoRocket && targets.empty())
+		return;
+
+	const Location& go = getGoValue<Location>(ID::PV_Location, ValueId::ENGINE_PLUGIN_ID);
+
+	const f32& projectileSpeed = value<f32>(ID_PROJECTILE_SPEED, rootModule());
+	const f32& projectileSpawnDistance = value<f32>(ID_PROJECTILE_SPAWN_DISTANCE, rootModule());
+
+	Location spawnLocation;
+	spawnLocation.position = go.position + go.orientation.zAxis() * projectileSpawnDistance;
+	spawnLocation.orientation = go.orientation;
+
+	// Make Name
+	static size_t count = 0;
+	++count;
+	std::stringstream ss;
+	ss << "Projectile " << count;
+
+	// Make Configuration
+	Loader::ObjectParameter op;
+	op.mHandle = generateHandle();
+	op.mName = ss.str();
+	if (autoRocket) op.mType = "AutoProjectile";
+	else            op.mType = "Projectile";
+	op.mLocation = spawnLocation;
+	op.mLinearVelocity = v3(projectileSpeed) * go.orientation.zAxis();
+
+	emit<SectorEvent>(ID::S_CREATE_GO, op);
+
+	mSoundEmitter.processSound(mLaserSound);
+
+	if (autoRocket)
+	{
+		GameHandle randomInvader = targets[rand()%targets.size()];
+		emit<GameObjectEvent>(ID::GOE_AUTONAVIGATE, randomInvader, op.mHandle);
+	}
+}
+
