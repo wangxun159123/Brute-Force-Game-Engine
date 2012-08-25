@@ -27,8 +27,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #ifndef SI_CANNON_H
 #define SI_CANNON_H
 
-#include <Audio/SoundEmitter.h>
-
 #include <Core/Types.h>
 
 #include <EventSystem/Event.h>
@@ -56,8 +54,7 @@ public:
 	s32 mAutoRocketAmmo;
 
 private:
-    Audio::SoundEmitter mSoundEmitter;
-    std::string mLaserSound;
+	std::string mLaserSound;
 };
 
 #endif

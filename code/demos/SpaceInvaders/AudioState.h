@@ -24,14 +24,28 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-//using namespace BFG;
 
 #ifndef SI_AUDIO_STATE_H
 #define SI_AUDIO_STATE_H
 
+#include <Audio/AudioEvent.h>
+#include <Audio/Playlist.h>
+#include <Audio/SoundEmitter.h>
+
+using namespace BFG;
+
 class AudioState
 {
+public:
+	AudioState();
+	~AudioState();
 
+private:
+
+	void AudioState::audioStateEventHandler(Audio::AudioEvent* AE);
+
+	boost::scoped_ptr<Audio::Playlist> mPlaylist;
+	Audio::SoundEmitter mSoundEmitter;
 };
 
 #endif

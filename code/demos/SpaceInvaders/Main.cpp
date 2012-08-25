@@ -50,6 +50,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <View/WindowAttributes.h>
 
 #include "MainState.h"
+#include "AudioState.h"
 #include "Globals.h"
 
 
@@ -63,6 +64,7 @@ void* SingleThreadEntryPoint(void *iPointer)
 	// Hack: Using leaking pointers, because vars would go out of scope
 	MainState* ps = new MainState(siHandle, loop);
 	ViewMainState* vps = new ViewMainState(siHandle, loop);
+	AudioState* as = new AudioState();
 
 	// Init Controller
 	GameHandle handle = generateHandle();

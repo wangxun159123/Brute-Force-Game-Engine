@@ -41,6 +41,7 @@ Cannon::Cannon(GameObject& Owner, BFG::PluginId pid) :
 {
 	require("Physical");
 
+	// TODO having a path here is not beautiful.
 	Path path;
 	mLaserSound = path.Get(ID::P_SOUND_EFFECTS)+"Laser_003.wav";
 
@@ -112,8 +113,7 @@ void Cannon::fireRocket(bool autoRocket)
 	op.mLinearVelocity = v3(projectileSpeed) * go.orientation.zAxis();
 
 	emit<SectorEvent>(ID::S_CREATE_GO, op);
-
-	mSoundEmitter.processSound(mLaserSound);
+	emit<Audio::AudioEvent>(ID::AE_SOUND_EMITTER_PROCESS_SOUND, mLaserSound);
 
 	if (autoRocket)
 	{

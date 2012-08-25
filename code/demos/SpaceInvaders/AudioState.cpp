@@ -25,3 +25,39 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "AudioState.h"
+#include <Core/Path.h>
+#include <EventSystem/Core/EventLoop.h>
+#include <Audio/Main.h>
+
+
+AudioState::AudioState()
+{
+	Path p;
+	std::vector<std::string> program;
+	program.push_back(p.Get(ID::P_SOUND_MUSIC)+"6 Fleet's Arrival.ogg");
+	program.push_back(p.Get(ID::P_SOUND_MUSIC)+"02_Deimos - Flottenkommando.ogg");
+	program.push_back(p.Get(ID::P_SOUND_MUSIC)+"01_Deimos - Faint Sun.ogg");
+
+	mPlaylist.reset(new Audio::Playlist(program, true));
+
+	Audio::AudioMain::eventLoop()->connect(ID::AE_SOUND_EMITTER_PROCESS_SOUND,
+	                                       this,
+	                                       &AudioState::audioStateEventHandler);
+}
+
+AudioState::~AudioState()
+{
+	Audio::AudioMain::eventLoop()->disconnect(ID::AE_SOUND_EMITTER_PROCESS_SOUND, this);
+}
+
+void AudioState::audioStateEventHandler(Audio::AudioEvent* AE)
+{
+	switch(AE->getId())
+	{
+		case ID::AE_SOUND_EMITTER_PROCESS_SOUND:
+			mSoundEmitter.processSound(boost::get<std::string>(AE->getData()));
+			break;
+		default:
+			throw std::logic_error("AudioState::eventHandler: received unhandled event!");
+	}
+}

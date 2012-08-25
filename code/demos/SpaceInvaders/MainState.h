@@ -33,8 +33,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Controller/ControllerEvents_fwd.h>
 
-#include <Audio/Playlist.h>
-
 #include <Model/Environment.h>
 #include <Model/Sector.h>
 
@@ -57,7 +55,6 @@ struct MainState : Emitter
 
 	boost::shared_ptr<Sector> mSector;
 	boost::shared_ptr<Environment> mEnvironment;
-	boost::shared_ptr<Audio::Playlist> mPlaylist;
 
 	boost::scoped_ptr<Clock::StopWatch> mClock;
 
