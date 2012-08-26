@@ -75,7 +75,7 @@ TARGET_LINK_LIBRARIES(bfgModel
 	bfgView
 )
 
-ADD_DEPENDENCIES(bfgModel CoreEnums ModelEnums)
+ADD_DEPENDENCIES(bfgModel AudioEnums CoreEnums ModelEnums)
 
 INSTALL(TARGETS bfgModel
 	RUNTIME DESTINATION ${BFG_BIN_DIR}
