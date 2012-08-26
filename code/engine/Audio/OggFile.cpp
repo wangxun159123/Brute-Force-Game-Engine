@@ -52,6 +52,8 @@ void OggFile::open()
 {
 	mVorbisFile = new OggVorbis_File;
 
+	// Note: If you encounter an "invalid conversion from ‘const char*’ to ‘char*’"
+	//       here, your libvorbis version is too old. Try a more recent one.
 	if (ov_fopen(mFileName.c_str(), mVorbisFile))
 		throw std::logic_error(std::string("Audio: Error loading file: "+ mFileName +" ."));
 
