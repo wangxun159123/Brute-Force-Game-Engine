@@ -41,8 +41,8 @@ class BaseFeature
 public:
 	BaseFeature(const std::string& name,
 	            const bool needButton = false) :
-	mLoaded(false),
 	mActive(false),
+	mLoaded(false),
 	mName(name),
 	mMenuButton(NULL)
 	{
