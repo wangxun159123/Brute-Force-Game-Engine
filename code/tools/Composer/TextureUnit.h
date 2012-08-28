@@ -47,10 +47,10 @@ public:
 	            const std::string& material,
 	            Ogre::TextureUnitState* tex,
 	            boost::shared_ptr<SharedData> data) :
-	mParent(parent),
-	mMaterial(material),
 	mTextureUnit(tex),
-	mData(data)
+	mData(data),
+	mMaterial(material),
+	mParent(parent)
 	{
 		MyGUI::LayoutManager* layMan = MyGUI::LayoutManager::getInstancePtr();
 		mContainer = layMan->loadLayout("TextureUnit.layout", "", mParent);

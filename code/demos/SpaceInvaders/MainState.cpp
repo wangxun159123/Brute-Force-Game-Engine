@@ -41,9 +41,9 @@ MainState::MainState(GameHandle handle, EventLoop* loop) :
 	mPlayer(NULL_HANDLE),
 	mEnvironment(new Environment),
 	mClock(new Clock::StopWatch(Clock::milliSecond)),
-	mExitNextTick(false),
 	mInvaderGeneral(loop, mEnvironment),
-	mHumanGeneral(loop, mEnvironment)
+	mHumanGeneral(loop, mEnvironment),
+	mExitNextTick(false)
 {
 	Path p;
 	std::string level = p.Get(ID::P_SCRIPTS_LEVELS) + "spaceinvaders/";

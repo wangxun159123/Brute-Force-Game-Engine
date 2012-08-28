@@ -44,8 +44,8 @@ public:
 
 	Stream(boost::shared_ptr<AudioFile> file, 
 		   boost::function<void (void)> onStreamFinished) : 
-	mAudioFile(file), 
-	mOnStreamFinished(onStreamFinished) 
+	mOnStreamFinished(onStreamFinished),
+	mAudioFile(file)
 	{}
 
 	//! Will be called from StreamLoop to refill processed buffers
