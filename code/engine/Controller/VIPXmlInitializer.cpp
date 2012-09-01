@@ -480,7 +480,7 @@ void XmlInitializer::assignAxisMode(DefaultEnv& env,
 }
 
 ButtonCodeT XmlInitializer::assignButton(DefaultEnv& env,
-					 const VipData& vipData,
+                                         const VipData& vipData,
                                          const std::string& button) const
 {
 	VipData::SpecialAttributes::const_iterator it =
@@ -514,6 +514,13 @@ ButtonCodeT XmlInitializer::assignButton(DefaultEnv& env,
 	{
 		ID::JoystickButtonID buttonid = ID::asJoystickButtonID(buttonValue);
 		code = static_cast<ButtonCodeT>(buttonid);
+	}
+	else
+	{
+		std::stringstream ss;
+		ss << "TODO: Controller::XmlInitializer::assignButton: Deserialize buttons for new device"
+		   << " \"" << ID::asStr(env.mDevice) << "\".";
+		throw std::logic_error(ss.str());
 	}
 
 	env.mRelevantButtons.insert(code);
