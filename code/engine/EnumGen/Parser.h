@@ -101,7 +101,7 @@ namespace Parse
 
 		void AddEnums(TiXmlElement* currentTag,
 		              Shared::EnumVector& Everything,
-		              const std::string Namespace)
+		              const std::string& Namespace)
 		{
 			do
 			{
