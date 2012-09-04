@@ -24,6 +24,7 @@ SET (BFG_DEPENDENCY_BUNDLE_PATH "" CACHE PATH "This is useful for Win32 users, t
 INCLUDE(BFG)
 INCLUDE(DependencyBundle)
 INCLUDE(FindAllDependencies)
+INCLUDE(CodeCoverage)
 
 # --------------------#
 # Project Declaration #
@@ -83,6 +84,8 @@ SET(ODE_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/thirdparty/ODE_r1727/include")
 # ------- #
 
 ENABLE_TESTING()
+
+SETUP_FOR_COVERAGE(lcov lcov)
 
 # ------------------ #
 # Output Directories #
