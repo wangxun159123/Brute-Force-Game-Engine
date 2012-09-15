@@ -8,7 +8,7 @@ This file is part of the Brute-Force Game Engine, BFG-Engine
 
 For the latest info, see http://www.brute-force-games.com
 
-Copyright (c) 2011 Brute-Force Games GbR
+Copyright (c) 2012 Brute-Force Games GbR
 
 The BFG-Engine is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -24,38 +24,41 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BFG_CHAR_ARRAY_H__
-#define BFG_CHAR_ARRAY_H__
+#ifndef BFG_NETWORKMAIN_H
+#define BFG_NETWORKMAIN_H
 
-#include <algorithm>
-#include <string>
-#include <boost/array.hpp>
-#include <boost/utility/enable_if.hpp>
-#include <boost/type_traits/is_pointer.hpp>
+#ifdef _MSC_VER
+#pragma warning (push)
+// "class foo needs to have dll-interface to be used by clients of class bar"
+#pragma warning (disable:4251)
+#endif
 
-typedef boost::array<char,128> CharArray128T;
-typedef boost::array<char,512> CharArray512T;
 
-template <int ArraySize>
-boost::array<char, ArraySize> stringToArray(const std::string& s)
+#include <EventSystem/Core/EventLoop.h>
+#include <Network/Defs.h>
+
+namespace BFG {
+namespace Network {
+
+class Server;
+class Client;
+
+class NETWORK_API Main
 {
-	boost::array<char, ArraySize> a;
-	std::fill(a.begin(), a.end(), 0);
-	std::copy(s.begin(), s.end(), a.begin());
-	return a;
-}
+public:
+	Main(EventLoop* loop, u8 mode);
+	~Main();
 
-template <typename T, typename ArrayT>
-void arrayToValue(T& val, const ArrayT& array, size_t offset, typename boost::disable_if<boost::is_pointer<T> >::type* dummy = 0)
-{
-	memcpy(&val, &array[offset], sizeof(T));
-}
+private:
+	boost::scoped_ptr<Server> mServer;
+	boost::scoped_ptr<Client> mClient;
+};
 
-template <typename T, typename ArrayT>
-void valueToArray(const T& val, ArrayT& array, const size_t offset)
-{
-	assert( sizeof(T) <= array.size() - offset );
-	memcpy(array.data() + offset, &val, sizeof(T));
-}
+} // namespace Network
+} // namespace BFG
+
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif
 
 #endif

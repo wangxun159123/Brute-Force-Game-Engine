@@ -1,0 +1,25 @@
+<?xml version="1.0" standalone="no" ?>
+<enumgen version = "4">
+
+    <namespace name = "BFG">
+
+        <enum name = "NetworkAction" export = "NETWORK_API">
+            <!-- For NETWORL_API definition -->
+            <include>Network/Defs.h</include>
+
+            <value set = "7000">A_FIRST_NETWORKACTION</value>
+
+            <!-- Network Events -->
+            <value>NE_SEND</value>
+            <value>NE_RECEIVED</value>
+            <value>NE_CONNECTED</value>
+            <value>NE_DISCONNECTED</value>
+            <value>NE_LISTEN</value>
+            <value>NE_CONNECT</value>
+            <value>NE_DISCONNECT</value>
+            <value>NE_SHUTDOWN</value>
+        </enum>
+
+    </namespace>
+
+</enumgen>

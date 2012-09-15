@@ -38,6 +38,10 @@ namespace BFG {
 //! \return The new handle
 BFG_CORE_API GameHandle generateHandle();
 
+//! Generates a unique general purpose handle with included ownership
+//! \return The new handle
+BFG_CORE_API GameHandle generateNetworkHandle();
+
 //! Used to serialize handles to strings
 BFG_CORE_API std::string stringify(GameHandle handle);
 

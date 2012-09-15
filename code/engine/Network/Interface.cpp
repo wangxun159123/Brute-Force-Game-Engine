@@ -24,38 +24,47 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BFG_CHAR_ARRAY_H__
-#define BFG_CHAR_ARRAY_H__
+#include <Network/Interface.h>
 
-#include <algorithm>
-#include <string>
-#include <boost/array.hpp>
-#include <boost/utility/enable_if.hpp>
-#include <boost/type_traits/is_pointer.hpp>
+#include <Base/Logger.h>
 
-typedef boost::array<char,128> CharArray128T;
-typedef boost::array<char,512> CharArray512T;
+#include <Network/Client.h>
+#include <Network/Main.h>
+#include <Network/Server.h>
 
-template <int ArraySize>
-boost::array<char, ArraySize> stringToArray(const std::string& s)
+namespace BFG {
+namespace Network {
+
+Base::IEntryPoint* Interface::getEntryPoint(u8 mode)
 {
-	boost::array<char, ArraySize> a;
-	std::fill(a.begin(), a.end(), 0);
-	std::copy(s.begin(), s.end(), a.begin());
-	return a;
+	return new Base::CClassEntryPoint<Interface>
+	(
+		new Interface(mode),
+		&Interface::start,
+		NULL,
+		"Network Interface for distributing data throughout the application."
+	);
 }
 
-template <typename T, typename ArrayT>
-void arrayToValue(T& val, const ArrayT& array, size_t offset, typename boost::disable_if<boost::is_pointer<T> >::type* dummy = 0)
+Interface::Interface(u8 mode) :
+mMode(mode)
+{}
+
+Interface::~Interface()
 {
-	memcpy(&val, &array[offset], sizeof(T));
+	dbglog << "Network::Interface::~Interface()";
 }
 
-template <typename T, typename ArrayT>
-void valueToArray(const T& val, ArrayT& array, const size_t offset)
+void* Interface::start(void* ptr)
 {
-	assert( sizeof(T) <= array.size() - offset );
-	memcpy(array.data() + offset, &val, sizeof(T));
+	assert(ptr && "Network::Interface::startNetwork() EventLoop pointer invalid!");
+
+	EventLoop * loop = reinterpret_cast<EventLoop*> (ptr);
+
+	mMain.reset(new Main(loop, mMode));
+
+	return 0;
 }
 
-#endif
+} // namespace Network
+} // namespace BFG

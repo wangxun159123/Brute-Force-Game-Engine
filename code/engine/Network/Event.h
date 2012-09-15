@@ -24,38 +24,33 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BFG_CHAR_ARRAY_H__
-#define BFG_CHAR_ARRAY_H__
+#ifndef BFG_NETWORKEVENT_H
+#define BFG_NETWORKEVENT_H
 
-#include <algorithm>
-#include <string>
-#include <boost/array.hpp>
-#include <boost/utility/enable_if.hpp>
-#include <boost/type_traits/is_pointer.hpp>
+#include <EventSystem/Event.h>
+#include <Network/Event_fwd.h>
 
-typedef boost::array<char,128> CharArray128T;
-typedef boost::array<char,512> CharArray512T;
+namespace BFG {
+namespace Network {
 
-template <int ArraySize>
-boost::array<char, ArraySize> stringToArray(const std::string& s)
+std::string NETWORK_API debug(const NetworkPacketEvent& e)
 {
-	boost::array<char, ArraySize> a;
-	std::fill(a.begin(), a.end(), 0);
-	std::copy(s.begin(), s.end(), a.begin());
-	return a;
+	std::stringstream ss;
+		
+	ss << "e.mId: " << e.getId() << "\n";
+	ss << "e.mDestination: " << e.mDestination << "\n";
+	ss << "e.mSender: " << e.mSender << "\n";
+
+	const NetworkPayloadType& payload = e.getData();
+	ss << "payload.AppId: " << payload.get<0>() << "\n";
+	ss << "payload.Destination: " << payload.get<1>() << "\n";
+	ss << "payload.Sender: " << payload.get<2>() << "\n";
+	ss << "payload.PacketSize: " << payload.get<3>();
+	
+	return ss.str();
 }
 
-template <typename T, typename ArrayT>
-void arrayToValue(T& val, const ArrayT& array, size_t offset, typename boost::disable_if<boost::is_pointer<T> >::type* dummy = 0)
-{
-	memcpy(&val, &array[offset], sizeof(T));
-}
-
-template <typename T, typename ArrayT>
-void valueToArray(const T& val, ArrayT& array, const size_t offset)
-{
-	assert( sizeof(T) <= array.size() - offset );
-	memcpy(array.data() + offset, &val, sizeof(T));
-}
+} // namespace Network
+} // namespace BFG
 
 #endif

@@ -24,38 +24,64 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BFG_CHAR_ARRAY_H__
-#define BFG_CHAR_ARRAY_H__
+#ifndef BFG_NETWORKEVENT_FWD_H
+#define BFG_NETWORKEVENT_FWD_H
 
-#include <algorithm>
-#include <string>
-#include <boost/array.hpp>
-#include <boost/utility/enable_if.hpp>
-#include <boost/type_traits/is_pointer.hpp>
+#include <boost/tuple/tuple.hpp>
+#include <boost/variant.hpp>
 
-typedef boost::array<char,128> CharArray128T;
-typedef boost::array<char,512> CharArray512T;
+#include <EventSystem/Event_fwd.h>
 
-template <int ArraySize>
-boost::array<char, ArraySize> stringToArray(const std::string& s)
-{
-	boost::array<char, ArraySize> a;
-	std::fill(a.begin(), a.end(), 0);
-	std::copy(s.begin(), s.end(), a.begin());
-	return a;
-}
+#include <Core/CharArray.h>
+#include <Core/Types.h>
 
-template <typename T, typename ArrayT>
-void arrayToValue(T& val, const ArrayT& array, size_t offset, typename boost::disable_if<boost::is_pointer<T> >::type* dummy = 0)
-{
-	memcpy(&val, &array[offset], sizeof(T));
-}
+#include <Network/Enums.hh>
 
-template <typename T, typename ArrayT>
-void valueToArray(const T& val, ArrayT& array, const size_t offset)
-{
-	assert( sizeof(T) <= array.size() - offset );
-	memcpy(array.data() + offset, &val, sizeof(T));
-}
+namespace BFG {
+namespace Network {
+
+typedef boost::tuple
+<
+	u32,
+	GameHandle,
+	GameHandle,
+	size_t,
+	CharArray512T
+> NetworkPayloadType;
+
+typedef Event
+<
+	ID::NetworkAction,
+	NetworkPayloadType,
+	GameHandle,
+	GameHandle
+> NetworkPacketEvent;
+
+typedef boost::tuple
+<
+	CharArray128T,	// ip
+	CharArray128T	// port
+> NetworkEndpointT;
+
+typedef boost::variant
+<
+	u16,
+	NetworkEndpointT,
+	GameHandle,
+	PeerIdT
+> NetworkControlPayloadT;
+
+typedef Event
+<
+	ID::NetworkAction,
+	NetworkControlPayloadT,
+	GameHandle,
+	GameHandle
+> NetworkControlEvent;
+
+std::string NETWORK_API debug(const NetworkPacketEvent& e);
+
+} // namespace Network
+} // namespace BFG
 
 #endif

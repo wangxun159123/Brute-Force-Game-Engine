@@ -37,11 +37,20 @@ class HandleGenerator
 	{
 		++Counter;
 		
-		return Handle::normalObject(Counter, Counter, Counter);
+		return Handle::normalObject(Counter, Counter, 0);
+	}
+
+	static GameHandle forNetwork()
+	{
+		++Counter;
+
+		return Handle::normalObject(Counter, Counter, 1);
 	}
 
 	static size_t Counter;
+	
 	friend GameHandle generateHandle();
+	friend GameHandle generateNetworkHandle();
 };
 
 size_t HandleGenerator::Counter = 0;
@@ -49,6 +58,11 @@ size_t HandleGenerator::Counter = 0;
 GameHandle generateHandle()
 {
 	return HandleGenerator::get();
+}
+
+GameHandle generateNetworkHandle()
+{
+	return HandleGenerator::forNetwork();
 }
 
 std::string stringify(GameHandle handle)

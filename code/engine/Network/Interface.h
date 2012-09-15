@@ -24,38 +24,44 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BFG_CHAR_ARRAY_H__
-#define BFG_CHAR_ARRAY_H__
+#ifndef BFG_NETWORKMAININTERFACE_H
+#define BFG_NETWORKMAININTERFACE_H
 
-#include <algorithm>
-#include <string>
-#include <boost/array.hpp>
-#include <boost/utility/enable_if.hpp>
-#include <boost/type_traits/is_pointer.hpp>
+#include <boost/scoped_ptr.hpp>
 
-typedef boost::array<char,128> CharArray128T;
-typedef boost::array<char,512> CharArray512T;
+#include <Base/EntryPoint.h>
 
-template <int ArraySize>
-boost::array<char, ArraySize> stringToArray(const std::string& s)
+#include <Network/Defs.h>
+
+#ifdef _WIN32
+#define NOMINMAX // This fixes a name collision between WINAPI and OGRE.
+#endif
+
+namespace BFG {
+namespace Network {
+
+class Main;
+
+class NETWORK_API Interface
 {
-	boost::array<char, ArraySize> a;
-	std::fill(a.begin(), a.end(), 0);
-	std::copy(s.begin(), s.end(), a.begin());
-	return a;
-}
+public:
+	// This is your hooking place
+	static Base::IEntryPoint* getEntryPoint(u8 mode);
 
-template <typename T, typename ArrayT>
-void arrayToValue(T& val, const ArrayT& array, size_t offset, typename boost::disable_if<boost::is_pointer<T> >::type* dummy = 0)
-{
-	memcpy(&val, &array[offset], sizeof(T));
-}
+	Interface(u8 mode);
+	~Interface();
 
-template <typename T, typename ArrayT>
-void valueToArray(const T& val, ArrayT& array, const size_t offset)
-{
-	assert( sizeof(T) <= array.size() - offset );
-	memcpy(array.data() + offset, &val, sizeof(T));
-}
+	friend class Base::CClassEntryPoint<Interface>;
+
+private:
+	void* start(void* ptr);
+	
+	boost::scoped_ptr<Main> mMain;
+	u8 mMode;
+};
+
+} // namespace Network
+} // namespace BFG
 
 #endif
+
