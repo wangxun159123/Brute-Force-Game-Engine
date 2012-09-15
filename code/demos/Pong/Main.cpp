@@ -119,7 +119,7 @@ int main( int argc, const char* argv[] ) try
 			
 	if (server)
 	{
-		EventManager::getInstance()->listen(1337);
+		//EventManager::getInstance()->listen(1337);
 
 		EventLoop loop1
 		(
@@ -153,7 +153,7 @@ int main( int argc, const char* argv[] ) try
 	{
 		std::string ip;
 		BFG::Base::resolveDns("127.0.0.1", ip);
-		EventManager::getInstance()->connect(ip, 1337);
+		//EventManager::getInstance()->connect(ip, 1337);
 
 		EventLoop iLoop
 		(
