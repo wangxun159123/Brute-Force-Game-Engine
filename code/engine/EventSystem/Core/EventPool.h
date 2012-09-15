@@ -41,7 +41,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <EventSystem/Core/EventDefs.h>
 
 
-static const size_t PoolMaxEvents = 40960;
+static const size_t PoolMaxEvents = 4096;
 
 static const size_t AlignmentValue = 16;
 

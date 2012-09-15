@@ -40,8 +40,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Base/NameCurrentThread.h>
 #include <EventSystem/Core/EventLoop.h>
 #include <EventSystem/Core/EventManager.h>
-#include <EventSystem/Network/ClientChannel.h>
-#include <EventSystem/Network/ServerChannel.h>
 
 
 EventManager* EventManager::getInstance()
@@ -52,8 +50,7 @@ EventManager* EventManager::getInstance()
 EventManager::EventManager() :
 mThreadCount(0),
 mExitFlag(false),
-mEventIdDynamicStartValue(30000),
-mAcceptor(0)
+mEventIdDynamicStartValue(30000)
 {
 	mThread = boost::thread(&EventManager::runThread, this);
 }
@@ -96,9 +93,6 @@ void EventManager::runThread()
 		{
 			operationCounter = 0; 
 		}
-
-		if (! mConnections.empty())
-			mService.poll();
 	}
 }
 
@@ -201,7 +195,6 @@ void EventManager::unsubscribeAll(EventChannel* ioChannel)
 
 bool EventManager::doOperate()
 {
-	infolog << "New Tick";
 	//! \todo rename InternalMutex to OperationMutex or something
 	//! InternalMutex is only for DoOperate function ?
 	boost::try_mutex::scoped_try_lock internal_lock(mInternalMutex); 
@@ -220,7 +213,6 @@ bool EventManager::doOperate()
 		while ((pool = mEventChannelList[i]->getPublishedEventPool()))
 		{
 			didWork = true;
-			transmitPool(pool); // transmit to networkchannels
 
 			// transmit to all other threads
 			for (size_t j = 0; j < mThreadCount; ++j)
@@ -238,19 +230,6 @@ bool EventManager::doOperate()
 		}
 	}
 	return didWork;
-}
-
-void EventManager::publishNetworkPool(BaseEventPool* pool)
-{
-	boost::mutex::scoped_lock scoped_lock(mEventChannelListMutex);
-
-	if (mThreadCount > 0)
-	{
-		BaseEventPool* poolClone = requestPool();
-		pool->copyTo(poolClone);
-		mEventChannelList[0]->receiveEventPool(poolClone);
-	}
-	freePool(pool);
 }
 
 long EventManager::getDynamicEventId(const std::string& eventIdentifier)
@@ -303,11 +282,13 @@ BaseEventPool* EventManager::requestPool()
 	if (mPoolQueue.empty())
 	{
 		wRet = new BaseEventPool();
+		//dbglog << "EM(" << this << "): New Pool created";
 	}
 	else
 	{
 		wRet = mPoolQueue.front();
 		mPoolQueue.pop_front();
+		//dbglog << "EM(" << this << "): Pool from queue. New queuesize: " << mPoolQueue.size();
 	}
 	return wRet;
 }
@@ -318,120 +299,6 @@ void EventManager::freePool(BaseEventPool* pool)
 	
 	pool->clear();
 	mPoolQueue.push_back(pool);
+	//dbglog << "EM(" << this << "): Pool freed. New queuesize: " << mPoolQueue.size();
 }
 
-//-----------------------------------------------------------------------------
-// Network stuff
-void EventManager::listen(const int port)
-{
-	dbglog << "EventManager: Listening on port " << port << " ...";
-
-    boost::asio::ip::tcp::endpoint ep(boost::asio::ip::tcp::v4(), port);
-    
-	if (!mAcceptor)
-	{
-		mAcceptor = new boost::asio::ip::tcp::acceptor(mService, ep);
-		startAccept();
-	}
-	else
-	{
-		throw std::logic_error("EventManager::init(): Initialized twice!");
-	}
-}
-
-void EventManager::connect(const std::string& ip, const int port)
-{
-	dbglog << "EventManager: Connecting to " << ip << ":" << port << " ...";
-
-	boost::asio::ip::address_v4 addr = boost::asio::ip::address_v4::from_string(ip);
-	boost::asio::ip::tcp::endpoint ep(addr, port);
-	boost::asio::ip::tcp::socket socket(mService);
-
-	EventSystem::ClientChannel::Pointer newConnection =
-		EventSystem::ClientChannel::create(mService);
-
-	newConnection->connect(ep);
-}
-
-void EventManager::registerConnection(EventSystem::NetworkChannel* conn)
-{
-	mConnections.push_back(conn);
-	std::cout << "EventManager has " << mConnections.size() 
-		<< " registered Connections" << std::endl;
-}
-
-void EventManager::unregisterConnection(EventSystem::NetworkChannel* conn)
-{
-	std::vector<EventSystem::NetworkChannel*>::iterator it = mConnections.begin();
-	while(it != mConnections.end())
-	{
-		if (*it == conn)
-		{
-			mConnections.erase(it);
-			return;
-		}
-		++it;
-	}
-}
-
-void EventManager::transmitPool(BaseEventPool* pool)
-{
-	if (!pool)
-		return;
-
-	std::ostringstream dataStream;
-	boost::archive::text_oarchive archive(dataStream);
-
-	archive & (*pool);
-
-	std::string outData = dataStream.str();
-
-	std::ostringstream headerStream;
-	headerStream << std::setw(8)
-	             << std::hex
-	             << outData.size();
-	std::string outHeader = headerStream.str();
-
-	std::vector<EventSystem::NetworkChannel*>::iterator ncIter = mConnections.begin();
-	for (; ncIter != mConnections.end(); ++ncIter)
-	{
-		EventSystem::NetworkChannel::Pointer channel(*ncIter, null_deleter());
-
-		channel->sendPacket(outHeader, outData);
-	}
-
-#if defined(_DEBUG) || !defined(NDEBUG)
-	// output
-	std::cout << "EventManager has sent:" << std::endl 
-	          << (*pool) << std::endl;
-#endif
-}
-
-void EventManager::startAccept()
-{
-	EventSystem::ServerChannel::Pointer newConnection =
-		EventSystem::ServerChannel::create(mService);
-
-	mAcceptor->async_accept
-	(
-		newConnection->socket(),
-		boost::bind
-		(
-			&EventManager::handleAccept,
-			this,
-			newConnection,
-			boost::asio::placeholders::error
-		)
-	);
-}
-
-void EventManager::handleAccept(EventSystem::NetworkChannel::Pointer newConnection,
-								const boost::system::error_code& error)
-{
-	std::cout << "New Incoming connection" << std::endl;
-	if (!error)
-	{
-		newConnection->startHandShake();
-		startAccept();
-	}
-}
