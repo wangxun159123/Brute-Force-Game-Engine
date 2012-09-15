@@ -41,9 +41,10 @@ public:
 	void internalOnEvent(EventIdT action,
 	                     Property::Value payload,
 	                     GameHandle module,
-						 GameHandle sender);
+	                     GameHandle sender);
 
 	bool mUsed;
 };
 
 #endif
+
