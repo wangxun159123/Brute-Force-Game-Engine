@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MyGUI type="Layout" version="3.2.0">
+  <Widget type="Widget" skin="PanelEmpty" position="0 0 512 512" name="ChatWindow" layer="Menu">
+    <Widget type="EditBox" skin="EditBox" position="5 477 502 30" align="HStretch Bottom" name="chatInput"/>
+    <Widget type="EditBox" skin="EditBox" position="5 5 502 467" align="HStretch VStretch" name="chatOutput">
+      <Property key="WordWrap" value="true"/>
+      <Property key="MultiLine" value="true"/>
+      <Property key="VisibleVScroll" value="true"/>
+      <Property key="ReadOnly" value="true"/>
+      <Property key="VisibleHScroll" value="true"/>
+    </Widget>
+  </Widget>
+</MyGUI>
