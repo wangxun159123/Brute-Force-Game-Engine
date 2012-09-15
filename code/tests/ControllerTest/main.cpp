@@ -25,6 +25,9 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <boost/utility.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/serialization/variant.hpp>
 
 #include <Base/Logger.h>
 #include <Base/Cpp.h>
@@ -48,6 +51,9 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Controller/OISUtils.h>
 
 #include <View/WindowAttributes.h>
+
+#include <Network/Interface.h>
+#include <Network/Event_fwd.h>
 
 #ifdef _WIN32
 	#include "InputWindowWin32.h"
@@ -95,6 +101,65 @@ struct Config
 
 Config g_Config;
 
+struct EventNetter : BFG::Emitter
+{
+	EventNetter(EventLoop* loop) :
+	Emitter(loop)
+	{
+		for (size_t i=ID::A_FIRST_CONTROLLER_ACTION + 1; i<ID::A_LAST_CONTROLLER_ACTION; ++i)
+		{
+			loop->connect(i, this, &EventNetter::eventHandler);
+		}
+	}
+
+	~EventNetter()
+	{
+		for (size_t i=ID::A_FIRST_CONTROLLER_ACTION + 1; i<ID::A_LAST_CONTROLLER_ACTION; ++i)
+		{
+			this->loop()->disconnect(i, this);
+		}
+	}
+	
+	void eventHandler(Controller_::VipEvent* e)
+	{
+		std::stringstream ss;
+		boost::archive::text_oarchive oa(ss);
+		oa << e->getData();
+		CharArray512T ca512 = stringToArray<512>(ss.str());
+
+		Network::NetworkPayloadType payload = boost::make_tuple(e->getId(), 0, 0, ss.str().size(), ca512);
+		emit<Network::NetworkPacketEvent>(ID::NE_SEND, payload);
+	}
+};
+
+struct NetEventer : BFG::Emitter
+{
+	NetEventer(EventLoop* loop) :
+	Emitter(loop)
+	{
+		loop->connect(BFG::ID::NE_RECEIVED, this, &NetEventer::eventHandler);
+	}
+
+	~NetEventer()
+	{
+		loop()->disconnect(BFG::ID::NE_RECEIVED, this);
+	}
+
+	void eventHandler(BFG::Network::NetworkPacketEvent* npe)
+	{
+		BFG::Network::NetworkPayloadType payload = npe->getData();
+
+		std::stringstream ss;
+		ss.str(payload.get<4>().data());
+		boost::archive::text_iarchive ia(ss);
+
+		Controller_::VipPayloadT vp;
+		ia >> vp;
+
+		emit<Controller_::VipEvent>(payload.get<0>(), vp);
+	}
+};
+
 template <typename TestProgramPolicy>
 static void startTestProgram(TestProgramPolicy& TPP)
 {
@@ -107,6 +172,34 @@ static void startTestProgram(TestProgramPolicy& TPP)
 
 	try
 	{
+		boost::shared_ptr<EventNetter> en;
+		boost::shared_ptr<NetEventer> ne;
+		
+		if (c.NetworkTest)
+		{
+			if (c.IsServer)
+			{
+				dbglog << "Emitting ID::NE_LISTEN";
+				emitter.emit<BFG::Network::NetworkControlEvent>(BFG::ID::NE_LISTEN, static_cast<u16>(c.Port));
+
+				ne.reset(new NetEventer(emitter.loop()));
+			}
+			else
+			{
+				std::stringstream ss;
+				ss << c.Port;
+				CharArray128T port = stringToArray<128>(ss.str());
+				CharArray128T ip = stringToArray<128>(c.Ip.c_str());
+				
+				dbglog << "Emitting ID::NE_CONNECT";
+				emitter.emit<Network::NetworkControlEvent>(BFG::ID::NE_CONNECT, boost::make_tuple(ip, port));
+				
+				en.reset(new EventNetter(emitter.loop()));
+			}
+			
+		}
+		
+		
 		infolog << "Creating input window";
 
 #if defined(_WIN32)
@@ -446,8 +539,24 @@ void startSingleThreaded()
 	Base::CEntryPoint ep2(EventLoopEntryPoint);
 
 	EventLoop testLoop(false);
+
+	if (g_Config.NetworkTest)
+	{
+		infolog << "Starting network test as " << (g_Config.IsServer?"Server":"Client");
+
+		if (g_Config.IsServer)
+		{
+			testLoop.addEntryPoint(BFG::Network::Interface::getEntryPoint(BFG_SERVER));
+		}
+		else
+		{
+			testLoop.addEntryPoint(BFG::Network::Interface::getEntryPoint(BFG_CLIENT));
+		}
+	}
+	
 	testLoop.addEntryPoint(&ep1);
 	testLoop.addEntryPoint(&ep2);
+
 	testLoop.run();
 }
 
@@ -459,6 +568,21 @@ void startMultiThreaded()
 		new EventSystem::BoostThread<>("Test Function"),
 		new EventSystem::InterThreadCommunication()
 	);
+
+	if (g_Config.NetworkTest)
+	{
+		infolog << "Starting network test as " << (g_Config.IsServer?"Server":"Client");
+
+		if (g_Config.IsServer)
+		{
+			testLoop.addEntryPoint(BFG::Network::Interface::getEntryPoint(BFG_SERVER));
+		}
+		else
+		{
+			testLoop.addEntryPoint(BFG::Network::Interface::getEntryPoint(BFG_CLIENT));
+		}
+	}
+	
 	testLoop.addEntryPoint(new Base::CEntryPoint(EventLoopEntryPoint));
 	testLoop.run();
 
@@ -493,20 +617,6 @@ int main(int, char**) try
 	infolog << PROGRAM_DESCRIPTION;
 	
 	ConfigurateByQuestions(g_Config);
-
-	if (g_Config.NetworkTest)
-	{
-		infolog << "Starting network test as " << (g_Config.IsServer?"Server":"Client");
-
-		if (g_Config.IsServer)
-			EventManager::getInstance()->listen(g_Config.Port);
-		else
-		{
-			std::string ip;
-			BFG::Base::resolveDns(g_Config.Ip, ip);
-			EventManager::getInstance()->connect(ip, g_Config.Port);
-		}
-	}
 
 	if (g_Config.Multithreaded)
 	{

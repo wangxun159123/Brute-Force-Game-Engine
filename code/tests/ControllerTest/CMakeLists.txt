@@ -28,6 +28,7 @@ TARGET_LINK_LIBRARIES(bfgControllerTest
 	bfgController
 	bfgCore
 	bfgEventCore
+	bfgNetwork
 )
 
 INSTALL(TARGETS bfgControllerTest
