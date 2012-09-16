@@ -25,13 +25,14 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <cstddef>
+#include <Model/Defs.h>
 
 namespace BFG {
 namespace Property {
 	
 namespace detail
 {
-	size_t g_Plugins = 0;
+	MODEL_API size_t g_Plugins = 0;
 }
 	
 } // namespace Property

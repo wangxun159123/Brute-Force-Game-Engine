@@ -30,6 +30,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <ostream>
 #include <boost/static_assert.hpp>
 #include <Core/Types.h>
+#include <Model/Defs.h>
 
 namespace BFG {
 namespace Property {
@@ -97,7 +98,7 @@ typedef ValueId::PluginIdT PluginId;
 
 namespace detail
 {
-	extern size_t g_Plugins;
+	extern MODEL_API size_t g_Plugins;
 }
 
 template <typename PartialT_>
