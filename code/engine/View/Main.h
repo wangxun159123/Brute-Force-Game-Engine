@@ -62,33 +62,69 @@ class Camera;
 class Fps;
 class Console;
 
+//! \brief 
+//! Starting class of View. This class will create a Window, initialize Ogre and MyGUI, 
+//! load all Ogre Resources and create an Ogre SceneManager and the main Camera.
+//! It is responsible for the in-game Console and frames-per-second debug display.
+//! It also can create screenshots.
 class VIEW_API Main
 {
 public:
+
+	//! \brief 
+	//! Constructor registers VE_SHUTDOWN, VE_CONSOLE, VE_DEBUG_FPS and VE_SCREENSHOT to
+	//! eventHandler. It initializes Ogre and MyGUI.
+	//! \param[in] loop EventLoop
+	//! \param[in] windowTitle Window caption displayed in window mode.
 	Main(EventLoop* loop, const std::string& windowTitle);
+
+	//! \brief 
+	//! Destructor unregisters VE_SHUTDOWN, VE_CONSOLE, VE_DEBUG_FPS and VE_SCREENSHOT.
 	virtual ~Main();
 
+	//! \brief Access to the static EventLoop.
 	static EventLoop* eventLoop();
 
 private:
-	// Ogre		
+
+	//! \brief Initializes Ogre using the following four methods.
 	void initOgre();
+
+	//! \brief Initializes Ogre root by loading ogre.cfg if present or calling the Config Dialog.
 	void initializeRoot();
+
+	//! \brief Loads all resources found in paths defined in resources-win.cfg/resources-linux.cfg.
 	void loadResources();
+
+	//! \brief Creates an Ogre SceneManager with the name BFG_SCENEMANAGER defined in Defs.h.
 	void createSceneManager();
+
+	//! \brief Creates the main camera. This camera is not accessible from the outside it is necessary to initialize MyGUI.
 	void createMainCamera();
 
-	// MyGui
+	//! \brief Initializes MyGUI using guiBase.xml.
 	void initMyGui();
 
+	//! \brief Handles the following View-Events:
+	//! \param[in] VE can be VE_SHUTDOWN, VE_CONSOLE (bool - display console), VE_DEBUG_FPS (bool - display FPS) or VE_SCREENSHOT.
 	void eventHandler(Event* VE);
 	
+	//! \brief Creates a screenshot and puts it in the "Screenshot" folder.
 	void onScreenShot();
+
+	//! \brief Shows/hides the Debug frames-per-second display.
+	//! \param[in] enable Show display
 	void onDebugFps(bool enable);
+
+	//! \brief Shows/hides the In-game console.
+	//! \param[in] enable Show console
 	void onConsole(bool enable);
 	
+	//! \brief Handles the Loop-Event and checks if there was an error in Ogre or if the view is shut down.
+	//! \param[in] iLE LoopEvent
 	void loopEventHandler(LoopEvent* iLE);
 
+	//! \brief Calls Ogres RenderOneFrame
 	bool doRenderTick();
 
 	static EventLoop* mLoop;
