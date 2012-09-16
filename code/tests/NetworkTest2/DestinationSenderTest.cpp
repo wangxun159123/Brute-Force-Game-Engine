@@ -208,6 +208,22 @@ struct EventSystemSetup
 	std::ofstream test_log;
 };
 
+//! Generates a port as u16 and as std::string
+static void generateRandomPort(BFG::u16& port, std::string& portString)
+{
+	srand(time(NULL));
+
+	// Use something between 20000 and 30000
+	port = 20000 + rand()%10000;
+	
+	srand(0);
+
+	// Convert port u16 to string
+	std::stringstream ss;
+	ss << port;
+	portString = ss.str();
+}
+
 BOOST_GLOBAL_FIXTURE (EventSystemSetup);
 
 BOOST_AUTO_TEST_CASE (ConnectionTest)
@@ -215,12 +231,16 @@ BOOST_AUTO_TEST_CASE (ConnectionTest)
 	BOOST_TEST_MESSAGE( "ConnectionTest is starting" );
 	resetEventStatus();
 
-	serverEmitter->emit<BFG::Network::NetworkControlEvent>(BFG::ID::NE_LISTEN, static_cast<BFG::u16>(12345));
+	BFG::u16 port;
+	std::string portString;
+	generateRandomPort(port, portString);
+	
+	serverEmitter->emit<BFG::Network::NetworkControlEvent>(BFG::ID::NE_LISTEN, static_cast<BFG::u16>(port));
 
 	clientEmitter->emit<BFG::Network::NetworkControlEvent>
 	(
 		BFG::ID::NE_CONNECT,
-		boost::make_tuple(stringToArray<128>("127.0.0.1"), stringToArray<128>("12345"))
+		boost::make_tuple(stringToArray<128>("127.0.0.1"), stringToArray<128>(portString))
 	);
 	
 	boost::this_thread::sleep(boost::posix_time::seconds(1));
