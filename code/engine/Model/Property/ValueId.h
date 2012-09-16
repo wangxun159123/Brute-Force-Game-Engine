@@ -97,7 +97,7 @@ typedef ValueId::PluginIdT PluginId;
 
 namespace detail
 {
-	static size_t g_Plugins = 0;
+	extern size_t g_Plugins;
 }
 
 template <typename PartialT_>
