@@ -53,19 +53,19 @@ public:
 
 	typedef u32 StreamHandleT;
 
-    //! Registers a Stream to the loop.
+	//! Registers a Stream to the loop.
 	StreamHandleT driveMyStream(boost::shared_ptr<Stream> stream);
-    //! Unregisters a Stream from the loop.
-    void removeMyStream(StreamHandleT streamHandle);
+
+	//! Unregisters a Stream from the loop.
+	void removeMyStream(StreamHandleT streamHandle);
 
 private:
-
+	bool mIsRunning;
+	
 	boost::thread mThread;
 	boost::mutex mStreamMutex;
-    boost::mutex mRefreshMutex;
+	boost::mutex mRefreshMutex;
 	
-	bool mIsRunning;
-
 	void init(const std::vector<std::string>& filelist);
 	void onStreaming();
 	void removeStream(StreamHandleT streamHandle);
@@ -75,8 +75,8 @@ private:
 	
 	StreamHandleT mStreamHandleCounter;
 
-    StreamsMapT mStreamsOnLoop;
-    FinishedStreamsT mFinishedStreams;
+	StreamsMapT mStreamsOnLoop;
+	FinishedStreamsT mFinishedStreams;
 	StreamsMapT mNewStreams;
 };
 

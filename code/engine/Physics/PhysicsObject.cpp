@@ -55,9 +55,9 @@ PhysicsObject::PhysicsObject(EventLoop* loop,
                              const Location& location) :
 Emitter(loop), 
 mRootModule(NULL_HANDLE),
+mBodyOffset(v3::ZERO),
 mForce(v3::ZERO),
-mTorque(v3::ZERO),
-mBodyOffset(v3::ZERO)
+mTorque(v3::ZERO)
 {
 	mOdeBody = dBodyCreate(worldId);
 	mSpaceId = dHashSpaceCreate(spaceId);

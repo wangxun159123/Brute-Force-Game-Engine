@@ -34,26 +34,25 @@ namespace Network{
 using namespace boost::asio::ip;
 using namespace boost::system;
 
-NetworkModule::NetworkModule(EventLoop* loop, boost::asio::io_service& service, PeerIdT peerId) :
-BFG::Emitter(loop),
-mLoop(loop),
-mOutPacketPosition(0),
-mPeerId(peerId)
+NetworkModule::NetworkModule(EventLoop* loop_, boost::asio::io_service& service, PeerIdT peerId) :
+BFG::Emitter(loop_),
+mPeerId(peerId),
+mOutPacketPosition(0)
 {
 	mSocket.reset(new tcp::socket(service));
 	mTimer.reset(new boost::asio::deadline_timer(service));
 
 	setFlushTimer(FLUSH_WAIT_TIME);
 
-	mLoop->connect(ID::NE_SEND, this, &NetworkModule::NetworkPacketEventHandler);
+	loop()->connect(ID::NE_SEND, this, &NetworkModule::NetworkPacketEventHandler);
 	if (peerId)
-		mLoop->connect(ID::NE_SEND, this, &NetworkModule::NetworkPacketEventHandler, peerId);
+		loop()->connect(ID::NE_SEND, this, &NetworkModule::NetworkPacketEventHandler, peerId);
 }
 
 NetworkModule::~NetworkModule()
 {
 	dbglog << "NetworkModule::~NetworkModule";
-	mLoop->disconnect(ID::NE_SEND, this);
+	loop()->disconnect(ID::NE_SEND, this);
 
 	mTimer->cancel();
 

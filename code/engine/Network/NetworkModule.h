@@ -93,8 +93,6 @@ private:
 	NetworkEventHeader::SerializationT mWriteHeaderBuffer;
 	NetworkEventHeader::SerializationT mReadHeaderBuffer;
 
-	EventLoop* mLoop;
-
 	boost::shared_ptr<tcp::socket>                 mSocket;
 	boost::shared_ptr<boost::asio::deadline_timer> mTimer;
 	boost::mutex                                   mPacketMutex;
