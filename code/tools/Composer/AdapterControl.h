@@ -47,8 +47,7 @@ public:
 	AdapterControl(EventLoop* loop, boost::shared_ptr<SharedData> data) :
 	BaseFeature("Adapter", true),
 	Emitter(loop),
-	mData(data),
-	mPickAdapter(false)
+	mData(data)
 	{
 		BFG::Path p;
 
@@ -132,7 +131,6 @@ private:
 	MyGUI::Button* mAppend;
 
 	MyGUI::Widget* mPickingPanel;
-	bool mPickAdapter;
 
 	Ogre::SceneNode* mMarkerNode;
 

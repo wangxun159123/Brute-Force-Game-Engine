@@ -307,7 +307,7 @@ BOOST_AUTO_TEST_CASE (ServerShutdown)
 	resetEventStatus();
 	serverEmitter->emit<BFG::Network::NetworkControlEvent>(BFG::ID::NE_SHUTDOWN, static_cast<BFG::u16>(0));
 
-	boost::this_thread::sleep(boost::posix_time::milliseconds(250));
+	boost::this_thread::sleep(boost::posix_time::seconds(1));
 	
 	// Should not receive any events since DISCONNECT was sent previously
 	BOOST_REQUIRE(!serverGotConnected);
