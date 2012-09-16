@@ -7,7 +7,7 @@ BOOST_AUTO_TEST_CASE (testOutput)
 {
 	boost::posix_time::ptime p = BFG::compileDateTime();
 
-	std::cout << "Output of BFG::compileDateTime(): " << BFG::compileDateTime() << std::endl;
+	std::cout << "Output of BFG::compileDateTime(): " << p << std::endl;
 }
 
 BOOST_AUTO_TEST_CASE (testAnomalities)

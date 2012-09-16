@@ -256,6 +256,7 @@ int EventManager::getChannelId(EventChannel* ioChannel, bool should_lock)
 { 
 	if (should_lock)
 	{
+		//! \bug This does probably nothing of use as it goes immediately out of scope.
 		boost::mutex::scoped_lock scoped_lock(mEventChannelListMutex);
 	}
 
