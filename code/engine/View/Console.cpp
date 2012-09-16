@@ -71,7 +71,7 @@ void Console::createUI()
 	this->setVisible(false);
 
 	//binding events
-	mEdit->eventEditSelectAccept = newDelegate(this, &Console::input);
+	mEdit->eventEditSelectAccept += newDelegate(this, &Console::input);
 }
 
 namespace logging = boost::log;
