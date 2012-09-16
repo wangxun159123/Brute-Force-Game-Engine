@@ -43,7 +43,7 @@ void SkyBoxSelect::load()
 		return;
 
 	MyGUI::LayoutManager* layMan = MyGUI::LayoutManager::getInstancePtr();
-	mContainer = layMan->load("ChooseListItem.layout");
+	mContainer = layMan->loadLayout("ChooseListItem.layout");
 
 	MyGUI::Widget* w = mContainer.front();
 

@@ -61,7 +61,7 @@ public:
 	void toggleVisible(bool show);
 
 	//! \brief Is called, when someone presses enter in the inputline
-	void input(MyGUI::Widget*);
+	void input(MyGUI::Edit*);
 
 protected:
 	//! \brief Initiates the UserInterface of the Console

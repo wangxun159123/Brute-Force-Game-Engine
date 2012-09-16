@@ -71,7 +71,7 @@ void Console::createUI()
 	this->setVisible(false);
 
 	//binding events
-	mEdit->eventEditSelectAccept = newDelegate(this, &Console::input);
+	mEdit->eventEditSelectAccept += newDelegate(this, &Console::input);
 }
 
 namespace logging = boost::log;
@@ -123,7 +123,7 @@ void Console::internalUpdate(f32)
 
 //! Adds the Text of the Inputfield to the output field, 
 //! and clears the input field
-void Console::input(MyGUI::Widget * Sender)
+void Console::input(MyGUI::Edit* Sender)
 {
 	std::string command = mEdit->getCaption();
 	emit<Event>(BFG::ID::VE_CONSOLE_COMMAND, command);

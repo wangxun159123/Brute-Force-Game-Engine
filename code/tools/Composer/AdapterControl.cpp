@@ -97,24 +97,25 @@ void AdapterControl::load()
 	mAdapterBox->eventComboChangePosition +=
 		newDelegate(this, &AdapterControl::onAdapterSelected);
 
-	mNewGroup->eventMouseButtonClick = 
+	mNewGroup->eventMouseButtonClick += 
 		newDelegate(this, &AdapterControl::onNewGroupClicked);
-	mNewAdapter->eventMouseButtonClick =
+	mNewAdapter->eventMouseButtonClick +=
 		newDelegate(this, &AdapterControl::onNewAdapterClicked);
-	mPick->eventMouseButtonClick = 
+	mPick->eventMouseButtonClick +=
 		newDelegate(this, &AdapterControl::onPickClicked);
-	mLoad->eventMouseButtonClick =
+	mLoad->eventMouseButtonClick +=
 		newDelegate(this, &AdapterControl::onLoadClicked);
-	mClear->eventMouseButtonClick =
+	mClear->eventMouseButtonClick +=
 		newDelegate(this, &AdapterControl::onClearClicked);
-	mSaveAs->eventMouseButtonClick =
+	mSaveAs->eventMouseButtonClick +=
 		newDelegate(this, &AdapterControl::onSaveAsClicked);
-	mAppend->eventMouseButtonClick =
+	mAppend->eventMouseButtonClick +=
 		newDelegate(this, &AdapterControl::onAppendClicked);
 
 	mNewAdapter->setEnabled(false);
 
-	IntSize screenSize = mGui->getViewSize();
+	RenderManager& renderMgr = RenderManager::getInstance();
+	IntSize screenSize = renderMgr.getViewSize();
 
 	mPickingPanel = mGui->createWidgetT
 	(
@@ -127,7 +128,7 @@ void AdapterControl::load()
 		Align::Default, 
 		"Picking"
 	);
-	mPickingPanel->eventMouseButtonClick =
+	mPickingPanel->eventMouseButtonClick +=
 		newDelegate(this, &AdapterControl::onPickingPanelClicked);
 	mPickingPanel->setVisible(false);
 
@@ -224,7 +225,9 @@ void AdapterControl::onPickingPanelClicked(MyGUI::Widget*)
 
 	// Get mouse position
 	const MyGUI::IntPoint& mousePos = inputMan->getMousePosition();
-	MyGUI::IntSize size = mGui->getViewSize();
+
+	MyGUI::RenderManager& renderMgr = MyGUI::RenderManager::getInstance();
+	MyGUI::IntSize size = renderMgr.getViewSize();
 	f32 x = (f32)mousePos.left / (f32)size.width;
 	f32 y = (f32)mousePos.top / (f32)size.height;
 

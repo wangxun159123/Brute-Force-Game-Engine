@@ -226,7 +226,7 @@ struct Client : Emitter
 			mChatOutput = gui.findWidget<MyGUI::EditBox>("chatOutput");
 			mChatInput = gui.findWidget<MyGUI::EditBox>("chatInput");
 
-			mChatInput->eventEditSelectAccept = newDelegate(this, &Client::onTextEntered);
+			mChatInput->eventEditSelectAccept += newDelegate(this, &Client::onTextEntered);
 
 			break;
 		}
