@@ -98,45 +98,45 @@ void LightControl::load()
 		newDelegate(this, &LightControl::onLightIndexChanged);
 
 	mApplyChange = window->findWidget("applyChange")->castType<Button>();
-	mApplyChange->eventMouseButtonClick = 
+	mApplyChange->eventMouseButtonClick += 
 		newDelegate(this, &LightControl::onApplyChange);
 	mApplyChange->setEnabled(false);
 
 	mDeleteLight = window->findWidget("deleteLight")->castType<Button>();
-	mDeleteLight->eventMouseButtonClick =
+	mDeleteLight->eventMouseButtonClick +=
 		newDelegate(this, &LightControl::onDeleteLight);
 	mDeleteLight->setEnabled(false);
 
 	mSetAmbient = window->findWidget("setAmbient")->castType<Button>();
-	mSetAmbient->eventMouseButtonClick = 
+	mSetAmbient->eventMouseButtonClick += 
 		newDelegate(this, &LightControl::onSetAmbient);
-	mSetAmbient->eventMouseSetFocus =
+	mSetAmbient->eventMouseSetFocus +=
 		newDelegate(this, &LightControl::onSetFocus);
-	mSetAmbient->eventMouseLostFocus =
+	mSetAmbient->eventMouseLostFocus +=
 		newDelegate(this, &LightControl::onLostFocus);
 
 	mCreateDirection = window->findWidget("createDirection")->castType<Button>();
-	mCreateDirection->eventMouseButtonClick = 
+	mCreateDirection->eventMouseButtonClick += 
 		newDelegate(this, &LightControl::onCreateDirection);
-	mCreateDirection->eventMouseSetFocus =
+	mCreateDirection->eventMouseSetFocus +=
 		newDelegate(this, &LightControl::onSetFocus);
-	mCreateDirection->eventMouseLostFocus =
+	mCreateDirection->eventMouseLostFocus +=
 		newDelegate(this, &LightControl::onLostFocus);
 
 	mCreatePoint = window->findWidget("createPoint")->castType<Button>();
-	mCreatePoint->eventMouseButtonClick =
+	mCreatePoint->eventMouseButtonClick +=
 		newDelegate(this, &LightControl::onCreatePoint);
-	mCreatePoint->eventMouseSetFocus =
+	mCreatePoint->eventMouseSetFocus +=
 		newDelegate(this, &LightControl::onSetFocus);
-	mCreatePoint->eventMouseLostFocus =
+	mCreatePoint->eventMouseLostFocus +=
 		newDelegate(this, &LightControl::onLostFocus);
 
 	mCreateSpot = window->findWidget("createSpot")->castType<Button>();
-	mCreateSpot->eventMouseButtonClick =
+	mCreateSpot->eventMouseButtonClick +=
 		newDelegate(this, &LightControl::onCreateSpot);
-	mCreateSpot->eventMouseSetFocus =
+	mCreateSpot->eventMouseSetFocus +=
 		newDelegate(this, &LightControl::onSetFocus);
-	mCreateSpot->eventMouseLostFocus =
+	mCreateSpot->eventMouseLostFocus +=
 		newDelegate(this, &LightControl::onLostFocus);
 
 	mColDif = window->findWidget("colDif");

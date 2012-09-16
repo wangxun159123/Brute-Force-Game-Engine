@@ -193,7 +193,7 @@ public:
 		using namespace MyGUI;
 
   		LayoutManager* layMan = LayoutManager::getInstancePtr();
-		mContainer = layMan->load("Composer.layout");
+		mContainer = layMan->loadLayout("Composer.layout");
 
 		Gui& gui = Gui::getInstance();
 		Widget* box = gui.findWidgetT("MenuBox");
@@ -201,7 +201,8 @@ public:
 			throw std::runtime_error("MenuBox not found!");
 
 		IntSize boxSize = box->getSize();
-		IntSize size = gui.getViewSize();
+		RenderManager& renderMgr = RenderManager::getInstance();
+		IntSize size = renderMgr.getViewSize();
 		// leave 1 pixel space to the sides
 		box->setSize(size.width - 2, boxSize.height);  
 	}

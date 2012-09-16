@@ -65,21 +65,21 @@ namespace Tool
 		mPreview = panel->findWidget("preview")->castType<MyGUI::Button>();
 		mUpdate = panel->findWidget("update")->castType<MyGUI::Button>();
 
-		mAddModule->eventMouseButtonClick =
+		mAddModule->eventMouseButtonClick +=
 			MyGUI::newDelegate(this, &ModuleControl::onAddModuleClicked);
 
-		mAddConnection->eventMouseButtonClick =
+		mAddConnection->eventMouseButtonClick +=
 			MyGUI::newDelegate(this, &ModuleControl::onAddConnectionClicked);
 
-		mLoad->eventMouseButtonClick =
+		mLoad->eventMouseButtonClick +=
 			MyGUI::newDelegate(this, &ModuleControl::onLoadClicked);
-		mSave->eventMouseButtonClick =
+		mSave->eventMouseButtonClick +=
 			MyGUI::newDelegate(this, &ModuleControl::onSaveClicked);
-		mClear->eventMouseButtonClick =
+		mClear->eventMouseButtonClick +=
 			MyGUI::newDelegate(this, &ModuleControl::onClearClicked);
-		mPreview->eventMouseButtonClick =
+		mPreview->eventMouseButtonClick +=
 			MyGUI::newDelegate(this, &ModuleControl::onPreviewClicked);
-		mUpdate->eventMouseButtonClick =
+		mUpdate->eventMouseButtonClick +=
 			MyGUI::newDelegate(this, &ModuleControl::onUpdateClicked);
 
 		mLoaded = true;
