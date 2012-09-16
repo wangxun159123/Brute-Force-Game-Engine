@@ -101,12 +101,6 @@ struct Get
 	}
 };
 
-template <typename InitializerT>
-VipPtrT createByEnum(InitializerT& initializer, ID::VIPType vt)
-{
-
-}
-
 } // namespace VIP
 } // namespace Controller_
 } // namespace BFG
