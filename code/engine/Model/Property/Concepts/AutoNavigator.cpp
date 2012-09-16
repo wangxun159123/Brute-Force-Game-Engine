@@ -103,11 +103,6 @@ void AutoNavigator::internalOnEvent(EventIdT action,
 	}
 }
 
-static bool hasGameHandle(boost::shared_ptr<Waypoint> ptr, GameHandle handle)
-{
-	return ptr->mOwner == handle;
-}
-
 void AutoNavigator::operate()
 {
 	GameHandle targetHandle = *mTargets.begin();

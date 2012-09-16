@@ -63,15 +63,13 @@ public:
 	void nextStreamStep();
 
 private:
-
 	void preload();
 
+	const s32 mNUM_BUFFER;
+	ALuint mSourceId;
 	bool mFinished;
 
-	const s32 mNUM_BUFFER;
 	boost::scoped_array<ALuint> mBufferIds;
-
-	ALuint mSourceId;
 };
 
 } // namespace Audio

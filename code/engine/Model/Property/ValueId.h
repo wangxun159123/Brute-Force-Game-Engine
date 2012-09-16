@@ -103,6 +103,7 @@ namespace detail
 template <typename PartialT_>
 PartialT_ generatePluginId()
 {
+	//! \bug This is probably not thread safe.
 	return ++detail::g_Plugins;
 }
 

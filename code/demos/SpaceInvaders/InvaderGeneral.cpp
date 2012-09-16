@@ -103,7 +103,7 @@ void InvaderGeneral::update(quantity<si::time, f32> timeSinceLastFrame)
 		// Handle of Invader and its Distance to the Player
 		std::pair<GameHandle, f32> bestCandidate(NULL_HANDLE, 999999.9f);
 
-		GameHandle dummy = mEnvironment->find
+		mEnvironment->find
 		(
 			boost::bind
 			(

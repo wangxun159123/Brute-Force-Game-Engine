@@ -414,7 +414,6 @@ v3 PhysicsObject::getPosition() const
 
 qv4 PhysicsObject::getOrientation() const
 {
-	qv4 tempQuat = qv4::IDENTITY;
 	const dReal* buffer = dBodyGetQuaternion(mOdeBody);
 	return qv4(buffer[0], buffer[1], buffer[2], buffer[3]);
 }

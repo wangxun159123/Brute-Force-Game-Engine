@@ -213,7 +213,7 @@ public:
 			// pitch = atan2(localy.z, localy.y)
 			// pick parts of yAxis() implementation that we need
 			T fTx  = 2*x;
-			T fTy  = 2*y;
+//			T fTy  = 2*y;
 			T fTz  = 2*z;
 			T fTwx = fTx*w;
 			T fTxx = fTx*x;

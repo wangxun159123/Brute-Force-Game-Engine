@@ -28,6 +28,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #define _OISDEVICE_H_
 
 #include <iostream>
+#include <stdexcept>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/foreach.hpp>
@@ -103,7 +104,11 @@ struct EventCatcher : public OISCallbackT
 		typename DelegaterContainerT::iterator it =
 			std::find(mTargets.begin(), mTargets.end(), target);
 		
-		assert(it == mTargets.end() && "Delegater Target must not exist yet!");
+		if (it != mTargets.end())
+		{
+			throw std::invalid_argument
+				("Controller: Delegater Target already exists.");
+		}
 		
 		mTargets.push_back(target);
 	}
@@ -115,7 +120,11 @@ struct EventCatcher : public OISCallbackT
 		typename DelegaterContainerT::iterator it =
 			std::find(mTargets.begin(), mTargets.end(), target);
 
-		assert(it != mTargets.end() && "Delegater Target must exist!");
+		if (it == mTargets.end())
+		{
+			throw std::invalid_argument
+				("Controller: Delegater Target must exist!");
+		}
 
 		mTargets.erase(it);
 	}

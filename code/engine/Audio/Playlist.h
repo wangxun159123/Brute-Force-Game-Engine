@@ -67,8 +67,8 @@ private:
 	ProgramT mProgram;
 	ProgramT::iterator mCurrentTrack;
 
-	State mState;
 	bool mRepeatAll;
+	State mState;
 };
 
 } // namespace Audio
