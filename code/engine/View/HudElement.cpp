@@ -43,11 +43,12 @@ HudElement::HudElement(const std::string& layoutName,
 	Gui& gui = Gui::getInstance();
 	LayoutManager& layoutMgr = LayoutManager::getInstance();
 
-	mContent = layoutMgr.load(path.Expand(layoutName));
+	mContent = layoutMgr.loadLayout(path.Expand(layoutName));
 
 	// resize HudElement to window size
 	Widget* panel = gui.findWidgetT(resizePanel);
-	IntSize size = gui.getViewSize();
+	RenderManager& renderMgr = RenderManager::getInstance();
+	IntSize size = renderMgr.getViewSize();
 	panel->setSize(size);
 
 	gui.eventFrameStart += MyGUI::newDelegate(this, &HudElement::FrameStarted); 
