@@ -439,6 +439,16 @@ namespace Generator
 			Result += "#endif\n";
 			Result += "\n";
 		}
+		
+		//! EnumGen code doesn't need to be covered by tests! :)
+		void LcovExclude(std::string& Result, Block b)
+		{
+			if (b == BEGIN)
+				Result += "// LCOV_EXCL_START";
+			else
+				Result += "// LCOV_EXCL_STOP";
+			Result += "\n\n";
+		}
 	}
 
 	//! Generates enums and their serialisation functions in
@@ -466,8 +476,8 @@ namespace Generator
 
 		Gen::IncludeGuard(Result, inputFileCRC, Gen::BEGIN);
 		Gen::Pragmas(Result, Gen::BEGIN);
-		
 		Gen::Includes(Result, Inc);
+		Gen::LcovExclude(Result, Gen::BEGIN);
 
 		Shared::EnumVector::const_iterator it = Everything.begin();
 
@@ -506,6 +516,7 @@ namespace Generator
 				Gen::Separator(Result, '#');
 		}
 
+		Gen::LcovExclude(Result, Gen::END);
 		Gen::Pragmas(Result, Gen::END);
 		Gen::IncludeGuard(Result, inputFileCRC, Gen::END);
 	}
@@ -543,11 +554,13 @@ namespace Generator
 		IncSource.insert("boost/unordered_map.hpp");
 		IncSource.insert("boost/assign/list_of.hpp");
 		Gen::Includes(resultSource, IncSource);
+		Gen::LcovExclude(resultSource, Gen::BEGIN);
 
 		detail::UniqueIncludesT IncHeader;
 		IncHeader.insert("string");
 		detail::PrepareIncludes(IncHeader, Everything);
 		Gen::Includes(resultHeader, IncHeader);
+		Gen::LcovExclude(resultHeader, Gen::BEGIN);
 		
 		Shared::EnumVector::const_iterator it = Everything.begin();
 
@@ -586,6 +599,9 @@ namespace Generator
 			}
 		}
 		
+		Gen::LcovExclude(resultSource, Gen::END);
+		Gen::LcovExclude(resultHeader, Gen::END);
+
 		Gen::Pragmas(resultSource, Gen::END);
 		
 		Gen::IncludeGuard(resultHeader, inputFileCRC, Gen::END);
