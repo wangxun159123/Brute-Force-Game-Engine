@@ -45,6 +45,7 @@ void initOgreForMeshLoading()
 	Path p;
 	const std::string meshPath = p.Get(ID::P_GRAPHICS_MESHES);
 
+	// \Todo: remove this memory leak.
 	Ogre::Root* root = new Ogre::Root("", "", p.Get(ID::P_LOGS) + "OgreMeshLoad.log");
 	new Ogre::DefaultHardwareBufferManager();
 	Ogre::ResourceGroupManager::getSingleton().addResourceLocation(meshPath, "FileSystem");

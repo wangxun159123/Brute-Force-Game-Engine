@@ -146,9 +146,8 @@ void fireScaledParticles(Ogre::ParticleSystem* particleSystem,
 }
 
 
-Explosion::Explosion(const v3& position, f32 intensity) :
+Explosion::Explosion(const v3& position, f32) :
 mPosition(position),
-mIntensity(intensity),  //! \todo <- Use me! (1.0f is "normal")
 mBillboardSet(NULL),
 mElapsedTime(0),
 mHandle(generateHandle()),
@@ -293,9 +292,8 @@ bool Explosion::frameStarted( const Ogre::FrameEvent& evt )
 // ##############
 
 
-Explosion2::Explosion2(const v3& position, f32 intensity) :
+Explosion2::Explosion2(const v3& position, f32) :
 mPosition(position),
-mIntensity(intensity),  //! \todo <- Use me! (1.0f is "normal")
 mElapsedTime(0),
 mHandle(generateHandle())
 {
