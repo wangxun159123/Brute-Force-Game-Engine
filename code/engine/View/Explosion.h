@@ -48,9 +48,10 @@ namespace View {
 class VIEW_API Explosion : boost::noncopyable, public Effect
 {
 public:
+	// \Todo: implement intensity for Explosion
 	//! \param intensity
 	//!		This parameter is not yet implemented.
-	Explosion(const v3& position, f32 intensity);
+	Explosion(const v3& position, f32 /*intensity*/);
 	~Explosion();
 
 	bool frameStarted(const Ogre::FrameEvent& evt);
@@ -58,7 +59,6 @@ public:
 private:
 
 	v3                  mPosition;
-	f32                 mIntensity;
 	Ogre::BillboardSet* mBillboardSet;
 	f32                 mElapsedTime;
 	GameHandle          mHandle;
@@ -69,9 +69,10 @@ private:
 class VIEW_API Explosion2 : boost::noncopyable, public Effect
 {
 public:
+	// \Todo: implement intensity for Explosion2
 	//! \param intensity
 	//!		This parameter is not yet implemented.
-	Explosion2(const v3& position, f32 intensity);
+	Explosion2(const v3& position, f32 /*intensity*/);
 	~Explosion2();
 
 	bool frameStarted(const Ogre::FrameEvent& evt);
@@ -87,7 +88,6 @@ private:
 	Ogre::SceneNode* mNode;
 
 	v3 mPosition;
-	f32 mIntensity;
 
 	f32 mElapsedTime;
 	GameHandle mHandle;
