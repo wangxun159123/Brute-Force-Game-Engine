@@ -76,7 +76,7 @@ public:
 
 	virtual ~EventLoop();
 	
-	//! Perform on single execution of the loop
+	//! Perform one single execution of the loop
 	virtual long doLoop();
 
 	//! Don't store it, Execute it immediately
