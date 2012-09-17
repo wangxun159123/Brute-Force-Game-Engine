@@ -23,14 +23,6 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
-//
-// The EventManager coordinates the Threads, EventChannels und the EventExecution
-// Incoming means : Communication from the EventManager to the EventLoop
-// Outgoing means : Communication from the EventLoop to the EventManager
-//
-// An EventManager can be used by any class.
-// Remember! This will only be used in a threaded environment
-//
 
 #ifndef __EVENT_MANAGER_H_
 #define __EVENT_MANAGER_H_
@@ -48,48 +40,40 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <EventSystem/Core/EventPool.h>
 #include <EventSystem/Core/EventChannel.h>
 
-
 class EventLoop;
 class EventManager;
 
-//! \todo Do assigned of static in cpp-file
-//! Causes trouble with multiple includes 
-
 static const int max_threads = 32;
 
-// EventChannel-Typedef : EventPoolQueue
 typedef std::map<long, long> EventChannelMaskMap;
 typedef std::map<std::string, long> EventIdBinding;
 
-
+//! The EventManager coordinates the Threads, EventChannels and the EventExecution.
+//!
+//! Incoming means : Communication from the EventManager to the EventLoop.
+//! Outgoing means : Communication from the EventLoop to the EventManager.
+//!
+//! An EventManager can be used by any class.
+//!
+//! \note This will only be used in a threaded environment
 class EventManager
 {
 public:
-	//! Friend needed for Base::CSingleton to work
+	//! Singleton setup
 	friend class BFG::Base::CLazyObject;
-	//! cmon its a singleton
 	static EventManager* getInstance();
+
 	//! Destructor needs to be public
 	~EventManager();
-	//! cmon its a singleton
-	//static void Init () { m_Self = new EventManager(); }
-	//! Thats reallly brutal
-	static void destroy()
-	{
-		//if (IsInitialized())
-		//delete m_Self; 
-		//m_Self = NULL; 
-	}
+
 	static bool isInitialized()
 	{
 		return true;
 	}
-	//static bool DoTick() { return GetInstance()->DoOperate(); }
 
 	long registerEventLoop(EventChannel* ioChannel);
 	void unregisterEventLoop(EventChannel* ioChannel);
 	void subscribeEvent(long eventId, EventChannel* ioChannel);
-	void subscribeEvents(long* eventId, EventChannel* ioChannel);
 	void unsubscribeEvent(long eventId, EventChannel* ioChannel);
 	void unsubscribeAll(EventChannel* ioChannel);
 
@@ -101,16 +85,19 @@ public:
 	BaseEventPool* requestPool();
 	void freePool(BaseEventPool* pool);
 
-
 private:
 	//! Ctor is only called by Singleton-creation function
 	EventManager(void);
+
 	//! Is exchanging Inter-Process data here
 	bool doOperate();
+	
 	//! Entrypoint for the thread
 	void runThread();
+
 	//! The "worker" thread
-	boost::thread	mThread;
+	boost::thread mThread;
+
 	// Determine how many locks actually are needed
 	boost::mutex mInternalMutex;
 	boost::mutex mEventChannelListMutex;
@@ -119,13 +106,11 @@ private:
 
 	boost::recursive_mutex mEventPoolMutex;
 	size_t mThreadCount;
-	//std::vector<EventChannel*> m_ChannelList;
-	//EventChannelMMap m_ExecutionList;
 	EventChannelMaskMap mExecutionList;
 	EventChannel* mEventChannelList[max_threads];
 	EventIdBinding mDynamicEventIdMap;
-	//EventPoolQueue m_PoolQueue;
 	std::deque<BaseEventPool*> mPoolQueue;
+
 	//! Condition for shutting down the EventSystem
 	bool mExitFlag;
 

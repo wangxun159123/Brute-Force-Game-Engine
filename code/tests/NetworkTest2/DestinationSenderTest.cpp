@@ -198,8 +198,6 @@ struct EventSystemSetup
 		serverEmitter.reset();
 		clientEmitter.reset();
 		boost::this_thread::sleep(boost::posix_time::seconds(1));
-		serverLoop->cleanUpEventSystem();
-		clientLoop->cleanUpEventSystem();
 		serverLoop.reset();
  		clientLoop.reset();
 		boost::unit_test::unit_test_log.set_stream( std::cout );

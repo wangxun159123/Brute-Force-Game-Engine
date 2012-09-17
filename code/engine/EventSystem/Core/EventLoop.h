@@ -22,13 +22,7 @@ GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
-
-
 */
-//
-// Now comes the most important part, our EventLoop
-// Since this is the simple, single-threaded BaseClass, dont expect some specialities here
-//
 
 #ifndef EVENT_LOOP_H
 #define EVENT_LOOP_H
@@ -42,7 +36,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <EventSystem/Core/EventPool.h>
 #include <EventSystem/Core/IEventLoop.h>
 #include <EventSystem/Core/ThreadingPolicy.h>
-
 
 class EventLoop;
 
@@ -82,7 +75,8 @@ public:
 	);
 
 	virtual ~EventLoop();
-	//! The most used function
+	
+	//! Perform on single execution of the loop
 	virtual long doLoop();
 
 	//! Don't store it, Execute it immediately
@@ -107,13 +101,10 @@ public:
 		mMutex.unlock();
 	}
 
-	//! Perform internal Cleanup, proper usage of this function should avoid memory leaks
-	virtual void cleanUpEventSystem();
-
 	//! More important in MT-Case
 	int getCommunicationID() const {return mCommunicationPolicy->id();}
 
-	template < class EventType >
+	template<class EventType>
 	EventType* createPoolElement()
 	{
 		//! \todo boost_is_base_of
@@ -142,26 +133,19 @@ public:
 	}
 
 private:
-	//! \todo Proper Description
-	// EventMapType m_EventMap;
-
-	BaseEventPool* mFrontPool;
-	BaseEventPool* mBackPool;
+	boost::scoped_ptr<BaseEventPool> mFrontPool;
+	boost::scoped_ptr<BaseEventPool> mBackPool;
 
 	EventSystem::ThreadingPolicy* mThreadingPolicy;
 	EventSystem::CommunicationPolicy* mCommunicationPolicy;
 
-	// ----------------------
-	//! LoopPoints
 	EventFunctorTable<EventLoop,LoopEvent> mLoopEventReceivers;
 
-	//! Flag
 	bool mShouldExit;
 
 	bool mMultiLoop;
 
 	boost::mutex mMutex;
-
 };
 
 #endif // __EVENT_LOOP_H_

@@ -24,15 +24,6 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-//
-// The EventManager coordinates the Threads, EventChannels und the EventExecution
-// Incoming means : Communication from the EventManager to the EventLoop
-// Outgoing means : Communication from the EventLoop to the EventManager
-//
-// An EventManager can be used by any class.
-// Remember! This will only be used in a threaded environment
-//
-
 #include <boost/archive/text_oarchive.hpp>
 
 #include <Base/Cpp.h>
@@ -40,7 +31,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Base/NameCurrentThread.h>
 #include <EventSystem/Core/EventLoop.h>
 #include <EventSystem/Core/EventManager.h>
-
 
 EventManager* EventManager::getInstance()
 {
@@ -137,11 +127,6 @@ void EventManager::subscribeEvent(long eventId, EventChannel* ioChannel)
 	}	
 	int id = getChannelId(ioChannel);
 	mExecutionList[eventId] = mask | (1 << id);
-}
-
-void EventManager::subscribeEvents(long* , EventChannel* )
-{
-	assert(false && "TODO: EventManager::SubscribeEvents(long*,EventChannel*)");
 }
 
 void EventManager::unsubscribeEvent(long eventId, EventChannel* ioChannel)

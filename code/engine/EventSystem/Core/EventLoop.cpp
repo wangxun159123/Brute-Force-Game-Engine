@@ -40,8 +40,6 @@ mMultiLoop(notifyLoopEventListener)
 
 EventLoop::~EventLoop()
 {
-	delete mFrontPool;
-	delete mBackPool;
 }
 
 void EventLoop::run()
@@ -61,13 +59,14 @@ void EventLoop::entry()
 	{
 		throw std::logic_error("EventLoop: This loop has no EntryPoints!");
 	}
-	// Run synchroniously
+
+	// Run synchronously
 	callEntryPoints(this);
+	
 	while(!mShouldExit)
 		doLoop();
 
 //	mCommunicationPolicy->deinit();
-
 	mThreadingPolicy->stop();
 }
 
@@ -75,11 +74,10 @@ long EventLoop::doLoop()
 {
 	if (mMultiLoop)
 	{
-		// Notify our LoopListeners, they want to know, whats up with the Loop
-		LoopEvent* ev = new LoopEvent(this, 0);
-		mLoopEventReceivers.call(ev);
-		delete ev;
-	}	
+		// Notify the LoopEvent listeners
+		LoopEvent ev(this, 0);
+		mLoopEventReceivers.call(&ev);
+	}
 
 	long eventCount = 0;
 	BaseEventPool* incoming = 0;
@@ -90,16 +88,15 @@ long EventLoop::doLoop()
 		while (mFrontPool->size() > 0)
 		{
 			// 1. Switch Buffers
-			
 			lock();
-			std::swap(mFrontPool, mBackPool);
+			mFrontPool.swap(mBackPool);
 			unlock();
 
 			// 2. Process BackPool
-			eventCount += processEventsCount(mBackPool, 0);
+			eventCount += processEventsCount(mBackPool.get(), 0);
 
 			// 2.1. Publish BackPool
-			mCommunicationPolicy->publishPool(mBackPool);
+			mCommunicationPolicy->publishPool(mBackPool.get());
 
 			mBackPool->clear();
 		}	
@@ -114,19 +111,4 @@ long EventLoop::doLoop()
 	while(incoming);
 
 	return eventCount;
-}
-
-void EventLoop::executeEventSyncron(BaseEvent* event)
-{
-	// Threads and so on ...
-	//ExecuteEvent(event->getId(), event);
-	assert(false);
-}
-
-void EventLoop::cleanUpEventSystem()
-{
-	//EventQueue::SafeDeleteStoredEvents();
-	mFrontPool->clear();
-	mBackPool->clear();
-	EventProcessor::cleanUp();
 }
