@@ -50,7 +50,6 @@ OpenALInit::~OpenALInit()
 
 void OpenALInit::init()
 {
-	ALenum errorCode = AL_NONE;
 	mDevice = alcOpenDevice(0); // 0 is default device.
 
 	if (!mDevice)
