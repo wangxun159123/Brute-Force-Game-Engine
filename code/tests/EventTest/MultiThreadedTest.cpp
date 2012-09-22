@@ -32,10 +32,11 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/test/unit_test.hpp>
 
-static void resetGlobals()
-{
-}
+// Toggle
+#define SKIP_BROKEN_TESTS
 
+
+#ifndef SKIP_BROKEN_TESTS
 static void manyLoops(const std::string& name, IEventLoop* p)
 {
 	EventLoop* loop = static_cast<EventLoop*>(p);
@@ -47,6 +48,7 @@ static void manyLoops(const std::string& name, IEventLoop* p)
 	}
 	std::cout << name << " done.\n";
 }
+#endif
 
 // ---------------------------------------------------------------------------
 
@@ -70,7 +72,7 @@ BOOST_AUTO_TEST_CASE (TestTwoLoopsWithoutCommunication)
 	loop2.doLoop();
 
 	// Expect no received events since we arent't using "Interthread Communication"
-	BOOST_REQUIRE(ter.receivedEvents() == 0);
+	BOOST_REQUIRE_EQUAL(ter.receivedEvents(), 0);
 }
 
 BOOST_AUTO_TEST_CASE (TestTwoLoopsWithOneWayCommunication)
@@ -92,11 +94,10 @@ BOOST_AUTO_TEST_CASE (TestTwoLoopsWithOneWayCommunication)
 
 	// Expect no received events since loop2 has no communication and does
 	// not poll if other pools are available.
-	BOOST_REQUIRE(ter.receivedEvents() == 0);
+	BOOST_REQUIRE_EQUAL(ter.receivedEvents(), 0);
 }
 
-//! \todo The test "TestTwoLoopsWithCommunication" fails.
-/*
+#ifndef SKIP_BROKEN_TESTS
 BOOST_AUTO_TEST_CASE (TestTwoLoopsWithCommunication)
 {
 	EventLoop loop1(false, new EventSystem::BoostThread<>("Loop1", &manyLoops), new EventSystem::InterThreadCommunication());
@@ -145,10 +146,9 @@ BOOST_AUTO_TEST_CASE (TestTwoLoopsWithCommunication)
 	// Expect EXPECTED_NUMBER_OF_EVENTS received events. Both loops should communicate.
 	BOOST_CHECK_EQUAL(ter.receivedEvents(), EXPECTED_NUMBER_OF_EVENTS);
 }
-*/
+#endif
 
-//! \todo The test "TestCreatePoolElementException" fails.
-/*
+#ifndef SKIP_BROKEN_TESTS
 BOOST_AUTO_TEST_CASE (TestCreatePoolElementException)
 {
 	EventLoop loop1(false, new EventSystem::BoostThread<>("Loop1", &manyLoops), new EventSystem::InterThreadCommunication());
@@ -195,6 +195,6 @@ BOOST_AUTO_TEST_CASE (TestCreatePoolElementException)
 	// Expect EXPECTED_NUMBER_OF_EVENTS received events without error.
 	BOOST_CHECK_EQUAL(ter.receivedEvents(), EXPECTED_NUMBER_OF_EVENTS);
 }
-*/
+#endif
 
 BOOST_AUTO_TEST_SUITE_END()

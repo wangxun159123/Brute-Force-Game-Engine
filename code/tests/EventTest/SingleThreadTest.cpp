@@ -64,15 +64,15 @@ BOOST_AUTO_TEST_CASE (TestLoopWithOneEvent)
 
 	// Shouldn't get delivered
 	e.emit<TestEvent>(TEST_EVENT_ID, TEST_EVENT_PAYLOAD);
-	BOOST_REQUIRE(ter.receivedEvents() == 0);
+	BOOST_REQUIRE_EQUAL(ter.receivedEvents(), 0);
 
 	// Should get delivered
 	loop.doLoop();
-	BOOST_REQUIRE(ter.receivedEvents() == 1);
+	BOOST_REQUIRE_EQUAL(ter.receivedEvents(), 1);
 
 	// Make sure it doesn't get delivered again
 	loop.doLoop();
-	BOOST_REQUIRE(ter.receivedEvents() == 1);
+	BOOST_REQUIRE_EQUAL(ter.receivedEvents(), 1);
 }
 
 BOOST_AUTO_TEST_CASE (TestLoopWithOneEventAndDestinationAndSender)
@@ -92,17 +92,17 @@ BOOST_AUTO_TEST_CASE (TestLoopWithOneEventAndDestinationAndSender)
 	// Should not arrive since the DESTINATION is different
 	e.emit<TestEvent>(TEST_EVENT_ID, TEST_EVENT_PAYLOAD, OTHER_DESTINATION, SENDER);
 	loop.doLoop();
-	BOOST_REQUIRE(ter.receivedEvents() == 0);
+	BOOST_REQUIRE_EQUAL(ter.receivedEvents(), 0);
 
 	// Should arrive since the DESTINATION is equal
 	e.emit<TestEvent>(TEST_EVENT_ID, TEST_EVENT_PAYLOAD, DESTINATION, SENDER);
 	loop.doLoop();
-	BOOST_REQUIRE(ter.receivedEvents() == 1);
+	BOOST_REQUIRE_EQUAL(ter.receivedEvents(), 1);
 
 	// Should not arrive since it has no DESTINATION (which means: to all)
 	e.emit<TestEvent>(TEST_EVENT_ID, TEST_EVENT_PAYLOAD);
 	loop.doLoop();
-	BOOST_REQUIRE(ter.receivedEvents() == 1);
+	BOOST_REQUIRE_EQUAL(ter.receivedEvents(), 1);
 }
 
 BOOST_AUTO_TEST_CASE (TestEntryPoint)
@@ -115,21 +115,21 @@ BOOST_AUTO_TEST_CASE (TestEntryPoint)
 
 	// Shouldn't get entered yet
 	loop.addEntryPoint(&ep);
-	BOOST_REQUIRE(gEntryPointCalled == 0);
+	BOOST_REQUIRE_EQUAL(gEntryPointCalled, 0);
 
 	// Shouldn't get entered yet
 	loop.doLoop();
-	BOOST_REQUIRE(gEntryPointCalled == 0);
+	BOOST_REQUIRE_EQUAL(gEntryPointCalled, 0);
 
 	// Should get entered now
 	loop.stop();
 	loop.entry();
-	BOOST_REQUIRE(gEntryPointCalled == 1);
+	BOOST_REQUIRE_EQUAL(gEntryPointCalled, 1);
 
 	// Should get entered again
 	loop.stop();
 	loop.entry();
-	BOOST_REQUIRE(gEntryPointCalled == 2);
+	BOOST_REQUIRE_EQUAL(gEntryPointCalled, 2);
 }
 
 BOOST_AUTO_TEST_CASE (TestLoopEvent)
@@ -141,20 +141,44 @@ BOOST_AUTO_TEST_CASE (TestLoopEvent)
 	
 	// Shouldn't get delivered yet
 	loop.registerLoopEventListener(&ler, &LoopEventCounter::eventHandler);
-	BOOST_REQUIRE(ler.receivedEvents() == 0);
+	BOOST_REQUIRE_EQUAL(ler.receivedEvents(), 0);
 
 	// Should get delivered now
 	loop.doLoop();
-	BOOST_REQUIRE(ler.receivedEvents() == 1);
+	BOOST_REQUIRE_EQUAL(ler.receivedEvents(), 1);
 
 	// Make sure it does get delivered again
 	loop.doLoop();
-	BOOST_REQUIRE(ler.receivedEvents() == 2);
+	BOOST_REQUIRE_EQUAL(ler.receivedEvents(), 2);
 
 	// Make sure it doesn't get delivered again
 	loop.unregisterLoopEventListener(&ler);
 	loop.doLoop();
-	BOOST_REQUIRE(ler.receivedEvents() == 2);
+	BOOST_REQUIRE_EQUAL(ler.receivedEvents(), 2);
+}
+
+BOOST_AUTO_TEST_CASE (TestBroadcastEvent)
+{
+	EventLoop loop(false);
+	BFG::Emitter e(&loop);
+
+	TestEventCounter ter1;
+	TestEventCounter ter2;
+	
+	loop.connect(TEST_EVENT_ID, &ter1, &TestEventCounter::eventHandler);
+	loop.connect(TEST_EVENT_ID, &ter2, &TestEventCounter::eventHandler);
+
+	e.emit<TestEvent>(TEST_EVENT_ID, TEST_EVENT_PAYLOAD);
+
+	// Should get delivered twice
+	loop.doLoop();
+	BOOST_REQUIRE_EQUAL(ter1.receivedEvents(), 1);
+	BOOST_REQUIRE_EQUAL(ter2.receivedEvents(), 1);
+
+	// Make sure it doesn't get delivered again
+	loop.doLoop();
+	BOOST_REQUIRE_EQUAL(ter1.receivedEvents(), 1);
+	BOOST_REQUIRE_EQUAL(ter2.receivedEvents(), 1);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
