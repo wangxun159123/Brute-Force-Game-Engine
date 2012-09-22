@@ -41,6 +41,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Core/Types.h>
 #include <Core/Utils.h>
 #include <EventSystem/Emitter.h>
+#include <Model/State.h>
 #include <View/CameraCreation.h>
 #include <View/ControllerMyGuiAdapter.h>
 #include <View/Event.h>
@@ -67,15 +68,11 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 using namespace BFG;
 using namespace boost::units;
 
-struct ComposerState : Emitter
+struct ComposerState : State
 {
 	ComposerState(GameHandle handle, EventLoop* loop) :
-	Emitter(loop),
-	mClock(new Clock::StopWatch(Clock::milliSecond)),
-	mExitNextTick(false)
-	{
-		mClock->start();
-	}
+	State(loop)
+	{}
 
 	void ControllerEventHandler(Controller_::VipEvent* iCE)
 	{
@@ -83,8 +80,7 @@ struct ComposerState : Emitter
 		{
 			case A_QUIT:
 			{
-				mExitNextTick = true;
-				emit<BFG::View::Event>(BFG::ID::VE_SHUTDOWN, 0);
+				loop()->stop();
 				break;
 			}
 			case A_SCREENSHOT:
@@ -95,33 +91,8 @@ struct ComposerState : Emitter
 		}
 	}
 
-	void LoopEventHandler(LoopEvent* iLE)
-	{
-		if (mExitNextTick)
-		{
-			// Error happened, while doing stuff
-			iLE->getData().getLoop()->setExitFlag();
-		}
-
-		long timeSinceLastFrame = mClock->stop();
-		if (timeSinceLastFrame)
-			mClock->start();
-
-		f32 timeInSeconds = static_cast<f32>(timeSinceLastFrame) / Clock::milliSecond;
-		tick(timeInSeconds);
-	}
-		
-	void tick(const f32 timeSinceLastFrame)
-	{
-		if (timeSinceLastFrame < EPSILON_F)
-			return;
-
-		quantity<si::time, f32> TSLF = timeSinceLastFrame * si::seconds;
-	}
-
-	boost::scoped_ptr<Clock::StopWatch> mClock;
-	
-	bool mExitNextTick;
+	virtual void onTick(const quantity<si::time, f32> timeSinceLastFrame)
+	{}
 };
 
 struct ViewComposerState : public View::State
@@ -172,6 +143,8 @@ public:
 
 	~ViewComposerState()
 	{
+		emit<BFG::View::Event>(BFG::ID::VE_SHUTDOWN, 0);
+		
 		mActiveFeatures.clear();
 
 		FeatureListT::iterator it = mLoadedFeatures.begin();
@@ -296,16 +269,18 @@ private:
 	MyGUI::VectorWidgetPtr mContainer;
 };
 
+boost::scoped_ptr<ViewComposerState> gViewComposerState;
+boost::scoped_ptr<ComposerState> gComposerState;
+
 // This is the Ex-'GameStateManager::SingleThreadEntryPoint(void*)' function
 void* SingleThreadEntryPoint(void *iPointer)
 {
 	EventLoop* loop = static_cast<EventLoop*>(iPointer);
 	
 	GameHandle siHandle = BFG::generateHandle();
-	
-	// Hack: Using leaking pointers, because vars would go out of scope
-	ComposerState* ps = new ComposerState(siHandle, loop);
-	ViewComposerState* vps = new ViewComposerState(siHandle, loop);
+
+	gViewComposerState.reset(new ViewComposerState(siHandle, loop));
+	gComposerState.reset(new ComposerState(siHandle, loop));
 
 	// Init Controller
 	GameHandle handle = generateHandle();
@@ -364,46 +339,43 @@ void* SingleThreadEntryPoint(void *iPointer)
 			si
 		);
 
-		loop->connect(A_QUIT, ps, &ComposerState::ControllerEventHandler);
-		loop->connect(A_SCREENSHOT, ps, &ComposerState::ControllerEventHandler);
+		loop->connect(A_QUIT, gComposerState.get(), &ComposerState::ControllerEventHandler);
+		loop->connect(A_SCREENSHOT, gComposerState.get(), &ComposerState::ControllerEventHandler);
 
-		loop->connect(A_LOADING_MESH, vps, &ViewComposerState::controllerEventHandler);
-		loop->connect(A_LOADING_MATERIAL, vps, &ViewComposerState::controllerEventHandler);
-		loop->connect(A_CAMERA_AXIS_X, vps, &ViewComposerState::controllerEventHandler);
-		loop->connect(A_CAMERA_AXIS_Y, vps, &ViewComposerState::controllerEventHandler);
-		loop->connect(A_CAMERA_AXIS_Z, vps, &ViewComposerState::controllerEventHandler);
-		loop->connect(A_CAMERA_MOVE, vps, &ViewComposerState::controllerEventHandler);
-		loop->connect(A_CAMERA_RESET, vps, &ViewComposerState::controllerEventHandler);
-		loop->connect(A_CAMERA_ORBIT, vps, &ViewComposerState::controllerEventHandler);
-		loop->connect(A_LOADING_SKY, vps, &ViewComposerState::controllerEventHandler);
+		loop->connect(A_LOADING_MESH, gViewComposerState.get(), &ViewComposerState::controllerEventHandler);
+		loop->connect(A_LOADING_MATERIAL, gViewComposerState.get(), &ViewComposerState::controllerEventHandler);
+		loop->connect(A_CAMERA_AXIS_X, gViewComposerState.get(), &ViewComposerState::controllerEventHandler);
+		loop->connect(A_CAMERA_AXIS_Y, gViewComposerState.get(), &ViewComposerState::controllerEventHandler);
+		loop->connect(A_CAMERA_AXIS_Z, gViewComposerState.get(), &ViewComposerState::controllerEventHandler);
+		loop->connect(A_CAMERA_MOVE, gViewComposerState.get(), &ViewComposerState::controllerEventHandler);
+		loop->connect(A_CAMERA_RESET, gViewComposerState.get(), &ViewComposerState::controllerEventHandler);
+		loop->connect(A_CAMERA_ORBIT, gViewComposerState.get(), &ViewComposerState::controllerEventHandler);
+		loop->connect(A_LOADING_SKY, gViewComposerState.get(), &ViewComposerState::controllerEventHandler);
 
-		loop->connect(A_CREATE_LIGHT, vps, &ViewComposerState::controllerEventHandler);
-		loop->connect(A_DESTROY_LIGHT, vps, &ViewComposerState::controllerEventHandler);
-		loop->connect(A_PREV_LIGHT, vps, &ViewComposerState::controllerEventHandler);
-		loop->connect(A_NEXT_LIGHT, vps, &ViewComposerState::controllerEventHandler);
-		loop->connect(A_FIRST_LIGHT, vps, &ViewComposerState::controllerEventHandler);
-		loop->connect(A_LAST_LIGHT, vps, &ViewComposerState::controllerEventHandler);
+		loop->connect(A_CREATE_LIGHT, gViewComposerState.get(), &ViewComposerState::controllerEventHandler);
+		loop->connect(A_DESTROY_LIGHT, gViewComposerState.get(), &ViewComposerState::controllerEventHandler);
+		loop->connect(A_PREV_LIGHT, gViewComposerState.get(), &ViewComposerState::controllerEventHandler);
+		loop->connect(A_NEXT_LIGHT, gViewComposerState.get(), &ViewComposerState::controllerEventHandler);
+		loop->connect(A_FIRST_LIGHT, gViewComposerState.get(), &ViewComposerState::controllerEventHandler);
+		loop->connect(A_LAST_LIGHT, gViewComposerState.get(), &ViewComposerState::controllerEventHandler);
 
-		loop->connect(A_INFO_WINDOW, vps, &ViewComposerState::controllerEventHandler);
-		loop->connect(A_SUB_MESH, vps, &ViewComposerState::controllerEventHandler);
-		loop->connect(A_TEX_UNIT, vps, &ViewComposerState::controllerEventHandler);
-		loop->connect(A_ANIMATION, vps, &ViewComposerState::controllerEventHandler);
-		loop->connect(A_ADAPTER, vps, &ViewComposerState::controllerEventHandler);
+		loop->connect(A_INFO_WINDOW, gViewComposerState.get(), &ViewComposerState::controllerEventHandler);
+		loop->connect(A_SUB_MESH, gViewComposerState.get(), &ViewComposerState::controllerEventHandler);
+		loop->connect(A_TEX_UNIT, gViewComposerState.get(), &ViewComposerState::controllerEventHandler);
+		loop->connect(A_ANIMATION, gViewComposerState.get(), &ViewComposerState::controllerEventHandler);
+		loop->connect(A_ADAPTER, gViewComposerState.get(), &ViewComposerState::controllerEventHandler);
 
-		loop->connect(A_CAMERA_MOUSE_X, vps, &ViewComposerState::controllerEventHandler);
-		loop->connect(A_CAMERA_MOUSE_Y, vps, &ViewComposerState::controllerEventHandler);
-		loop->connect(A_CAMERA_MOUSE_Z, vps, &ViewComposerState::controllerEventHandler);
-		loop->connect(A_CAMERA_MOUSE_MOVE, vps, &ViewComposerState::controllerEventHandler);
+		loop->connect(A_CAMERA_MOUSE_X, gViewComposerState.get(), &ViewComposerState::controllerEventHandler);
+		loop->connect(A_CAMERA_MOUSE_Y, gViewComposerState.get(), &ViewComposerState::controllerEventHandler);
+		loop->connect(A_CAMERA_MOUSE_Z, gViewComposerState.get(), &ViewComposerState::controllerEventHandler);
+		loop->connect(A_CAMERA_MOUSE_MOVE, gViewComposerState.get(), &ViewComposerState::controllerEventHandler);
 
-		loop->connect(BFG::ID::A_MOUSE_MIDDLE_PRESSED, vps, &ViewComposerState::controllerEventHandler);
-		loop->connect(BFG::ID::A_MOUSE_LEFT_PRESSED, vps, &ViewComposerState::controllerEventHandler);
-		loop->connect(BFG::ID::A_MOUSE_RIGHT_PRESSED, vps, &ViewComposerState::controllerEventHandler);
+		loop->connect(BFG::ID::A_MOUSE_MIDDLE_PRESSED, gViewComposerState.get(), &ViewComposerState::controllerEventHandler);
+		loop->connect(BFG::ID::A_MOUSE_LEFT_PRESSED, gViewComposerState.get(), &ViewComposerState::controllerEventHandler);
+		loop->connect(BFG::ID::A_MOUSE_RIGHT_PRESSED, gViewComposerState.get(), &ViewComposerState::controllerEventHandler);
 
-		loop->connect(A_UPDATE_FEATURES, vps, &ViewComposerState::toolEventHandler);
+		loop->connect(A_UPDATE_FEATURES, gViewComposerState.get(), &ViewComposerState::toolEventHandler);
 	}
-
-	assert(loop);
-	loop->registerLoopEventListener(ps, &ComposerState::LoopEventHandler);
 	return 0;
 }
 
@@ -411,7 +383,7 @@ int main( int argc, const char* argv[] ) try
 {
 	Base::Logger::Init(Base::Logger::SL_DEBUG, "Logs/Composer.log");
 
-	EventLoop iLoop(true);
+	EventLoop loop(true);
 
 	size_t controllerFrequency = 1000;
 
@@ -419,12 +391,14 @@ int main( int argc, const char* argv[] ) try
 
 	boost::scoped_ptr<Base::IEntryPoint> epView(View::Interface::getEntryPoint(caption));
 
-	iLoop.addEntryPoint(epView.get());
-	iLoop.addEntryPoint(ControllerInterface::getEntryPoint(controllerFrequency));
-	iLoop.addEntryPoint(new Base::CEntryPoint(SingleThreadEntryPoint));
+	loop.addEntryPoint(epView.get());
+	loop.addEntryPoint(ControllerInterface::getEntryPoint(controllerFrequency));
+	loop.addEntryPoint(new Base::CEntryPoint(SingleThreadEntryPoint));
 
-	iLoop.run();
+	loop.run();
 	
+	gViewComposerState.reset();
+	gComposerState.reset();
 }
 catch (Ogre::Exception& e)
 {

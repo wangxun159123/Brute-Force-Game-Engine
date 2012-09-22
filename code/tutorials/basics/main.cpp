@@ -175,8 +175,8 @@ void initController(BFG::GameHandle stateHandle, EventLoop* loop)
 
 GameHandle stateHandle = BFG::generateHandle();
 
-boost::scoped_ptr<ViewState> mViewState;
-boost::scoped_ptr<GameState> mGameState;
+boost::scoped_ptr<ViewState> gViewState;
+boost::scoped_ptr<GameState> gGameState;
 
 void* createStates(void* p)
 {
@@ -185,8 +185,8 @@ void* createStates(void* p)
 	// The different states might be seen as different viewing points of
 	// one state of an application or game. Thus they always share the same
 	// handle since they work closely together.
-	mViewState.reset(new ViewState(stateHandle, loop));
-	mGameState.reset(new GameState(stateHandle, loop));
+	gViewState.reset(new ViewState(stateHandle, loop));
+	gGameState.reset(new GameState(stateHandle, loop));
 
 	initController(stateHandle, loop);
 	return 0;
@@ -221,8 +221,8 @@ int main( int argc, const char* argv[] ) try
 	loop.run();
 
 	// The loop does not run anymore. Destroy the states now.
-	mViewState.reset();
-	mGameState.reset();
+	gViewState.reset();
+	gGameState.reset();
 }
 catch (Ogre::Exception& e)
 {

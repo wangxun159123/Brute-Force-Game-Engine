@@ -55,17 +55,17 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 GameHandle stateHandle = BFG::generateHandle();
 
-boost::scoped_ptr<ViewMainState> mViewState;
-boost::scoped_ptr<MainState> mGameState;
-boost::scoped_ptr<AudioState> mAudioState;
+boost::scoped_ptr<ViewMainState> gViewState;
+boost::scoped_ptr<MainState> gGameState;
+boost::scoped_ptr<AudioState> gAudioState;
 
 void* createStates(void* p)
 {
 	EventLoop* loop = static_cast<EventLoop*>(p);
 
-	mViewState.reset(new ViewMainState(stateHandle, loop));
-	mGameState.reset(new MainState(stateHandle, loop));
-	mAudioState.reset(new AudioState);
+	gViewState.reset(new ViewMainState(stateHandle, loop));
+	gGameState.reset(new MainState(stateHandle, loop));
+	gAudioState.reset(new AudioState);
 
 	// Init Controller
 	GameHandle handle = generateHandle();
@@ -94,10 +94,10 @@ void* createStates(void* p)
 			si
 		);
 
-		loop->connect(A_SHIP_AXIS_Y, mGameState.get(), &MainState::ControllerEventHandler);
-		loop->connect(A_SHIP_FIRE, mGameState.get(), &MainState::ControllerEventHandler);
-		loop->connect(A_QUIT, mGameState.get(), &MainState::ControllerEventHandler);
-		loop->connect(A_FPS, mGameState.get(), &MainState::ControllerEventHandler);
+		loop->connect(A_SHIP_AXIS_Y, gGameState.get(), &MainState::ControllerEventHandler);
+		loop->connect(A_SHIP_FIRE, gGameState.get(), &MainState::ControllerEventHandler);
+		loop->connect(A_QUIT, gGameState.get(), &MainState::ControllerEventHandler);
+		loop->connect(A_FPS, gGameState.get(), &MainState::ControllerEventHandler);
 	}
 	return 0;
 }
@@ -131,9 +131,9 @@ int main( int argc, const char* argv[] ) try
 
 	iLoop.run();
 	
-	mViewState.reset();
-	mGameState.reset();
-	mAudioState.reset();
+	gViewState.reset();
+	gGameState.reset();
+	gAudioState.reset();
 }
 catch (Ogre::Exception& e)
 {
