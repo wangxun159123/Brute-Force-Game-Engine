@@ -37,13 +37,11 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 
 MainState::MainState(GameHandle handle, EventLoop* loop) :
-	Emitter(loop),
-	mPlayer(NULL_HANDLE),
-	mEnvironment(new Environment),
-	mClock(new Clock::StopWatch(Clock::milliSecond)),
-	mInvaderGeneral(loop, mEnvironment),
-	mHumanGeneral(loop, mEnvironment),
-	mExitNextTick(false)
+State(loop),
+mPlayer(NULL_HANDLE),
+mEnvironment(new Environment),
+mInvaderGeneral(loop, mEnvironment),
+mHumanGeneral(loop, mEnvironment)
 {
 	Path p;
 	std::string level = p.Get(ID::P_SCRIPTS_LEVELS) + "spaceinvaders/";
@@ -92,62 +90,32 @@ MainState::MainState(GameHandle handle, EventLoop* loop) :
 	mSector->addObject(playerShip);
 
 	mPlayer = playerShip->getHandle();
-
-	mClock->start();
 }
 
-void MainState::ControllerEventHandler(Controller_::VipEvent* iCE)
+void MainState::ControllerEventHandler(Controller_::VipEvent* e)
 {
-	switch(iCE->getId())
+	switch(e->getId())
 	{
 		case A_SHIP_AXIS_Y:
-			emit<GameObjectEvent>(ID::GOE_CONTROL_YAW, boost::get<float>(iCE->getData()), mPlayer);
+			emit<GameObjectEvent>(ID::GOE_CONTROL_YAW, boost::get<float>(e->getData()), mPlayer);
 			break;
 
 		case A_SHIP_FIRE:
-		{
 			emit<GameObjectEvent>(ID::GOE_FIRE_ROCKET, 0, mPlayer);
 			break;
-		}
 
 		case A_QUIT:
-		{
-			mExitNextTick = true;
-			emit<BFG::View::Event>(BFG::ID::VE_SHUTDOWN, 0);
+			loop()->stop();
 			break;
-		}
 
 		case A_FPS:
-		{
-			emit<BFG::View::Event>(BFG::ID::VE_DEBUG_FPS, boost::get<bool>(iCE->getData()));
+			emit<BFG::View::Event>(BFG::ID::VE_DEBUG_FPS, boost::get<bool>(e->getData()));
 			break;
-		}
 	}
 }
 
-void MainState::LoopEventHandler(LoopEvent* iLE)
+void MainState::onTick(const quantity<si::time, f32> TSLF)
 {
-	if (mExitNextTick)
-	{
-		// Error happened, while doing stuff
-		iLE->getData().getLoop()->setExitFlag();
-	}
-
-	long timeSinceLastFrame = mClock->stop();
-	if (timeSinceLastFrame)
-		mClock->start();
-
-	f32 timeInSeconds = static_cast<f32>(timeSinceLastFrame) / Clock::milliSecond;
-	tick(timeInSeconds);
-}
-
-void MainState::tick(const f32 timeSinceLastFrame)
-{
-	if (timeSinceLastFrame < EPSILON_F)
-		return;
-
-	quantity<si::time, f32> TSLF = timeSinceLastFrame * si::seconds;
-
 	mSector->update(TSLF);
 	mInvaderGeneral.update(TSLF);
 	mHumanGeneral.update(TSLF);

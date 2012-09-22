@@ -35,9 +35,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 using namespace BFG;
 
-class Ogre::SceneNode;
-class Ogre::ParticleSystem;
-
 class PowerupEffect : public View::Effect
 {
 public:

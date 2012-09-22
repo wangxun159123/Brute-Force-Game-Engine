@@ -53,18 +53,19 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include "AudioState.h"
 #include "Globals.h"
 
+GameHandle stateHandle = BFG::generateHandle();
 
-// This is the Ex-'GameStateManager::SingleThreadEntryPoint(void*)' function
-void* SingleThreadEntryPoint(void *iPointer)
+boost::scoped_ptr<ViewMainState> mViewState;
+boost::scoped_ptr<MainState> mGameState;
+boost::scoped_ptr<AudioState> mAudioState;
+
+void* createStates(void* p)
 {
-	EventLoop* loop = static_cast<EventLoop*>(iPointer);
+	EventLoop* loop = static_cast<EventLoop*>(p);
 
-	GameHandle siHandle = BFG::generateHandle();
-
-	// Hack: Using leaking pointers, because vars would go out of scope
-	MainState* ps = new MainState(siHandle, loop);
-	ViewMainState* vps = new ViewMainState(siHandle, loop);
-	AudioState* as = new AudioState();
+	mViewState.reset(new ViewMainState(stateHandle, loop));
+	mGameState.reset(new MainState(stateHandle, loop));
+	mAudioState.reset(new AudioState);
 
 	// Init Controller
 	GameHandle handle = generateHandle();
@@ -93,14 +94,11 @@ void* SingleThreadEntryPoint(void *iPointer)
 			si
 		);
 
-		loop->connect(A_SHIP_AXIS_Y, ps, &MainState::ControllerEventHandler);
-		loop->connect(A_SHIP_FIRE, ps, &MainState::ControllerEventHandler);
-		loop->connect(A_QUIT, ps, &MainState::ControllerEventHandler);
-		loop->connect(A_FPS, ps, &MainState::ControllerEventHandler);
+		loop->connect(A_SHIP_AXIS_Y, mGameState.get(), &MainState::ControllerEventHandler);
+		loop->connect(A_SHIP_FIRE, mGameState.get(), &MainState::ControllerEventHandler);
+		loop->connect(A_QUIT, mGameState.get(), &MainState::ControllerEventHandler);
+		loop->connect(A_FPS, mGameState.get(), &MainState::ControllerEventHandler);
 	}
-
-	assert(loop);
-	loop->registerLoopEventListener(ps, &MainState::LoopEventHandler);
 	return 0;
 }
 
@@ -129,9 +127,13 @@ int main( int argc, const char* argv[] ) try
 	iLoop.addEntryPoint(ControllerInterface::getEntryPoint(controllerFrequency));
 	iLoop.addEntryPoint(Physics::Interface::getEntryPoint());
 	iLoop.addEntryPoint(Audio::AudioInterface::getEntryPoint());
-	iLoop.addEntryPoint(new Base::CEntryPoint(SingleThreadEntryPoint));
+	iLoop.addEntryPoint(new Base::CEntryPoint(createStates));
 
 	iLoop.run();
+	
+	mViewState.reset();
+	mGameState.reset();
+	mAudioState.reset();
 }
 catch (Ogre::Exception& e)
 {

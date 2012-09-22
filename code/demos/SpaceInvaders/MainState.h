@@ -35,6 +35,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Model/Environment.h>
 #include <Model/Sector.h>
+#include <Model/State.h>
 
 #include "InvaderGeneral.h"
 #include "HumanGeneral.h"
@@ -42,28 +43,23 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 using namespace BFG;
 
-struct MainState : Emitter
+struct MainState : State
 {
 	MainState(GameHandle handle, EventLoop* loop);
 
 	void ControllerEventHandler(Controller_::VipEvent* iCE);
 
-	void LoopEventHandler(LoopEvent* iLE);
-	void tick(const f32 timeSinceLastFrame);
+	virtual void onTick(const quantity<si::time, f32> TSLF);
 
 	GameHandle mPlayer;
 
 	boost::shared_ptr<Sector> mSector;
 	boost::shared_ptr<Environment> mEnvironment;
 
-	boost::scoped_ptr<Clock::StopWatch> mClock;
-
 	InvaderGeneral mInvaderGeneral;
 	HumanGeneral   mHumanGeneral;
 
 	BFG::Property::PluginMapT mPluginMap;
-
-	bool mExitNextTick;
 };
 
 #endif

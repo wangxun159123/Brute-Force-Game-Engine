@@ -45,6 +45,7 @@ ViewMainState::ViewMainState(GameHandle handle, EventLoop* loop) :
 ViewMainState::~ViewMainState()
 {
 	unregisterEventHandler();
+	emit<BFG::View::Event>(BFG::ID::VE_SHUTDOWN, 0);
 }
 
 
