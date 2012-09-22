@@ -83,7 +83,9 @@ void WeaponRack::internalOnEvent(EventIdT action,
 		break;
 
 	default:
-		throw std::logic_error("un nu?");
+		warnlog << "WeaponRack: Can't handle event with ID: "
+		        << action;
+		break;
 	}
 }
 

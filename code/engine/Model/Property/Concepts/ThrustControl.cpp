@@ -68,8 +68,6 @@ mTargetRotationSpeed(v3::ZERO)
 	requestEvent(ID::GOE_CONTROL_THRUST);
 	requestEvent(ID::GOE_CONTROL_MAGIC_STOP);
 	
-	requestEvent(ID::PE_FULL_SYNC);
-	
 	initvar(ID::PV_MaxSpeed);
 	initvar(ID::PV_EngineForce);
 	initvar(ID::PV_ManeuverForce);
@@ -194,14 +192,18 @@ void ThrustControl::internalOnEvent(EventIdT action,
 	}
 
 	default:
-		throw std::logic_error("wtf?");
+	{
+		warnlog << "ThrustControl: Can't handle event with ID: "
+		        << action;
+		break;
+	}
 	}
 }
 
 v3 ThrustControl::calculateForce(const v3& targetSpeed,
-								 const v3& currentSpeed,
-								 quantity<si::force, f32> forceLimit,
-								 quantity<si::time, f32> timestep)
+                                 const v3& currentSpeed,
+                                 quantity<si::force, f32> forceLimit,
+                                 quantity<si::time, f32> timestep)
 {
 	v3 speedDif = targetSpeed - currentSpeed;
 	if (length(speedDif) < 10.0e-5)
@@ -223,10 +225,10 @@ v3 ThrustControl::calculateForce(const v3& targetSpeed,
 }
 
 v3 ThrustControl::calculateTorque(const v3& targetSpeed,
-								  const v3& currentSpeed,
-								  const m3x3& tensor,
-								  quantity<si::force, f32> forceLimit,
-								  quantity<si::time, f32> timestep)
+                                  const v3& currentSpeed,
+                                  const m3x3& tensor,
+                                  quantity<si::force, f32> forceLimit,
+                                  quantity<si::time, f32> timestep)
 {
 	// Calculate the force we need to reach the target speed
 	v3 omega = targetSpeed - currentSpeed;

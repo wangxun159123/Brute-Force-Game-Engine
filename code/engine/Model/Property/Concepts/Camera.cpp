@@ -156,7 +156,8 @@ void Camera::internalOnEvent(EventIdT action,
 #endif
 
 	default:
-		throw std::logic_error("Model::Camera::internalOnEvent: Unknown Action.");
+		warnlog << "Camera: Can't handle event with ID: "
+		        << action;
 	}
 }
 

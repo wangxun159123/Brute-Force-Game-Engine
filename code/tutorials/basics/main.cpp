@@ -185,11 +185,11 @@ void* createStates(void* p)
 	// The different states might be seen as different viewing points of
 	// one state of an application or game. Thus they always share the same
 	// handle since they work closely together.
-	GameHandle stateHandle = BFG::generateHandle();
 	mViewState.reset(new ViewState(stateHandle, loop));
 	mGameState.reset(new GameState(stateHandle, loop));
 
 	initController(stateHandle, loop);
+	return 0;
 }
 
 int main( int argc, const char* argv[] ) try

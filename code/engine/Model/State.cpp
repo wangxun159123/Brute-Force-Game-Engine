@@ -51,7 +51,6 @@ State::~State()
 	stopUpdates();
 }
 
-	
 void State::LoopEventHandler(LoopEvent* e)
 {
 	if (mExitNextTick)

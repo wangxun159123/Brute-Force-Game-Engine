@@ -101,12 +101,9 @@ void Physical::onPhysicsEvent(Physics::Event* event)
 		break;
 
 	default:
-	{
-		std::stringstream ss;
-		ss << "void Physical::onPhysicsEvent(Physics::Event*): "
-			"Got unknown event";
-		throw std::runtime_error(ss.str());
-	}
+		warnlog << "Physical: Can't handle event with ID: "
+		        << event->getId();
+		break;
 	}
 }
 
