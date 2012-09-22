@@ -63,12 +63,8 @@ void State::LoopEventHandler(LoopEvent* e)
 
 	f32 timeInSeconds = static_cast<f32>(timeSinceLastFrame) / BFG::Clock::milliSecond;
 
-	//! \bug Ignore too small time deltas. This may cause crashes on very fast systems if we don't.
-	//! \todo: It may be that this check is now redundant due to the cast to long in LoopEventHandler.
-	if (timeSinceLastFrame < BFG::EPSILON_F)
-		return;
-	
-	quantity<si::time, f32> TSLF = timeSinceLastFrame * si::seconds;
+	quantity<si::time, f32> TSLF = timeInSeconds * si::seconds;
+
 	onTick(TSLF);
 }
 
