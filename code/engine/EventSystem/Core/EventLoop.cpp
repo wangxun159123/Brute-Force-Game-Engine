@@ -49,7 +49,7 @@ void EventLoop::run()
 
 void EventLoop::stop()
 {
-	mShouldExit = true;
+	setExitFlag();
 }
 
 void EventLoop::entry()
