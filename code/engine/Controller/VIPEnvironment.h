@@ -42,7 +42,7 @@ class State;
 namespace VIP {
 
 //! \brief
-//! Environments contain onfiguration data for VIPs.
+//! Environments contain configuration data for VIPs.
 //! See VIPGenerator.h for how to create new ones. 
 struct DefaultEnv
 {
