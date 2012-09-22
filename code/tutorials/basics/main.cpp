@@ -31,11 +31,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 	render window which reacts on input from Keyboard and Mouse.
 */
 
-// We use Boost.Units for typesafe calculations, that is compile time checks
-// for formulas.
-#include <boost/units/quantity.hpp>
-#include <boost/units/systems/si/time.hpp>
-
 // OGRE
 #include <OgreException.h>
 
@@ -45,17 +40,18 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Controller/Action.h>
 #include <Controller/ControllerEvents.h>
 #include <Controller/Interface.h>
-#include <Core/ClockUtils.h>
 #include <Core/Path.h>
 #include <Core/ShowException.h>
 #include <Core/Utils.h>
-#include <EventSystem/Emitter.h>
+#include <Model/State.h>
 #include <View/ControllerMyGuiAdapter.h>
 #include <View/Event.h>
 #include <View/Interface.h>
 #include <View/State.h>
 #include <View/WindowAttributes.h>
 
+// We use Boost.Units for typesafe calculations - which are
+// essentially compile time checks for formulas.
 using namespace boost::units;
 
 using BFG::s32;
@@ -66,75 +62,52 @@ using BFG::f32;
 const s32 A_EXIT = 10000;
 
 // Here comes our first state. Most of the time we use it as Owner of objects
-// or as forwarder of input (Controller) events. 
-struct GameState : BFG::Emitter
+// or as forwarder of input (Controller) events. I.e. a state could be the
+// "Main Menu", a "Movie Sequence" or the 3D part of the application.
+struct GameState : BFG::State
 {
 	GameState(GameHandle handle, EventLoop* loop) :
-	Emitter(loop),
-	mClock(new BFG::Clock::StopWatch(BFG::Clock::milliSecond)),
-	mExitNextTick(false)
+	State(loop)
 	{
-		mClock->start();
+		// This part is quite important. You must connect your event callbacks.
+		// If not, the event system doesn't know you're waiting for them.
+		loop->connect(A_EXIT, this, &GameState::ControllerEventHandler);
+	}
+	
+	virtual ~GameState()
+	{
+		infolog << "Tutorial: Destroying GameState.";
+		loop()->disconnect(A_EXIT, this);
 	}
 
-	// Most games have a game loop, in which the most important modules
-	// have an update function. The following is such an update function,
-	// but it's not called by the game loop - the event system takes care
-	// of it by simply sending a LoopEvent at the right time.
-	//
-	// So what we're doing here is emulating OGRE's timeSinceLastFrame
-	// variable which is a delta to the previous absolute time. Also, we
-	// check if we decided to end the update process of this module, and
-	// notice the event system if true.
-	void LoopEventHandler(LoopEvent* iLE)
+	// You may update objects and other things here.
+	virtual void onTick(const quantity<si::time, f32> TSLF)
 	{
-		if (mExitNextTick)
-			iLE->getData().getLoop()->setExitFlag();
-
-		long timeSinceLastFrame = mClock->stop();
-		if (timeSinceLastFrame)
-			mClock->start();
-
-		f32 timeInSeconds = static_cast<f32>(timeSinceLastFrame) / BFG::Clock::milliSecond;
-		tick(timeInSeconds);
+		// Well there's nothing to update yet. :)
+		infolog << "Time since last frame: " << TSLF.value() << "ms";
 	}
-
-	// The actual update function. You may update objects and other things
-	// here.
-	void tick(const f32 timeSinceLastFrame)
+	
+	void onExit()
 	{
-		// Ignore too small time deltas. This may cause crashes on very
-		// fast systems if we don't.
-		// TODO: It may be that this check is now redundant due to the
-		// cast to long in LoopEventHandler.
-		if (timeSinceLastFrame < BFG::EPSILON_F)
-			return;
-
-		// Redundant in this case, but useful later, so let's introduce
-		// it now. A quantity is a wrapper around T, which adds
-		// dimensions, like time, mass and so on.
-		quantity<si::time, f32> TSLF = timeSinceLastFrame * si::seconds;
+		// Calling this will hold the update process of this State.
+		// No further events might be received after this.
+		loop()->stop();
 	}
 
 	// Callback for Input. The Controller sends input directly to this
-	// state, since we told him so (below).
-	void ControllerEventHandler(BFG::Controller_::VipEvent* iCE)
+	// state, since we told him so (in `initController').
+	void ControllerEventHandler(BFG::Controller_::VipEvent* e)
 	{
-		switch(iCE->getId())
+		switch(e->getId())
 		{
 			// This is the event ID we specified at the top
 			case A_EXIT:
 			{
-				mExitNextTick = true;
-				emit<BFG::View::Event>(BFG::ID::VE_SHUTDOWN, 0);
+				onExit();
 				break;
 			}
 		}
 	}
-
-	boost::scoped_ptr<BFG::Clock::StopWatch> mClock;
-	
-	bool mExitNextTick;
 };
 
 // We won't display anything, so this class remains more or less empty. In this
@@ -149,7 +122,12 @@ public:
 	{}
 
 	~ViewState()
-	{}
+	{
+		infolog << "Tutorial: Destroying ViewState.";
+
+		// The View module must be shut down manually.
+		emit<BFG::View::Event>(BFG::ID::VE_SHUTDOWN, 0);
+	}
 
 	virtual void pause()
 	{}
@@ -162,8 +140,11 @@ private:
 };
 
 // Initializing input handling here.
-void initController(BFG::Emitter& emitter, BFG::GameHandle stateHandle)
+void initController(BFG::GameHandle stateHandle, EventLoop* loop)
 {
+	// The Emitter is the standard tool to send events with.
+	BFG::Emitter emitter(loop);
+
 	// At the beginning, the Controller is "empty" and must be filled with
 	// states and actions. A Controller state corresponds to a Model state
 	// or a View state and in fact, they must have the same handle
@@ -192,28 +173,23 @@ void initController(BFG::Emitter& emitter, BFG::GameHandle stateHandle)
 	);
 }
 
-// Just a callback for initialization
-void* SingleThreadEntryPoint(void *iPointer)
+GameHandle stateHandle = BFG::generateHandle();
+
+boost::scoped_ptr<ViewState> mViewState;
+boost::scoped_ptr<GameState> mGameState;
+
+void* createStates(void* p)
 {
-	EventLoop* loop = static_cast<EventLoop*>(iPointer);
-	BFG::Emitter emitter(loop);
+	EventLoop* loop = static_cast<EventLoop*>(p);
 	
-	// Create the states.
-	// Hack: Using leaking pointers, because vars would go out of scope
+	// The different states might be seen as different viewing points of
+	// one state of an application or game. Thus they always share the same
+	// handle since they work closely together.
 	GameHandle stateHandle = BFG::generateHandle();
-	GameState* gs = new GameState(stateHandle, loop);
-	ViewState* vps = new ViewState(stateHandle, loop);
+	mViewState.reset(new ViewState(stateHandle, loop));
+	mGameState.reset(new GameState(stateHandle, loop));
 
-	initController(emitter, stateHandle);
-	
-	// This part is quite important. You must connect your event callbacks.
-	// If not, the event system doesn't know you're waiting for them.
-	loop->connect(A_EXIT, gs, &GameState::ControllerEventHandler);
-
-	// Setting up callbacks for the game loop, only those which must be
-	// updated regularily by a LoopEvent
-	loop->registerLoopEventListener(gs, &GameState::LoopEventHandler);	
-	return 0;
+	initController(stateHandle, loop);
 }
 
 int main( int argc, const char* argv[] ) try
@@ -223,20 +199,30 @@ int main( int argc, const char* argv[] ) try
 	BFG::Base::Logger::Init(BFG::Base::Logger::SL_DEBUG, "Logs/TutorialBasics.log");
 	infolog << "This is our logger!";
 
-	EventLoop iLoop(true);
+	EventLoop loop(true);
 
 	const std::string caption = "Tutorial 01: Basics";
 	size_t controllerFrequency = 1000;
-
-	boost::scoped_ptr<BFG::Base::IEntryPoint> epView(BFG::View::Interface::getEntryPoint(caption));
-
+	
 	// Setting up callbacks for module initialization
 	// This is still very inconsistent but a proof for flexibility ;)
-	iLoop.addEntryPoint(epView.get());
-	iLoop.addEntryPoint(BFG::ControllerInterface::getEntryPoint(controllerFrequency));
-	iLoop.addEntryPoint(new BFG::Base::CEntryPoint(SingleThreadEntryPoint));
+	boost::scoped_ptr<BFG::Base::IEntryPoint> epView(BFG::View::Interface::getEntryPoint(caption));
+	boost::scoped_ptr<BFG::Base::IEntryPoint> epController(BFG::ControllerInterface::getEntryPoint(controllerFrequency));
+	boost::scoped_ptr<BFG::Base::IEntryPoint> epGame(new BFG::Base::CEntryPoint(&createStates));
 
-	iLoop.run();
+	// The order is important.
+	loop.addEntryPoint(epView.get());
+	loop.addEntryPoint(epController.get());
+	loop.addEntryPoint(epGame.get());
+
+	// Now the following line will call all entry points and run the
+	// application. The only way to get past this line is to call
+	// loop.stop() somewhere. We do this in our GameState.
+	loop.run();
+
+	// The loop does not run anymore. Destroy the states now.
+	mViewState.reset();
+	mGameState.reset();
 }
 catch (Ogre::Exception& e)
 {
