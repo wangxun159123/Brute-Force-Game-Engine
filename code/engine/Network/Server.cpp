@@ -135,7 +135,8 @@ void Server::NetworkControlEventHandler(NetworkControlEvent* nce)
 		stop();
 		break;
 	default:
-		throw std::runtime_error("ID wrong");
+		warnlog << "Server: Can't handle event with ID: "
+		        << event->getId();
 		break;
 	}
 }

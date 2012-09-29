@@ -214,7 +214,8 @@ void NetworkModule::NetworkPacketEventHandler(NetworkPacketEvent* ne)
 		onSend(ne->getData());
 		break;
 	default:
-		throw std::runtime_error("ID wrong");
+		warnlog << "NetworkModule: Can't handle event with ID: "
+		        << event->getId();
 		break;
 	}
 }
