@@ -26,6 +26,12 @@ MACRO(FIND_ALL_DEPENDENCIES)
 
 	FIND_PACKAGE(OpenAL REQUIRED)
 
+	# ------- #
+	# pugixml #
+	# ------- #
+
+	#FIND_PACKAGE(pugixml REQUIRED)
+	
 	# ---------- #
 	# libSndFile #
 	# ---------- #
