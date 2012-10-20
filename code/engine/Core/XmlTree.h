@@ -27,6 +27,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #ifndef BFG_XML_TREE__
 #define BFG_XML_TREE__
 
+#include <vector>
 #include <boost/shared_ptr.hpp>
 
 namespace BFG {
