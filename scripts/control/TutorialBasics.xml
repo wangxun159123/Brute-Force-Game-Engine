@@ -3,7 +3,7 @@
 <controller
 xmlns="http://www.w3schools.com"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xsi:schemaLocation="note Controller.xsd"
+xsi:schemaLocation="Controller Controller.xsd"
 version = "1">
 
   <include>MyGUI.xml</include>
