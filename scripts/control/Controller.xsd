@@ -59,7 +59,7 @@ elementFormDefault="qualified">
 
 <xs:simpleType name="buttontype">
 	<xs:restriction base="xs:string">
-		<xs:pattern value="KB_[a-zA-Z0-9]+"/>
+		<xs:pattern value="(KB|MB|JB)_[_A-Za-z0-9]+"/>
 	</xs:restriction>
 </xs:simpleType>
 
