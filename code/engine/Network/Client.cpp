@@ -157,7 +157,7 @@ void Client::NetworkControlEventHandler(NetworkControlEvent* nce)
 		break;
 	default:
 		warnlog << "Client: Can't handle event with ID: "
-		        << event->getId();
+		        << nce->getId();
 		break;
 	}
 

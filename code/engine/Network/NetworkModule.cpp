@@ -215,7 +215,7 @@ void NetworkModule::NetworkPacketEventHandler(NetworkPacketEvent* ne)
 		break;
 	default:
 		warnlog << "NetworkModule: Can't handle event with ID: "
-		        << event->getId();
+		        << ne->getId();
 		break;
 	}
 }
