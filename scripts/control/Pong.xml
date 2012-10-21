@@ -1,6 +1,10 @@
 <?xml version="1.0" standalone="no" ?>
 
-<controller version = "1">
+<controller
+xmlns="http://www.w3schools.com"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="note Controller.xsd"
+version = "1">
 
   <action id = "A_QUIT">
     <vip type = "VIP_CLICK">

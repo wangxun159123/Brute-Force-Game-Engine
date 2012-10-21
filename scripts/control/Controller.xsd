@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+targetNamespace="http://www.w3schools.com"
+xmlns="http://www.w3schools.com"
+elementFormDefault="qualified">
+
+<xs:element name="controller" type="controllertype" />
+
+<xs:complexType name="controllertype">
+	<xs:sequence>
+		<xs:element name="include" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+		<xs:element name="action" maxOccurs="unbounded">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="vip" type="viptype" maxOccurs="unbounded" />
+				</xs:sequence>
+				<xs:attribute name="id" type="xs:string" />
+			</xs:complexType>
+		</xs:element>
+	</xs:sequence>
+	<xs:attribute name="version" type="xs:integer" use="required" />
+</xs:complexType>
+
+<xs:complexType name="viptype">
+	<xs:sequence>
+		<xs:element name="special" type="specialtype" minOccurs="0" />
+	</xs:sequence>
+	<xs:attribute name="type">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="VIP_CLICK"/>
+				<xs:enumeration value="VIP_STEER"/>
+				<xs:enumeration value="VIP_HOLD"/>
+				<xs:enumeration value="VIP_THRUST_AXIS"/>
+				<xs:enumeration value="VIP_LINEAR_AXIS"/>
+				<xs:enumeration value="VIP_CHEAT"/>
+				<xs:enumeration value="VIP_TOGGLE"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:attribute>
+	<xs:attribute name="device">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="DT_Keyboard"/>
+				<xs:enumeration value="DT_Mouse"/>
+				<xs:enumeration value="DT_Joystick"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:attribute>
+	<xs:attribute name="axismode">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="AM_Absolute"/>
+				<xs:enumeration value="AM_Relative"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:attribute>
+</xs:complexType>
+
+<xs:simpleType name="buttontype">
+	<xs:restriction base="xs:string">
+		<xs:pattern value="KB_[a-zA-Z0-9]+"/>
+	</xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="filtertype">
+	<xs:restriction base="xs:string">
+		<xs:enumeration value="BS_Pressed"/>
+		<xs:enumeration value="BS_Released"/>
+		<xs:enumeration value="BS_Both"/>
+	</xs:restriction>
+</xs:simpleType>
+
+<xs:complexType name="specialtype">
+	<xs:attribute name="axis" type="xs:integer"/>
+	<xs:attribute name="button" type="buttontype"/>
+	<xs:attribute name="filter" type="filtertype" />
+	<xs:attribute name="flip" type="xs:boolean"/>
+	<xs:attribute name="frequency" type="xs:integer"/>
+	<xs:attribute name="hold" type="xs:boolean"/>
+	<xs:attribute name="lower" type="buttontype"/>
+	<xs:attribute name="mod" type="buttontype"/>
+	<xs:attribute name="raise" type="buttontype"/>
+	<xs:attribute name="range" type="xs:float"/>
+	<xs:attribute name="sensitivity" type="xs:float"/>
+	<xs:attribute name="sequence" type="xs:string"/>
+	<xs:attribute name="step" type="xs:float"/>
+	<xs:attribute name="stopatzero" type="xs:boolean"/>
+	<xs:attribute name="swing" type="xs:float"/>
+</xs:complexType>
+
+</xs:schema>
