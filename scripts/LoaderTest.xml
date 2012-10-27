@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<element id="1" name="Element1">
+	<subelement id="1.1" name="Subelement1">
+		<Data>This is a data block!</Data>
+	</subelement>
+	
+	<subelement id="1.2" name="Subelement2">
+		<Data>This is a data block!</Data>
+	</subelement>
+	
+	<subelement id="1.3" name="Subelement3">
+		<Data>This is a data block!</Data>
+	</subelement>
+	
+	<subelement id="1.4" name="Subelement4">
+		<Data>This is a data block!</Data>
+	</subelement>
+</element>
+
+<element id="2" name="Element2">
+	<subelement id="2.1" name="Subelement1">
+		<Data>This is a data block!</Data>
+	</subelement>
+	
+	<subelement id="2.2" name="Subelement2">
+		<Data>This is a data block!</Data>
+	</subelement>
+	
+	<subelement id="2.3" name="Subelement3">
+		<Data>This is a data block!</Data>
+	</subelement>
+	
+	<subelement id="2.4" name="Subelement4">
+		<Data>This is a data block!</Data>
+	</subelement>
+</element>
+
+<element id="3" name="Element3">
+	<subelement>
+		<subsubelement>
+			<text></text>
+			<text>""</text>
+			<number>13</number>
+			<text>It is just a text.</text>
+			<vector3>
+				<x>3</x>
+				<y>7</y>
+				<z>1</z>
+			</vector3>
+		</subsubelement>
+	</subelement>
+</element>
