@@ -32,8 +32,10 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 namespace BFG {
 
-class PugiXmlTree : public XmlTree
+class BFG_CORE_API PugiXmlTree : public XmlTree
 {
+
+	friend class PugiXmlFileHandle;
 
 public:
 

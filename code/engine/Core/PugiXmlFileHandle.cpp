@@ -24,8 +24,9 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <core/PugiXmlFileHandle.h>
 #include <Base/Logger.h>
+#include <core/PugiXmlFileHandle.h>
+#include <core/PugiXmlTree.h>
 
 namespace BFG {
 
@@ -34,8 +35,8 @@ PugiXmlFileHandle::PugiXmlFileHandle(const std::string& path): XmlFileHandle(pat
 	try
 	{
 		pugi::xml_parse_result result = mDocument.load_file(mPath.c_str());
-
-		if (result != pugi::status_ok)
+		
+		if (result.status != pugi::status_ok)
 		{
 			switch (result)
 			{
@@ -52,6 +53,7 @@ PugiXmlFileHandle::PugiXmlFileHandle(const std::string& path): XmlFileHandle(pat
 		throw std::logic_error("Error during xml file parsing: "+path+". At PugiXmlFileHandle::PugiXmlFileHandle. "+e.what());
 	}
 
+	mRoot.reset(new PugiXmlTree(mDocument));
 
 	dbglog << "Parsed: " << path << ".";
 }

@@ -33,7 +33,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 namespace BFG {
 
-class PugiXmlFileHandle : public XmlFileHandle
+class BFG_CORE_API PugiXmlFileHandle : public XmlFileHandle
 {
 
 public:

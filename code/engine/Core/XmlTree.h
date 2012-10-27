@@ -29,10 +29,11 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 #include <boost/shared_ptr.hpp>
+#include <core/Defs.h>
 
 namespace BFG {
 
-class XmlTree
+class BFG_CORE_API XmlTree
 {
 
 public:
