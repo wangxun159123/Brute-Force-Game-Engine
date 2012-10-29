@@ -6,7 +6,7 @@
   </ValueConfig>
 
   <ValueConfig name="StandardNavigator">
-    <PV id="TriggerRadius">5.0</PV>
+    <PV name="TriggerRadius">5.0</PV>
   </ValueConfig>
 
   <ValueConfig name="ExplodeOnContact">
@@ -20,14 +20,14 @@
   </ValueConfig>
 
   <ValueConfig name="RocketEngine">
-    <PV id="EngineForce">100.0</PV>
-    <PV id="ManeuverForce">15.0</PV>
-    <PV id="MaxRotationSpeed">3.141593, 3.141593, 3.141593</PV>
-    <PV id="MaxSpeed">2500.0</PV>
+    <PV name="EngineForce">100.0</PV>
+    <PV name="ManeuverForce">15.0</PV>
+    <PV name="MaxRotationSpeed">3.141593, 3.141593, 3.141593</PV>
+    <PV name="MaxSpeed">2500.0</PV>
   </ValueConfig>
 
   <ValueConfig name="RocketSelfDestruction">
-    <PV id="PV_SelfDestructCountdown">10.0</PV>
+    <PV name="PV_SelfDestructCountdown">10.0</PV>
   </ValueConfig>
 
 </ValueConfigs>
