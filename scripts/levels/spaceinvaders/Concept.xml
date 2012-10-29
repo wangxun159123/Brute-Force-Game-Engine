@@ -3,37 +3,37 @@
 <ConceptConfigs>
 
   <ConceptConfig name="InvaderConcept" >
-    <PC id="Physical" properties="NoProperties" />
-    <PC id="Destroyable" properties="ExplodeOnContact" />
-    <PC id="InvaderControl" properties="NoProperties" />
-    <PC id="Cannon" properties="DefaultCannon" />
+    <PC name="Physical">NoProperties</PC>
+    <PC name="Destroyable">ExplodeOnContact</PC>
+    <PC name="InvaderControl">NoProperties</PC>
+    <PC name="Cannon">DefaultCannon</PC>
   </ConceptConfig>
 
   <ConceptConfig name="ShipConcept" >
-    <PC id="Physical" properties="NoProperties" />
-    <PC id="Destroyable" properties="PlayerDestroyable" />
-    <PC id="ShipControl" properties="NoProperties" />
-    <PC id="Cannon" properties="DefaultCannon" />
+    <PC name="Physical">NoProperties</PC>
+    <PC name="Destroyable">PlayerDestroyable</PC>
+    <PC name="ShipControl">NoProperties</PC>
+    <PC name="Cannon">DefaultCannon</PC>
   </ConceptConfig>
 
   <ConceptConfig name="ProjectileConcept" >
-    <PC id="Physical" properties="NoProperties" />
-    <PC id="Destroyable" properties="ExplodeOnContact" />
-    <PC id="SelfDestruction" properties="RocketSelfDestruction" />
+    <PC name="Physical">NoProperties</PC>
+    <PC name="Destroyable">ExplodeOnContact</PC>
+    <PC name="SelfDestruction">RocketSelfDestruction</PC>
   </ConceptConfig>
 
   <ConceptConfig name="AutoProjectileConcept" >
-    <PC id="Physical" properties="NoProperties" />
-    <PC id="Destroyable" properties="ExplodeOnContact" />
-    <PC id="SelfDestruction" properties="RocketSelfDestruction" />
-    <PC id="ThrustControl" properties="RocketEngine" />
-    <PC id="AutoNavigator" properties="StandardNavigator" />
+    <PC name="Physical">NoProperties</PC>
+    <PC name="Destroyable">ExplodeOnContact</PC>
+    <PC name="SelfDestruction">RocketSelfDestruction</PC>
+    <PC name="ThrustControl">RocketEngine</PC>
+    <PC name="AutoNavigator">StandardNavigator</PC>
   </ConceptConfig>
 
   <ConceptConfig name="PowerupConcept" >
-    <PC id="Physical" properties="NoProperties" />
-    <PC id="Destroyable" properties="PowerUpDestroyable" />
-    <PC id="Collectable" properties="NoProperties" />
+    <PC name="Physical">NoProperties</PC>
+    <PC name="Destroyable">PowerUpDestroyable</PC>
+    <PC name="Collectable">NoProperties</PC>
   </ConceptConfig>
 
 </ConceptConfigs>
