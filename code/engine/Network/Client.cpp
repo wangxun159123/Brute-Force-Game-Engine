@@ -156,7 +156,8 @@ void Client::NetworkControlEventHandler(NetworkControlEvent* nce)
 		onDisconnect(0);
 		break;
 	default:
-		throw std::runtime_error("ID wrong");
+		warnlog << "Client: Can't handle event with ID: "
+		        << nce->getId();
 		break;
 	}
 
