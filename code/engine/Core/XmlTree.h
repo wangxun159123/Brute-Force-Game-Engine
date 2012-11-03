@@ -33,18 +33,24 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 namespace BFG {
 
+class XmlTree;
+
+typedef boost::shared_ptr<XmlTree> XmlTreeT;
+typedef std::vector<boost::shared_ptr<XmlTree> > XmlTreeListT;
+
+
 class BFG_CORE_API XmlTree
 {
 
 public:
 
-	virtual boost::shared_ptr<XmlTree> child(const std::string& name) = 0;
-	virtual std::vector<boost::shared_ptr<XmlTree> > childList(const std::string& name) = 0;
+    virtual XmlTreeT child(const std::string& name) = 0;
+    virtual XmlTreeListT childList(const std::string& name) = 0;
 	virtual std::string attribute(const std::string& name) = 0;
 
-	virtual boost::shared_ptr<XmlTree> addElement(const std::string& name, const std::string& value) = 0;
+    virtual XmlTreeT addElement(const std::string& name, const std::string& value) = 0;
 	virtual void addAttribute(const std::string& name, const std::string& value) = 0;
-	virtual void addElement(boost::shared_ptr<XmlTree> value) = 0;
+    virtual void addElement(XmlTreeT value) = 0;
 };
 
 } // namespace BFG
