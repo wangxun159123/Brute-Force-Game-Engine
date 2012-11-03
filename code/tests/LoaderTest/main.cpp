@@ -16,7 +16,9 @@ namespace Test {
 
 BOOST_AUTO_TEST_CASE (loadFile)
 {
-	Base::Logger::Init(Base::Logger::SL_DEBUG, "Logs/LoaderTest.log");
+    BOOST_TEST_MESSAGE("Test loading of LoaderTest.xml");
+
+    Base::Logger::Init(Base::Logger::SL_DEBUG, "Logs/LoaderTest.log");
 
 	Path path;
 	std::string xml_test_file_path = "";
@@ -32,7 +34,7 @@ BOOST_AUTO_TEST_CASE (loadFile)
 
 BOOST_AUTO_TEST_CASE (elementList)
 {
-    //Base::Logger::Init(Base::Logger::SL_DEBUG, "Logs/LoaderTest.log");
+    BOOST_TEST_MESSAGE("Function XmlTree::elementList(..) and XmlTree::child(...) .");
 
     Path path;
     std::string xml_test_file_path = "";
@@ -50,5 +52,42 @@ BOOST_AUTO_TEST_CASE (elementList)
     BOOST_REQUIRE_EQUAL(elements.size(), 3);
 }
 
+
+BOOST_AUTO_TEST_CASE (attribute)
+{
+    BOOST_TEST_MESSAGE("Function XmlTree::attribute(...) .");
+
+    Path path;
+    std::string xml_test_file_path = "";
+    xml_test_file_path = path.Expand("LoaderTest.xml");
+
+    boost::shared_ptr<XmlFileHandle> fileHandle;
+    fileHandle.reset(new PugiXmlFileHandle(xml_test_file_path));
+
+    XmlTreeT searchHandle;
+    searchHandle = fileHandle->root()->child("root");
+    XmlTreeListT elements;
+    elements = searchHandle->childList("element");
+
+    BOOST_REQUIRE_NO_THROW
+    (
+        for(int i = 0; i < elements.size(); ++i)
+        {
+            if (elements[i]->attribute("name") == "Element2")
+            {
+                searchHandle = elements[i];
+                break;
+            }
+        }
+    );
+
+    BOOST_REQUIRE (searchHandle);
+    BOOST_REQUIRE_EQUAL(searchHandle->attribute("name"), "Element2");
+
+    XmlTreeListT subElements = searchHandle->childList("subelement");
+
+    BOOST_REQUIRE_EQUAL(subElements[0]->attribute("name"), "Subelement1");
 }
-}
+
+} // BFG
+} // Test
