@@ -87,7 +87,15 @@ BOOST_AUTO_TEST_CASE (attribute)
     XmlTreeListT subElements = searchHandle->childList("subelement");
 
     BOOST_REQUIRE_EQUAL(subElements[0]->attribute("name"), "Subelement1");
+
+    std::string result;
+    result = subElements[0]->child("Data")->elementData();
+
+    BOOST_REQUIRE_NE(result, "");
+    BOOST_REQUIRE_EQUAL(result, "This is a data block!");
 }
+
+
 
 } // BFG
 } // Test
