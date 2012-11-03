@@ -54,7 +54,7 @@ namespace BFG {
 
     std::string PugiXmlTree::elementData()
     {
-        return mXmlNode.value();
+        return mXmlNode.text().get();
     }
 
     boost::shared_ptr<XmlTree> PugiXmlTree::addElement(const std::string& name, const std::string& value)
