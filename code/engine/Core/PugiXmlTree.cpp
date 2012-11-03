@@ -52,7 +52,12 @@ namespace BFG {
 		return mXmlNode.attribute(name.c_str()).value();
 	}
 
-	boost::shared_ptr<XmlTree> PugiXmlTree::addElement(const std::string& name, const std::string& value)
+    std::string PugiXmlTree::elementData()
+    {
+        return mXmlNode.value();
+    }
+
+    boost::shared_ptr<XmlTree> PugiXmlTree::addElement(const std::string& name, const std::string& value)
 	{
 		pugi::xml_node node = mXmlNode.append_child();
 		node.set_name(name.c_str());

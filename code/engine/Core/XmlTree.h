@@ -47,6 +47,7 @@ public:
     virtual XmlTreeT child(const std::string& name) = 0;
     virtual XmlTreeListT childList(const std::string& name) = 0;
 	virtual std::string attribute(const std::string& name) = 0;
+    virtual std::string elementData() = 0;
 
     virtual XmlTreeT addElement(const std::string& name, const std::string& value) = 0;
 	virtual void addAttribute(const std::string& name, const std::string& value) = 0;

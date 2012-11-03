@@ -43,6 +43,9 @@ public:
 	std::vector<boost::shared_ptr<XmlTree> > childList(const std::string& name);
 	std::string attribute(const std::string& name);
 
+    //! returns an empty string if element has no data.
+    std::string elementData();
+
 	boost::shared_ptr<XmlTree> addElement(const std::string& name, const std::string& value);
 	void addAttribute(const std::string& name, const std::string& value);
 	void addElement(boost::shared_ptr<XmlTree> value);
