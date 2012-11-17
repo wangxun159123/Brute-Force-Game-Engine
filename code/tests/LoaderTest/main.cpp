@@ -1,5 +1,3 @@
-//#include <Core/Math.h>
-
 #include <boost/shared_ptr.hpp>
 
 #include <Base/Logger.h>
@@ -23,7 +21,7 @@ BOOST_AUTO_TEST_CASE (loadFile)
 	BOOST_REQUIRE_NO_THROW (xml_test_file_path = path.Expand("LoaderTest.xml"));
 
 	boost::shared_ptr<XmlFileHandle> fileHandle;
-	BOOST_REQUIRE_NO_THROW(XmlFileHandleFactory::createWithPugiXml(xml_test_file_path));
+	BOOST_REQUIRE_NO_THROW(fileHandle = XmlFileHandleFactory::createWithPugiXml(xml_test_file_path));
 	BOOST_REQUIRE (fileHandle.get());
 
 	BOOST_REQUIRE (fileHandle->root().get());
