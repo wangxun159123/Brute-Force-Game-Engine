@@ -1,22 +1,29 @@
 #!/bin/bash
 
-PACKAGE=package
-PREFIX=$PACKAGE/usr
-CPUS=`grep -c processor /proc/cpuinfo`
-JOBS=`echo $CPUS + 1 | bc`
-VERSION="0.3.0"
-DEBIAN_ARCH="i386"
-#DEBIAN_ARCH="amd64"
-
 CMAKE='/usr/bin/cmake'
 WGET='/usr/bin/wget'
 TAR='/bin/tar'
 SVN='/usr/bin/svn'
+BC='/usr/bin/bc'
 
-if [ ! -x $CMAKE ]; then echo "Please install CMake"; fi
-if [ ! -x $WGET ]; then echo "Please install wget"; fi
-if [ ! -x $TAR ]; then echo "Please install tar"; fi
-if [ ! -x $SVN ]; then echo "Please install Subversion"; fi
+if [ ! -x $CMAKE ]; then echo "Please install CMake" && exit; fi
+if [ ! -x $WGET ]; then echo "Please install wget" && exit; fi
+if [ ! -x $TAR ]; then echo "Please install tar" && exit; fi
+if [ ! -x $SVN ]; then echo "Please install Subversion" && exit; fi
+if [ ! -x $BC ]; then echo "Please install bc" && exit; fi
+
+# pbuilder:
+# 1. apt-get install git wget bc subversion vim cmake ssh
+# 2. check architecture in this script
+# 3. check compile flags
+
+PACKAGE=package
+PREFIX=$PACKAGE/usr
+CPUS=`grep -c processor /proc/cpuinfo`
+JOBS=`echo $CPUS + 1 | $BC`
+VERSION="0.3.0"
+DEBIAN_ARCH="i386"
+#DEBIAN_ARCH="amd64"
 
 USER_AGENT='Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.1.16) Gecko/20120421 Firefox/11.0'
 BOOST_URL='http://garr.dl.sourceforge.net/project/boost/boost/1.47.0/boost_1_47_0.tar.bz2'
@@ -45,7 +52,7 @@ function prelude
 	mkdir MAKE_BUNDLE_DEP
 	cd MAKE_BUNDLE_DEP
 
-	/usr/bin/apt-get install \
+	/usr/bin/apt-get install --ignore-missing \
 		libois-dev       \
 		libzip-dev       \
 		libbz2-dev       \
