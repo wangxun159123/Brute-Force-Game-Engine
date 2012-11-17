@@ -29,7 +29,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/shared_ptr.hpp>
 #include <pugixml.hpp>
-#include <core/XmlFileHandle.h>
+#include <Core/XmlFileHandle.h>
 
 namespace BFG {
 

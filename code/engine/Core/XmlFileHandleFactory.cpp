@@ -24,32 +24,16 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BFG_XML_FILE_HANDLE__
-#define BFG_XML_FILE_HANDLE__
-
-#include <boost/shared_ptr.hpp>
-#include <Core/XmlTree.h>
-#include <Core/Defs.h>
-
+#include <Base/Logger.h>
+#include <Core/XmlFileHandleFactory.h>
+#include <Core/PugiXmlFileHandle.h>
 
 namespace BFG {
 
-class BFG_CORE_API XmlFileHandle
+boost::shared_ptr<XmlFileHandle> XmlFileHandleFactory::createWithPugiXml(const std::string& path)
 {
-
-public:
-
-	XmlFileHandle(const std::string& path): mPath(path) {}
-
-	virtual void save(const std::string& path) = 0;
-	boost::shared_ptr<XmlTree> root() { return mRoot; }
-
-protected:
-
-	std::string mPath;
-	boost::shared_ptr<XmlTree> mRoot;
-};
+	boost::shared_ptr<XmlFileHandle> tree(new PugiXmlFileHandle(path));
+	return tree;
+}
 
 } // namespace BFG
-
-#endif

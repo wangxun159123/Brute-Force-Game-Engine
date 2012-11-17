@@ -3,14 +3,13 @@
 <ObjectConfigs>
 
   <ObjectConfig name="Pong Ball">
-    <Module
-      name="Root"
-      mesh="Cube.mesh"
-      concepts="PongBallConcept"
-      collision="CM_Standard"
-      visible="yes"
-      density="50.0"
-      />
+    <Module name="Root">
+      <mesh>Cube.mesh</mesh>
+      <concepts>PongBallConcept</concepts>
+      <collision>CM_Standard</collision>
+      <visible>yes</visible>
+      <density>50.0</density>
+    </Module>
   </ObjectConfig>
 
   <ObjectConfig name="Pong Lower Bar">

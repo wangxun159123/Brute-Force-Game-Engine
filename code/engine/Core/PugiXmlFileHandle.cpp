@@ -25,8 +25,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <Base/Logger.h>
-#include <core/PugiXmlFileHandle.h>
-#include <core/PugiXmlTree.h>
+#include <Core/PugiXmlFileHandle.h>
+#include <Core/PugiXmlTree.h>
 
 namespace BFG {
 

@@ -27,7 +27,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #ifndef BFG_PUGI_XML_TREE__
 #define BFG_PUGI_XML_TREE__
 
-#include <core/XmlTree.h>
+#include <Core/XmlTree.h>
 #include <pugixml.hpp>
 
 namespace BFG {
@@ -43,7 +43,7 @@ public:
 	std::vector<boost::shared_ptr<XmlTree> > childList(const std::string& name);
 	std::string attribute(const std::string& name);
 
-    //! returns an empty string if element has no data.
+    //! \return An empty string if element has no data.
     std::string elementData();
 
 	boost::shared_ptr<XmlTree> addElement(const std::string& name, const std::string& value);
