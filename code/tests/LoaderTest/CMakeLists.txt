@@ -18,6 +18,8 @@ INCLUDE_DIRECTORIES(.)	# For subdirectories
 
 ADD_EXECUTABLE(bfgLoaderTest ${SOURCES} ${HEADERS})
 
+ADD_TEST(NAME LoaderTest COMMAND bfgLoaderTest)
+
 SET_TARGET_PROPERTIES(bfgLoaderTest PROPERTIES OUTPUT_NAME_DEBUG "bfgLoaderTest_d")
 
 ADD_DEPENDENCIES(bfgCore CoreEnums)
