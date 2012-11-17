@@ -30,7 +30,19 @@ MACRO(FIND_ALL_DEPENDENCIES)
 	# pugixml #
 	# ------- #
 
-	#FIND_PACKAGE(pugixml REQUIRED)
+	IF(WIN32)
+		CHECK_PACKAGE(PUGIXML_DEBUG "pugixml-1.2/lib/Debug/pugixml.lib" "pugixml.hpp")
+		CHECK_PACKAGE(PUGIXML_RELEASE "pugixml-1.2/lib/Release/pugixml.lib" "pugixml-1.2/include/pugixml.hpp")
+		SET(PUGIXML_LIBRARIES debug ${PUGIXML_DEBUG_LIBRARIES} optimized ${PUGIXML_RELEASE_LIBRARIES})
+	ELSEIF(UNIX)
+		FIND_PACKAGE(LibPugiXml REQUIRED)
+	ELSEIF (APPLE)
+		LOG_FATAL("Apple support is not implemented yet")
+	ELSE (WIN32)
+		LOG_FATAL("Unknown error or a not supported OS")
+	ENDIF(WIN32)
+
+	
 	
 	# ---------- #
 	# libSndFile #

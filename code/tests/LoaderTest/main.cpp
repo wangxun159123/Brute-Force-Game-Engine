@@ -1,5 +1,3 @@
-//#include <Core/Math.h>
-
 #include <boost/shared_ptr.hpp>
 
 #include <Base/Logger.h>
