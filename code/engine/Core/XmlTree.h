@@ -29,7 +29,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 #include <boost/shared_ptr.hpp>
-#include <core/Defs.h>
+#include <Core/Defs.h>
 
 namespace BFG {
 
