@@ -16,12 +16,11 @@ INCLUDE_DIRECTORIES(..)
 
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 LINK_DIRECTORIES(${OPENAL_LIBRARY_DIR})
-#LINK_DIRECTORIES(${PUGIXML_LIBRARY_DIR})
 
 ADD_CUSTOM_TARGET(CoreEnums
 	bfgEnumGen --input ${CMAKE_CURRENT_SOURCE_DIR}/Enums.xml
-	        --header ${CMAKE_CURRENT_SOURCE_DIR}/Enums.hh
-	        --source ${CMAKE_CURRENT_SOURCE_DIR}/Enums.cpp
+	           --header ${CMAKE_CURRENT_SOURCE_DIR}/Enums.hh
+	           --source ${CMAKE_CURRENT_SOURCE_DIR}/Enums.cpp
 	DEPENDS bfgEnumGen
 )
 
@@ -46,7 +45,7 @@ TARGET_LINK_LIBRARIES(bfgCore
 	${BoostLog_LIBRARIES}
 	bfgBase
 	TinyXML
-    ${PUGIXML_LIBRARIES}
+	${LIBPUGIXML_LIBRARIES}
 )
 
 ADD_DEPENDENCIES(bfgCore CoreEnums TinyXML)

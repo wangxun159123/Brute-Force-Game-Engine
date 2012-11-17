@@ -27,13 +27,13 @@ MACRO(FIND_ALL_DEPENDENCIES)
 	FIND_PACKAGE(OpenAL REQUIRED)
 
 	# ------- #
-	# pugixml #
+	# PugiXml #
 	# ------- #
 
 	IF(WIN32)
-		CHECK_PACKAGE(PUGIXML_DEBUG "pugixml-1.2/lib/Debug/pugixml.lib" "pugixml.hpp")
-		CHECK_PACKAGE(PUGIXML_RELEASE "pugixml-1.2/lib/Release/pugixml.lib" "pugixml-1.2/include/pugixml.hpp")
-		SET(PUGIXML_LIBRARIES debug ${PUGIXML_DEBUG_LIBRARIES} optimized ${PUGIXML_RELEASE_LIBRARIES})
+		CHECK_PACKAGE(LIBPUGIXML_DEBUG "pugixml-1.2/lib/Debug/pugixml.lib" "pugixml.hpp")
+		CHECK_PACKAGE(LIBPUGIXML_RELEASE "pugixml-1.2/lib/Release/pugixml.lib" "pugixml-1.2/include/pugixml.hpp")
+		SET(LIBPUGIXML_LIBRARIES debug ${LIBPUGIXML_DEBUG_LIBRARIES} optimized ${LIBPUGIXML_RELEASE_LIBRARIES})
 	ELSEIF(UNIX)
 		FIND_PACKAGE(LibPugiXml REQUIRED)
 	ELSEIF (APPLE)
@@ -42,8 +42,6 @@ MACRO(FIND_ALL_DEPENDENCIES)
 		LOG_FATAL("Unknown error or a not supported OS")
 	ENDIF(WIN32)
 
-	
-	
 	# ---------- #
 	# libSndFile #
 	# ---------- #
