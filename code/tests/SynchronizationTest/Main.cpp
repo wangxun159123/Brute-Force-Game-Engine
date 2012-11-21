@@ -74,7 +74,10 @@ using BFG::f32;
 // Client applications should use event IDs higher than 10000 to avoid
 // collisions with events used within the engine.
 const s32 A_EXIT = 10000;
+const s32 SIMULATION_1 = 10001;
 const s32 CREATE_TEST_OBJECT = 15000;
+const s32 START_SIMULATION_1 = 15001;
+
 const GameHandle SERVER_STATE_HANDLE = 42;
 const GameHandle CLIENT_STATE_HANDLE = 43;
 
@@ -151,11 +154,13 @@ struct ServerState: public SynchronizationTestState
 	ServerState(GameHandle handle, EventLoop* loop) :
 	SynchronizationTestState(handle, loop)
 	{
-		loop->connect(BFG::ID::NE_CONNECTED, this, &ServerState::networkEventListener);
+		loop->connect(BFG::ID::NE_RECEIVED, this, &ServerState::networkPacketEventHandler, SERVER_STATE_HANDLE);
+		loop->connect(BFG::ID::NE_CONNECTED, this, &ServerState::networkControlEventHandler);
 	}
 	
 	virtual ~ServerState()
 	{
+		loop()->disconnect(BFG::ID::NE_RECEIVED, this);
 		loop()->disconnect(BFG::ID::NE_CONNECTED, this);
 	}
 
@@ -164,8 +169,28 @@ struct ServerState: public SynchronizationTestState
 // 	{
 // 
 // 	}
+	void networkPacketEventHandler(BFG::Network::NetworkPacketEvent* e)
+	{
+		switch(e->getId())
+		{
+		case BFG::ID::NE_RECEIVED:
+		{
+			const BFG::Network::NetworkPayloadType& payload = e->getData();
 
-	void networkEventListener(BFG::Network::NetworkControlEvent* e)
+			switch(boost::get<0>(payload))
+			{
+			case START_SIMULATION_1:
+			{
+				dbglog << "Starting Simulation 1";
+				break;
+			}
+			}
+
+		}
+		}
+	}
+
+	void networkControlEventHandler(BFG::Network::NetworkControlEvent* e)
 	{
 		switch(e->getId())
 		{
@@ -191,6 +216,7 @@ struct ServerState: public SynchronizationTestState
 				);
 
 			emit<BFG::Network::NetworkPacketEvent>(BFG::ID::NE_SEND, payload);
+			break;
 		}
 		}
 
@@ -207,6 +233,7 @@ struct ClientState : public SynchronizationTestState
 		// This part is quite important. You must connect your event callbacks.
 		// If not, the event system doesn't know you're waiting for them.
 		loop->connect(A_EXIT, this, &ClientState::controllerEventHandler);
+		loop->connect(SIMULATION_1, this, &ClientState::controllerEventHandler);
 		loop->connect(BFG::ID::NE_RECEIVED, this, &ClientState::networkEventHandler, CLIENT_STATE_HANDLE);
 	}
 
@@ -214,6 +241,7 @@ struct ClientState : public SynchronizationTestState
 	{
 		infolog << "Tutorial: Destroying GameState.";
 		loop()->disconnect(A_EXIT, this);
+		loop()->disconnect(SIMULATION_1, this);
 		loop()->disconnect(BFG::ID::NE_RECEIVED, this);
 	}
 
@@ -242,6 +270,22 @@ struct ClientState : public SynchronizationTestState
 			onExit();
 			break;
 		}
+		case SIMULATION_1:
+		{
+			CharArray512T ca512;
+			BFG::Network::NetworkPayloadType payload = 
+				boost::make_tuple
+				(
+					START_SIMULATION_1, 
+					SERVER_STATE_HANDLE, 
+					CLIENT_STATE_HANDLE,
+					0,
+					ca512
+				);
+
+			emit<BFG::Network::NetworkPacketEvent>(BFG::ID::NE_SEND, payload);
+			break;
+		}
 		}
 	}
 
@@ -264,6 +308,7 @@ struct ClientState : public SynchronizationTestState
 				op.mLocation = v3(0.0f, 0.0f, 5.0f);
 
 				createObject(op);
+				break;
 			}
 			}
 		}
@@ -315,13 +360,14 @@ void initController(BFG::GameHandle stateHandle, EventLoop* loop)
 	// This part here is necessary for Action deserialization.
 	BFG::Controller_::ActionMapT actions;
 	actions[A_EXIT] = "A_EXIT";
+	actions[SIMULATION_1] = "SIMULATION_1";
 	BFG::Controller_::fillWithDefaultActions(actions);
 	BFG::Controller_::sendActionsToController(emitter.loop(), actions);
 
 	// Actions must be configured by XML
 	BFG::Path path;
-	const std::string configPath = path.Expand("TutorialBasics.xml");
-	const std::string stateName = "TutorialBasics";
+	const std::string configPath = path.Expand("SynchronizationTest.xml");
+	const std::string stateName = "SynchronizationTest";
 
 	// The Controller must know about the size of the window for the mouse
 	BFG::View::WindowAttributes wa;

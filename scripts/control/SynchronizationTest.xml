@@ -1,0 +1,23 @@
+<?xml version="1.0" standalone="no" ?>
+
+<controller
+xmlns="http://www.w3schools.com"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="Controller Controller.xsd"
+version = "1">
+
+  <include>MyGUI.xml</include>
+
+  <action id = "A_EXIT">
+    <vip type = "VIP_CLICK">
+      <special button = "KB_ESCAPE" />
+    </vip>
+  </action>
+  
+  <action id = "SIMULATION_1">
+    <vip type = "VIP_CLICK">
+      <special button = "KB_SPACE" />
+    </vip>
+  </action>
+  
+</controller>
