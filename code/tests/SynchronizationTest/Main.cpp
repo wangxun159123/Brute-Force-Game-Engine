@@ -56,6 +56,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Model/State.h>
 #include <Network/Event_fwd.h>
 #include <Network/Interface.h>
+#include <Physics/Event_fwd.h>
 #include <Physics/Interface.h>
 #include <View/ControllerMyGuiAdapter.h>
 #include <View/Event.h>
@@ -73,17 +74,82 @@ using BFG::f32;
 // Client applications should use event IDs higher than 10000 to avoid
 // collisions with events used within the engine.
 const s32 A_EXIT = 10000;
+const s32 CREATE_TEST_OBJECT = 15000;
+const GameHandle SERVER_STATE_HANDLE = 42;
+const GameHandle CLIENT_STATE_HANDLE = 43;
 
 // Here comes our first state. Most of the time we use it as Owner of objects
 // or as forwarder of input (Controller) events. I.e. a state could be the
 // "Main Menu", a "Movie Sequence" or the 3D part of the application.
-struct ServerState: BFG::State
+
+struct SynchronizationTestState: BFG::State
 {
-	ServerState(GameHandle handle, EventLoop* loop) :
+	SynchronizationTestState(GameHandle handle, EventLoop* loop) :
 	State(loop),
 	mStateHandle(handle),
 	mPlayer(NULL_HANDLE),
 	mEnvironment(new BFG::Environment)
+{
+	// create cube
+	BFG::Path p;
+	std::string def = p.Get(BFG::ID::P_SCRIPTS_LEVELS) + "default/";
+
+	BFG::Loader::LevelConfig lc;
+
+	lc.mModules.push_back(def + "Object.xml");
+	lc.mAdapters.push_back(def + "Adapter.xml");
+	lc.mConcepts.push_back(def + "Concept.xml");
+	lc.mProperties.push_back(def + "Value.xml");
+
+	using BFG::Property::ValueId;
+
+	BFG::PluginId spId = ValueId::ENGINE_PLUGIN_ID;
+	boost::shared_ptr<BFG::SpacePlugin> sp(new BFG::SpacePlugin(spId));
+	mPluginMap.insert(sp);
+
+	boost::shared_ptr<BFG::Loader::Interpreter> interpreter(new BFG::Loader::Interpreter(mPluginMap));
+
+	mGof.reset(new BFG::Loader::GameObjectFactory(this->loop(), lc, mPluginMap, interpreter, mEnvironment, mStateHandle));
+
+	mSector.reset(new BFG::Sector(this->loop(), 1, "Blah", mGof));
+}
+
+virtual ~SynchronizationTestState()
+{
+}
+
+// You may update objects and other things here.
+virtual void onTick(const quantity<si::time, f32> TSLF)
+{
+	mSector->update(TSLF);
+
+	emit<BFG::Physics::Event>(BFG::ID::PE_STEP, TSLF.value());
+}
+
+virtual void createObject(const BFG::Loader::ObjectParameter& param)
+{
+	boost::shared_ptr<BFG::GameObject> playerShip = mGof->createGameObject(param);
+	mSector->addObject(playerShip);
+
+	mPlayer = playerShip->getHandle();
+}
+
+protected:
+	GameHandle mStateHandle;
+
+private:
+	BFG::Property::PluginMapT mPluginMap;
+	GameHandle mPlayer;
+	boost::shared_ptr<BFG::Sector> mSector;
+	boost::shared_ptr<BFG::Environment> mEnvironment;
+	boost::shared_ptr<BFG::Loader::GameObjectFactory> mGof;
+
+};
+
+struct ServerState: public SynchronizationTestState
+{
+	ServerState(GameHandle handle, EventLoop* loop) :
+	SynchronizationTestState(handle, loop)
 	{
 		loop->connect(BFG::ID::NE_CONNECTED, this, &ServerState::networkEventListener);
 	}
@@ -93,10 +159,11 @@ struct ServerState: BFG::State
 		loop()->disconnect(BFG::ID::NE_CONNECTED, this);
 	}
 
-	// You may update objects and other things here.
-	virtual void onTick(const quantity<si::time, f32> TSLF)
-	{
-	}
+// 	// You may update objects and other things here.
+// 	virtual void onTick(const quantity<si::time, f32> TSLF)
+// 	{
+// 
+// 	}
 
 	void networkEventListener(BFG::Network::NetworkControlEvent* e)
 	{
@@ -104,73 +171,57 @@ struct ServerState: BFG::State
 		{
 		case BFG::ID::NE_CONNECTED:
 		{
-			// create cube
-			BFG::Path p;
-			std::string def = p.Get(BFG::ID::P_SCRIPTS_LEVELS) + "default/";
-
-			BFG::Loader::LevelConfig lc;
-
-			lc.mModules.push_back(def + "Object.xml");
-			lc.mAdapters.push_back(def + "Adapter.xml");
-			lc.mConcepts.push_back(def + "Concept.xml");
-			lc.mProperties.push_back(def + "Value.xml");
-
-			using BFG::Property::ValueId;
-			
-			BFG::PluginId spId = ValueId::ENGINE_PLUGIN_ID;
-			boost::shared_ptr<BFG::SpacePlugin> sp(new BFG::SpacePlugin(spId));
-			mPluginMap.insert(sp);
-
-			boost::shared_ptr<BFG::Loader::Interpreter> interpreter(new BFG::Loader::Interpreter(mPluginMap));
-
-			boost::shared_ptr<BFG::Loader::GameObjectFactory> gof;
-			gof.reset(new BFG::Loader::GameObjectFactory(this->loop(), lc, mPluginMap, interpreter, mEnvironment, mStateHandle));
-
-			mSector.reset(new BFG::Sector(this->loop(), 1, "Blah", gof));
-
 			BFG::Loader::ObjectParameter op;
 			op.mHandle = BFG::generateHandle();
 			op.mName = "TestCube";
 			op.mType = "Cube";
-			op.mLocation = v3(0.0f, 0.0f, -5.0f); 
-			boost::shared_ptr<BFG::GameObject> playerShip = gof->createGameObject(op);
-			mSector->addObject(playerShip);
+			op.mLocation = v3(0.0f, 0.0f, 5.0f);
 
-			mPlayer = playerShip->getHandle();
+			createObject(op);
+
+			CharArray512T ca512;
+			BFG::Network::NetworkPayloadType payload = 
+				boost::make_tuple
+				(
+					CREATE_TEST_OBJECT, 
+					CLIENT_STATE_HANDLE, 
+					SERVER_STATE_HANDLE,
+					0,
+					ca512
+				);
+
+			emit<BFG::Network::NetworkPacketEvent>(BFG::ID::NE_SEND, payload);
 		}
 		}
 
 	}
 
 private:
-	BFG::Property::PluginMapT mPluginMap;
-	GameHandle mPlayer;
-	GameHandle mStateHandle;
-	boost::shared_ptr<BFG::Sector> mSector;
-	boost::shared_ptr<BFG::Environment> mEnvironment;
-
 };
 
-struct ClientState : BFG::State
+struct ClientState : public SynchronizationTestState
 {
 	ClientState(GameHandle handle, EventLoop* loop) :
-	State(loop)
+	SynchronizationTestState(handle, loop)
 	{
 		// This part is quite important. You must connect your event callbacks.
 		// If not, the event system doesn't know you're waiting for them.
-		loop->connect(A_EXIT, this, &ClientState::ControllerEventHandler);
+		loop->connect(A_EXIT, this, &ClientState::controllerEventHandler);
+		loop->connect(BFG::ID::NE_RECEIVED, this, &ClientState::networkEventHandler, CLIENT_STATE_HANDLE);
 	}
 
 	virtual ~ClientState()
 	{
 		infolog << "Tutorial: Destroying GameState.";
 		loop()->disconnect(A_EXIT, this);
+		loop()->disconnect(BFG::ID::NE_RECEIVED, this);
 	}
 
-	// You may update objects and other things here.
-	virtual void onTick(const quantity<si::time, f32> TSLF)
-	{
-	}
+// 	// You may update objects and other things here.
+// 	virtual void onTick(const quantity<si::time, f32> TSLF)
+// 	{
+// 
+// 	}
 
 	void onExit()
 	{
@@ -181,7 +232,7 @@ struct ClientState : BFG::State
 
 	// Callback for Input. The Controller sends input directly to this
 	// state, since we told him so (in `initController').
-	void ControllerEventHandler(BFG::Controller_::VipEvent* e)
+	void controllerEventHandler(BFG::Controller_::VipEvent* e)
 	{
 		switch(e->getId())
 		{
@@ -190,6 +241,31 @@ struct ClientState : BFG::State
 		{
 			onExit();
 			break;
+		}
+		}
+	}
+
+	void networkEventHandler(BFG::Network::NetworkPacketEvent* e)
+	{
+		switch(e->getId())
+		{
+		case BFG::ID::NE_RECEIVED:
+		{
+			const BFG::Network::NetworkPayloadType& payload = e->getData();
+
+			switch(boost::get<0>(payload))
+			{
+			case CREATE_TEST_OBJECT:
+			{
+				BFG::Loader::ObjectParameter op;
+				op.mHandle = BFG::generateHandle();
+				op.mName = "TestCube";
+				op.mType = "Cube";
+				op.mLocation = v3(0.0f, 0.0f, 5.0f);
+
+				createObject(op);
+			}
+			}
 		}
 		}
 	}
@@ -204,7 +280,9 @@ public:
 	ViewState(GameHandle handle, EventLoop* loop) :
 	State(handle, loop),
 	mControllerMyGuiAdapter(handle, loop)
-	{}
+	{
+		emit<BFG::View::Event>(BFG::ID::VE_SET_AMBIENT, BFG::cv4(1.0f, 1.0f, 1.0f), handle);
+	}
 
 	~ViewState()
 	{
@@ -258,8 +336,6 @@ void initController(BFG::GameHandle stateHandle, EventLoop* loop)
 	);
 }
 
-GameHandle stateHandle = BFG::generateHandle();
-
 boost::scoped_ptr<ServerState> gServerState;
 boost::scoped_ptr<ViewState> gViewState;
 boost::scoped_ptr<ClientState> gClientState;
@@ -271,7 +347,7 @@ void* createServerState(void* p)
 	// The different states might be seen as different viewing points of
 	// one state of an application or game. Thus they always share the same
 	// handle since they work closely together.
-	gServerState.reset(new ServerState(stateHandle, loop));
+	gServerState.reset(new ServerState(SERVER_STATE_HANDLE, loop));
 
 	return 0;
 }
@@ -283,10 +359,10 @@ void* createClientStates(void* p)
 	// The different states might be seen as different viewing points of
 	// one state of an application or game. Thus they always share the same
 	// handle since they work closely together.
-	gViewState.reset(new ViewState(stateHandle, loop));
-	gClientState.reset(new ClientState(stateHandle, loop));
+	gViewState.reset(new ViewState(CLIENT_STATE_HANDLE, loop));
+	gClientState.reset(new ClientState(CLIENT_STATE_HANDLE, loop));
 
-	initController(stateHandle, loop);
+	initController(CLIENT_STATE_HANDLE, loop);
 	return 0;
 }
 

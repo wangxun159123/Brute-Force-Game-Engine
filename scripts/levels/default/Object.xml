@@ -5,7 +5,8 @@
     <Module
       name="Root"
       mesh="Cube.mesh"
-      concepts="NoProperties"
+      adapters="CubeAllAdapters"
+      concepts="CubeConcept"
       collision="CM_Standard"
       visible="yes"
       density="1000.0"
