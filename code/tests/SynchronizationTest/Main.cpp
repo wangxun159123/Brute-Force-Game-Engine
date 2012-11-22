@@ -210,7 +210,7 @@ struct ServerState: public SynchronizationTestState
 
 			createObject(op);
 
-			emit<BFG::GameObjectEvent>(BFG::ID::GOE_NETWORK_SYNC, 2, op.mHandle);
+			emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
 
 			CharArray512T ca512 = stringToArray<512>(BFG::stringify(op.mHandle));
 			BFG::Network::NetworkPayloadType payload = 
@@ -320,7 +320,7 @@ struct ClientState : public SynchronizationTestState
 
 				createObject(op);
 
-				emit<BFG::GameObjectEvent>(BFG::ID::GOE_NETWORK_SYNC, 1, op.mHandle);
+				emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_READ, op.mHandle);
 
 				break;
 			}

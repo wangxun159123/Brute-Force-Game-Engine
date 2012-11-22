@@ -16,7 +16,7 @@ version = "1">
   
   <action id = "SIMULATION_1">
     <vip type = "VIP_CLICK">
-      <special button = "KB_SPACE" />
+      <special button = "KB_1" />
     </vip>
   </action>
   

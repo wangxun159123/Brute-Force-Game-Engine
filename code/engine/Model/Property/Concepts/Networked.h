@@ -39,17 +39,12 @@ using namespace BFG;
 namespace BFG
 {
 
-#define SYNC_MODE_NETWORK_NONE 0
-#define SYNC_MODE_NETWORK_READ 1
-#define SYNC_MODE_NETWORK_WRITE 2
-#define SYNC_MODE_NETWORK_RW 3
-	
 class Networked : public Property::Concept
 {
 public:
 	Networked(GameObject& owner, PluginId pid) :
 	Property::Concept(owner, "Networked", pid),
-	mSynchronizationMode(0)
+	mSynchronizationMode(ID::SYNC_MODE_NETWORK_NONE)
 	{
 		require("Physical");
 
@@ -65,7 +60,7 @@ public:
 			loop()->connect(action, this, &Networked::onNetworkEvent, ownerHandle());
 		}
 
-		requestEvent(ID::GOE_NETWORK_SYNC);
+		requestEvent(ID::GOE_SYNCHRONIZATION_MODE);
 	}
 
 	~Networked()
@@ -80,7 +75,7 @@ public:
 		}
 	}
 
-	void setSynchronizationMode(s32 mode)
+	void onSynchronizationMode(ID::SynchronizationMode mode)
 	{
 		mSynchronizationMode = mode;
 
@@ -94,9 +89,9 @@ public:
 	{
 		switch(action)
 		{
-		case ID::GOE_NETWORK_SYNC:
+		case ID::GOE_SYNCHRONIZATION_MODE:
 		{
-			setSynchronizationMode(payload);
+			onSynchronizationMode(static_cast<ID::SynchronizationMode>(static_cast<s32>(payload)));
 		}
 		}
 	}
@@ -104,7 +99,7 @@ public:
 	void onNetworkEvent(Network::NetworkPacketEvent* e)
 	{
 		// Don't receive if not either READ or RW
-		if (!(mSynchronizationMode == SYNC_MODE_NETWORK_READ || mSynchronizationMode == SYNC_MODE_NETWORK_RW))
+		if (!(mSynchronizationMode == ID::SYNC_MODE_NETWORK_READ || mSynchronizationMode == ID::SYNC_MODE_NETWORK_RW))
 			return;
 
 		switch(e->getId())
@@ -153,7 +148,7 @@ public:
 	void onPosition(const v3& newPosition)
 	{
 		// Don't send if not either WRITE or RW
-		if (!(mSynchronizationMode == SYNC_MODE_NETWORK_WRITE || mSynchronizationMode == SYNC_MODE_NETWORK_RW))
+		if (!(mSynchronizationMode == ID::SYNC_MODE_NETWORK_WRITE || mSynchronizationMode == ID::SYNC_MODE_NETWORK_RW))
 			return;
 
 		dbglog << "Networked:onPosition: " << newPosition;
@@ -180,7 +175,7 @@ private:
 	std::vector<ID::PhysicsAction> mPhysicsActions;
 	std::vector<ID::NetworkAction> mNetworkActions;
 
-	s32 mSynchronizationMode;
+	ID::SynchronizationMode mSynchronizationMode;
 };
 
 } // namespace BFG
