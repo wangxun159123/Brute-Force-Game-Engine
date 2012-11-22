@@ -31,6 +31,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 	render window which reacts on input from Keyboard and Mouse.
 */
 
+#include <boost/foreach.hpp>
+
 // OGRE
 #include <OgreException.h>
 
@@ -51,6 +53,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Model/Sector.h>
 #include <Model/Loader/Types.h>
 #include <Model/Interface.h>
+#include <Model/Property/Concept.h>
 #include <Model/Property/Plugin.h>
 #include <Model/Property/SpacePlugin.h>
 #include <Model/State.h>
@@ -139,10 +142,10 @@ virtual void createObject(const BFG::Loader::ObjectParameter& param)
 
 protected:
 	GameHandle mStateHandle;
+	GameHandle mPlayer;
 
 private:
 	BFG::Property::PluginMapT mPluginMap;
-	GameHandle mPlayer;
 	boost::shared_ptr<BFG::Sector> mSector;
 	boost::shared_ptr<BFG::Environment> mEnvironment;
 	boost::shared_ptr<BFG::Loader::GameObjectFactory> mGof;
@@ -182,6 +185,9 @@ struct ServerState: public SynchronizationTestState
 			case START_SIMULATION_1:
 			{
 				dbglog << "Starting Simulation 1";
+				v3 position = v3(2.0f, 0.0f, 5.0f);
+				emit<BFG::Physics::Event>(BFG::ID::PE_UPDATE_POSITION, position, mPlayer);
+
 				break;
 			}
 			}
@@ -197,21 +203,21 @@ struct ServerState: public SynchronizationTestState
 		case BFG::ID::NE_CONNECTED:
 		{
 			BFG::Loader::ObjectParameter op;
-			op.mHandle = BFG::generateHandle();
+			op.mHandle = BFG::generateNetworkHandle();
 			op.mName = "TestCube";
 			op.mType = "Cube";
 			op.mLocation = v3(0.0f, 0.0f, 5.0f);
 
 			createObject(op);
 
-			CharArray512T ca512;
+			CharArray512T ca512 = stringToArray<512>(BFG::stringify(op.mHandle));
 			BFG::Network::NetworkPayloadType payload = 
 				boost::make_tuple
 				(
 					CREATE_TEST_OBJECT, 
 					CLIENT_STATE_HANDLE, 
 					SERVER_STATE_HANDLE,
-					0,
+					BFG::stringify(op.mHandle).length(),
 					ca512
 				);
 
@@ -284,6 +290,7 @@ struct ClientState : public SynchronizationTestState
 				);
 
 			emit<BFG::Network::NetworkPacketEvent>(BFG::ID::NE_SEND, payload);
+
 			break;
 		}
 		}
@@ -301,8 +308,10 @@ struct ClientState : public SynchronizationTestState
 			{
 			case CREATE_TEST_OBJECT:
 			{
+				std::string handle(boost::get<4>(payload).data(), boost::get<3>(payload));
+
 				BFG::Loader::ObjectParameter op;
-				op.mHandle = BFG::generateHandle();
+				op.mHandle = BFG::destringify(handle);
 				op.mName = "TestCube";
 				op.mType = "Cube";
 				op.mLocation = v3(0.0f, 0.0f, 5.0f);
@@ -315,6 +324,7 @@ struct ClientState : public SynchronizationTestState
 		}
 	}
 };
+
 
 // We won't display anything, so this class remains more or less empty. In this
 // engine, Model and View are separated, so as you guessed this is the same as

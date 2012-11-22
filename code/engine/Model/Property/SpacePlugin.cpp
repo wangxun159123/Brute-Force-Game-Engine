@@ -71,6 +71,7 @@ Plugin(pluginId, "Engine Properties")
 	addConcept("AutoNavigator");
 	addConcept("Camera");
 	addConcept("Destroyable");
+	addConcept("Networked");
 	addConcept("Physical");
 	addConcept("SelfDestruction");
 	addConcept("ThrustControl");

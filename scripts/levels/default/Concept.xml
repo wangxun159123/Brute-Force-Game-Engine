@@ -4,6 +4,7 @@
 
   <ConceptConfig name="CubeConcept" >
     <PC id="Physical" properties="NoProperties"/>
+    <PC id="Networked" properties="NoProperties"/>
   </ConceptConfig>
 
 </ConceptConfigs>
