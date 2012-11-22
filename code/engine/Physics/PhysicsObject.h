@@ -45,7 +45,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Physics/Defs.h>
 #include <Physics/Event_fwd.h>
-#include <Model/Enums.hh>
 
 using namespace boost::units;
 
