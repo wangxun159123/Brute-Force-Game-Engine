@@ -39,108 +39,148 @@ using namespace BFG;
 namespace BFG
 {
 
+#define SYNC_MODE_NETWORK_NONE 0
+#define SYNC_MODE_NETWORK_READ 1
+#define SYNC_MODE_NETWORK_WRITE 2
+#define SYNC_MODE_NETWORK_RW 3
+	
 class Networked : public Property::Concept
 {
 public:
 	Networked(GameObject& owner, PluginId pid) :
-		Property::Concept(owner, "Networked", pid)
+	Property::Concept(owner, "Networked", pid),
+	mSynchronizationMode(0)
+	{
+		require("Physical");
+
+		mPhysicsActions.push_back(ID::PE_POSITION);
+		BOOST_FOREACH(ID::PhysicsAction action, mPhysicsActions)
 		{
-			mPhysicsActions.push_back(ID::PE_POSITION);
-
-			mNetworkActions.push_back(ID::NE_RECEIVED);
-
-			BOOST_FOREACH(ID::PhysicsAction action, mPhysicsActions)
-			{
-				loop()->connect(action, this, &Networked::onPhysicsEvent, ownerHandle());
-			}
-			BOOST_FOREACH(ID::NetworkAction action, mNetworkActions)
-			{
-				loop()->connect(action, this, &Networked::onNetworkEvent, ownerHandle());
-			}
+			loop()->connect(action, this, &Networked::onPhysicsEvent, ownerHandle());
 		}
 
-		~Networked()
+		mNetworkActions.push_back(ID::NE_RECEIVED);
+		BOOST_FOREACH(ID::NetworkAction action, mNetworkActions)
 		{
-			BOOST_FOREACH(ID::PhysicsAction action, mPhysicsActions)
-			{
-				loop()->disconnect(action, this);
-			}
-			BOOST_FOREACH(ID::NetworkAction action, mNetworkActions)
-			{
-				loop()->disconnect(action, this);
-			}
+			loop()->connect(action, this, &Networked::onNetworkEvent, ownerHandle());
 		}
 
-		void onNetworkEvent(Network::NetworkPacketEvent* e)
+		requestEvent(ID::GOE_NETWORK_SYNC);
+	}
+
+	~Networked()
+	{
+		BOOST_FOREACH(ID::PhysicsAction action, mPhysicsActions)
 		{
-			switch(e->getId())
-			{
-			case ID::NE_RECEIVED:
-			{
-				const BFG::Network::NetworkPayloadType& payload = e->getData();
-
-				switch(boost::get<0>(payload))
-				{
-				case ID::PE_UPDATE_POSITION:
-				{
-					assert(ownerHandle() == boost::get<1>(payload));
-
-					std::string vec(boost::get<4>(payload).data(), boost::get<3>(payload));
-					v3 v;
-					stringToVector3(vec, v);
-					dbglog << "Networked:onNetworkEvent: " << v;
-					emit<Physics::Event>(ID::PE_UPDATE_POSITION, v, ownerHandle());
-					break;
-				}
-				}
-			}
-			}
+			loop()->disconnect(action, this);
 		}
-
-		void onPhysicsEvent(Physics::Event* e)
+		BOOST_FOREACH(ID::NetworkAction action, mNetworkActions)
 		{
-			switch(e->getId())
-			{
-				// 		case ID::PE_FULL_SYNC:
-				// 			onFullSync(boost::get<Physics::FullSyncData>(e->getData()));
-				// 			break;
+			loop()->disconnect(action, this);
+		}
+	}
 
-			case ID::PE_POSITION:
-				onPosition(boost::get<v3>(e->getData()));
+	void setSynchronizationMode(s32 mode)
+	{
+		mSynchronizationMode = mode;
+
+		dbglog << "Networked: setting synchronization mode to " << mode;
+	}
+
+	void internalOnEvent(EventIdT action,
+		                 Property::Value payload,
+		                 GameHandle module,
+		                 GameHandle sender)
+	{
+		switch(action)
+		{
+		case ID::GOE_NETWORK_SYNC:
+		{
+			setSynchronizationMode(payload);
+		}
+		}
+	}
+
+	void onNetworkEvent(Network::NetworkPacketEvent* e)
+	{
+		// Don't receive if not either READ or RW
+		if (!(mSynchronizationMode == SYNC_MODE_NETWORK_READ || mSynchronizationMode == SYNC_MODE_NETWORK_RW))
+			return;
+
+		switch(e->getId())
+		{
+		case ID::NE_RECEIVED:
+		{
+			const BFG::Network::NetworkPayloadType& payload = e->getData();
+
+			switch(boost::get<0>(payload))
+			{
+			case ID::PE_UPDATE_POSITION:
+			{
+				assert(ownerHandle() == boost::get<1>(payload));
+
+				std::string vec(boost::get<4>(payload).data(), boost::get<3>(payload));
+				v3 v;
+				stringToVector3(vec, v);
+				dbglog << "Networked:onNetworkEvent: " << v;
+				emit<Physics::Event>(ID::PE_UPDATE_POSITION, v, ownerHandle());
 				break;
-
-			default:
-				warnlog << "Networked: Can't handle event with ID: "
-					<< e->getId();
-				break;
+			}
 			}
 		}
-
-		void onPosition(const v3& newPosition)
-		{
-			dbglog << "Networked:onPosition: " << newPosition;
-			
-			std::stringstream ss;
-			ss << newPosition;
-
-			CharArray512T ca512 = stringToArray<512>(ss.str());
-			
-			BFG::Network::NetworkPayloadType payload = 
-				boost::make_tuple
-				(
-					ID::PE_UPDATE_POSITION, 
-					ownerHandle(),
-					ownerHandle(),
-					ss.str().length(),
-					ca512
-				);
-
-			emit<BFG::Network::NetworkPacketEvent>(BFG::ID::NE_SEND, payload);
 		}
+	}
+
+	void onPhysicsEvent(Physics::Event* e)
+	{
+		switch(e->getId())
+		{
+			// 		case ID::PE_FULL_SYNC:
+			// 			onFullSync(boost::get<Physics::FullSyncData>(e->getData()));
+			// 			break;
+
+		case ID::PE_POSITION:
+			onPosition(boost::get<v3>(e->getData()));
+			break;
+
+		default:
+			warnlog << "Networked: Can't handle event with ID: "
+				<< e->getId();
+			break;
+		}
+	}
+
+	void onPosition(const v3& newPosition)
+	{
+		// Don't send if not either WRITE or RW
+		if (!(mSynchronizationMode == SYNC_MODE_NETWORK_WRITE || mSynchronizationMode == SYNC_MODE_NETWORK_RW))
+			return;
+
+		dbglog << "Networked:onPosition: " << newPosition;
+			
+		std::stringstream ss;
+		ss << newPosition;
+
+		CharArray512T ca512 = stringToArray<512>(ss.str());
+			
+		BFG::Network::NetworkPayloadType payload = 
+			boost::make_tuple
+			(
+				ID::PE_UPDATE_POSITION, 
+				ownerHandle(),
+				ownerHandle(),
+				ss.str().length(),
+				ca512
+			);
+
+		emit<BFG::Network::NetworkPacketEvent>(BFG::ID::NE_SEND, payload);
+	}
 
 private:
 	std::vector<ID::PhysicsAction> mPhysicsActions;
 	std::vector<ID::NetworkAction> mNetworkActions;
+
+	s32 mSynchronizationMode;
 };
 
 } // namespace BFG

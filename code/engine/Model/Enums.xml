@@ -45,6 +45,8 @@
 
             <value>GOE_DETACH_MODULE</value>
 
+            <value>GOE_NETWORK_SYNC</value>
+          
             <value>GOE_ENDGOEEVENTS</value>
 
             <!-- Sector Events -->
