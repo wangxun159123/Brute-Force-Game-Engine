@@ -74,7 +74,7 @@ function prelude
 
 	$WGET -U "$USER_AGENT" -c $BOOST_URL -O $BOOST_FILENAME
 	$WGET -U "$USER_AGENT" -c $OGRE_URL -O $OGRE_FILENAME
-	/usr/bin/wget -U "$USER_AGENT" -c $PUGIXML_URL -O $PUGIXML_FILENAME
+	$WGET -U "$USER_AGENT" -c $PUGIXML_URL -O $PUGIXML_FILENAME
 
 	$SVN export -r $BOOST_LOG_REV https://boost-log.svn.sourceforge.net/svnroot/boost-log/trunk/boost-log boost-log
 	$SVN export -r $MYGUI_REV https://my-gui.svn.sourceforge.net/svnroot/my-gui/trunk my-gui
