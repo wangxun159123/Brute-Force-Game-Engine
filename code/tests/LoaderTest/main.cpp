@@ -93,13 +93,11 @@ BOOST_AUTO_TEST_CASE (attribute)
 
 BOOST_AUTO_TEST_CASE (defaultAdapter)
 {
-    // BOOST_TEST_MESSAGE("Function XmlTree::elementList(..) and XmlTree::child(...) .");
+	Path path;
+	std::string xml_test_file_path = "";
+	xml_test_file_path = path.Get(ID::P_SCRIPTS_LEVELS)+"/default/Adapter.xml";
 
-    Path path;
-    std::string xml_test_file_path = "";
-    xml_test_file_path = path.Get(ID::P_SCRIPTS_LEVELS)+"/default/Adapter.xml";
-
-    XmlFileHandleT fileHandle = XmlFileHandleFactory::createWithPugiXml(xml_test_file_path);
+	XmlFileHandleT fileHandle = XmlFileHandleFactory::createWithPugiXml(xml_test_file_path);
 	BOOST_REQUIRE_NO_THROW
 	(
 		AdapterFactory factory = AdapterFactory(fileHandle);
