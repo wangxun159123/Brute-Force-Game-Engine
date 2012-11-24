@@ -1,14 +1,29 @@
 #!/bin/bash
 
+CMAKE='/usr/bin/cmake'
+WGET='/usr/bin/wget'
+TAR='/bin/tar'
+SVN='/usr/bin/svn'
+BC='/usr/bin/bc'
+
+if [ ! -x $CMAKE ]; then echo "Please install CMake" && exit; fi
+if [ ! -x $WGET ]; then echo "Please install wget" && exit; fi
+if [ ! -x $TAR ]; then echo "Please install tar" && exit; fi
+if [ ! -x $SVN ]; then echo "Please install Subversion" && exit; fi
+if [ ! -x $BC ]; then echo "Please install bc" && exit; fi
+
+# pbuilder:
+# 1. apt-get install git wget bc subversion vim cmake ssh
+# 2. check architecture in this script
+# 3. check compile flags
+
 PACKAGE=package
 PREFIX=$PACKAGE/usr
 CPUS=`grep -c processor /proc/cpuinfo`
-JOBS=`echo $CPUS + 1 | bc`
+JOBS=`echo $CPUS + 1 | $BC`
 VERSION="0.3.0"
 DEBIAN_ARCH="i386"
 #DEBIAN_ARCH="amd64"
-
-CMAKE='/usr/bin/cmake'
 
 USER_AGENT='Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.1.16) Gecko/20120421 Firefox/11.0'
 BOOST_URL='http://garr.dl.sourceforge.net/project/boost/boost/1.47.0/boost_1_47_0.tar.bz2'
@@ -41,11 +56,11 @@ function prelude
 	mkdir MAKE_BUNDLE_DEP
 	cd MAKE_BUNDLE_DEP
 
-	/usr/bin/apt-get install \
+	/usr/bin/apt-get install --ignore-missing \
 		libois-dev       \
 		libzip-dev       \
 		libbz2-dev       \
-		libcg            \
+#		libcg            \
 		libgl1-mesa-dev  \
 		libxrandr-dev    \
 		libfreeimage-dev \
@@ -57,22 +72,22 @@ function prelude
 	/bin/mkdir -p $PREFIX
 
 
-	/usr/bin/wget -U "$USER_AGENT" -c $BOOST_URL -O $BOOST_FILENAME
-	/usr/bin/wget -U "$USER_AGENT" -c $OGRE_URL -O $OGRE_FILENAME
+	$WGET -U "$USER_AGENT" -c $BOOST_URL -O $BOOST_FILENAME
+	$WGET -U "$USER_AGENT" -c $OGRE_URL -O $OGRE_FILENAME
 	/usr/bin/wget -U "$USER_AGENT" -c $PUGIXML_URL -O $PUGIXML_FILENAME
 
-	/usr/bin/svn export -r $BOOST_LOG_REV https://boost-log.svn.sourceforge.net/svnroot/boost-log/trunk/boost-log boost-log
-	/usr/bin/svn export -r $MYGUI_REV https://my-gui.svn.sourceforge.net/svnroot/my-gui/trunk my-gui
-	#/usr/bin/svn export svn://connect.creativelabs.com/OpenAL/trunk OpenAL
+	$SVN export -r $BOOST_LOG_REV https://boost-log.svn.sourceforge.net/svnroot/boost-log/trunk/boost-log boost-log
+	$SVN export -r $MYGUI_REV https://my-gui.svn.sourceforge.net/svnroot/my-gui/trunk my-gui
+	#$SVN export svn://connect.creativelabs.com/OpenAL/trunk OpenAL
 
 	echo "Unpacking $BOOST_FILENAME ..."
-	/bin/tar -xjf $BOOST_FILENAME
+	$TAR -xjf $BOOST_FILENAME
 
 	echo "Adding Boost.Geometry arithmetic extension ..."
-	svn export -r $BOOST_GEOMETRY_EXTENSIONS_REV http://svn.boost.org/svn/boost/trunk/boost/geometry/extensions $BOOST_DIR/boost/geometry/extensions
+	$SVN export -r $BOOST_GEOMETRY_EXTENSIONS_REV http://svn.boost.org/svn/boost/trunk/boost/geometry/extensions $BOOST_DIR/boost/geometry/extensions
 
 	echo "Unpacking $OGRE_FILENAME ..."
-	/bin/tar -xjf $OGRE_FILENAME
+	$TAR -xjf $OGRE_FILENAME
 
 	echo "Unpacking $PUGIXML_FILENAME ..."
 	/bin/mkdir $PUGIXML_DIR

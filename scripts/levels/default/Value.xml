@@ -6,28 +6,28 @@
   </ValueConfig>
 
   <ValueConfig name="StandardNavigator">
-    <PV name="TriggerRadius">5.0</PV>
+    <PV id="TriggerRadius" value="5.0" />
   </ValueConfig>
 
   <ValueConfig name="ExplodeOnContact">
-    <PV name="Destroyed">no</PV>
-    <PV name="Respawns">no</PV>
-    <PV name="Armor">1.0</PV>
-    <PV name="Damage">0.0</PV>
-    <PV name="RespawnCountdown">0</PV>
-    <PV name="Effect">Explosion_2</PV>
-    <PV name="SoundEffect">Explosion_medium</PV>
+    <PV id="Destroyed" value="no" />
+    <PV id="Respawns" value="no" />
+    <PV id="Armor" value="1.0" />
+    <PV id="Damage" value="0.0" />
+    <PV id="RespawnCountdown" value="0" />
+    <PV id="Effect" value="Explosion_2" />
+    <PV id="SoundEffect" value="Explosion_medium" />
   </ValueConfig>
 
   <ValueConfig name="RocketEngine">
-    <PV name="EngineForce">100.0</PV>
-    <PV name="ManeuverForce">15.0</PV>
-    <PV name="MaxRotationSpeed">3.141593, 3.141593, 3.141593</PV>
-    <PV name="MaxSpeed">2500.0</PV>
+    <PV id="EngineForce" value="100.0" />
+    <PV id="ManeuverForce" value="15.0" />
+    <PV id="MaxRotationSpeed" value="3.141593, 3.141593, 3.141593" />
+    <PV id="MaxSpeed" value="2500.0" />
   </ValueConfig>
 
   <ValueConfig name="RocketSelfDestruction">
-    <PV name="PV_SelfDestructCountdown">10.0</PV>
+    <PV id="PV_SelfDestructCountdown" value="10.0" />
   </ValueConfig>
 
 </ValueConfigs>

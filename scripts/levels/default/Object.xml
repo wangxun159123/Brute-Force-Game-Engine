@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <ObjectConfigs>
+  <ObjectConfig name="Cube">
+    <Module
+      name="Root"
+      mesh="Cube.mesh"
+      adapters="CubeAllAdapters"
+      concepts="CubeConcept"
+      collision="CM_Standard"
+      visible="yes"
+      density="1000.0"
+      />
+  </ObjectConfig>
 </ObjectConfigs>

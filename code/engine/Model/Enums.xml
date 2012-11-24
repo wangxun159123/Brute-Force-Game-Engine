@@ -45,6 +45,8 @@
 
             <value>GOE_DETACH_MODULE</value>
 
+            <value>GOE_SYNCHRONIZATION_MODE</value>
+          
             <value>GOE_ENDGOEEVENTS</value>
 
             <!-- Sector Events -->
@@ -87,6 +89,13 @@
             <value>CM_Free</value>
         </enum>
 
+        <enum name = "SynchronizationMode">
+            <value>SYNC_MODE_NETWORK_NONE</value>
+            <value>SYNC_MODE_NETWORK_READ</value>
+            <value>SYNC_MODE_NETWORK_WRITE</value>
+            <value>SYNC_MODE_NETWORK_RW</value>
+        </enum>
+      
         <enum name = "ObjectType">
             <value>OT_Unspecified</value>
             <value>OT_GameObject</value>

@@ -30,6 +30,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Model/Property/Concepts/AutoNavigator.h>
 #include <Model/Property/Concepts/Camera.h>
 #include <Model/Property/Concepts/Destroyable.h>
+#include <Model/Property/Concepts/Networked.h>
 #include <Model/Property/Concepts/Physical.h>
 #include <Model/Property/Concepts/SelfDestruction.h>
 #include <Model/Property/Concepts/ThrustControl.h>
@@ -50,6 +51,7 @@ SpaceConceptFactory::createConcept(Property::ConceptId pc,
 	PROPERTYCONCEPT_CASE(AutoNavigator)
 	PROPERTYCONCEPT_CASE(Camera)
 	PROPERTYCONCEPT_CASE(Destroyable)
+	PROPERTYCONCEPT_CASE(Networked)
 	PROPERTYCONCEPT_CASE(Physical)
 	PROPERTYCONCEPT_CASE(SelfDestruction)
 	PROPERTYCONCEPT_CASE(ThrustControl)

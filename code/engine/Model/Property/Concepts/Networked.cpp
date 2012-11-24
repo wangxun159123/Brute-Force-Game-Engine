@@ -24,48 +24,6 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LOADER_XML_OBJECT_SERIALIZER_H_
-#define LOADER_XML_OBJECT_SERIALIZER_H
+#include <Model/Property/Concepts/Networked.h>
 
-#include <Model/Defs.h>
-#include <Model/Loader/Types.h>
 
-class TiXmlElement;
-
-namespace BFG {
-namespace Loader {
-
-class MODEL_API XmlObjectSerializer : public ObjectSerializer
-{
-public:
-	//! \param object Must point to an existing Object for
-	//! reading, and to a higher parent element for writing a whole
-	//! Object element into.
-	XmlObjectSerializer(TiXmlElement* object);
-	
-	virtual void read(ReadT& object);
-	virtual void write(WriteT& object);
-
-private:
-	TiXmlElement* mOrigin;
-};
-
-class MODEL_API XmlObjectListSerializer : public ObjectListSerializer
-{
-public:
-	//! \param objectCollection Must point to an existing ObjectList for
-	//! reading, and to a higher parent element for writing a whole
-	//! ObjectList element into.
-	XmlObjectListSerializer(TiXmlElement* objectCollection);
-	
-	virtual void read(ReadT& objects);
-	virtual void write(WriteT& objects);
-
-private:
-	TiXmlElement* mOrigin;
-};
-
-} // namespace Loader
-} // namespace BFG
-
-#endif
