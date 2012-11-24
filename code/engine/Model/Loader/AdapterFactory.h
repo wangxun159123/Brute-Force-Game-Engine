@@ -24,8 +24,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef MODULE_PARAMETER_H_
-#define MODULE_PARAMETER_H_
+#ifndef ADAPTER_FACTORY_H_
+#define ADAPTER_FACTORY_H_
 
 #include <boost/lexical_cast.hpp>
 
