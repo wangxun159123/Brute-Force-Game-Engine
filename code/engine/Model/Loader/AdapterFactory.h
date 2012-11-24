@@ -44,7 +44,7 @@ v3 loadVector3(XmlTreeT tree)
 
 	return v3(boost::lexical_cast<f32>(x), 
 	          boost::lexical_cast<f32>(y),
-			  boost::lexical_cast<f32>(z));
+	          boost::lexical_cast<f32>(z));
 }
 
 qv4 loadQuaternion(XmlTreeT tree)
@@ -57,7 +57,7 @@ qv4 loadQuaternion(XmlTreeT tree)
 	return qv4(boost::lexical_cast<f32>(w),
 	           boost::lexical_cast<f32>(x),
 	           boost::lexical_cast<f32>(y),
-               boost::lexical_cast<f32>(z));
+	           boost::lexical_cast<f32>(z));
 }
 
 struct AdapterParameters
