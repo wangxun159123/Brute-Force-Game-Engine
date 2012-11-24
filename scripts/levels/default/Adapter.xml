@@ -2,11 +2,83 @@
 
 <AdapterConfigs>
   <AdapterConfig name="CubeAllAdapters">
-    <Adapter id="1" position="0.0, 0.51, 0.0" orientation="1.0, 0.0, 0.0, 0.0"/><!--up (front)-->
-    <Adapter id="2" position="0.0, -0.51, 0.0" orientation="0.0, 0.0, 0.0, 1.0"/><!--down (front)-->
-    <Adapter id="3" position="0.51, 0.0, 0.0" orientation="-0.5, 0.5, 0.5, 0.5"/><!--left (front)-->
-    <Adapter id="4" position="-0.51, 0.0, 0.0" orientation="-0.5, 0.5, -0.5, -0.5"/><!--right (front)-->
-    <Adapter id="5" position="0.0, 0.0, 0.51" orientation="0.0, 0.0, 0.707107, 0.707107"/><!--front (up)-->
-    <Adapter id="6" position="0.0, 0.0, -0.51" orientation="0.707107, -0.707107, 0.0, 0.0"/><!--back (up)-->
+    <Adapter id="1" name="up"> <!--up front)-->
+		<position>
+			<x>0.0</x>
+			<y>0.51</y>
+			<z>0.0</z>
+		</position>
+		<orientation>
+			<w>1.0</w>
+			<x>0.0</x>
+			<y>0.0</y>
+			<z>0.0</z>
+		</orientation>
+	</Adapter>
+    <Adapter id="2" name="down"> <!--down (front)-->
+		<position>
+			<x>0.0</x>
+			<y>-0.51</y>
+			<z>0.0</z>
+		</position>
+		<orientation>
+			<w>0.0</w>
+			<x>0.0</x>
+			<y>0.0</y>
+			<z>1.0</z>
+		</orientation>
+	</Adapter>
+    <Adapter id="3" name="left"> <!--left (front)-->
+		<position>
+			<x>0.51</x>
+			<y>0.0</y>
+			<z>0.0</z>
+		</position>
+		<orientation>
+			<w>-0.5</w>
+			<x>0.5</x>
+			<y>0.5</y>
+			<z>0.5</z>
+		</orientation>
+	</Adapter>
+    <Adapter id="4" name="right"> <!--right (front)-->
+		<position>
+			<x>-0.51</x>
+			<y>0.0</y>
+			<z>0.0</z>
+		</position>
+		<orientation>
+			<w>-0.5</w>
+			<x>0.5</x>
+			<y>-0.5</y>
+			<z>-0.5</z>
+		</orientation>
+	</Adapter>
+	<Adapter id="5" name="front"> <!--front (up)-->
+		<position>
+			<x>0.0</x>
+			<y>0.0</y>
+			<z>0.51</z>
+		</position>
+		<orientation>
+			<w>0.0</w>
+			<x>0.0</x>
+			<y>0.707107</y>
+			<z>0.707107</z>
+		</orientation>
+	</Adapter>
+    <Adapter id="6" name="back"> <!--back (up)-->
+		<position>
+			<x>0.0</x>
+			<y>0.0</y>
+			<z>-0.51</z>
+		</position>
+		<orientation>
+			<w>0.707107</w>
+			<x>-0.707107</x>
+			<y>0.0</y>
+			<z>0.0</z>
+		</orientation>
+	</Adapter>
   </AdapterConfig>
 </AdapterConfigs>
