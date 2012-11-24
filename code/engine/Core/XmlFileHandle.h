@@ -34,6 +34,10 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 namespace BFG {
 
+class XmlFileHandle;
+
+typedef boost::shared_ptr<XmlFileHandle> XmlFileHandleT;
+
 class BFG_CORE_API XmlFileHandle
 {
 
@@ -42,12 +46,13 @@ public:
 	XmlFileHandle(const std::string& path): mPath(path) {}
 
 	virtual void save(const std::string& path) = 0;
-	boost::shared_ptr<XmlTree> root() { return mRoot; }
+	XmlTreeT root() { return mRoot; }
+	std::string path() { return mPath; }
 
 protected:
 
 	std::string mPath;
-	boost::shared_ptr<XmlTree> mRoot;
+	XmlTreeT mRoot;
 };
 
 } // namespace BFG
