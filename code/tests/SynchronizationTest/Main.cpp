@@ -197,7 +197,7 @@ struct ServerState: public SynchronizationTestState
 			case START_SIMULATION_2:
 			{
 				infolog << "Starting Simulation 2";
-				v3 force = v3(100000.0f, 0.0f, 0.0f);
+				v3 force = v3(-100000.0f, 0.0f, 0.0f);
 				emit<BFG::Physics::Event>(BFG::ID::PE_APPLY_FORCE, force, mPlayer);
 
 				break;
@@ -205,7 +205,7 @@ struct ServerState: public SynchronizationTestState
 			case START_SIMULATION_3:
 			{
 				infolog << "Starting Simulation 3";
-				v3 torque = v3(10000.0f, 0.0f, 0.0f); // spin around the x-axis
+				v3 torque = v3(20000.0f, 0.0f, 0.0f); // spin around the x-axis
 				emit<BFG::Physics::Event>(BFG::ID::PE_APPLY_TORQUE, torque, mPlayer);
 
 				break;
@@ -222,28 +222,46 @@ struct ServerState: public SynchronizationTestState
 		{
 		case BFG::ID::NE_CONNECTED:
 		{
+			std::stringstream handles;
+
+			// First cube
 			BFG::Loader::ObjectParameter op;
 			op.mHandle = BFG::generateNetworkHandle();
-			op.mName = "TestCube";
+			op.mName = "TestCube1";
 			op.mType = "Cube";
-			op.mLocation = v3(0.0f, 0.0f, 5.0f);
+			op.mLocation = v3(0.0f, -1.0f, 5.0f);
+
+			handles << op.mHandle << " ";
 
 			createObject(op);
 
 			emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
 
-			CharArray512T ca512 = stringToArray<512>(BFG::stringify(op.mHandle));
+			op.mHandle = BFG::generateNetworkHandle();
+			op.mName = "TestCube2";
+			op.mLocation = v3(0.0f, 1.0f, 5.0f);
+
+			handles << op.mHandle;
+
+			createObject(op);
+
+			emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
+
+
+			CharArray512T ca512 = stringToArray<512>(handles.str());
+
 			BFG::Network::NetworkPayloadType payload = 
 				boost::make_tuple
 				(
 					CREATE_TEST_OBJECT, 
 					CLIENT_STATE_HANDLE, 
 					SERVER_STATE_HANDLE,
-					BFG::stringify(op.mHandle).length(),
+					handles.str().length(),
 					ca512
 				);
 
 			emit<BFG::Network::NetworkPacketEvent>(BFG::ID::NE_SEND, payload);
+
 			break;
 		}
 		}
@@ -369,16 +387,21 @@ struct ClientState : public SynchronizationTestState
 			{
 			case CREATE_TEST_OBJECT:
 			{
-				std::string handle(boost::get<4>(payload).data(), boost::get<3>(payload));
+				std::stringstream oss(boost::get<4>(payload).data());
 
 				BFG::Loader::ObjectParameter op;
-				op.mHandle = BFG::destringify(handle);
-				op.mName = "TestCube";
 				op.mType = "Cube";
-				op.mLocation = v3(0.0f, 0.0f, 5.0f);
 
+				oss >> op.mHandle;
+				op.mName = "TestCube";
+				op.mLocation = v3(0.0f, -1.0f, 5.0f);
 				createObject(op);
+				emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_READ, op.mHandle);
 
+				oss >> op.mHandle;
+				op.mName = "TestCube2";
+				op.mLocation = v3(0.0f, 1.0f, 5.0f);
+				createObject(op);
 				emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_READ, op.mHandle);
 
 				break;
@@ -518,10 +541,11 @@ int main( int argc, const char* argv[] ) try
 		new EventSystem::NoCommunication()
 	);
 
+	BFG::Base::Logger::SeverityLevel level = BFG::Base::Logger::SL_INFORMATION;
 	if (server)
 	{
 		BFG::Path p;
-		BFG::Base::Logger::Init(BFG::Base::Logger::SL_INFORMATION, p.Get(BFG::ID::P_LOGS) + "/SynchronizationTestServer.log");
+		BFG::Base::Logger::Init(level, p.Get(BFG::ID::P_LOGS) + "/SynchronizationTestServer.log");
 
 		BFG::u16 port = 0;
 
@@ -553,7 +577,7 @@ int main( int argc, const char* argv[] ) try
 		std::string port(argv[2]);
 
 		BFG::Path p;
-		BFG::Base::Logger::Init(BFG::Base::Logger::SL_INFORMATION, p.Get(BFG::ID::P_LOGS) + "/SynchronizationTestClient.log");
+		BFG::Base::Logger::Init(level, p.Get(BFG::ID::P_LOGS) + "/SynchronizationTestClient.log");
 
 		size_t controllerFrequency = 1000;
 
