@@ -79,9 +79,11 @@ using BFG::f32;
 const s32 A_EXIT = 10000;
 const s32 SIMULATION_1 = 10001;
 const s32 SIMULATION_2 = 10002;
+const s32 SIMULATION_3 = 10003;
 const s32 CREATE_TEST_OBJECT = 15000;
 const s32 START_SIMULATION_1 = 15001;
 const s32 START_SIMULATION_2 = 15002;
+const s32 START_SIMULATION_3 = 15003;
 
 const GameHandle SERVER_STATE_HANDLE = 42;
 const GameHandle CLIENT_STATE_HANDLE = 43;
@@ -186,7 +188,7 @@ struct ServerState: public SynchronizationTestState
 			{
 			case START_SIMULATION_1:
 			{
-				dbglog << "Starting Simulation 1";
+				infolog << "Starting Simulation 1";
 				v3 position = v3(2.0f, 0.0f, 5.0f);
 				emit<BFG::Physics::Event>(BFG::ID::PE_UPDATE_POSITION, position, mPlayer);
 
@@ -194,9 +196,17 @@ struct ServerState: public SynchronizationTestState
 			}
 			case START_SIMULATION_2:
 			{
-				dbglog << "Starting Simulation 2";
+				infolog << "Starting Simulation 2";
 				v3 force = v3(100000.0f, 0.0f, 0.0f);
 				emit<BFG::Physics::Event>(BFG::ID::PE_APPLY_FORCE, force, mPlayer);
+
+				break;
+			}
+			case START_SIMULATION_3:
+			{
+				infolog << "Starting Simulation 3";
+				v3 torque = v3(10000.0f, 0.0f, 0.0f); // spin around the x-axis
+				emit<BFG::Physics::Event>(BFG::ID::PE_APPLY_TORQUE, torque, mPlayer);
 
 				break;
 			}
@@ -254,6 +264,7 @@ struct ClientState : public SynchronizationTestState
 		loop->connect(A_EXIT, this, &ClientState::controllerEventHandler);
 		loop->connect(SIMULATION_1, this, &ClientState::controllerEventHandler);
 		loop->connect(SIMULATION_2, this, &ClientState::controllerEventHandler);
+		loop->connect(SIMULATION_3, this, &ClientState::controllerEventHandler);
 		loop->connect(BFG::ID::NE_RECEIVED, this, &ClientState::networkEventHandler, CLIENT_STATE_HANDLE);
 	}
 
@@ -262,6 +273,8 @@ struct ClientState : public SynchronizationTestState
 		infolog << "Tutorial: Destroying GameState.";
 		loop()->disconnect(A_EXIT, this);
 		loop()->disconnect(SIMULATION_1, this);
+		loop()->disconnect(SIMULATION_2, this);
+		loop()->disconnect(SIMULATION_3, this);
 		loop()->disconnect(BFG::ID::NE_RECEIVED, this);
 	}
 
@@ -314,6 +327,23 @@ struct ClientState : public SynchronizationTestState
 				boost::make_tuple
 				(
 					START_SIMULATION_2, 
+					SERVER_STATE_HANDLE, 
+					CLIENT_STATE_HANDLE,
+					0,
+					ca512
+				);
+
+			emit<BFG::Network::NetworkPacketEvent>(BFG::ID::NE_SEND, payload);
+
+			break;
+		}
+		case SIMULATION_3:
+		{
+			CharArray512T ca512;
+			BFG::Network::NetworkPayloadType payload = 
+				boost::make_tuple
+				(
+					START_SIMULATION_3, 
 					SERVER_STATE_HANDLE, 
 					CLIENT_STATE_HANDLE,
 					0,
@@ -406,6 +436,7 @@ void initController(BFG::GameHandle stateHandle, EventLoop* loop)
 	actions[A_EXIT] = "A_EXIT";
 	actions[SIMULATION_1] = "SIMULATION_1";
 	actions[SIMULATION_2] = "SIMULATION_2";
+	actions[SIMULATION_3] = "SIMULATION_3";
 	BFG::Controller_::fillWithDefaultActions(actions);
 	BFG::Controller_::sendActionsToController(emitter.loop(), actions);
 
@@ -490,7 +521,7 @@ int main( int argc, const char* argv[] ) try
 	if (server)
 	{
 		BFG::Path p;
-		BFG::Base::Logger::Init(BFG::Base::Logger::SL_DEBUG, p.Get(BFG::ID::P_LOGS) + "/SynchronizationTestServer.log");
+		BFG::Base::Logger::Init(BFG::Base::Logger::SL_INFORMATION, p.Get(BFG::ID::P_LOGS) + "/SynchronizationTestServer.log");
 
 		BFG::u16 port = 0;
 
@@ -522,7 +553,7 @@ int main( int argc, const char* argv[] ) try
 		std::string port(argv[2]);
 
 		BFG::Path p;
-		BFG::Base::Logger::Init(BFG::Base::Logger::SL_DEBUG, p.Get(BFG::ID::P_LOGS) + "/SynchronizationTestClient.log");
+		BFG::Base::Logger::Init(BFG::Base::Logger::SL_INFORMATION, p.Get(BFG::ID::P_LOGS) + "/SynchronizationTestClient.log");
 
 		size_t controllerFrequency = 1000;
 

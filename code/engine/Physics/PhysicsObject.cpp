@@ -279,14 +279,22 @@ void PhysicsObject::removeModule(boost::shared_ptr<PhysicsObject> po,
 
 void PhysicsObject::sendDeltas() const
 {
-	// Check if values have significantly changed
-	const f32 epsilon = 0.00001f;
-	if (!nearEnough(getPosition(), mDeltaStorage.get<0>(), epsilon))
+	// Position
+	const f32 epsilon = 0.001f;
+	const v3 position = getPosition();
+	if (!nearEnough(position, mDeltaStorage.get<0>(), epsilon))
 	{
-		emit<Physics::Event>(ID::PE_POSITION, getPosition(), mRootModule);
-		mDeltaStorage.get<0>() = getPosition();
+		emit<Physics::Event>(ID::PE_POSITION, position, mRootModule);
+		mDeltaStorage.get<0>() = position;
 	}
 	
+	// Orientation
+	const qv4 orientation = getOrientation();
+	if (!equals(orientation, mDeltaStorage.get<1>(), 0.001))
+	{
+		emit<Physics::Event>(ID::PE_ORIENTATION, orientation, mRootModule);
+		mDeltaStorage.get<1>() = orientation;
+	}
 	// TODO: Other values.
 }
 

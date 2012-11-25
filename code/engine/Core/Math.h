@@ -104,7 +104,7 @@ qv4 BFG_CORE_API rotationTo(const v3& src,
                             const v3& fallbackAxis = v3::ZERO);
 
 //! \brief Compares two quaternions
-bool BFG_CORE_API equals(const qv4& lhs, const qv4& rhs);
+bool BFG_CORE_API equals(const qv4& lhs, const qv4& rhs, const f32 epsilon = EPSILON_F);
 
 //! \brief Calculates the distance from zero to a given vector.
 f32 BFG_CORE_API length(const v3& vec);

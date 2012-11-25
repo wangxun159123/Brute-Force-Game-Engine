@@ -24,5 +24,9 @@ version = "1">
       <special button = "KB_2" />
     </vip>
   </action>
-  
+  <action id = "SIMULATION_3">
+    <vip type = "VIP_CLICK">
+      <special button = "KB_3" />
+    </vip>
+  </action>
 </controller>

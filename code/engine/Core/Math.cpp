@@ -125,12 +125,12 @@ qv4 rotationTo(const v3& src,
 	return q;
 }
 
-bool equals(const qv4& lhs, const qv4& rhs)
+bool equals(const qv4& lhs, const qv4& rhs, const f32 epsilon)
 {
-	if(std::abs(lhs.w - rhs.w) < EPSILON_F &&
-	   std::abs(lhs.x - rhs.x) < EPSILON_F &&
-	   std::abs(lhs.y - rhs.y) < EPSILON_F &&
-	   std::abs(lhs.z - rhs.z) < EPSILON_F)
+	if(std::abs(lhs.w - rhs.w) < epsilon &&
+	   std::abs(lhs.x - rhs.x) < epsilon &&
+	   std::abs(lhs.y - rhs.y) < epsilon &&
+	   std::abs(lhs.z - rhs.z) < epsilon)
 	   return true;
 
 	return false;

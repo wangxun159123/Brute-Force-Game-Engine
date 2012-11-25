@@ -49,6 +49,7 @@ public:
 		require("Physical");
 
 		mPhysicsActions.push_back(ID::PE_POSITION);
+		mPhysicsActions.push_back(ID::PE_ORIENTATION);
 		BOOST_FOREACH(ID::PhysicsAction action, mPhysicsActions)
 		{
 			loop()->connect(action, this, &Networked::onPhysicsEvent, ownerHandle());
@@ -117,8 +118,19 @@ public:
 				std::string vec(boost::get<4>(payload).data(), boost::get<3>(payload));
 				v3 v;
 				stringToVector3(vec, v);
-				dbglog << "Networked:onNetworkEvent: " << v;
+				dbglog << "Networked:onNetworkEvent: Vector: " << v;
 				emit<Physics::Event>(ID::PE_UPDATE_POSITION, v, ownerHandle());
+				break;
+			}
+			case ID::PE_UPDATE_ORIENTATION:
+			{
+				assert(ownerHandle() == boost::get<1>(payload));
+
+				std::string ori(boost::get<4>(payload).data(), boost::get<3>(payload));
+				qv4 o;
+				stringToQuaternion4(ori, o);
+				dbglog << "Networked:onNetworkEvent: Quaternion: " << o;
+				emit<Physics::Event>(ID::PE_UPDATE_ORIENTATION, o, ownerHandle());
 				break;
 			}
 			}
@@ -138,11 +150,42 @@ public:
 			onPosition(boost::get<v3>(e->getData()));
 			break;
 
+		case ID::PE_ORIENTATION:
+			onOrientation(boost::get<qv4>(e->getData()));
+			break;
+
 		default:
 			warnlog << "Networked: Can't handle event with ID: "
 				<< e->getId();
 			break;
 		}
+	}
+
+	void onOrientation(const qv4& newOrientation)
+	{
+		// Don't send if not either WRITE or RW
+		if (!(mSynchronizationMode == ID::SYNC_MODE_NETWORK_WRITE || mSynchronizationMode == ID::SYNC_MODE_NETWORK_RW))
+			return;
+
+		dbglog << "Networked:onOrientation: " << newOrientation;
+			
+		std::stringstream ss;
+		ss << newOrientation;
+
+		CharArray512T ca512 = stringToArray<512>(ss.str());
+			
+		BFG::Network::NetworkPayloadType payload = 
+			boost::make_tuple
+			(
+				ID::PE_UPDATE_ORIENTATION, 
+				ownerHandle(),
+				ownerHandle(),
+				ss.str().length(),
+				ca512
+			);
+
+		emit<BFG::Network::NetworkPacketEvent>(BFG::ID::NE_SEND, payload);
+
 	}
 
 	void onPosition(const v3& newPosition)
