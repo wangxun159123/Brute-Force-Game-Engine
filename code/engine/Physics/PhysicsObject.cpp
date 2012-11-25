@@ -290,11 +290,20 @@ void PhysicsObject::sendDeltas() const
 	
 	// Orientation
 	const qv4 orientation = getOrientation();
-	if (!equals(orientation, mDeltaStorage.get<1>(), 0.001))
+	if (!equals(orientation, mDeltaStorage.get<1>(), epsilon))
 	{
 		emit<Physics::Event>(ID::PE_ORIENTATION, orientation, mRootModule);
 		mDeltaStorage.get<1>() = orientation;
 	}
+
+	// Velocity
+	const VelocityComposite velocity = boost::make_tuple(getVelocity(), v3::ZERO);
+	if (!nearEnough(velocity.get<0>(), mDeltaStorage.get<2>(), epsilon))
+	{
+		emit<Physics::Event>(ID::PE_VELOCITY, velocity, mRootModule);
+		mDeltaStorage.get<2>() = velocity.get<0>();
+	}
+
 	// TODO: Other values.
 }
 
