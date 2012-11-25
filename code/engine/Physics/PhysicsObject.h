@@ -95,6 +95,8 @@ public:
 
 	void sendFullSync() const;
 
+	//! Send delta of current physics simulation in form of new absolute values.
+	void sendDeltas() const;
 private:
 	void debugOutput(std::string& output) const;
 
@@ -164,6 +166,8 @@ private:
 	v3                mForce;
 	v3                mTorque;
 	
+	mutable FullSyncData mDeltaStorage;
+
 	ID::CollisionMode mCollisionMode;
 	
 	std::vector<ID::PhysicsAction> mPhysicsEvents;

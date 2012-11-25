@@ -277,6 +277,19 @@ void PhysicsObject::removeModule(boost::shared_ptr<PhysicsObject> po,
 	recalculateMass();
 }
 
+void PhysicsObject::sendDeltas() const
+{
+	// Check if values have significantly changed
+	const f32 epsilon = 0.00001f;
+	if (!nearEnough(getPosition(), mDeltaStorage.get<0>(), epsilon))
+	{
+		emit<Physics::Event>(ID::PE_POSITION, getPosition(), mRootModule);
+		mDeltaStorage.get<0>() = getPosition();
+	}
+	
+	// TODO: Other values.
+}
+
 void PhysicsObject::sendFullSync() const
 {
 	m3x3 inertia;

@@ -78,8 +78,10 @@ using BFG::f32;
 // collisions with events used within the engine.
 const s32 A_EXIT = 10000;
 const s32 SIMULATION_1 = 10001;
+const s32 SIMULATION_2 = 10002;
 const s32 CREATE_TEST_OBJECT = 15000;
 const s32 START_SIMULATION_1 = 15001;
+const s32 START_SIMULATION_2 = 15002;
 
 const GameHandle SERVER_STATE_HANDLE = 42;
 const GameHandle CLIENT_STATE_HANDLE = 43;
@@ -190,6 +192,14 @@ struct ServerState: public SynchronizationTestState
 
 				break;
 			}
+			case START_SIMULATION_2:
+			{
+				dbglog << "Starting Simulation 2";
+				v3 force = v3(100000.0f, 0.0f, 0.0f);
+				emit<BFG::Physics::Event>(BFG::ID::PE_APPLY_FORCE, force, mPlayer);
+
+				break;
+			}
 			}
 
 		}
@@ -231,6 +241,7 @@ struct ServerState: public SynchronizationTestState
 	}
 
 private:
+	std::vector<GameHandle> mClientList;
 };
 
 struct ClientState : public SynchronizationTestState
@@ -242,6 +253,7 @@ struct ClientState : public SynchronizationTestState
 		// If not, the event system doesn't know you're waiting for them.
 		loop->connect(A_EXIT, this, &ClientState::controllerEventHandler);
 		loop->connect(SIMULATION_1, this, &ClientState::controllerEventHandler);
+		loop->connect(SIMULATION_2, this, &ClientState::controllerEventHandler);
 		loop->connect(BFG::ID::NE_RECEIVED, this, &ClientState::networkEventHandler, CLIENT_STATE_HANDLE);
 	}
 
@@ -285,6 +297,23 @@ struct ClientState : public SynchronizationTestState
 				boost::make_tuple
 				(
 					START_SIMULATION_1, 
+					SERVER_STATE_HANDLE, 
+					CLIENT_STATE_HANDLE,
+					0,
+					ca512
+				);
+
+			emit<BFG::Network::NetworkPacketEvent>(BFG::ID::NE_SEND, payload);
+
+			break;
+		}
+		case SIMULATION_2:
+		{
+			CharArray512T ca512;
+			BFG::Network::NetworkPayloadType payload = 
+				boost::make_tuple
+				(
+					START_SIMULATION_2, 
 					SERVER_STATE_HANDLE, 
 					CLIENT_STATE_HANDLE,
 					0,
@@ -376,6 +405,7 @@ void initController(BFG::GameHandle stateHandle, EventLoop* loop)
 	BFG::Controller_::ActionMapT actions;
 	actions[A_EXIT] = "A_EXIT";
 	actions[SIMULATION_1] = "SIMULATION_1";
+	actions[SIMULATION_2] = "SIMULATION_2";
 	BFG::Controller_::fillWithDefaultActions(actions);
 	BFG::Controller_::sendActionsToController(emitter.loop(), actions);
 
