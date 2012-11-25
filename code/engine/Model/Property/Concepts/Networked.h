@@ -30,6 +30,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/foreach.hpp>
 
 #include <Core/CharArray.h>
+#include <Core/Math.h>
 #include <Model/Property/Concept.h>
 #include <Network/Event_fwd.h>
 #include <Physics/Event_fwd.h>
@@ -120,7 +121,16 @@ public:
 				v3 v;
 				stringToVector3(vec, v);
 				dbglog << "Networked:onNetworkEvent: Vector: " << v;
-				emit<Physics::Event>(ID::PE_UPDATE_POSITION, v, ownerHandle());
+
+				Location go = getGoValue<Location>(ID::PV_Location, pluginId());
+
+				// Only update if the new position is too different from our own calculated one.
+				f32 distance = 0.2f;
+				if (!nearEnough(go.position, v, distance))
+				{
+					dbglog << "Updating since distance was " << length(go.position - v);
+					emit<Physics::Event>(ID::PE_UPDATE_POSITION, v, ownerHandle());
+				}
 				break;
 			}
 			case ID::PE_UPDATE_ORIENTATION:
@@ -237,24 +247,31 @@ public:
 		if (!(mSynchronizationMode == ID::SYNC_MODE_NETWORK_WRITE || mSynchronizationMode == ID::SYNC_MODE_NETWORK_RW))
 			return;
 
-		dbglog << "Networked:onPosition: " << newPosition;
-			
-		std::stringstream ss;
-		ss << newPosition;
+		dbglog << "Networked:onPosition(original): " << newPosition;
 
-		CharArray512T ca512 = stringToArray<512>(ss.str());
-			
-		BFG::Network::NetworkPayloadType payload = 
-			boost::make_tuple
-			(
-				ID::PE_UPDATE_POSITION, 
-				ownerHandle(),
-				ownerHandle(),
-				ss.str().length(),
-				ca512
-			);
+		const f32 epsilon = 0.01f;
+		if (!nearEnough(newPosition, mDeltaStorage.get<0>(), epsilon))
+		{
 
-		emit<BFG::Network::NetworkPacketEvent>(BFG::ID::NE_SEND, payload);
+			dbglog << "Networked:onPosition: " << newPosition;
+			
+			std::stringstream ss;
+			ss << newPosition;
+
+			CharArray512T ca512 = stringToArray<512>(ss.str());
+			
+			BFG::Network::NetworkPayloadType payload = 
+				boost::make_tuple
+				(
+					ID::PE_UPDATE_POSITION, 
+					ownerHandle(),
+					ownerHandle(),
+					ss.str().length(),
+					ca512
+				);
+
+			emit<BFG::Network::NetworkPacketEvent>(BFG::ID::NE_SEND, payload);
+		}
 	}
 
 private:
@@ -262,6 +279,8 @@ private:
 	std::vector<ID::NetworkAction> mNetworkActions;
 
 	ID::SynchronizationMode mSynchronizationMode;
+
+	Physics::FullSyncData mDeltaStorage;
 };
 
 } // namespace BFG

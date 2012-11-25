@@ -541,7 +541,7 @@ int main( int argc, const char* argv[] ) try
 		new EventSystem::NoCommunication()
 	);
 
-	BFG::Base::Logger::SeverityLevel level = BFG::Base::Logger::SL_INFORMATION;
+	BFG::Base::Logger::SeverityLevel level = BFG::Base::Logger::SL_DEBUG;
 	if (server)
 	{
 		BFG::Path p;
