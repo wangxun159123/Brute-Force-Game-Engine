@@ -33,8 +33,12 @@ namespace BFG {
 namespace Network{
 
 Client::Client(EventLoop* loop) :
-mLoop(loop)
+mLoop(loop),
+mLocalTime(Clock::milliSecond),
+mRTT(Clock::milliSecond)
 {
+	mLocalTime.start();
+
 	mResolver.reset(new tcp::resolver(mService));
 
 	mLoop->connect(ID::NE_CONNECT, this, &Client::NetworkControlEventHandler);
@@ -70,8 +74,8 @@ void Client::stop()
 void Client::startConnecting(const std::string& ip, const std::string& port)
 {
 	dbglog << "NetworkModule::startConnecting";
-	boost::asio::ip::tcp::resolver::query query(ip, port); 
-	mResolver->async_resolve(query, boost::bind(&Client::resolveHandler, this, _1, _2)); 
+	boost::asio::ip::tcp::resolver::query query(ip, port);
+	mResolver->async_resolve(query, boost::bind(&Client::resolveHandler, this, _1, _2));
 }
 
 void Client::readHandshake()
@@ -90,7 +94,10 @@ void Client::resolveHandler(const error_code &ec, tcp::resolver::iterator it)
 { 
 	dbglog << "NetworkModule::resolveHandler";
 	if (!ec) 
+	{
+		mRTT.start();
 		mNetworkModule->socket()->async_connect(*it, bind(&Client::connectHandler, this, _1)); 
+	}
 	else
 		printErrorCode(ec, "resolveHandler");
 }
@@ -100,7 +107,6 @@ void Client::connectHandler(const error_code &ec)
 	dbglog << "Client::connectHandler";
 	if (!ec) 
 	{
-		// TODO: remove when handshake is ready
 		readHandshake();
 	}
 	else
@@ -137,7 +143,11 @@ void Client::readHandshakeHandler(const error_code &ec, size_t bytesTransferred)
 		{
 			dbglog << "Received peer ID: " << hs.mPeerId;
 			mPeerId = hs.mPeerId;
+
+			calculateServerTimestampOffset(hs.mTimestamp);
+
 			mNetworkModule->startReading();
+
 			Emitter e(mLoop);
 			e.emit<NetworkControlEvent>(ID::NE_CONNECTED, mPeerId);
 		}
@@ -181,6 +191,20 @@ u16 Client::calculateHandshakeChecksum(const Handshake& hs)
 	boost::crc_16_type result;
 	result.process_bytes(&(hs.mPeerId), sizeof(PeerIdT));
 	return result.checksum();
+}
+
+void Client::calculateServerTimestampOffset(u32 serverTimestamp)
+{
+	// https://en.wikipedia.org/wiki/Cristian%27s_algorithm
+	// offset = tS + dP/2 - tC
+	u32 dP = mRTT.stop();
+	u32 tC = mLocalTime.stop();
+	mServerTimestampOffset = serverTimestamp + dP / 2 - tC;
+
+	dbglog << "Calculated server Timestamp Offset: " << mServerTimestampOffset 
+		<< " with RTT of " << dP;
+	dbglog << "LocalTime was: " << tC;
+
 }
 
 void Client::printErrorCode(const error_code &ec, const std::string& method)

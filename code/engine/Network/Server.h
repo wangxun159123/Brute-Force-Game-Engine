@@ -32,6 +32,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Base/EntryPoint.h>
 #include <Core/CharArray.h>
+#include <Core/ClockUtils.h>
 #include <Core/Types.h>
 #include <Network/Defs.h>
 #include <Network/Event_fwd.h>
@@ -70,6 +71,11 @@ private:
 	u16 calculateHandshakeChecksum(const Handshake& hs);
 	boost::asio::io_service mService;
 	boost::shared_ptr<tcp::acceptor> mAcceptor;
+
+	// TODO: This works only for 7 weeks of server runtime!
+	// TODO: This will wreak havoc after 7 weeks.
+	// TODO: Reset this watch somehow.
+	Clock::StopWatch mLocalTime;
 
 	boost::thread mThread;
 

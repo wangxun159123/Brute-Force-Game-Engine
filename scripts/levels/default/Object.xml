@@ -12,4 +12,15 @@
       density="1000.0"
       />
   </ObjectConfig>
+  <ObjectConfig name="Cube_Remote">
+    <Module
+      name="Root"
+      mesh="Cube.mesh"
+      adapters="CubeAllAdapters"
+      concepts="CubeConcept"
+      collision="CM_Disabled"
+      visible="yes"
+      density="1000.0"
+      />
+  </ObjectConfig>
 </ObjectConfigs>

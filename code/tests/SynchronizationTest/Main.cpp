@@ -189,7 +189,7 @@ struct ServerState: public SynchronizationTestState
 			case START_SIMULATION_1:
 			{
 				infolog << "Starting Simulation 1";
-				v3 position = v3(2.0f, 0.0f, 5.0f);
+				v3 position = v3(2.0f, 0.0f, 50.0f);
 				emit<BFG::Physics::Event>(BFG::ID::PE_UPDATE_POSITION, position, mPlayer);
 
 				break;
@@ -205,7 +205,7 @@ struct ServerState: public SynchronizationTestState
 			case START_SIMULATION_3:
 			{
 				infolog << "Starting Simulation 3";
-				v3 torque = v3(20000.0f, 0.0f, 0.0f); // spin around the x-axis
+				v3 torque = v3(5000.0f, 0.0f, 0.0f); // spin around the x-axis
 				emit<BFG::Physics::Event>(BFG::ID::PE_APPLY_TORQUE, torque, mPlayer);
 
 				break;
@@ -229,7 +229,7 @@ struct ServerState: public SynchronizationTestState
 			op.mHandle = BFG::generateNetworkHandle();
 			op.mName = "TestCube1";
 			op.mType = "Cube";
-			op.mLocation = v3(0.0f, -1.0f, 5.0f);
+			op.mLocation = v3(0.0f, -1.0f, 50.0f);
 
 			handles << op.mHandle << " ";
 
@@ -239,14 +239,13 @@ struct ServerState: public SynchronizationTestState
 
 			op.mHandle = BFG::generateNetworkHandle();
 			op.mName = "TestCube2";
-			op.mLocation = v3(0.0f, 1.0f, 5.0f);
+			op.mLocation = v3(0.0f, 1.0f, 50.0f);
 
 			handles << op.mHandle;
 
 			createObject(op);
 
 			emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
-
 
 			CharArray512T ca512 = stringToArray<512>(handles.str());
 
@@ -390,17 +389,17 @@ struct ClientState : public SynchronizationTestState
 				std::stringstream oss(boost::get<4>(payload).data());
 
 				BFG::Loader::ObjectParameter op;
-				op.mType = "Cube";
+				op.mType = "Cube_Remote";
 
 				oss >> op.mHandle;
 				op.mName = "TestCube";
-				op.mLocation = v3(0.0f, -1.0f, 5.0f);
+				op.mLocation = v3(0.0f, -1.0f, 50.0f);
 				createObject(op);
 				emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_READ, op.mHandle);
 
 				oss >> op.mHandle;
 				op.mName = "TestCube2";
-				op.mLocation = v3(0.0f, 1.0f, 5.0f);
+				op.mLocation = v3(0.0f, 1.0f, 50.0f);
 				createObject(op);
 				emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_READ, op.mHandle);
 

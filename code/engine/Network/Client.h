@@ -31,6 +31,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/thread.hpp>
 
 #include <Base/EntryPoint.h>
+#include <Core/ClockUtils.h>
 #include <Network/Defs.h>
 #include <Network/Event_fwd.h>
 
@@ -64,6 +65,7 @@ private:
 	void onDisconnect(const PeerIdT& peerId);
 	
 	u16 calculateHandshakeChecksum(const Handshake& hs);
+	void calculateServerTimestampOffset(u32 serverTimestamp);
 
 	void printErrorCode(const error_code &ec, const std::string& method);
 
@@ -75,7 +77,14 @@ private:
 	EventLoop* mLoop;
 	NetworkModule* mNetworkModule;
 	PeerIdT mPeerId;
+	u32 mServerTimestampOffset;
 	
+	// TODO: This works only for 7 weeks of server runtime!
+	// TODO: This will wreak havoc after 7 weeks.
+	// TODO: Reset this watch somehow.
+	Clock::StopWatch mLocalTime;
+	Clock::StopWatch mRTT;
+
 	Handshake::SerializationT mHandshakeBuffer;
 };
 

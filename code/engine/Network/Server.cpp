@@ -38,8 +38,11 @@ using namespace boost::asio::ip;
 using namespace boost::system;
 
 Server::Server(EventLoop* loop) :
-mLoop(loop)
+mLoop(loop),
+mLocalTime(Clock::milliSecond)
 {
+	mLocalTime.start();
+
 	mLoop->connect(ID::NE_LISTEN, this, &Server::NetworkControlEventHandler);
 	mLoop->connect(ID::NE_DISCONNECT, this, &Server::NetworkControlEventHandler);
 	mLoop->connect(ID::NE_SHUTDOWN, this, &Server::NetworkControlEventHandler);
@@ -101,6 +104,7 @@ void Server::sendHandshake(PeerIdT peerId)
 	dbglog << "Server::sendHandshake peer ID: " << peerId;
 	Handshake hs;
 	hs.mPeerId = peerId;
+	hs.mTimestamp = mLocalTime.stop();
 	hs.mChecksum = calculateHandshakeChecksum(hs);
 
 	hs.serialize(mHandshakeBuffer);

@@ -120,15 +120,21 @@ public:
 				std::string vec(boost::get<4>(payload).data(), boost::get<3>(payload));
 				v3 v;
 				stringToVector3(vec, v);
-				dbglog << "Networked:onNetworkEvent: Vector: " << v;
+				dbglog << "Networked:onNetworkEvent: receivedPosition: " << v;
 
 				Location go = getGoValue<Location>(ID::PV_Location, pluginId());
 
+				dbglog << "Networked:onNetworkEvent: ownPosition: " << go.position;
 				// Only update if the new position is too different from our own calculated one.
 				f32 distance = 0.2f;
-				if (!nearEnough(go.position, v, distance))
+
+				v3 velocity = getGoValue<v3>(ID::PV_Velocity, pluginId());
+				f32 speed = length(velocity);
+
+				if (!nearEnough(go.position, v, speed * 0.1f))
 				{
 					dbglog << "Updating since distance was " << length(go.position - v);
+					dbglog << "Speed was " << speed;
 					emit<Physics::Event>(ID::PE_UPDATE_POSITION, v, ownerHandle());
 				}
 				break;
@@ -249,7 +255,7 @@ public:
 
 		dbglog << "Networked:onPosition(original): " << newPosition;
 
-		const f32 epsilon = 0.01f;
+		const f32 epsilon = 0.1f;
 		if (!nearEnough(newPosition, mDeltaStorage.get<0>(), epsilon))
 		{
 
