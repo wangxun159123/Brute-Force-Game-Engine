@@ -68,8 +68,8 @@ private:
 	void readDataHandler(const error_code &ec, std::size_t bytesTransferred, u32 packetChecksum);
 	void writeHandler(const error_code &ec, std::size_t bytesTransferred);
 
-	void NetworkPacketEventHandler(NetworkPacketEvent* ne);
-	void onSend(NetworkPayloadType payload);
+	void dataPacketEventHandler(DataPacketEvent* ne);
+	void onSend(DataPayload& payload);
 	void onReceive(const char* data, size_t size);
 	void flush();
 

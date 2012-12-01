@@ -24,8 +24,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BFG_NETWORKEVENT_FWD_H
-#define BFG_NETWORKEVENT_FWD_H
+#ifndef BFG_NETWORK_EVENT_FWD_H
+#define BFG_NETWORK_EVENT_FWD_H
 
 #include <boost/tuple/tuple.hpp>
 #include <boost/variant.hpp>
@@ -40,46 +40,58 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace BFG {
 namespace Network {
 
-typedef boost::tuple
-<
-	u32,
-	GameHandle,
-	GameHandle,
-	size_t,
-	CharArray512T
-> NetworkPayloadType;
+struct DataPayload;
 
+//! \note
+//! The Destination and Sender handles, used for the event delivery itself, are
+//! very different to use from their application handle counterparts within the
+//! struct Network::DataPayload.
+//!
+//! NE_SEND as Server:
+//! -> Destination: Must be Destination PeerId or 0 f. broadcast
+//! -> Sender: Ignored
+//!
+//! NE_SEND as Client:
+//! -> Destination: Must be always 0
+//! -> Sender: Ignored
+//!
+//! NE_RECEIVED as Server:
+//! -> Destination: Same as NetworkPayload::mAppDestination
+//! -> Sender: Remote PeerId
+//!
+//! NE_RECEIVED as Client:
+//! -> Destination: Same as NetworkPayload::mAppDestination
+//! -> Sender: Always 0
 typedef Event
 <
 	ID::NetworkAction,
-	NetworkPayloadType,
-	GameHandle,
-	GameHandle
-> NetworkPacketEvent;
+	DataPayload,
+	GameHandle,         // Destination
+	GameHandle          // Sender
+> DataPacketEvent;
 
 typedef boost::tuple
 <
-	CharArray128T,	// ip
-	CharArray128T	// port
-> NetworkEndpointT;
+	CharArray128T,      // ip
+	CharArray128T       // port
+> EndpointT;
 
 typedef boost::variant
 <
-	u16,
-	NetworkEndpointT,
-	GameHandle,
-	PeerIdT
-> NetworkControlPayloadT;
+	u16,                // NE_LISTEN
+	EndpointT,          // NE_CONNECT
+	PeerIdT             // NE_CONNECTED, NE_DISCONNECT, NE_DISCONNECTED
+> ControlPayloadT;
 
 typedef Event
 <
 	ID::NetworkAction,
-	NetworkControlPayloadT,
+	ControlPayloadT,
 	GameHandle,
 	GameHandle
-> NetworkControlEvent;
+> ControlEvent;
 
-std::string NETWORK_API debug(const NetworkPacketEvent& e);
+std::string NETWORK_API debug(const DataPacketEvent& e);
 
 } // namespace Network
 } // namespace BFG

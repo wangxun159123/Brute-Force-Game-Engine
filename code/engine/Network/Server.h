@@ -62,7 +62,7 @@ private:
 	void acceptHandler(const boost::system::error_code &ec, PeerIdT peerId);
 	void writeHandshakeHandler(const error_code &ec, std::size_t bytesTransferred, PeerIdT peerId);
 
-	void NetworkControlEventHandler(NetworkControlEvent* ne);
+	void controlEventHandler(ControlEvent* ne);
 
 	void onListen(const u16 port);
 	void onDisconnect(const PeerIdT& peerId);

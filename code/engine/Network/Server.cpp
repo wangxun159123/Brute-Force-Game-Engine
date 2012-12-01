@@ -43,9 +43,9 @@ mLocalTime(Clock::milliSecond)
 {
 	mLocalTime.start();
 
-	mLoop->connect(ID::NE_LISTEN, this, &Server::NetworkControlEventHandler);
-	mLoop->connect(ID::NE_DISCONNECT, this, &Server::NetworkControlEventHandler);
-	mLoop->connect(ID::NE_SHUTDOWN, this, &Server::NetworkControlEventHandler);
+	mLoop->connect(ID::NE_LISTEN, this, &Server::controlEventHandler);
+	mLoop->connect(ID::NE_DISCONNECT, this, &Server::controlEventHandler);
+	mLoop->connect(ID::NE_SHUTDOWN, this, &Server::controlEventHandler);
 }
 
 Server::~Server()
@@ -121,11 +121,11 @@ void Server::writeHandshakeHandler(const error_code &ec, std::size_t bytesTransf
 {
 	dbglog << "Server: peer ID was sent";
 	Emitter e(mLoop);
-	e.emit<NetworkControlEvent>(ID::NE_CONNECTED, peerId);
+	e.emit<ControlEvent>(ID::NE_CONNECTED, peerId);
 	mNetworkModules[peerId]->startReading();
 }
 
-void Server::NetworkControlEventHandler(NetworkControlEvent* nce)
+void Server::controlEventHandler(ControlEvent* nce)
 {
 	switch(nce->getId())
 	{
@@ -168,7 +168,7 @@ void Server::onDisconnect(const PeerIdT& peerId)
 		delete mNetworkModules[peerId];
 		mNetworkModules.erase(it);
 		Emitter e(mLoop);
-		e.emit<NetworkControlEvent>(ID::NE_DISCONNECTED, peerId);
+		e.emit<ControlEvent>(ID::NE_DISCONNECTED, peerId);
 	}
 }
 

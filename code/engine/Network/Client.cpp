@@ -41,9 +41,9 @@ mRTT(Clock::milliSecond)
 
 	mResolver.reset(new tcp::resolver(mService));
 
-	mLoop->connect(ID::NE_CONNECT, this, &Client::NetworkControlEventHandler);
-	mLoop->connect(ID::NE_DISCONNECT, this, &Client::NetworkControlEventHandler);
-	mLoop->connect(ID::NE_SHUTDOWN, this, &Client::NetworkControlEventHandler);
+	mLoop->connect(ID::NE_CONNECT, this, &Client::controlEventHandler);
+	mLoop->connect(ID::NE_DISCONNECT, this, &Client::controlEventHandler);
+	mLoop->connect(ID::NE_SHUTDOWN, this, &Client::controlEventHandler);
 
 	mNetworkModule = new NetworkModule(mLoop, mService, 0);
 }
@@ -149,17 +149,17 @@ void Client::readHandshakeHandler(const error_code &ec, size_t bytesTransferred)
 			mNetworkModule->startReading();
 
 			Emitter e(mLoop);
-			e.emit<NetworkControlEvent>(ID::NE_CONNECTED, mPeerId);
+			e.emit<ControlEvent>(ID::NE_CONNECTED, mPeerId);
 		}
 	}
 }
 
-void Client::NetworkControlEventHandler(NetworkControlEvent* nce)
+void Client::controlEventHandler(ControlEvent* nce)
 {
 	switch(nce->getId())
 	{
 	case ID::NE_CONNECT:
-		onConnect(boost::get<NetworkEndpointT>(nce->getData()));
+		onConnect(boost::get<EndpointT>(nce->getData()));
 		break;
 	case ID::NE_DISCONNECT:
 	case ID::NE_SHUTDOWN:
@@ -173,7 +173,7 @@ void Client::NetworkControlEventHandler(NetworkControlEvent* nce)
 
 }
 
-void Client::onConnect(const NetworkEndpointT& endpoint)
+void Client::onConnect(const EndpointT& endpoint)
 {
 	startConnecting(endpoint.get<0>().data(), endpoint.get<1>().data());
 	mThread = boost::thread(boost::bind(&boost::asio::io_service::run, &mService));
@@ -183,7 +183,7 @@ void Client::onDisconnect(const PeerIdT& peerId)
 {
 	stop();
 	Emitter e(mLoop);
-	e.emit<NetworkControlEvent>(ID::NE_DISCONNECTED, peerId);
+	e.emit<ControlEvent>(ID::NE_DISCONNECTED, peerId);
 }
 
 u16 Client::calculateHandshakeChecksum(const Handshake& hs)

@@ -57,7 +57,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Model/Property/Plugin.h>
 #include <Model/Property/SpacePlugin.h>
 #include <Model/State.h>
-#include <Network/Event_fwd.h>
+#include <Network/Event.h>
 #include <Network/Interface.h>
 #include <Physics/Event_fwd.h>
 #include <Physics/Interface.h>
@@ -176,15 +176,15 @@ struct ServerState: public SynchronizationTestState
 // 	{
 // 
 // 	}
-	void networkPacketEventHandler(BFG::Network::NetworkPacketEvent* e)
+	void networkPacketEventHandler(BFG::Network::DataPacketEvent* e)
 	{
 		switch(e->getId())
 		{
 		case BFG::ID::NE_RECEIVED:
 		{
-			const BFG::Network::NetworkPayloadType& payload = e->getData();
+			const BFG::Network::DataPayload& payload = e->getData();
 
-			switch(boost::get<0>(payload))
+			switch(payload.mAppEventId)
 			{
 			case START_SIMULATION_1:
 			{
@@ -216,7 +216,7 @@ struct ServerState: public SynchronizationTestState
 		}
 	}
 
-	void networkControlEventHandler(BFG::Network::NetworkControlEvent* e)
+	void networkControlEventHandler(BFG::Network::ControlEvent* e)
 	{
 		switch(e->getId())
 		{
@@ -249,17 +249,16 @@ struct ServerState: public SynchronizationTestState
 
 			CharArray512T ca512 = stringToArray<512>(handles.str());
 
-			BFG::Network::NetworkPayloadType payload = 
-				boost::make_tuple
-				(
-					CREATE_TEST_OBJECT, 
-					CLIENT_STATE_HANDLE, 
-					SERVER_STATE_HANDLE,
-					handles.str().length(),
-					ca512
-				);
+			BFG::Network::DataPayload payload
+			(
+				CREATE_TEST_OBJECT, 
+				CLIENT_STATE_HANDLE, 
+				SERVER_STATE_HANDLE,
+				handles.str().length(),
+				ca512
+			);
 
-			emit<BFG::Network::NetworkPacketEvent>(BFG::ID::NE_SEND, payload);
+			emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload);
 
 			break;
 		}
@@ -323,70 +322,67 @@ struct ClientState : public SynchronizationTestState
 		case SIMULATION_1:
 		{
 			CharArray512T ca512;
-			BFG::Network::NetworkPayloadType payload = 
-				boost::make_tuple
-				(
-					START_SIMULATION_1, 
-					SERVER_STATE_HANDLE, 
-					CLIENT_STATE_HANDLE,
-					0,
-					ca512
-				);
+			BFG::Network::DataPayload payload
+			(
+				START_SIMULATION_1, 
+				SERVER_STATE_HANDLE, 
+				CLIENT_STATE_HANDLE,
+				0,
+				ca512
+			);
 
-			emit<BFG::Network::NetworkPacketEvent>(BFG::ID::NE_SEND, payload);
+			emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload);
 
 			break;
 		}
 		case SIMULATION_2:
 		{
 			CharArray512T ca512;
-			BFG::Network::NetworkPayloadType payload = 
-				boost::make_tuple
-				(
-					START_SIMULATION_2, 
-					SERVER_STATE_HANDLE, 
-					CLIENT_STATE_HANDLE,
-					0,
-					ca512
-				);
+			BFG::Network::DataPayload payload
+			(
+				START_SIMULATION_2, 
+				SERVER_STATE_HANDLE, 
+				CLIENT_STATE_HANDLE,
+				0,
+				ca512
+			);
 
-			emit<BFG::Network::NetworkPacketEvent>(BFG::ID::NE_SEND, payload);
+			emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload);
 
 			break;
 		}
 		case SIMULATION_3:
 		{
 			CharArray512T ca512;
-			BFG::Network::NetworkPayloadType payload = 
-				boost::make_tuple
-				(
-					START_SIMULATION_3, 
-					SERVER_STATE_HANDLE, 
-					CLIENT_STATE_HANDLE,
-					0,
-					ca512
-				);
+			BFG::Network::DataPayload payload
+			(
+				START_SIMULATION_3, 
+				SERVER_STATE_HANDLE, 
+				CLIENT_STATE_HANDLE,
+				0,
+				ca512
+			);
 
-			emit<BFG::Network::NetworkPacketEvent>(BFG::ID::NE_SEND, payload);
+			emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload);
 
 			break;
 		}
 		}
 	}
 
-	void networkEventHandler(BFG::Network::NetworkPacketEvent* e)
+	void networkEventHandler(BFG::Network::DataPacketEvent* e)
 	{
 		switch(e->getId())
 		{
 		case BFG::ID::NE_RECEIVED:
 		{
-			const BFG::Network::NetworkPayloadType& payload = e->getData();
+			const BFG::Network::DataPayload& payload = e->getData();
 
-			switch(boost::get<0>(payload))
+			switch(payload.mAppEventId)
 			{
 			case CREATE_TEST_OBJECT:
 			{
-				std::stringstream oss(boost::get<4>(payload).data());
+				std::stringstream oss(payload.mAppData.data());
 
 				BFG::Loader::ObjectParameter op;
 				op.mType = "Cube_Remote";
@@ -562,7 +558,7 @@ int main( int argc, const char* argv[] ) try
 		loop1.run();
 
 		BFG::Emitter e(&loop1);
-		e.emit<BFG::Network::NetworkControlEvent>(BFG::ID::NE_LISTEN, port);
+		e.emit<BFG::Network::ControlEvent>(BFG::ID::NE_LISTEN, port);
 
 		BFG::Base::pause();
 
@@ -588,10 +584,10 @@ int main( int argc, const char* argv[] ) try
 		loop1.addEntryPoint(new BFG::Base::CEntryPoint(&createClientStates));
 		loop1.run();
 
-		BFG::Network::NetworkEndpointT payload = make_tuple(stringToArray<128>(ip), stringToArray<128>(port));
+		BFG::Network::EndpointT payload = make_tuple(stringToArray<128>(ip), stringToArray<128>(port));
 
 		BFG::Emitter e(&loop1);
-		e.emit<BFG::Network::NetworkControlEvent>(BFG::ID::NE_CONNECT, payload);
+		e.emit<BFG::Network::ControlEvent>(BFG::ID::NE_CONNECT, payload);
 
 		while(!loop1.shouldExit())
 		{

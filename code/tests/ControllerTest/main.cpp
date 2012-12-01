@@ -53,7 +53,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <View/WindowAttributes.h>
 
 #include <Network/Interface.h>
-#include <Network/Event_fwd.h>
+#include <Network/Event.h>
 
 #ifdef _WIN32
 	#include "InputWindowWin32.h"
@@ -127,8 +127,8 @@ struct EventNetter : BFG::Emitter
 		oa << e->getData();
 		CharArray512T ca512 = stringToArray<512>(ss.str());
 
-		Network::NetworkPayloadType payload = boost::make_tuple(e->getId(), 0, 0, ss.str().size(), ca512);
-		emit<Network::NetworkPacketEvent>(ID::NE_SEND, payload);
+		Network::DataPayload payload(e->getId(), 0, 0, ss.str().size(), ca512);
+		emit<Network::DataPacketEvent>(ID::NE_SEND, payload);
 	}
 };
 
@@ -145,18 +145,18 @@ struct NetEventer : BFG::Emitter
 		loop()->disconnect(BFG::ID::NE_RECEIVED, this);
 	}
 
-	void eventHandler(BFG::Network::NetworkPacketEvent* npe)
+	void eventHandler(BFG::Network::DataPacketEvent* npe)
 	{
-		BFG::Network::NetworkPayloadType payload = npe->getData();
+		BFG::Network::DataPayload payload = npe->getData();
 
 		std::stringstream ss;
-		ss.str(payload.get<4>().data());
+		ss.str(payload.mAppData.data());
 		boost::archive::text_iarchive ia(ss);
 
 		Controller_::VipPayloadT vp;
 		ia >> vp;
 
-		emit<Controller_::VipEvent>(payload.get<0>(), vp);
+		emit<Controller_::VipEvent>(payload.mAppEventId, vp);
 	}
 };
 
@@ -180,7 +180,7 @@ static void startTestProgram(TestProgramPolicy& TPP)
 			if (c.IsServer)
 			{
 				dbglog << "Emitting ID::NE_LISTEN";
-				emitter.emit<BFG::Network::NetworkControlEvent>(BFG::ID::NE_LISTEN, static_cast<u16>(c.Port));
+				emitter.emit<BFG::Network::ControlEvent>(BFG::ID::NE_LISTEN, static_cast<u16>(c.Port));
 
 				ne.reset(new NetEventer(emitter.loop()));
 			}
@@ -192,7 +192,7 @@ static void startTestProgram(TestProgramPolicy& TPP)
 				CharArray128T ip = stringToArray<128>(c.Ip.c_str());
 				
 				dbglog << "Emitting ID::NE_CONNECT";
-				emitter.emit<Network::NetworkControlEvent>(BFG::ID::NE_CONNECT, boost::make_tuple(ip, port));
+				emitter.emit<Network::ControlEvent>(BFG::ID::NE_CONNECT, boost::make_tuple(ip, port));
 				
 				en.reset(new EventNetter(emitter.loop()));
 			}

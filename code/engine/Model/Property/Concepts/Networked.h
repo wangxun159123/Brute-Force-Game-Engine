@@ -33,6 +33,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Core/Math.h>
 #include <Model/Property/Concept.h>
 #include <Network/Event_fwd.h>
+#include <Network/Event.h>
 #include <Physics/Event_fwd.h>
 
 using namespace BFG;
@@ -99,7 +100,7 @@ public:
 		}
 	}
 
-	void onNetworkEvent(Network::NetworkPacketEvent* e)
+	void onNetworkEvent(Network::DataPacketEvent* e)
 	{
 		// Don't receive if not either READ or RW
 		if (!(mSynchronizationMode == ID::SYNC_MODE_NETWORK_READ || mSynchronizationMode == ID::SYNC_MODE_NETWORK_RW))
@@ -109,17 +110,17 @@ public:
 		{
 		case ID::NE_RECEIVED:
 		{
-			const BFG::Network::NetworkPayloadType& payload = e->getData();
+			const BFG::Network::DataPayload& payload = e->getData();
 
-			switch(boost::get<0>(payload))
+			switch(payload.mAppEventId)
 			{
 			case ID::PE_UPDATE_POSITION:
 			{
-				assert(ownerHandle() == boost::get<1>(payload));
-
-				std::string vec(boost::get<4>(payload).data(), boost::get<3>(payload));
+				assert(ownerHandle() == payload.mAppDestination);
+				
+				std::string msg(payload.mAppData.data(), payload.mAppDataLen);
 				v3 v;
-				stringToVector3(vec, v);
+				stringToVector3(msg, v);
 				dbglog << "Networked:onNetworkEvent: receivedPosition: " << v;
 
 				Location go = getGoValue<Location>(ID::PV_Location, pluginId());
@@ -141,22 +142,22 @@ public:
 			}
 			case ID::PE_UPDATE_ORIENTATION:
 			{
-				assert(ownerHandle() == boost::get<1>(payload));
+				assert(ownerHandle() == payload.mAppDestination);
 
-				std::string ori(boost::get<4>(payload).data(), boost::get<3>(payload));
+				std::string msg(payload.mAppData.data(), payload.mAppDataLen);
 				qv4 o;
-				stringToQuaternion4(ori, o);
+				stringToQuaternion4(msg, o);
 				dbglog << "Networked:onNetworkEvent: Quaternion: " << o;
 				emit<Physics::Event>(ID::PE_UPDATE_ORIENTATION, o, ownerHandle());
 				break;
 			}
 			case ID::PE_UPDATE_VELOCITY:
 			{
-				assert(ownerHandle() == boost::get<1>(payload));
+				assert(ownerHandle() == payload.mAppDestination);
 
-				std::string vec(boost::get<4>(payload).data(), boost::get<3>(payload));
+				std::string msg(payload.mAppData.data(), payload.mAppDataLen);
 				v3 v;
-				stringToVector3(vec, v);
+				stringToVector3(msg, v);
 				dbglog << "Networked:onNetworkEvent: Velocity: " << v;
 				emit<Physics::Event>(ID::PE_UPDATE_VELOCITY, v, ownerHandle());
 				break;
@@ -207,17 +208,16 @@ public:
 
 		CharArray512T ca512 = stringToArray<512>(ss.str());
 
-		BFG::Network::NetworkPayloadType payload = 
-			boost::make_tuple
-			(
-				ID::PE_UPDATE_VELOCITY, 
-				ownerHandle(),
-				ownerHandle(),
-				ss.str().length(),
-				ca512
-			);
+		BFG::Network::DataPayload payload
+		(
+			ID::PE_UPDATE_VELOCITY, 
+			ownerHandle(),
+			ownerHandle(),
+			ss.str().length(),
+			ca512
+		);
 
-		emit<BFG::Network::NetworkPacketEvent>(BFG::ID::NE_SEND, payload);
+		emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload);
 	}
 
 	void onOrientation(const qv4& newOrientation)
@@ -233,17 +233,16 @@ public:
 
 		CharArray512T ca512 = stringToArray<512>(ss.str());
 			
-		BFG::Network::NetworkPayloadType payload = 
-			boost::make_tuple
-			(
-				ID::PE_UPDATE_ORIENTATION, 
-				ownerHandle(),
-				ownerHandle(),
-				ss.str().length(),
-				ca512
-			);
+		BFG::Network::DataPayload payload
+		(
+			ID::PE_UPDATE_ORIENTATION, 
+			ownerHandle(),
+			ownerHandle(),
+			ss.str().length(),
+			ca512
+		);
 
-		emit<BFG::Network::NetworkPacketEvent>(BFG::ID::NE_SEND, payload);
+		emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload);
 
 	}
 
@@ -266,17 +265,16 @@ public:
 
 			CharArray512T ca512 = stringToArray<512>(ss.str());
 			
-			BFG::Network::NetworkPayloadType payload = 
-				boost::make_tuple
-				(
-					ID::PE_UPDATE_POSITION, 
-					ownerHandle(),
-					ownerHandle(),
-					ss.str().length(),
-					ca512
-				);
+			BFG::Network::DataPayload payload
+			(
+				ID::PE_UPDATE_POSITION, 
+				ownerHandle(),
+				ownerHandle(),
+				ss.str().length(),
+				ca512
+			);
 
-			emit<BFG::Network::NetworkPacketEvent>(BFG::ID::NE_SEND, payload);
+			emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload);
 		}
 	}
 

@@ -60,8 +60,8 @@ private:
 	void connectHandler(const error_code &ec);
 	void readHandshakeHandler(const error_code &ec, size_t bytesTransferred);
 
-	void NetworkControlEventHandler(NetworkControlEvent* ne);
-	void onConnect(const NetworkEndpointT& endpoint);
+	void controlEventHandler(ControlEvent* ne);
+	void onConnect(const EndpointT& endpoint);
 	void onDisconnect(const PeerIdT& peerId);
 	
 	u16 calculateHandshakeChecksum(const Handshake& hs);

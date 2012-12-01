@@ -24,8 +24,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BFG_NETWORKEVENT_H
-#define BFG_NETWORKEVENT_H
+#ifndef BFG_NETWORK_EVENT_H
+#define BFG_NETWORK_EVENT_H
 
 #include <EventSystem/Event.h>
 #include <Network/Event_fwd.h>
@@ -33,22 +33,40 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace BFG {
 namespace Network {
 
-std::string NETWORK_API debug(const NetworkPacketEvent& e)
+struct DataPayload
 {
-	std::stringstream ss;
-		
-	ss << "e.mId: " << e.getId() << "\n";
-	ss << "e.mDestination: " << e.mDestination << "\n";
-	ss << "e.mSender: " << e.mSender << "\n";
-
-	const NetworkPayloadType& payload = e.getData();
-	ss << "payload.AppId: " << payload.get<0>() << "\n";
-	ss << "payload.Destination: " << payload.get<1>() << "\n";
-	ss << "payload.Sender: " << payload.get<2>() << "\n";
-	ss << "payload.PacketSize: " << payload.get<3>();
+	DataPayload() :
+	mAppEventId(0),
+	mAppDestination(0),
+	mAppSender(0),
+	mAppDataLen(0)
+	{}
 	
-	return ss.str();
-}
+	DataPayload(u32 appEventId, GameHandle appDestination,
+	            GameHandle appSender, size_t appDataLen,
+	            CharArray512T appData) :
+	mAppEventId(appEventId),
+	mAppDestination(appDestination),
+	mAppSender(appSender),
+	mAppDataLen(appDataLen),
+	mAppData(appData)
+	{}
+	     
+	//! Id of the actual event on application-level
+	u32 mAppEventId;
+
+	//! GameHandle of the actual receiver on application-level
+	GameHandle mAppDestination;
+
+	//! GameHandle of the actual sender on application-level
+	GameHandle mAppSender;
+	
+	//! Actual length (not capacity) of the to be send/received data.
+	size_t mAppDataLen;
+	
+	//! Actual data to be transmitted on application-level (serialized)
+	CharArray512T mAppData;
+};
 
 } // namespace Network
 } // namespace BFG

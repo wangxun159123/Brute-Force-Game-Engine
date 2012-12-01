@@ -44,7 +44,7 @@ public:
 	
 	template <typename EventT, typename PayloadT>
 	void emit(typename EventT::ActionT action,
-	          PayloadT payload,
+	          const PayloadT& payload,
 	          typename EventT::DestinationT destination,
 	          typename EventT::SenderT sender = typename EventT::SenderT()) const
 	{
@@ -60,7 +60,7 @@ public:
 	
 	template <typename EventT, typename PayloadT>
 	void emit(typename EventT::ActionT action,
-	          PayloadT payload = PayloadT()) const
+	          const PayloadT& payload = PayloadT()) const
 	{
 		BFG::EventFactory::Create<EventT>
 		(

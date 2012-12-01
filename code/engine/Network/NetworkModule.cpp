@@ -27,6 +27,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Network/NetworkModule.h>
 
 #include <Network/Enums.hh>
+#include <Network/Event.h>
 
 namespace BFG {
 namespace Network{
@@ -44,9 +45,9 @@ mOutPacketPosition(0)
 
 	setFlushTimer(FLUSH_WAIT_TIME);
 
-	loop()->connect(ID::NE_SEND, this, &NetworkModule::NetworkPacketEventHandler);
+	loop()->connect(ID::NE_SEND, this, &NetworkModule::dataPacketEventHandler);
 	if (peerId)
-		loop()->connect(ID::NE_SEND, this, &NetworkModule::NetworkPacketEventHandler, peerId);
+		loop()->connect(ID::NE_SEND, this, &NetworkModule::dataPacketEventHandler, peerId);
 }
 
 NetworkModule::~NetworkModule()
@@ -161,7 +162,7 @@ void NetworkModule::readHeaderHandler(const error_code &ec, std::size_t bytesTra
 	}
 	else
 	{
-		emit<NetworkControlEvent>(ID::NE_DISCONNECT, mPeerId);
+		emit<ControlEvent>(ID::NE_DISCONNECT, mPeerId);
 		printErrorCode(ec, "readHeaderHandler");
 	}
 }
@@ -192,7 +193,7 @@ void NetworkModule::readDataHandler(const error_code &ec, std::size_t bytesTrans
 	}
 	else
 	{
-		emit<NetworkControlEvent>(ID::NE_DISCONNECT, mPeerId);
+		emit<ControlEvent>(ID::NE_DISCONNECT, mPeerId);
 		printErrorCode(ec, "readDataHandler");
 	}
 }
@@ -206,29 +207,30 @@ void NetworkModule::writeHandler(const error_code &ec, std::size_t bytesTransfer
 	}
 } 
 
-void NetworkModule::NetworkPacketEventHandler(NetworkPacketEvent* ne)
+void NetworkModule::dataPacketEventHandler(DataPacketEvent* e)
 {
-	switch(ne->getId())
+	switch(e->getId())
 	{
 	case ID::NE_SEND:
-		onSend(ne->getData());
+		onSend(e->getData());
 		break;
 	default:
 		warnlog << "NetworkModule: Can't handle event with ID: "
-		        << ne->getId();
+		        << e->getId();
 		break;
 	}
 }
 
-void NetworkModule::onSend(NetworkPayloadType payload)
+void NetworkModule::onSend(DataPayload& payload)
 {
-	dbglog << "onSend: " << payload.get<3>() + sizeof(Segment) << "(" << payload.get<3>() << "|" << sizeof(Segment) << ")";
+	dbglog << "onSend: " << payload.mAppDataLen + sizeof(Segment)
+	       << "(" << payload.mAppDataLen << "|" << sizeof(Segment) << ")";
 
 	Segment s;
-	s.appEventId = payload.get<0>();
-	s.destinationId = payload.get<1>();
-	s.senderId = payload.get<2>();
-	s.dataSize = payload.get<3>();
+	s.appEventId = payload.mAppEventId;
+	s.destinationId = payload.mAppDestination;
+	s.senderId = payload.mAppSender;
+	s.dataSize = payload.mAppDataLen;
 
 	size_t requiredSize = s.dataSize + sizeof(Segment);
 	size_t sizeLeft = mBackPacket.size() - mOutPacketPosition;
@@ -237,7 +239,7 @@ void NetworkModule::onSend(NetworkPayloadType payload)
 		boost::mutex::scoped_lock scoped_lock(mPacketMutex);
 		memcpy(&mBackPacket[mOutPacketPosition], &s, sizeof(Segment));
 		mOutPacketPosition += sizeof(Segment);
-		memcpy(&mBackPacket[mOutPacketPosition], payload.get<4>().c_array(), s.dataSize);
+		memcpy(&mBackPacket[mOutPacketPosition], payload.mAppData.c_array(), s.dataSize);
 		mOutPacketPosition += s.dataSize;
 	}
 	else
@@ -262,12 +264,12 @@ void NetworkModule::onReceive(const char* data, size_t size)
 		memcpy(ca.data(), &data[packetPosition], s.dataSize);
 		packetPosition += s.dataSize;
 
-		NetworkPayloadType payload(s.appEventId, s.destinationId, s.senderId, s.dataSize, ca);
+		DataPayload payload(s.appEventId, s.destinationId, s.senderId, s.dataSize, ca);
 
 		try 
 		{
 			dbglog << "NetworkModule::onReceive: Emitting NE_RECEIVED to: " << s.destinationId << " from: " << mPeerId;
-			emit<NetworkPacketEvent>(ID::NE_RECEIVED, payload, s.destinationId, mPeerId);
+			emit<DataPacketEvent>(ID::NE_RECEIVED, payload, s.destinationId, mPeerId);
 		}
 		catch (std::exception& ex)
 		{
