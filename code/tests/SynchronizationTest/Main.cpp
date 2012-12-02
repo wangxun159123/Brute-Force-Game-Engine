@@ -321,7 +321,7 @@ struct ClientState : public SynchronizationTestState
 		}
 		case SIMULATION_1:
 		{
-			CharArray512T ca512;
+			CharArray512T ca512 = CharArray512T();
 			BFG::Network::DataPayload payload
 			(
 				START_SIMULATION_1, 
@@ -337,7 +337,7 @@ struct ClientState : public SynchronizationTestState
 		}
 		case SIMULATION_2:
 		{
-			CharArray512T ca512;
+			CharArray512T ca512 = CharArray512T();
 			BFG::Network::DataPayload payload
 			(
 				START_SIMULATION_2, 
@@ -353,7 +353,7 @@ struct ClientState : public SynchronizationTestState
 		}
 		case SIMULATION_3:
 		{
-			CharArray512T ca512;
+			CharArray512T ca512 = CharArray512T();
 			BFG::Network::DataPayload payload
 			(
 				START_SIMULATION_3, 
