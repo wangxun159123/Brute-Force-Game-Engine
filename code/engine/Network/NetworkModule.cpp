@@ -324,6 +324,12 @@ void NetworkModule::printErrorCode(const error_code &ec, const std::string& meth
 	warnlog << "[" << method << "] Error Code: " << ec.value() << ", message: " << ec.message();
 }
 
+void NetworkModule::setTimestampOffset(const s32 offset)
+{
+	mTimestampOffset = offset;
+	dbglog << "NetworkModule:setTimestampOffset: " << offset;
+}
+
 
 
 

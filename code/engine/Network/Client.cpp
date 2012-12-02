@@ -27,6 +27,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Network/Client.h>
 
 #include <Base/Logger.h>
+#include <Network/Event.h>
 #include <Network/NetworkModule.h>
 
 namespace BFG {
@@ -40,10 +41,14 @@ mRTT(Clock::milliSecond)
 	mLocalTime->start();
 
 	mResolver.reset(new tcp::resolver(mService));
+	
+	mTimeSyncTimer.reset(new boost::asio::deadline_timer(mService));
 
 	mLoop->connect(ID::NE_CONNECT, this, &Client::controlEventHandler);
 	mLoop->connect(ID::NE_DISCONNECT, this, &Client::controlEventHandler);
 	mLoop->connect(ID::NE_SHUTDOWN, this, &Client::controlEventHandler);
+
+	mLoop->connect(ID::NE_RECEIVED, this, &Client::dataPacketEventHandler);
 
 	mNetworkModule = new NetworkModule(mLoop, mService, 0, mLocalTime);
 }
@@ -54,6 +59,8 @@ Client::~Client()
 	mLoop->disconnect(ID::NE_CONNECT, this);
 	mLoop->disconnect(ID::NE_DISCONNECT, this);
 	mLoop->disconnect(ID::NE_SHUTDOWN, this);
+
+	mLoop->disconnect(ID::NE_RECEIVED, this);
 
 	if (mResolver)
 		mResolver->cancel();
@@ -152,7 +159,39 @@ void Client::readHandshakeHandler(const error_code &ec, size_t bytesTransferred)
 
 			Emitter e(mLoop);
 			e.emit<ControlEvent>(ID::NE_CONNECTED, mPeerId);
+
+			setTimeSyncTimer(TIME_SYNC_WAIT_TIME);
 		}
+	}
+}
+
+void Client::sendTimesyncRequest()
+{
+	Network::DataPayload payload(ID::NE_TIMESYNC, 0, 0, 0, CharArray512T());
+	Emitter emitter(mLoop);
+	emitter.emit<Network::DataPacketEvent>(ID::NE_SEND, payload);
+	mRTT.restart();
+}
+
+void Client::setTimeSyncTimer(const long& waitTime_ms)
+{
+	if (waitTime_ms == 0)
+		return;
+
+	mTimeSyncTimer->expires_from_now(boost::posix_time::milliseconds(waitTime_ms));
+	mTimeSyncTimer->async_wait(boost::bind(&Client::timerHandler, this, _1));
+}
+
+void Client::timerHandler(const error_code &ec)
+{
+	if (!ec)
+	{
+		sendTimesyncRequest();
+		setTimeSyncTimer(TIME_SYNC_WAIT_TIME);
+	}
+	else
+	{
+		printErrorCode(ec, "timerHandler");
 	}
 }
 
@@ -175,6 +214,32 @@ void Client::controlEventHandler(ControlEvent* nce)
 
 }
 
+void Client::dataPacketEventHandler(DataPacketEvent* e)
+{
+	switch(e->getId())
+	{
+	case ID::NE_RECEIVED:
+	{
+		DataPayload& payload = e->getData();
+
+		switch(payload.mAppEventId)
+		{
+		case ID::NE_TIMESYNC:
+		{
+			u32 serverTimestamp;
+			memcpy(&serverTimestamp, payload.mAppData.data(), payload.mAppDataLen);
+
+			dbglog << "Client: ServerTimestamp: " << serverTimestamp;
+			s32 offset = calculateServerTimestampOffset(serverTimestamp);
+
+			mNetworkModule->setTimestampOffset(offset);
+		}
+		}
+
+	}
+	}
+}
+
 void Client::onConnect(const EndpointT& endpoint)
 {
 	startConnecting(endpoint.get<0>().data(), endpoint.get<1>().data());
@@ -195,13 +260,13 @@ u16 Client::calculateHandshakeChecksum(const Handshake& hs)
 	return result.checksum();
 }
 
-u32 Client::calculateServerTimestampOffset(u32 serverTimestamp)
+s32 Client::calculateServerTimestampOffset(u32 serverTimestamp)
 {
 	// https://en.wikipedia.org/wiki/Cristian%27s_algorithm
 	// offset = tS + dP/2 - tC
 	u32 dP = mRTT.stop();
 	u32 tC = mLocalTime->stop();
-	u32 offset = serverTimestamp + dP / 2 - tC;
+	s32 offset = serverTimestamp + dP / 2 - tC;
 
 	dbglog << "Calculated server Timestamp Offset: " << offset 
 		<< " with RTT of " << dP;

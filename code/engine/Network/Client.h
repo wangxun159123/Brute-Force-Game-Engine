@@ -61,13 +61,19 @@ private:
 	void readHandshakeHandler(const error_code &ec, size_t bytesTransferred);
 
 	void controlEventHandler(ControlEvent* ne);
+	void dataPacketEventHandler(DataPacketEvent* e);
+
 	void onConnect(const EndpointT& endpoint);
 	void onDisconnect(const PeerIdT& peerId);
 	
 	u16 calculateHandshakeChecksum(const Handshake& hs);
-	u32 calculateServerTimestampOffset(u32 serverTimestamp);
+	s32 calculateServerTimestampOffset(u32 serverTimestamp);
 
 	void printErrorCode(const error_code &ec, const std::string& method);
+
+	void sendTimesyncRequest();
+	void setTimeSyncTimer(const long& waitTime_ms);
+	void timerHandler(const error_code &ec);
 
 	boost::asio::io_service mService;
 	boost::shared_ptr<tcp::resolver> mResolver;
@@ -85,6 +91,9 @@ private:
 	Clock::StopWatch mRTT;
 
 	Handshake::SerializationT mHandshakeBuffer;
+
+	boost::shared_ptr<boost::asio::deadline_timer> mTimeSyncTimer;
+
 };
 
 } // namespace Network

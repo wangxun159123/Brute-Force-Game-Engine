@@ -63,12 +63,14 @@ private:
 	void writeHandshakeHandler(const error_code &ec, std::size_t bytesTransferred, PeerIdT peerId);
 
 	void controlEventHandler(ControlEvent* ne);
+	void dataPacketEventHandler(DataPacketEvent* e);
 
 	void onListen(const u16 port);
 	void onDisconnect(const PeerIdT& peerId);
 	void printErrorCode(const error_code &ec, const std::string& method);
 	
 	u16 calculateHandshakeChecksum(const Handshake& hs);
+
 	boost::asio::io_service mService;
 	boost::shared_ptr<tcp::acceptor> mAcceptor;
 

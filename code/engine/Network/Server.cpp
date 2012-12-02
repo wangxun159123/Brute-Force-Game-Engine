@@ -47,6 +47,8 @@ mLocalTime(new Clock::StopWatch(Clock::milliSecond))
 	mLoop->connect(ID::NE_LISTEN, this, &Server::controlEventHandler);
 	mLoop->connect(ID::NE_DISCONNECT, this, &Server::controlEventHandler);
 	mLoop->connect(ID::NE_SHUTDOWN, this, &Server::controlEventHandler);
+
+	mLoop->connect(ID::NE_RECEIVED, this, &Server::dataPacketEventHandler);
 }
 
 Server::~Server()
@@ -55,6 +57,8 @@ Server::~Server()
 	mLoop->disconnect(ID::NE_LISTEN, this);
 	mLoop->disconnect(ID::NE_DISCONNECT, this);
 	mLoop->disconnect(ID::NE_SHUTDOWN, this);
+
+	mLoop->disconnect(ID::NE_RECEIVED, this);
 }
 
 void Server::stop()
@@ -126,23 +130,48 @@ void Server::writeHandshakeHandler(const error_code &ec, std::size_t bytesTransf
 	mNetworkModules[peerId]->startReading();
 }
 
-void Server::controlEventHandler(ControlEvent* nce)
+void Server::controlEventHandler(ControlEvent* e)
 {
-	switch(nce->getId())
+	switch(e->getId())
 	{
 	case ID::NE_LISTEN:
-		onListen(boost::get<u16>(nce->getData()));
+		onListen(boost::get<u16>(e->getData()));
 		break;
 	case ID::NE_DISCONNECT:
-		onDisconnect(boost::get<PeerIdT>(nce->getData()));
+		onDisconnect(boost::get<PeerIdT>(e->getData()));
 		break;
 	case ID::NE_SHUTDOWN:
 		stop();
 		break;
 	default:
 		warnlog << "Server: Can't handle event with ID: "
-		        << nce->getId();
+		        << e->getId();
 		break;
+	}
+}
+
+void Server::dataPacketEventHandler(DataPacketEvent* e)
+{
+	switch(e->getId())
+	{
+	case ID::NE_RECEIVED:
+	{
+		DataPayload& payload = e->getData();
+
+		switch(payload.mAppEventId)
+		{
+		case ID::NE_TIMESYNC:
+		{
+			u32 timestamp = mLocalTime->stop();
+			CharArray512T ca512;
+			memcpy(ca512.data(), &timestamp, sizeof(u32));
+			Network::DataPayload payload(ID::NE_TIMESYNC, 0, 0, sizeof(u32), ca512);
+			Emitter emitter(mLoop);
+			emitter.emit<Network::DataPacketEvent>(ID::NE_SEND, payload, e->mSender, 0);
+		}
+		}
+
+	}
 	}
 }
 
