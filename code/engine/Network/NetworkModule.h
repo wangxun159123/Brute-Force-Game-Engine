@@ -32,6 +32,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/crc.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include <Core/ClockUtils.h>
 #include <Core/Types.h>
 #include <EventSystem/Emitter.h>
 #include <Network/Defs.h>
@@ -50,12 +51,14 @@ using namespace boost::system;
 class NetworkModule : public Emitter
 {
 public:
-	NetworkModule(EventLoop* loop, boost::asio::io_service& service, PeerIdT peerId);
+	NetworkModule(EventLoop* loop, boost::asio::io_service& service, PeerIdT peerId, boost::shared_ptr<Clock::StopWatch> localTime);
 	~NetworkModule();
 
 	boost::shared_ptr<tcp::socket> socket(){return mSocket;}
 
 	void startReading();
+
+	void setTimestampOffset(const u32 offset) {mTimestampOffset = offset;}
 private:
 	void setFlushTimer(const long& waitTime_ms);
 
@@ -83,6 +86,9 @@ private:
 		return result.checksum();
 	}
 
+	void startTimeSync();
+
+
 	void printErrorCode(const error_code &ec, const std::string& method);
 
 	boost::array<char, PACKET_MTU> mBackPacket;
@@ -96,10 +102,14 @@ private:
 	boost::shared_ptr<tcp::socket>                 mSocket;
 	boost::shared_ptr<boost::asio::deadline_timer> mTimer;
 	boost::mutex                                   mPacketMutex;
-	
+
+	boost::shared_ptr<Clock::StopWatch> mLocalTime;
+	u32 mTimestampOffset;
+
 	PeerIdT mPeerId;
 
 	size_t mOutPacketPosition;
+
 };
 
 } // namespace Network

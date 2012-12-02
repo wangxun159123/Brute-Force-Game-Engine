@@ -39,9 +39,10 @@ using namespace boost::system;
 
 Server::Server(EventLoop* loop) :
 mLoop(loop),
-mLocalTime(Clock::milliSecond)
+mLocalTime(new Clock::StopWatch(Clock::milliSecond))
 {
-	mLocalTime.start();
+
+	mLocalTime->start();
 
 	mLoop->connect(ID::NE_LISTEN, this, &Server::controlEventHandler);
 	mLoop->connect(ID::NE_DISCONNECT, this, &Server::controlEventHandler);
@@ -76,7 +77,7 @@ void Server::startAccepting()
 	dbglog << "Server::startAccepting";
 	
 	PeerIdT peerId = generateNetworkHandle();
-	NetworkModule* netModule = new NetworkModule(mLoop, mService, peerId);
+	NetworkModule* netModule = new NetworkModule(mLoop, mService, peerId, mLocalTime);
 	mNetworkModules.insert(std::make_pair(peerId, netModule));
 
 	mAcceptor->async_accept(*netModule->socket(), bind(&Server::acceptHandler, this, _1, peerId));
@@ -104,7 +105,7 @@ void Server::sendHandshake(PeerIdT peerId)
 	dbglog << "Server::sendHandshake peer ID: " << peerId;
 	Handshake hs;
 	hs.mPeerId = peerId;
-	hs.mTimestamp = mLocalTime.stop();
+	hs.mTimestamp = mLocalTime->stop();
 	hs.mChecksum = calculateHandshakeChecksum(hs);
 
 	hs.serialize(mHandshakeBuffer);

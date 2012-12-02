@@ -104,6 +104,8 @@ void Networked::onNetworkEvent(Network::DataPacketEvent* e)
 	{
 		const BFG::Network::DataPayload& payload = e->getData();
 
+		dbglog << "Current Server Time: " << payload.mTimestamp;
+
 		switch(payload.mAppEventId)
 		{
 		case ID::PE_UPDATE_POSITION:

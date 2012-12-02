@@ -35,10 +35,11 @@ namespace Network{
 using namespace boost::asio::ip;
 using namespace boost::system;
 
-NetworkModule::NetworkModule(EventLoop* loop_, boost::asio::io_service& service, PeerIdT peerId) :
+NetworkModule::NetworkModule(EventLoop* loop_, boost::asio::io_service& service, PeerIdT peerId, boost::shared_ptr<Clock::StopWatch> localTime) :
 BFG::Emitter(loop_),
 mPeerId(peerId),
-mOutPacketPosition(0)
+mOutPacketPosition(0),
+mLocalTime(localTime)
 {
 	mSocket.reset(new tcp::socket(service));
 	mTimer.reset(new boost::asio::deadline_timer(service));
@@ -226,6 +227,8 @@ void NetworkModule::onSend(DataPayload& payload)
 	dbglog << "onSend: " << payload.mAppDataLen + sizeof(Segment)
 	       << "(" << payload.mAppDataLen << "|" << sizeof(Segment) << ")";
 
+	dbglog << "NetworkModule:Current Time: " << mLocalTime->stop();
+
 	Segment s;
 	s.appEventId = payload.mAppEventId;
 	s.destinationId = payload.mAppDestination;
@@ -264,7 +267,9 @@ void NetworkModule::onReceive(const char* data, size_t size)
 		memcpy(ca.data(), &data[packetPosition], s.dataSize);
 		packetPosition += s.dataSize;
 
-		DataPayload payload(s.appEventId, s.destinationId, s.senderId, s.dataSize, ca);
+		u32 currentServerTimestamp = mTimestampOffset + mLocalTime->stop();
+
+		DataPayload payload(s.appEventId, s.destinationId, s.senderId, s.dataSize, ca, currentServerTimestamp);
 
 		try 
 		{

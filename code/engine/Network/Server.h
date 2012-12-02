@@ -75,7 +75,7 @@ private:
 	// TODO: This works only for 7 weeks of server runtime!
 	// TODO: This will wreak havoc after 7 weeks.
 	// TODO: Reset this watch somehow.
-	Clock::StopWatch mLocalTime;
+	boost::shared_ptr<Clock::StopWatch> mLocalTime;
 
 	boost::thread mThread;
 

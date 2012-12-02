@@ -34,10 +34,10 @@ namespace Network{
 
 Client::Client(EventLoop* loop) :
 mLoop(loop),
-mLocalTime(Clock::milliSecond),
+mLocalTime(new Clock::StopWatch(Clock::milliSecond)),
 mRTT(Clock::milliSecond)
 {
-	mLocalTime.start();
+	mLocalTime->start();
 
 	mResolver.reset(new tcp::resolver(mService));
 
@@ -45,7 +45,7 @@ mRTT(Clock::milliSecond)
 	mLoop->connect(ID::NE_DISCONNECT, this, &Client::controlEventHandler);
 	mLoop->connect(ID::NE_SHUTDOWN, this, &Client::controlEventHandler);
 
-	mNetworkModule = new NetworkModule(mLoop, mService, 0);
+	mNetworkModule = new NetworkModule(mLoop, mService, 0, mLocalTime);
 }
 
 Client::~Client()
@@ -144,7 +144,9 @@ void Client::readHandshakeHandler(const error_code &ec, size_t bytesTransferred)
 			dbglog << "Received peer ID: " << hs.mPeerId;
 			mPeerId = hs.mPeerId;
 
-			calculateServerTimestampOffset(hs.mTimestamp);
+			u32 offset = calculateServerTimestampOffset(hs.mTimestamp);
+
+			mNetworkModule->setTimestampOffset(offset);
 
 			mNetworkModule->startReading();
 
@@ -193,18 +195,19 @@ u16 Client::calculateHandshakeChecksum(const Handshake& hs)
 	return result.checksum();
 }
 
-void Client::calculateServerTimestampOffset(u32 serverTimestamp)
+u32 Client::calculateServerTimestampOffset(u32 serverTimestamp)
 {
 	// https://en.wikipedia.org/wiki/Cristian%27s_algorithm
 	// offset = tS + dP/2 - tC
 	u32 dP = mRTT.stop();
-	u32 tC = mLocalTime.stop();
-	mServerTimestampOffset = serverTimestamp + dP / 2 - tC;
+	u32 tC = mLocalTime->stop();
+	u32 offset = serverTimestamp + dP / 2 - tC;
 
-	dbglog << "Calculated server Timestamp Offset: " << mServerTimestampOffset 
+	dbglog << "Calculated server Timestamp Offset: " << offset 
 		<< " with RTT of " << dP;
 	dbglog << "LocalTime was: " << tC;
 
+	return offset;
 }
 
 void Client::printErrorCode(const error_code &ec, const std::string& method)
