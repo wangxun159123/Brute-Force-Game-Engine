@@ -77,13 +77,15 @@ using BFG::f32;
 // Client applications should use event IDs higher than 10000 to avoid
 // collisions with events used within the engine.
 const s32 A_EXIT = 10000;
-const s32 SIMULATION_1 = 10001;
-const s32 SIMULATION_2 = 10002;
-const s32 SIMULATION_3 = 10003;
+const s32 SIMULATION_0 = 10001;
+const s32 SIMULATION_1 = 10002;
+const s32 SIMULATION_2 = 10003;
+const s32 SIMULATION_3 = 10004;
 const s32 CREATE_TEST_OBJECT = 15000;
-const s32 START_SIMULATION_1 = 15001;
-const s32 START_SIMULATION_2 = 15002;
-const s32 START_SIMULATION_3 = 15003;
+const s32 START_SIMULATION_0 = 15001;
+const s32 START_SIMULATION_1 = 15002;
+const s32 START_SIMULATION_2 = 15003;
+const s32 START_SIMULATION_3 = 15004;
 
 const GameHandle SERVER_STATE_HANDLE = 42;
 const GameHandle CLIENT_STATE_HANDLE = 43;
@@ -186,6 +188,17 @@ struct ServerState: public SynchronizationTestState
 
 			switch(payload.mAppEventId)
 			{
+			case START_SIMULATION_0:
+			{
+				infolog << "Starting Simulation 0";
+
+				emit<BFG::Physics::Event>(BFG::ID::PE_UPDATE_VELOCITY, v3::ZERO, mObject1);
+				emit<BFG::Physics::Event>(BFG::ID::PE_UPDATE_VELOCITY, v3::ZERO, mObject2);
+				emit<BFG::Physics::Event>(BFG::ID::PE_UPDATE_ROTATION_VELOCITY, v3::ZERO, mObject1);
+				emit<BFG::Physics::Event>(BFG::ID::PE_UPDATE_ROTATION_VELOCITY, v3::ZERO, mObject2);
+
+				break;
+			}
 			case START_SIMULATION_1:
 			{
 				infolog << "Starting Simulation 1";
@@ -234,6 +247,7 @@ struct ServerState: public SynchronizationTestState
 			handles << op.mHandle << " ";
 
 			createObject(op);
+			mObject1 = op.mHandle;
 
 			emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
 
@@ -244,7 +258,8 @@ struct ServerState: public SynchronizationTestState
 			handles << op.mHandle;
 
 			createObject(op);
-
+			mObject2 = op.mHandle;
+				
 			emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
 
 			CharArray512T ca512 = stringToArray<512>(handles.str());
@@ -268,6 +283,9 @@ struct ServerState: public SynchronizationTestState
 
 private:
 	std::vector<GameHandle> mClientList;
+
+	GameHandle mObject1;
+	GameHandle mObject2;
 };
 
 struct ClientState : public SynchronizationTestState
@@ -278,6 +296,7 @@ struct ClientState : public SynchronizationTestState
 		// This part is quite important. You must connect your event callbacks.
 		// If not, the event system doesn't know you're waiting for them.
 		loop->connect(A_EXIT, this, &ClientState::controllerEventHandler);
+		loop->connect(SIMULATION_0, this, &ClientState::controllerEventHandler);
 		loop->connect(SIMULATION_1, this, &ClientState::controllerEventHandler);
 		loop->connect(SIMULATION_2, this, &ClientState::controllerEventHandler);
 		loop->connect(SIMULATION_3, this, &ClientState::controllerEventHandler);
@@ -288,6 +307,7 @@ struct ClientState : public SynchronizationTestState
 	{
 		infolog << "Tutorial: Destroying GameState.";
 		loop()->disconnect(A_EXIT, this);
+		loop()->disconnect(SIMULATION_0, this);
 		loop()->disconnect(SIMULATION_1, this);
 		loop()->disconnect(SIMULATION_2, this);
 		loop()->disconnect(SIMULATION_3, this);
@@ -317,6 +337,22 @@ struct ClientState : public SynchronizationTestState
 		case A_EXIT:
 		{
 			onExit();
+			break;
+		}
+		case SIMULATION_0:
+		{
+			CharArray512T ca512 = CharArray512T();
+			BFG::Network::DataPayload payload
+			(
+				START_SIMULATION_0, 
+				SERVER_STATE_HANDLE, 
+				CLIENT_STATE_HANDLE,
+				0,
+				ca512
+			);
+
+			emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload);
+
 			break;
 		}
 		case SIMULATION_1:
@@ -452,6 +488,7 @@ void initController(BFG::GameHandle stateHandle, EventLoop* loop)
 	// This part here is necessary for Action deserialization.
 	BFG::Controller_::ActionMapT actions;
 	actions[A_EXIT] = "A_EXIT";
+	actions[SIMULATION_0] = "SIMULATION_0";
 	actions[SIMULATION_1] = "SIMULATION_1";
 	actions[SIMULATION_2] = "SIMULATION_2";
 	actions[SIMULATION_3] = "SIMULATION_3";

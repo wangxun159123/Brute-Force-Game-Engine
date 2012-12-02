@@ -229,7 +229,7 @@ void Client::dataPacketEventHandler(DataPacketEvent* e)
 			u32 serverTimestamp;
 			memcpy(&serverTimestamp, payload.mAppData.data(), payload.mAppDataLen);
 
-			dbglog << "Client: ServerTimestamp: " << serverTimestamp;
+//			dbglog << "Client: ServerTimestamp: " << serverTimestamp;
 			s32 offset = calculateServerTimestampOffset(serverTimestamp);
 
 			mNetworkModule->setTimestampOffset(offset);
@@ -268,7 +268,7 @@ s32 Client::calculateServerTimestampOffset(u32 serverTimestamp)
 	u32 tC = mLocalTime->stop();
 	s32 offset = serverTimestamp + dP / 2 - tC;
 
-	dbglog << "Calculated server Timestamp Offset: " << offset 
+	errlog << "Calculated server Timestamp Offset: " << offset 
 		<< " with RTT of " << dP;
 	dbglog << "LocalTime was: " << tC;
 

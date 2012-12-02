@@ -13,7 +13,12 @@ version = "1">
       <special button = "KB_ESCAPE" />
     </vip>
   </action>
-  
+
+  <action id = "SIMULATION_0">
+    <vip type = "VIP_CLICK">
+      <special button = "KB_0" />
+    </vip>
+  </action>
   <action id = "SIMULATION_1">
     <vip type = "VIP_CLICK">
       <special button = "KB_1" />
