@@ -27,6 +27,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #ifndef NETWORKED_H_
 #define NETWORKED_H_
 
+#include <Core/ClockUtils.h>
 #include <Model/Property/Concept.h>
 #include <Network/Event_fwd.h>
 #include <Physics/Event_fwd.h>
@@ -51,10 +52,10 @@ private:
 
 	void onSynchronizationMode(ID::SynchronizationMode mode);
 	void onVelocity(const Physics::VelocityComposite& newVelocity);
+	void onRotationVelocity(const Physics::VelocityComposite& newVelocity);
 	void onOrientation(const qv4& newOrientation);
 	void onPosition(const v3& newPosition);
 	void internalUpdate(quantity<si::time, f32> timeSinceLastFrame);
-
 	std::vector<ID::PhysicsAction> mPhysicsActions;
 	std::vector<ID::NetworkAction> mNetworkActions;
 
@@ -65,6 +66,11 @@ private:
 	v3 mPosition;
 	qv4 mOrientation;
 	bool mInitialized;
+
+	Clock::StopWatch mTimer;
+
+	bool mUpdatePosition;
+	bool mUpdateOrientation;
 };
 
 } // namespace BFG

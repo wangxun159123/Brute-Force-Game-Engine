@@ -304,6 +304,14 @@ void PhysicsObject::sendDeltas() const
 		mDeltaStorage.get<2>() = velocity.get<0>();
 	}
 
+	// RotationVelocity
+	const VelocityComposite rotVelocity = boost::make_tuple(getRotationVelocity(), v3::ZERO);
+	if (!nearEnough(rotVelocity.get<0>(), mDeltaStorage.get<4>(), epsilon))
+	{
+		emit<Physics::Event>(ID::PE_ROTATION_VELOCITY, rotVelocity, mRootModule);
+		mDeltaStorage.get<4>() = rotVelocity.get<0>();
+	}
+
 	// TODO: Other values.
 }
 
