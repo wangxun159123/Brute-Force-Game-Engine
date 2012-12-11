@@ -160,6 +160,13 @@ f32 angleBetween(const v3& src, const v3& dest)
 	return std::acos(f);
 }
 
+f32 BFG_CORE_API angleBetween(const qv4& src, const qv4& dest)
+{
+	//http://math.stackexchange.com/questions/90081/quaternion-distance
+	f32 prod = src.w*dest.w + src.x*dest.x + src.y*dest.y + src.z*dest.z;
+	return std::acos(prod*prod*2.0f - 1.0f);
+}
+
 v3 clamp(const v3& original, const v3& minVec, const v3& maxVec)
 {
 	v3 result;

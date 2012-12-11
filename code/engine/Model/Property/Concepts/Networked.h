@@ -53,7 +53,7 @@ private:
 	void onVelocity(const Physics::VelocityComposite& newVelocity);
 	void onOrientation(const qv4& newOrientation);
 	void onPosition(const v3& newPosition);
-
+	void internalUpdate(quantity<si::time, f32> timeSinceLastFrame);
 
 	std::vector<ID::PhysicsAction> mPhysicsActions;
 	std::vector<ID::NetworkAction> mNetworkActions;
@@ -61,6 +61,10 @@ private:
 	ID::SynchronizationMode mSynchronizationMode;
 
 	Physics::FullSyncData mDeltaStorage;
+
+	v3 mPosition;
+	qv4 mOrientation;
+	bool mInitialized;
 };
 
 } // namespace BFG

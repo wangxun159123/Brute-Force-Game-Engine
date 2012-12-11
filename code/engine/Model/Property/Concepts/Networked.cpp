@@ -38,7 +38,8 @@ namespace BFG
 
 Networked::Networked(GameObject& owner, PluginId pid) :
 Property::Concept(owner, "Networked", pid),
-mSynchronizationMode(ID::SYNC_MODE_NETWORK_NONE)
+mSynchronizationMode(ID::SYNC_MODE_NETWORK_NONE),
+mInitialized(false)
 {
 	require("Physical");
 
@@ -116,22 +117,8 @@ void Networked::onNetworkEvent(Network::DataPacketEvent* e)
 			v3 v;
 			stringToVector3(msg, v);
 			dbglog << "Networked:onNetworkEvent: receivedPosition: " << v;
-
-			Location go = getGoValue<Location>(ID::PV_Location, pluginId());
-
-			dbglog << "Networked:onNetworkEvent: ownPosition: " << go.position;
-			// Only update if the new position is too different from our own calculated one.
-			f32 distance = 0.2f;
-
-			v3 velocity = getGoValue<v3>(ID::PV_Velocity, pluginId());
-			f32 speed = length(velocity);
-
-			if (!nearEnough(go.position, v, speed * 0.1f))
-			{
-				dbglog << "Updating since distance was " << length(go.position - v);
-				dbglog << "Speed was " << speed;
-				emit<Physics::Event>(ID::PE_UPDATE_POSITION, v, ownerHandle());
-			}
+			
+			mPosition = v;
 			break;
 		}
 		case ID::PE_UPDATE_ORIENTATION:
@@ -142,7 +129,8 @@ void Networked::onNetworkEvent(Network::DataPacketEvent* e)
 			qv4 o;
 			stringToQuaternion4(msg, o);
 			dbglog << "Networked:onNetworkEvent: Quaternion: " << o;
-			emit<Physics::Event>(ID::PE_UPDATE_ORIENTATION, o, ownerHandle());
+
+			mOrientation = o;
 			break;
 		}
 		case ID::PE_UPDATE_VELOCITY:
@@ -160,6 +148,41 @@ void Networked::onNetworkEvent(Network::DataPacketEvent* e)
 		}
 	}
 	} // switch e->getId()
+}
+
+void Networked::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
+{
+	if (!(mSynchronizationMode == ID::SYNC_MODE_NETWORK_READ || mSynchronizationMode == ID::SYNC_MODE_NETWORK_RW))
+		return;
+
+	Location go = getGoValue<Location>(ID::PV_Location, pluginId());
+
+	if(!mInitialized)
+	{
+		mPosition = go.position;
+		mOrientation = go.orientation;
+		mInitialized = true;
+	}
+
+	dbglog << "Networked:onNetworkEvent: ownPosition: " << go.position;
+
+	// Only update if the new position is too different from our own calculated one.
+	v3 velocity = getGoValue<v3>(ID::PV_Velocity, pluginId());
+	f32 speed = length(velocity);
+
+	if (!nearEnough(go.position, mPosition, speed * 0.1f))
+	{
+		dbglog << "Updating since distance was " << length(go.position - mPosition);
+		dbglog << "Speed was " << speed;
+		emit<Physics::Event>(ID::PE_UPDATE_POSITION, mPosition, ownerHandle());
+	}
+
+	if(angleBetween(mOrientation, go.orientation) > 0.08727f)
+	{
+		dbglog << "AngleBetween: " << angleBetween(mOrientation, go.orientation);
+		emit<Physics::Event>(ID::PE_UPDATE_ORIENTATION, mOrientation, ownerHandle());
+	}
+
 }
 
 void Networked::onPhysicsEvent(Physics::Event* e)

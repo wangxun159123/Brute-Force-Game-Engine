@@ -118,6 +118,12 @@ f32 BFG_CORE_API distance(const v3& first, const v3& second);
 //! \return Result in RAD
 f32 BFG_CORE_API angleBetween(const v3& src, const v3& dest);
 
+//! \brief Calculates the angle between two quaternions
+//! \param[in] src First quaternion
+//! \param[in] dest Second quaternion
+//! \return Result in RAD
+f32 BFG_CORE_API angleBetween(const qv4& src, const qv4& dest);
+
 //! \brief Clamp for vectors.
 //! \return The result.
 v3 BFG_CORE_API clamp(const v3& original, const v3& minVec, const v3& maxVec);
@@ -136,6 +142,7 @@ bool BFG_CORE_API nearEnough(const v3& position1,
                              f32 radius);
 
 } // namespace BFG
+
 
 
 #endif
