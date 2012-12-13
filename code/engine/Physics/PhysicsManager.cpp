@@ -177,6 +177,12 @@ void PhysicsManager::move(quantity<si::time, f32> timeSinceLastFrame)
 		timeLeft = 0;
 	}
 
+	PhysicsObjectMap::iterator it = mPhysicsObjects.begin();
+	for (; it != mPhysicsObjects.end(); ++it)
+	{
+		it->second->performInterpolation(timeSinceLastFrame);
+	}
+	
 	for (int i=0; i<nrofsteps; i++)
 	{
 		PhysicsObjectMap::iterator it = mPhysicsObjects.begin();
@@ -208,7 +214,7 @@ void PhysicsManager::move(quantity<si::time, f32> timeSinceLastFrame)
 		timeLeft -= mSimulationStepSize;
 	}
 
-	PhysicsObjectMap::iterator it = mPhysicsObjects.begin();
+	it = mPhysicsObjects.begin();
 	for (; it != mPhysicsObjects.end(); ++it)
 	{
 		it->second->clearForces();

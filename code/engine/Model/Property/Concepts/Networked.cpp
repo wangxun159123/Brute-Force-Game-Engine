@@ -102,7 +102,8 @@ void Networked::internalOnEvent(EventIdT action,
 void Networked::onNetworkEvent(Network::DataPacketEvent* e)
 {
 	// Don't receive if not either READ or RW
-	if (!(mSynchronizationMode == ID::SYNC_MODE_NETWORK_READ || mSynchronizationMode == ID::SYNC_MODE_NETWORK_RW))
+	if (!(mSynchronizationMode == ID::SYNC_MODE_NETWORK_READ ||
+	      mSynchronizationMode == ID::SYNC_MODE_NETWORK_RW))
 		return;
 
 	switch(e->getId())
@@ -124,8 +125,7 @@ void Networked::onNetworkEvent(Network::DataPacketEvent* e)
 			stringToVector3(msg, v);
 			dbglog << "Networked:onNetworkEvent: receivedPosition: " << v;
 			
-			mPosition = v;
-
+			mInterpolationData = boost::make_tuple(payload.mTimestamp, payload.mAge, v);
 			mUpdatePosition = true;
 			break;
 		}
@@ -173,7 +173,8 @@ void Networked::onNetworkEvent(Network::DataPacketEvent* e)
 
 void Networked::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 {
-	if (!(mSynchronizationMode == ID::SYNC_MODE_NETWORK_READ || mSynchronizationMode == ID::SYNC_MODE_NETWORK_RW))
+	if (!(mSynchronizationMode == ID::SYNC_MODE_NETWORK_READ ||
+	      mSynchronizationMode == ID::SYNC_MODE_NETWORK_RW))
 	{
 		if (mTimer.stop() < 1000)
 			return;
@@ -183,13 +184,13 @@ void Networked::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 		if (mUpdatePosition)
 		{
 			const f32 epsilon = 0.1f;
-			if (!nearEnough(mPosition, mDeltaStorage.get<0>(), epsilon))
+			if (!nearEnough(mInterpolationData.get<2>(), mDeltaStorage.get<0>(), epsilon))
 			{
 
-				dbglog << "Networked:onPosition: " << mPosition;
+				dbglog << "Networked:onPosition: " << mInterpolationData.get<2>();
 
 				std::stringstream ss;
-				ss << mPosition;
+				ss << mInterpolationData.get<2>();
 
 				CharArray512T ca512 = stringToArray<512>(ss.str());
 
@@ -203,7 +204,7 @@ void Networked::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 				);
 
 				emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload);
-				mDeltaStorage.get<0>() = mPosition;
+				mDeltaStorage.get<0>() = mInterpolationData.get<2>();
 			}
 			mUpdatePosition = false;
 		}
@@ -237,25 +238,24 @@ void Networked::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 	{
 		Location go = getGoValue<Location>(ID::PV_Location, pluginId());
 
-		if(!mInitialized)
+		if (!mInitialized)
 		{
-			mPosition = go.position;
+			mInterpolationData.get<2>() = go.position;
 			mOrientation = go.orientation;
 			mInitialized = true;
 		}
 
 		if (mUpdatePosition)
 		{
-
 			// Only update if the new position is too different from our own calculated one.
 			v3 velocity = getGoValue<v3>(ID::PV_Velocity, pluginId());
 			f32 speed = length(velocity);
 
-			if (!nearEnough(go.position, mPosition, speed * 0.1f))
+			if (!nearEnough(go.position, mInterpolationData.get<2>(), speed * 0.1f))
 			{
-				dbglog << "Updating since distance was " << length(go.position - mPosition);
+				dbglog << "Updating since distance was " << length(go.position - mInterpolationData.get<2>());
 				dbglog << "Speed was " << speed;
-				emit<Physics::Event>(ID::PE_UPDATE_POSITION, mPosition, ownerHandle());
+				emit<Physics::Event>(ID::PE_INTERPOLATE_POSITION, mInterpolationData, ownerHandle());
 			}
 			mUpdatePosition = false;
 		}
@@ -367,10 +367,11 @@ void Networked::onOrientation(const qv4& newOrientation)
 void Networked::onPosition(const v3& newPosition)
 {
 	// Don't send if not either WRITE or RW
-	if (!(mSynchronizationMode == ID::SYNC_MODE_NETWORK_WRITE || mSynchronizationMode == ID::SYNC_MODE_NETWORK_RW))
+	if (!(mSynchronizationMode == ID::SYNC_MODE_NETWORK_WRITE ||
+	      mSynchronizationMode == ID::SYNC_MODE_NETWORK_RW))
 		return;
 
-	mPosition = newPosition;
+	mInterpolationData = boost::make_tuple(0, 0, newPosition);
 	dbglog << "Networked:onPosition(original): " << newPosition;
 	mUpdatePosition = true;
 }

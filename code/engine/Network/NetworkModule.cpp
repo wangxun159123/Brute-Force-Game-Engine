@@ -269,7 +269,16 @@ void NetworkModule::onReceive(const char* data, size_t size)
 
 		u32 currentServerTimestamp = mTimestampOffset + mLocalTime->stop();
 
-		DataPayload payload(s.appEventId, s.destinationId, s.senderId, s.dataSize, ca, currentServerTimestamp);
+		DataPayload payload
+		(
+			s.appEventId,
+			s.destinationId,
+			s.senderId,
+			s.dataSize,
+			ca,
+			currentServerTimestamp,
+			mRTT / 2
+		);
 
 		try 
 		{
@@ -324,10 +333,14 @@ void NetworkModule::printErrorCode(const error_code &ec, const std::string& meth
 	warnlog << "[" << method << "] Error Code: " << ec.value() << ", message: " << ec.message();
 }
 
-void NetworkModule::setTimestampOffset(const s32 offset)
+void NetworkModule::setTimestampOffset(const s32 offset, const s32 rtt)
 {
+	dbglog << "NetworkModule:setTimestampOffset: "
+	       << offset << "(" << offset - mTimestampOffset << ")" << ", "
+	       << rtt << "(" << rtt - mRTT << ")";
+
 	mTimestampOffset = offset;
-	dbglog << "NetworkModule:setTimestampOffset: " << offset;
+	mRTT = rtt;
 }
 
 

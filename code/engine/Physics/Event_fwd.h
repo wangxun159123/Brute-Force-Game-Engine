@@ -44,6 +44,13 @@ using namespace boost::units;
 
 typedef boost::tuple
 <
+	u32,                      // Timestamp
+	u16,                      // Age of data
+	v3                        // Abs. Position
+> InterpolationData;
+
+typedef boost::tuple
+<
 	v3,                       // Position
 	qv4,                      // Orientation
 	v3,                       // Velocity
@@ -105,7 +112,8 @@ typedef boost::variant
 	ObjectCreationParams,
 	ModuleCreationParams,
 	ModuleRemovalParams,
-	ObjectAttachmentParams
+	ObjectAttachmentParams,
+	InterpolationData
 > PayloadT;
 
 typedef Event

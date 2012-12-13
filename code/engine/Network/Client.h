@@ -67,7 +67,7 @@ private:
 	void onDisconnect(const PeerIdT& peerId);
 	
 	u16 calculateHandshakeChecksum(const Handshake& hs);
-	s32 calculateServerTimestampOffset(u32 serverTimestamp);
+	void calculateServerTimestampOffset(u32 serverTimestamp, s32& offset, s32& rtt);
 
 	void printErrorCode(const error_code &ec, const std::string& method);
 

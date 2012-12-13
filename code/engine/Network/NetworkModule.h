@@ -58,7 +58,7 @@ public:
 
 	void startReading();
 
-	void setTimestampOffset(const s32 offset);
+	void setTimestampOffset(const s32 offset, const s32 rtt);
 private:
 	void setFlushTimer(const long& waitTime_ms);
 
@@ -104,7 +104,9 @@ private:
 	boost::mutex                                   mPacketMutex;
 
 	boost::shared_ptr<Clock::StopWatch> mLocalTime;
+
 	s32 mTimestampOffset;
+	s32 mRTT;
 
 	PeerIdT mPeerId;
 

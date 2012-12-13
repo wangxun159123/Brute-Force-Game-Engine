@@ -63,6 +63,9 @@
 
             <value>PE_UPDATE_COLLISION_MODE</value>
             <value>PE_UPDATE_SIMULATION_FLAG</value>
+	    
+	    <!-- Note: Has timestamps -->
+	    <value>PE_INTERPOLATE_POSITION</value>
         </enum>
 
         <enum name = "CollisionMode" export = "PHYSICS_API">

@@ -151,9 +151,11 @@ void Client::readHandshakeHandler(const error_code &ec, size_t bytesTransferred)
 			dbglog << "Received peer ID: " << hs.mPeerId;
 			mPeerId = hs.mPeerId;
 
-			u32 offset = calculateServerTimestampOffset(hs.mTimestamp);
+			s32 offset;
+			s32 rtt;
+			calculateServerTimestampOffset(hs.mTimestamp, offset, rtt);
 
-			mNetworkModule->setTimestampOffset(offset);
+			mNetworkModule->setTimestampOffset(offset, rtt);
 
 			mNetworkModule->startReading();
 
@@ -230,9 +232,11 @@ void Client::dataPacketEventHandler(DataPacketEvent* e)
 			memcpy(&serverTimestamp, payload.mAppData.data(), payload.mAppDataLen);
 
 //			dbglog << "Client: ServerTimestamp: " << serverTimestamp;
-			s32 offset = calculateServerTimestampOffset(serverTimestamp);
+			s32 offset;
+			s32 rtt;
+			calculateServerTimestampOffset(serverTimestamp, offset, rtt);
 
-			mNetworkModule->setTimestampOffset(offset);
+			mNetworkModule->setTimestampOffset(offset, rtt);
 		}
 		}
 
@@ -260,19 +264,20 @@ u16 Client::calculateHandshakeChecksum(const Handshake& hs)
 	return result.checksum();
 }
 
-s32 Client::calculateServerTimestampOffset(u32 serverTimestamp)
+void Client::calculateServerTimestampOffset(u32 serverTimestamp, s32& offset, s32& rtt)
 {
 	// https://en.wikipedia.org/wiki/Cristian%27s_algorithm
 	// offset = tS + dP/2 - tC
 	u32 dP = mRTT.stop();
 	u32 tC = mLocalTime->stop();
-	s32 offset = serverTimestamp + dP / 2 - tC;
+	s32 serverOffset = serverTimestamp + dP / 2 - tC;
 
-	errlog << "Calculated server Timestamp Offset: " << offset 
+	errlog << "Calculated server Timestamp Offset: " << serverOffset 
 		<< " with RTT of " << dP;
 	dbglog << "LocalTime was: " << tC;
-
-	return offset;
+	
+	offset = serverOffset;
+	rtt = dP;
 }
 
 void Client::printErrorCode(const error_code &ec, const std::string& method)

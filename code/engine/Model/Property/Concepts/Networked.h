@@ -63,7 +63,7 @@ private:
 
 	Physics::FullSyncData mDeltaStorage;
 
-	v3 mPosition;
+	Physics::InterpolationData mInterpolationData;
 	qv4 mOrientation;
 	bool mInitialized;
 
@@ -71,6 +71,8 @@ private:
 
 	bool mUpdatePosition;
 	bool mUpdateOrientation;
+	
+
 };
 
 } // namespace BFG

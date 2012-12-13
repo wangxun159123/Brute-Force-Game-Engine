@@ -31,6 +31,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <ode/../../ode/src/objects.h>   // for debugOutput()
 #include <ode/../../ode/src/collision_kernel.h>   // for debugOutput()
 
+#include <Base/Interpolate.h>
 #include <Base/Logger.h>
 
 #include <Core/ExternalTypes.h>
@@ -57,7 +58,11 @@ Emitter(loop),
 mRootModule(NULL_HANDLE),
 mBodyOffset(v3::ZERO),
 mForce(v3::ZERO),
-mTorque(v3::ZERO)
+mTorque(v3::ZERO),
+mInterpolate(false),
+mTimeSinceLastInterpolationBegin(0),
+mInterpolationStartPosition(v3::ZERO),
+mInterpolationEndPosition(v3::ZERO)
 {
 	mOdeBody = dBodyCreate(worldId);
 	mSpaceId = dHashSpaceCreate(spaceId);
@@ -335,6 +340,34 @@ void PhysicsObject::sendFullSync() const
 	emit<Physics::Event>(ID::PE_FULL_SYNC, fsd, mRootModule);
 }
 
+void PhysicsObject::performInterpolation(quantity<si::time, f32> timeSinceLastFrame)
+{
+	if (mInterpolate)
+	{
+		const quantity<si::time, f32> INTERPOLATION_DURATION = 0.5f * si::seconds;
+
+		Base::EaseInOutInterpolation x(mInterpolationStartPosition.x, mInterpolationEndPosition.x);
+		Base::EaseInOutInterpolation y(mInterpolationStartPosition.y, mInterpolationEndPosition.y);
+		Base::EaseInOutInterpolation z(mInterpolationStartPosition.z, mInterpolationEndPosition.z);
+
+		mTimeSinceLastInterpolationBegin += (timeSinceLastFrame / INTERPOLATION_DURATION) * si::seconds;
+		v3 interpolatedPosition
+		(
+			x.interpolate(mTimeSinceLastInterpolationBegin.value()),
+			y.interpolate(mTimeSinceLastInterpolationBegin.value()),
+			z.interpolate(mTimeSinceLastInterpolationBegin.value())
+		);
+		
+		dbglog << "Ode Pos: " << getPosition()
+		       << " Interp Pos: " << interpolatedPosition
+		       << " at: " << mTimeSinceLastInterpolationBegin.value();
+		setPosition(interpolatedPosition);
+		
+		if (mTimeSinceLastInterpolationBegin >= 1.0f * si::seconds)
+			mInterpolate = false;
+	}
+}
+
 void PhysicsObject::debugOutput(std::string& output) const
 {
 	std::stringstream ss;
@@ -443,6 +476,23 @@ void PhysicsObject::setOffsetOrientation(GameHandle moduleHandle, const qv4& rot
 	}
 
 	dGeomSetOffsetQuaternion(mGeometry[moduleHandle].geomId, rot.ptr());
+}
+
+void PhysicsObject::interpolatePosition(InterpolationData& interpData)
+{
+	mInterpolate = true;
+	
+	u32 timeStamp = interpData.get<0>();
+	u16 age = interpData.get<1>();
+	v3& pos = interpData.get<2>();
+	
+	v3 estimatedPosition = pos + getVelocity() * static_cast<f32>(age) / 1000.0f;
+	
+	mInterpolationEndPosition = estimatedPosition;
+	mInterpolationStartPosition = getPosition();
+	mTimeSinceLastInterpolationBegin = 0.0f * si::seconds;
+	
+	dbglog << "Interpolating from " << getPosition() << " over " << pos << " to " << estimatedPosition;
 }
 
 v3 PhysicsObject::getPosition() const
@@ -635,6 +685,8 @@ void PhysicsObject::registerEvents()
 	mPhysicsEvents.push_back(ID::PE_UPDATE_VELOCITY);
 	mPhysicsEvents.push_back(ID::PE_UPDATE_ROTATION_VELOCITY);
 	
+	mPhysicsEvents.push_back(ID::PE_INTERPOLATE_POSITION);
+	
 	mPhysicsEvents.push_back(ID::PE_DEBUG);
 		
 	mPhysicsEvents.push_back(ID::PE_APPLY_FORCE);
@@ -677,6 +729,10 @@ void PhysicsObject::eventHandler(Physics::Event* event)
 		setRotationVelocity(boost::get<v3>(event->getData()));
 		break;
 
+	case ID::PE_INTERPOLATE_POSITION:
+		interpolatePosition(boost::get<InterpolationData>(event->getData()));
+		break;
+		
 	case ID::PE_DEBUG:
 	{
 		std::string s;

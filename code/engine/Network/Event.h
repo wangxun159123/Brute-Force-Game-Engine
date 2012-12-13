@@ -40,18 +40,20 @@ struct DataPayload
 	mAppDestination(0),
 	mAppSender(0),
 	mAppDataLen(0),
-	mTimestamp(0)
+	mTimestamp(0),
+	mAge(0)
 	{}
 	
 	DataPayload(u32 appEventId, GameHandle appDestination,
 	            GameHandle appSender, size_t appDataLen,
-	            CharArray512T appData, u32 timestamp = 0) :
+	            CharArray512T appData, u32 timestamp = 0, u16 age = 0) :
 	mAppEventId(appEventId),
 	mAppDestination(appDestination),
 	mAppSender(appSender),
 	mAppDataLen(appDataLen),
 	mAppData(appData),
-	mTimestamp(timestamp)
+	mTimestamp(timestamp),
+	mAge(age)
 	{}
 	     
 	//! Id of the actual event on application-level
@@ -71,6 +73,9 @@ struct DataPayload
 
 	//! Timestamp is only used by NE_RECEIVED and represents the current server time
 	u32 mTimestamp;
+	
+	//! How old the data actually is
+	u16 mAge;
 };
 
 } // namespace Network
