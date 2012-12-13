@@ -24,25 +24,23 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __C_INTERPOLATE_H_
-#define __C_INTERPOLATE_H_
+#ifndef BFG_BASE_INTERPOLATE_H_
+#define BFG_BASE_INTERPOLATE_H_
 
 namespace BFG {
 namespace Base {
 
-
-class CEaseInOutInterpolation
+class EaseInOutInterpolation
 {
 public:
-	CEaseInOutInterpolation(float from, float to)
+	EaseInOutInterpolation(f32 from, f32 to) :
+	mMin(from),
+	mMax(to)
 	{
-		mMin = from;
-		mMax = to;
-
 		mAccel = (to-from) * 2 ;
 	}
 
-	float Interpolate(float delta)
+	f32 interpolate(f32 delta)
 	{
 		if (delta <= 0.0f)
 		{
@@ -66,34 +64,35 @@ public:
 		}
 	}
 private:
-	float mMin;
-	float mMax;
-	float mAccel;
+	f32 mMin;
+	f32 mMax;
+	f32 mAccel;
 };
 
-class CEaseInOutInterpolationM
+class EaseInOutInterpolationM
 {
 public:
-	CEaseInOutInterpolationM(float minMax) : mMinMax(0.0f, minMax)
+	EaseInOutInterpolationM(f32 minMax) :
+	mMinMax(0.0f, minMax)
 	{
 	}
 
-	float Interpolate(float delta)
+	f32 interpolate(f32 delta)
 	{
 		if (delta < 0.0f)
 		{
-			return -(mMinMax.Interpolate(-delta));
+			return -(mMinMax.interpolate(-delta));
 		}
 		else
 		{
-			return mMinMax.Interpolate(delta);
+			return mMinMax.interpolate(delta);
 		}
 	}
 private:
-	CEaseInOutInterpolation mMinMax;
+	EaseInOutInterpolation mMinMax;
 };
 
-}
-}
+} // namespace Base
+} // namespace BFG
 
 #endif
