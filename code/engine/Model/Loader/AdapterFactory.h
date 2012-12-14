@@ -29,36 +29,15 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/lexical_cast.hpp>
 
-#include <Core\v3.h>
-#include <Core\qv4.h>
+#include <Core/XmlTree.h>
+#include <Core/XmlFileHandle.h>
+
+#include <Core/v3.h>
+#include <Core/qv4.h>
 
 
 namespace BFG
 {
-
-v3 loadVector3(XmlTreeT tree)
-{
-	std::string x = tree->child("x")->elementData();
-	std::string y = tree->child("y")->elementData();
-	std::string z = tree->child("z")->elementData();
-
-	return v3(boost::lexical_cast<f32>(x), 
-	          boost::lexical_cast<f32>(y),
-	          boost::lexical_cast<f32>(z));
-}
-
-qv4 loadQuaternion(XmlTreeT tree)
-{
-	std::string w = tree->child("w")->elementData();
-	std::string x = tree->child("x")->elementData();
-	std::string y = tree->child("y")->elementData();
-	std::string z = tree->child("z")->elementData();
-
-	return qv4(boost::lexical_cast<f32>(w),
-	           boost::lexical_cast<f32>(x),
-	           boost::lexical_cast<f32>(y),
-	           boost::lexical_cast<f32>(z));
-}
 
 struct AdapterParameters
 {
@@ -142,7 +121,7 @@ protected:
 		
 		for (;it != adapterConfigs.end(); ++it)
 		{
-			mAdapterConfigs[(*it)->attribute("name")] = boost::shared_ptr<AdapterConfigParameters>(new AdapterConfigParameters(*it));
+			mAdapterConfigs[(*it)->attribute("name")] = AdapterConfigParametersT(new AdapterConfigParameters(*it));
 		}
 	}
 
