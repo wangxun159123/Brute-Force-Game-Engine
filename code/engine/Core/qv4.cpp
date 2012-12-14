@@ -25,7 +25,9 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <Core/qv4.h>
+
 #include <stdexcept>
+#include <boost/lexical_cast.hpp>
 
 namespace BFG {
 
@@ -61,6 +63,19 @@ void stringToQuaternion4(const std::string& in, qv4& out)
 
 	if (ss.fail())
 		throw std::runtime_error("stringToQuaternion4: Error while parsing.");
+}
+
+qv4 loadQuaternion(XmlTreeT tree)
+{
+	std::string w = tree->child("w")->elementData();
+	std::string x = tree->child("x")->elementData();
+	std::string y = tree->child("y")->elementData();
+	std::string z = tree->child("z")->elementData();
+
+	return qv4(boost::lexical_cast<f32>(w),
+	           boost::lexical_cast<f32>(x),
+	           boost::lexical_cast<f32>(y),
+	           boost::lexical_cast<f32>(z));
 }
 
 } // namespace BFG

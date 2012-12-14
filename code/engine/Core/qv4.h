@@ -42,9 +42,10 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <ostream>
 #include <boost/geometry/extensions/arithmetic/cross_product.hpp>
 
+#include <Core/Defs.h>
 #include <Core/v3.h>
 #include <Core/Types.h>
-#include <Core/Defs.h>
+#include <Core/XmlTree.h>
 
 namespace BFG {
 
@@ -279,6 +280,8 @@ std::ostream& operator << (std::ostream& o, const quaternion4<T>& q)
 //! "0.0001, 1521.9f, 0.001f 141.09"   // Ok!
 //! \exception std::runtime_error If the string couldn't be parsed
 BFG_CORE_API void stringToQuaternion4(const std::string& input, qv4& output);
+
+BFG_CORE_API qv4 loadQuaternion(XmlTreeT tree);
 
 } // namespace BFG
 
