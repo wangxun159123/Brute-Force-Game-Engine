@@ -45,20 +45,22 @@ public:
 	void onPhysicsEvent(Physics::Event* e);
 
 private:
+	void internalUpdate(quantity<si::time, f32> timeSinceLastFrame);
+
 	void internalOnEvent(EventIdT action,
 	                     Property::Value payload,
 	                     GameHandle module,
 	                     GameHandle sender);
 
-	void onSynchronizationMode(ID::SynchronizationMode mode);
+	void onPosition(const v3& newPosition);
+	void onOrientation(const qv4& newOrientation);
 	void onVelocity(const Physics::VelocityComposite& newVelocity);
 	void onRotationVelocity(const Physics::VelocityComposite& newVelocity);
-	void onOrientation(const qv4& newOrientation);
-	void onPosition(const v3& newPosition);
-	void internalUpdate(quantity<si::time, f32> timeSinceLastFrame);
 
-	bool sendsData() const;
+	void onSynchronizationMode(ID::SynchronizationMode mode);
+
 	bool receivesData() const;
+	bool sendsData() const;
 	
 	std::vector<ID::PhysicsAction> mPhysicsActions;
 	std::vector<ID::NetworkAction> mNetworkActions;

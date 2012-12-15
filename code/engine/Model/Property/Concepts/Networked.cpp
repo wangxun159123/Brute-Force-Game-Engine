@@ -33,8 +33,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Network/Event.h>
 #include <Physics/Event.h>
 
-namespace BFG
-{
+namespace BFG {
 
 Networked::Networked(GameObject& owner, PluginId pid) :
 Property::Concept(owner, "Networked", pid),
@@ -75,27 +74,6 @@ Networked::~Networked()
 	BOOST_FOREACH(ID::NetworkAction action, mNetworkActions)
 	{
 		loop()->disconnect(action, this);
-	}
-}
-
-void Networked::onSynchronizationMode(ID::SynchronizationMode mode)
-{
-	mSynchronizationMode = mode;
-
-	dbglog << "Networked: setting synchronization mode to " << mode;
-}
-
-void Networked::internalOnEvent(EventIdT action,
-                                Property::Value payload,
-                                GameHandle module,
-                                GameHandle sender)
-{
-	switch(action)
-	{
-	case ID::GOE_SYNCHRONIZATION_MODE:
-	{
-		onSynchronizationMode(static_cast<ID::SynchronizationMode>(static_cast<s32>(payload)));
-	}
 	}
 }
 
@@ -167,6 +145,36 @@ void Networked::onNetworkEvent(Network::DataPacketEvent* e)
 		}
 	}
 	} // switch e->getId()
+}
+
+void Networked::onPhysicsEvent(Physics::Event* e)
+{
+	switch(e->getId())
+	{
+		// 		case ID::PE_FULL_SYNC:
+		// 			onFullSync(boost::get<Physics::FullSyncData>(e->getData()));
+		// 			break;
+
+	case ID::PE_POSITION:
+		onPosition(boost::get<v3>(e->getData()));
+		break;
+
+	case ID::PE_ORIENTATION:
+		onOrientation(boost::get<qv4>(e->getData()));
+		break;
+
+	case ID::PE_VELOCITY:
+		onVelocity(boost::get<Physics::VelocityComposite>(e->getData()));
+		break;
+
+	case ID::PE_ROTATION_VELOCITY:
+		onRotationVelocity(boost::get<Physics::VelocityComposite>(e->getData()));
+		break;
+	default:
+		warnlog << "Networked: Can't handle event with ID: "
+			<< e->getId();
+		break;
+	}
 }
 
 void Networked::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
@@ -269,34 +277,39 @@ void Networked::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 
 }
 
-void Networked::onPhysicsEvent(Physics::Event* e)
+void Networked::internalOnEvent(EventIdT action,
+                                Property::Value payload,
+                                GameHandle module,
+                                GameHandle sender)
 {
-	switch(e->getId())
+	switch(action)
 	{
-		// 		case ID::PE_FULL_SYNC:
-		// 			onFullSync(boost::get<Physics::FullSyncData>(e->getData()));
-		// 			break;
-
-	case ID::PE_POSITION:
-		onPosition(boost::get<v3>(e->getData()));
-		break;
-
-	case ID::PE_ORIENTATION:
-		onOrientation(boost::get<qv4>(e->getData()));
-		break;
-
-	case ID::PE_VELOCITY:
-		onVelocity(boost::get<Physics::VelocityComposite>(e->getData()));
-		break;
-
-	case ID::PE_ROTATION_VELOCITY:
-		onRotationVelocity(boost::get<Physics::VelocityComposite>(e->getData()));
-		break;
-	default:
-		warnlog << "Networked: Can't handle event with ID: "
-			<< e->getId();
-		break;
+	case ID::GOE_SYNCHRONIZATION_MODE:
+	{
+		onSynchronizationMode(static_cast<ID::SynchronizationMode>(static_cast<s32>(payload)));
 	}
+	}
+}
+
+void Networked::onPosition(const v3& newPosition)
+{
+	if (!sendsData())
+		return;
+
+	mInterpolationData = boost::make_tuple(0, 0, newPosition);
+	dbglog << "Networked:onPosition(original): " << newPosition;
+	mUpdatePosition = true;
+}
+
+void Networked::onOrientation(const qv4& newOrientation)
+{
+	// Don't send if not either WRITE or RW
+	if (!sendsData())
+		return;
+
+	mOrientation = newOrientation;
+	dbglog << "Networked:onOrientation: " << newOrientation;
+	mUpdateOrientation = true;
 }
 
 void Networked::onVelocity(const Physics::VelocityComposite& newVelocity)
@@ -347,32 +360,11 @@ void Networked::onRotationVelocity(const Physics::VelocityComposite& newVelocity
 	emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload);
 }
 
-void Networked::onOrientation(const qv4& newOrientation)
+void Networked::onSynchronizationMode(ID::SynchronizationMode mode)
 {
-	// Don't send if not either WRITE or RW
-	if (!sendsData())
-		return;
+	mSynchronizationMode = mode;
 
-	mOrientation = newOrientation;
-	dbglog << "Networked:onOrientation: " << newOrientation;
-	mUpdateOrientation = true;
-}
-
-void Networked::onPosition(const v3& newPosition)
-{
-	if (!sendsData())
-		return;
-
-	mInterpolationData = boost::make_tuple(0, 0, newPosition);
-	dbglog << "Networked:onPosition(original): " << newPosition;
-	mUpdatePosition = true;
-}
-
-bool Networked::sendsData() const
-{
-	// A server *writes* data.
-	return mSynchronizationMode == ID::SYNC_MODE_NETWORK_WRITE ||
-	       mSynchronizationMode == ID::SYNC_MODE_NETWORK_RW;
+	dbglog << "Networked: setting synchronization mode to " << mode;
 }
 
 bool Networked::receivesData() const
@@ -382,4 +374,11 @@ bool Networked::receivesData() const
 	       mSynchronizationMode == ID::SYNC_MODE_NETWORK_RW;
 }
 
-} // namespace
+bool Networked::sendsData() const
+{
+	// A server *writes* data.
+	return mSynchronizationMode == ID::SYNC_MODE_NETWORK_WRITE ||
+	       mSynchronizationMode == ID::SYNC_MODE_NETWORK_RW;
+}
+
+} // namespace BFG
