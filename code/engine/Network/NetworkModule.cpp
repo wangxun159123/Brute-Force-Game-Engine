@@ -43,12 +43,6 @@ mLocalTime(localTime)
 {
 	mSocket.reset(new tcp::socket(service));
 	mTimer.reset(new boost::asio::deadline_timer(service));
-
-	setFlushTimer(FLUSH_WAIT_TIME);
-
-	loop()->connect(ID::NE_SEND, this, &NetworkModule::dataPacketEventHandler);
-	if (peerId)
-		loop()->connect(ID::NE_SEND, this, &NetworkModule::dataPacketEventHandler, peerId);
 }
 
 NetworkModule::~NetworkModule()
@@ -65,6 +59,12 @@ NetworkModule::~NetworkModule()
 void NetworkModule::startReading()
 {
 	dbglog << "NetworkModule::startReading";
+	setFlushTimer(FLUSH_WAIT_TIME);
+
+	loop()->connect(ID::NE_SEND, this, &NetworkModule::dataPacketEventHandler);
+	if (mPeerId)
+		loop()->connect(ID::NE_SEND, this, &NetworkModule::dataPacketEventHandler, mPeerId);
+
 	read();
 }
 
@@ -115,6 +115,10 @@ void NetworkModule::timerHandler(const error_code &ec)
 	{
 		flush();
 		setFlushTimer(FLUSH_WAIT_TIME);
+	}
+	else if (ec.value() == boost::asio::error::operation_aborted)
+	{
+		dbglog << "NetworkModule: mTimer was cancelled!";
 	}
 	else
 	{
@@ -167,6 +171,11 @@ void NetworkModule::readHeaderHandler(const error_code &ec, std::size_t bytesTra
 			bind(&NetworkModule::readDataHandler, this, _1, _2, neh.mPacketChecksum)
 		);
 	}
+	else if (ec.value() == boost::asio::error::connection_reset)
+	{
+		dbglog << "NetworkModule: connection was closed!";
+		emit<ControlEvent>(ID::NE_DISCONNECT, mPeerId);
+	}
 	else
 	{
 		emit<ControlEvent>(ID::NE_DISCONNECT, mPeerId);
@@ -197,6 +206,11 @@ void NetworkModule::readDataHandler(const error_code &ec, std::size_t bytesTrans
 
 		onReceive(mReadBuffer.c_array(), bytesTransferred);
 		read();
+	}
+	else if (ec.value() == boost::asio::error::connection_reset)
+	{
+		dbglog << "NetworkModule: connection was closed!";
+		emit<ControlEvent>(ID::NE_DISCONNECT, mPeerId);
 	}
 	else
 	{
@@ -336,7 +350,7 @@ u16 NetworkModule::calculateHeaderChecksum(const NetworkEventHeader& neh)
 
 void NetworkModule::printErrorCode(const error_code &ec, const std::string& method)
 {
-	warnlog << "[" << method << "] Error Code: " << ec.value() << ", message: " << ec.message();
+	warnlog << "This (" << this << ") " << "[" << method << "] Error Code: " << ec.value() << ", message: " << ec.message();
 }
 
 void NetworkModule::setTimestampOffset(const s32 offset, const s32 rtt)
