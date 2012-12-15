@@ -169,9 +169,9 @@ void Client::readHandshakeHandler(const error_code &ec, size_t bytesTransferred)
 
 void Client::sendTimesyncRequest()
 {
+	dbglog << "Sending timesync request";
 	Network::DataPayload payload(ID::NE_TIMESYNC, 0, 0, 0, CharArray512T());
-	Emitter emitter(mLoop);
-	emitter.emit<Network::DataPacketEvent>(ID::NE_SEND, payload);
+	mNetworkModule->queueTimeCriticalPacket(payload);
 	mRTT.restart();
 }
 

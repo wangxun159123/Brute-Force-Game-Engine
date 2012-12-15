@@ -77,6 +77,12 @@ void NetworkModule::setFlushTimer(const long& waitTime_ms)
 	mTimer->async_wait(boost::bind(&NetworkModule::timerHandler, this, _1));
 }
 
+void NetworkModule::queueTimeCriticalPacket(DataPayload& payload)
+{
+	onSend(payload);
+	flush();
+}
+
 void NetworkModule::write(const char* data, size_t size)
 {
 	// TODO: we probably need to lock a mutex here and unlock it in the writeHandler
@@ -225,7 +231,7 @@ void NetworkModule::dataPacketEventHandler(DataPacketEvent* e)
 void NetworkModule::onSend(DataPayload& payload)
 {
 	dbglog << "onSend: " << payload.mAppDataLen + sizeof(Segment)
-	       << "(" << payload.mAppDataLen << "|" << sizeof(Segment) << ")";
+	       << " (" << sizeof(Segment) << " + " << payload.mAppDataLen << ")";
 
 	dbglog << "NetworkModule:Current Time: " << mLocalTime->stop();
 
@@ -342,9 +348,6 @@ void NetworkModule::setTimestampOffset(const s32 offset, const s32 rtt)
 	mTimestampOffset = offset;
 	mRTT = rtt;
 }
-
-
-
 
 } // namespace Network
 } // namespace BFG

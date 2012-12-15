@@ -162,12 +162,12 @@ void Server::dataPacketEventHandler(DataPacketEvent* e)
 		{
 		case ID::NE_TIMESYNC:
 		{
+			dbglog << "Got time sync request from PeerId: " << e->mSender;
 			u32 timestamp = mLocalTime->stop();
 			CharArray512T ca512;
 			memcpy(ca512.data(), &timestamp, sizeof(u32));
 			Network::DataPayload payload(ID::NE_TIMESYNC, 0, 0, sizeof(u32), ca512);
-			Emitter emitter(mLoop);
-			emitter.emit<Network::DataPacketEvent>(ID::NE_SEND, payload, e->mSender, 0);
+			mNetworkModules[e->mSender]->queueTimeCriticalPacket(payload);
 		}
 		}
 

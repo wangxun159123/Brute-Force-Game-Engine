@@ -59,6 +59,14 @@ public:
 	void startReading();
 
 	void setTimestampOffset(const s32 offset, const s32 rtt);
+	
+	//! Use this function to send packets as fast as possible.
+	//! (e.g. for time synchronization). The payload will be sent almost
+	//! immediately together with any other packets which were yet waiting
+	//! for delivery. Therefore, delays caused by the event system or flush
+	//! wait times are avoided.
+	void queueTimeCriticalPacket(DataPayload& payload);
+	
 private:
 	void setFlushTimer(const long& waitTime_ms);
 
@@ -85,9 +93,6 @@ private:
 		result.process_bytes(packet.data(), packetSize);
 		return result.checksum();
 	}
-
-	void startTimeSync();
-
 
 	void printErrorCode(const error_code &ec, const std::string& method);
 
