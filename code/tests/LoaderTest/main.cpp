@@ -8,6 +8,8 @@
 #include <boost/test/unit_test.hpp>
 
 #include <Model/Loader/AdapterFactory.h>
+#include <Model/Loader/ValueFactory.h>
+#include <Model/Loader/ConceptFactory.h>
 
 namespace BFG {
 namespace Test {
@@ -104,6 +106,37 @@ BOOST_AUTO_TEST_CASE (defaultAdapter)
 		AdapterConfigParametersT acp = factory.createAdapters("CubeAllAdapters")
 	);
 }
+
+BOOST_AUTO_TEST_CASE (defaultValuesTest)
+{
+	Path path;
+	std::string xml_test_file_path = "";
+	xml_test_file_path = path.Get(ID::P_SCRIPTS_LEVELS)+"/default/Value.xml";
+
+	XmlFileHandleT fileHandle = XmlFileHandleFactory::createWithPugiXml(xml_test_file_path);
+	BOOST_REQUIRE_NO_THROW
+	(
+		ValueFactory factory = ValueFactory(fileHandle);
+		ValueConfigT vcp = factory.createValueParameter("ExplodeOnContact")
+	);
+}
+
+
+BOOST_AUTO_TEST_CASE (defaultConceptsTest)
+{
+	Path path;
+	std::string xml_test_file_path = "";
+	xml_test_file_path = path.Get(ID::P_SCRIPTS_LEVELS)+"/default/Concept.xml";
+
+	XmlFileHandleT fileHandle = XmlFileHandleFactory::createWithPugiXml(xml_test_file_path);
+	BOOST_REQUIRE_NO_THROW
+	(
+		ConceptFactory factory = ConceptFactory(fileHandle);
+		ConceptConfigT vcp = factory.createConceptParameter("CubeConcept")
+	);
+}
+
+
 
 } // BFG
 } // Test
