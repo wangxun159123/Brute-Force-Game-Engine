@@ -24,8 +24,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CONCEPT_FACTORY_H_
-#define CONCEPT_FACTORY_H_
+#ifndef LOADER_VALUE_FACTORY_H_
+#define LOADER_VALUE_FACTORY_H_
 
 #include <boost/lexical_cast.hpp>
 
@@ -38,42 +38,59 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Core/qv4.h>
 
 #include <Model/Property/ConceptId.h>
+#include <Model/Loader/Interpreter.h>
+#include <Model/Defs.h>
 
 
 namespace BFG
 {
 
-
-struct ConceptParameter
+struct ValueParam
 {
-	ConceptParameter(XmlTreeT tree)
+	ValueParam(XmlTreeT tree)
 	{
 		load(tree);
 	}
-
-	Property::ConceptId mName;
-	std::string mProperties;	
+	
+	std::string mName;
+	Property::Value mValue;
 
 protected:
 	
 	void load(XmlTreeT tree)
 	{
+		
 		mName = tree->attribute("name");
-		mProperties = tree->elementData();
+		std::string type = tree->attribute("type");
+		
+		if (type == "v3")
+		{
+			mValue = loadVector3(tree);
+		}
+		else 
+		if (type == "qv4")
+		{
+			mValue = loadQuaternion(tree);
+		}
+		else
+		{
+			mValue = Loader::StringToPropertyValue(tree->elementData());
+		}
 	}
 };
-typedef boost::shared_ptr<ConceptParameter> ConceptParameterT;
+
+typedef boost::shared_ptr<ValueParam> ValueParameterT;
 
 
-struct ConceptConfig
+struct ValueConfig
 {
-	ConceptConfig(const XmlTreeListT& treeList)
+	ValueConfig(const XmlTreeListT& treeList)
 	{
 		load(treeList);
 	}
 
-	typedef std::vector<ConceptParameterT> ConceptParameterListT;
-	ConceptParameterListT mConceptParameters;
+	typedef std::vector<ValueParameterT> ValueParameterListT;
+	ValueParameterListT mValueParameters;
 
 protected:
 	
@@ -83,31 +100,33 @@ protected:
 
 		for(; it != treeList.end(); ++it)
 		{
-			mConceptParameters.push_back(ConceptParameterT(new ConceptParameter(*it)));
+			mValueParameters.push_back(ValueParameterT(new ValueParam(*it)));
 		}
 	}
 };
 
-typedef boost::shared_ptr<ConceptConfig> ConceptConfigT;
+typedef boost::shared_ptr<ValueConfig> ValueConfigT;
 
 
-class ConceptFactory
+class ValueFactory
 {
 
 public:
 	
-	ConceptFactory(XmlFileHandleT conceptConfig) : mConceptConfigFile(conceptConfig)
+	ValueFactory(XmlFileHandleT valueConfig) : mValueConfigFile(valueConfig)
 	{
 		load();
 	}
 
-	ConceptConfigT createConceptParameter(const std::string& conceptName)
-	{
-		ConceptConfigMapT::iterator it = mConcepts.find(conceptName);
+	~ValueFactory() {}
 
-		if (it == mConcepts.end())
+	ValueConfigT createValueParameter(const std::string& valueName)
+	{
+		ValueMapT::iterator it = mValues.find(valueName);
+
+		if (it == mValues.end())
 		{
-			throw std::logic_error("ConceptFactory: "+conceptName+" not found.");
+			throw std::logic_error("ValueFactory: "+valueName+" not found.");
 		}
 
 		return it->second;
@@ -117,18 +136,18 @@ protected:
 
 	void load()
 	{
-		XmlTreeListT conceptConfigs = mConceptConfigFile->root()->child("ConceptConfigs")->childList("ConceptConfig");
-		XmlTreeListT::iterator it = conceptConfigs.begin();
+		XmlTreeListT valueConfigs = mValueConfigFile->root()->child("ValueConfigs")->childList("ValueConfig");
+		XmlTreeListT::iterator it = valueConfigs.begin();
 	
-		for (;it < conceptConfigs.end(); ++it)
+		for (;it < valueConfigs.end(); ++it)
 		{
-			mConcepts[(*it)->attribute("name")] = ConceptConfigT(new ConceptConfig((*it)->childList("PC")));
+			mValues[(*it)->attribute("name")] = ValueConfigT(new ValueConfig((*it)->childList("PV")));
 		}
 	}
 
-	XmlFileHandleT mConceptConfigFile;
-	typedef std::map<std::string, ConceptConfigT> ConceptConfigMapT;
-	ConceptConfigMapT mConcepts;
+	XmlFileHandleT mValueConfigFile;
+	typedef std::map<std::string, ValueConfigT> ValueMapT;
+	ValueMapT mValues;
 };
 
 }
