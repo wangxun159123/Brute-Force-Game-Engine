@@ -56,6 +56,10 @@ private:
 	void onOrientation(const qv4& newOrientation);
 	void onPosition(const v3& newPosition);
 	void internalUpdate(quantity<si::time, f32> timeSinceLastFrame);
+
+	bool sendsData() const;
+	bool receivesData() const;
+	
 	std::vector<ID::PhysicsAction> mPhysicsActions;
 	std::vector<ID::NetworkAction> mNetworkActions;
 

@@ -101,9 +101,7 @@ void Networked::internalOnEvent(EventIdT action,
 
 void Networked::onNetworkEvent(Network::DataPacketEvent* e)
 {
-	// Don't receive if not either READ or RW
-	if (!(mSynchronizationMode == ID::SYNC_MODE_NETWORK_READ ||
-	      mSynchronizationMode == ID::SYNC_MODE_NETWORK_RW))
+	if (!receivesData())
 		return;
 
 	switch(e->getId())
@@ -173,8 +171,7 @@ void Networked::onNetworkEvent(Network::DataPacketEvent* e)
 
 void Networked::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 {
-	if (!(mSynchronizationMode == ID::SYNC_MODE_NETWORK_READ ||
-	      mSynchronizationMode == ID::SYNC_MODE_NETWORK_RW))
+	if (!receivesData())
 	{
 		if (mTimer.stop() < 1000)
 			return;
@@ -304,8 +301,7 @@ void Networked::onPhysicsEvent(Physics::Event* e)
 
 void Networked::onVelocity(const Physics::VelocityComposite& newVelocity)
 {
-	// Don't send if not either WRITE or RW
-	if (!(mSynchronizationMode == ID::SYNC_MODE_NETWORK_WRITE || mSynchronizationMode == ID::SYNC_MODE_NETWORK_RW))
+	if (!sendsData())
 		return;
 
 	dbglog << "Networked:onVelocity: " << newVelocity.get<0>();
@@ -329,8 +325,7 @@ void Networked::onVelocity(const Physics::VelocityComposite& newVelocity)
 
 void Networked::onRotationVelocity(const Physics::VelocityComposite& newVelocity)
 {
-	// Don't send if not either WRITE or RW
-	if (!(mSynchronizationMode == ID::SYNC_MODE_NETWORK_WRITE || mSynchronizationMode == ID::SYNC_MODE_NETWORK_RW))
+	if (!sendsData())
 		return;
 
 	dbglog << "Networked:onRotationVelocity: " << newVelocity.get<0>();
@@ -352,11 +347,10 @@ void Networked::onRotationVelocity(const Physics::VelocityComposite& newVelocity
 	emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload);
 }
 
-
 void Networked::onOrientation(const qv4& newOrientation)
 {
 	// Don't send if not either WRITE or RW
-	if (!(mSynchronizationMode == ID::SYNC_MODE_NETWORK_WRITE || mSynchronizationMode == ID::SYNC_MODE_NETWORK_RW))
+	if (!sendsData())
 		return;
 
 	mOrientation = newOrientation;
@@ -366,14 +360,26 @@ void Networked::onOrientation(const qv4& newOrientation)
 
 void Networked::onPosition(const v3& newPosition)
 {
-	// Don't send if not either WRITE or RW
-	if (!(mSynchronizationMode == ID::SYNC_MODE_NETWORK_WRITE ||
-	      mSynchronizationMode == ID::SYNC_MODE_NETWORK_RW))
+	if (!sendsData())
 		return;
 
 	mInterpolationData = boost::make_tuple(0, 0, newPosition);
 	dbglog << "Networked:onPosition(original): " << newPosition;
 	mUpdatePosition = true;
+}
+
+bool Networked::sendsData() const
+{
+	// A server *writes* data.
+	return mSynchronizationMode == ID::SYNC_MODE_NETWORK_WRITE ||
+	       mSynchronizationMode == ID::SYNC_MODE_NETWORK_RW;
+}
+
+bool Networked::receivesData() const
+{
+	// A client *reads* data.
+	return mSynchronizationMode == ID::SYNC_MODE_NETWORK_READ ||
+	       mSynchronizationMode == ID::SYNC_MODE_NETWORK_RW;
 }
 
 } // namespace
