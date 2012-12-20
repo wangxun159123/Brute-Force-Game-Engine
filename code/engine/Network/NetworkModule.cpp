@@ -297,7 +297,7 @@ void NetworkModule::onReceive(const char* data, size_t size)
 			s.dataSize,
 			ca,
 			currentServerTimestamp,
-			mRTT / 2
+			mRtt.mean() / 2
 		);
 
 		try 
@@ -357,10 +357,12 @@ void NetworkModule::setTimestampOffset(const s32 offset, const s32 rtt)
 {
 	dbglog << "NetworkModule:setTimestampOffset: "
 	       << offset << "(" << offset - mTimestampOffset << ")" << ", "
-	       << rtt << "(" << rtt - mRTT << ")";
+	       << rtt << "(" << rtt - mRtt.last() << ")";
 
 	mTimestampOffset = offset;
-	mRTT = rtt;
+	mRtt.add(rtt);
+
+	dbglog << "New avg rtt: " << mRtt.mean();
 }
 
 } // namespace Network

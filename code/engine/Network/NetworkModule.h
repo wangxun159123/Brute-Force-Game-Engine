@@ -37,13 +37,12 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <EventSystem/Emitter.h>
 #include <Network/Defs.h>
 #include <Network/Event_fwd.h>
-
+#include <Network/Rtt.h>
 
 class EventLoop;
 
-
 namespace BFG {
-namespace Network{
+namespace Network {
 
 using namespace boost::asio::ip;
 using namespace boost::system;
@@ -111,12 +110,11 @@ private:
 	boost::shared_ptr<Clock::StopWatch> mLocalTime;
 
 	s32 mTimestampOffset;
-	s32 mRTT;
+	Rtt<s32, 10> mRtt;
 
 	PeerIdT mPeerId;
 
 	size_t mOutPacketPosition;
-
 };
 
 } // namespace Network
