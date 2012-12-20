@@ -59,10 +59,14 @@ mRootModule(NULL_HANDLE),
 mBodyOffset(v3::ZERO),
 mForce(v3::ZERO),
 mTorque(v3::ZERO),
-mInterpolate(false),
-mTimeSinceLastInterpolationBegin(0),
+mInterpolatePosition(false),
+mPositionInterpolationParameter(0),
 mInterpolationStartPosition(v3::ZERO),
-mInterpolationEndPosition(v3::ZERO)
+mInterpolationEndPosition(v3::ZERO),
+mInterpolateOrientation(false),
+mOrientationInterpolationParameter(0),
+mInterpolationStartOrientation(qv4::IDENTITY),
+mInterpolationEndOrientation(qv4::IDENTITY)
 {
 	mOdeBody = dBodyCreate(worldId);
 	mSpaceId = dHashSpaceCreate(spaceId);
@@ -342,7 +346,7 @@ void PhysicsObject::sendFullSync() const
 
 void PhysicsObject::performInterpolation(quantity<si::time, f32> timeSinceLastFrame)
 {
-	if (mInterpolate)
+	if (mInterpolatePosition)
 	{
 		const quantity<si::time, f32> INTERPOLATION_DURATION = 0.5f * si::seconds;
 
@@ -350,21 +354,46 @@ void PhysicsObject::performInterpolation(quantity<si::time, f32> timeSinceLastFr
 		Base::EaseInOutInterpolation y(mInterpolationStartPosition.y, mInterpolationEndPosition.y);
 		Base::EaseInOutInterpolation z(mInterpolationStartPosition.z, mInterpolationEndPosition.z);
 
-		mTimeSinceLastInterpolationBegin += (timeSinceLastFrame / INTERPOLATION_DURATION) * si::seconds;
+		mPositionInterpolationParameter += (timeSinceLastFrame / INTERPOLATION_DURATION).value();
 		v3 interpolatedPosition
 		(
-			x.interpolate(mTimeSinceLastInterpolationBegin.value()),
-			y.interpolate(mTimeSinceLastInterpolationBegin.value()),
-			z.interpolate(mTimeSinceLastInterpolationBegin.value())
+			x.interpolate(mPositionInterpolationParameter),
+			y.interpolate(mPositionInterpolationParameter),
+			z.interpolate(mPositionInterpolationParameter)
 		);
 		
 		dbglog << "Ode Pos: " << getPosition()
-		       << " Interp Pos: " << interpolatedPosition
-		       << " at: " << mTimeSinceLastInterpolationBegin.value();
+		        << " Interp Pos: " << interpolatedPosition
+		        << " at: " << mPositionInterpolationParameter;
 		setPosition(interpolatedPosition);
 		
-		if (mTimeSinceLastInterpolationBegin >= 1.0f * si::seconds)
-			mInterpolate = false;
+		if (mPositionInterpolationParameter >= 1.0f)
+			mInterpolatePosition = false;
+	}
+
+	if (mInterpolateOrientation)
+	{
+		const quantity<si::time, f32> INTERPOLATION_DURATION = 0.5f * si::seconds;
+
+		mOrientationInterpolationParameter += (timeSinceLastFrame / INTERPOLATION_DURATION).value();
+
+ 		qv4 interpolatedOrientation
+ 		(
+			lerp
+			(
+				mInterpolationStartOrientation, 
+ 				mInterpolationEndOrientation,
+				mOrientationInterpolationParameter
+			)
+ 		);
+
+		warnlog << "Ode Ori: " << getOrientation()
+		        << " Interp Ori: " << interpolatedOrientation
+		        << " at: " << mOrientationInterpolationParameter;
+		setOrientation(interpolatedOrientation);
+		
+		if (mOrientationInterpolationParameter >= 1.0f)
+			mInterpolateOrientation = false;
 	}
 }
 
@@ -478,9 +507,9 @@ void PhysicsObject::setOffsetOrientation(GameHandle moduleHandle, const qv4& rot
 	dGeomSetOffsetQuaternion(mGeometry[moduleHandle].geomId, rot.ptr());
 }
 
-void PhysicsObject::interpolatePosition(InterpolationData& interpData)
+void PhysicsObject::interpolatePosition(InterpolationDataV3& interpData)
 {
-	mInterpolate = true;
+	mInterpolatePosition = true;
 	
 	u32 timeStamp = interpData.get<0>();
 	u16 age = interpData.get<1>();
@@ -490,9 +519,26 @@ void PhysicsObject::interpolatePosition(InterpolationData& interpData)
 	
 	mInterpolationEndPosition = estimatedPosition;
 	mInterpolationStartPosition = getPosition();
-	mTimeSinceLastInterpolationBegin = 0.0f * si::seconds;
+	mPositionInterpolationParameter = 0.0f;
 	
 	dbglog << "Interpolating from " << getPosition() << " over " << pos << " to " << estimatedPosition;
+}
+
+void PhysicsObject::interpolateOrientation(InterpolationDataQv4& interpData)
+{
+	mInterpolateOrientation = true;
+
+	u32 timeStamp = interpData.get<0>();
+	u16 age = interpData.get<1>();
+	qv4& ori = interpData.get<2>();
+
+	qv4 estimatedOrientation = ori * eulerToQuaternion(getRotationVelocity() * static_cast<f32>(age) / 1000.0f);
+
+	mInterpolationEndOrientation = estimatedOrientation;
+	mInterpolationStartOrientation = getOrientation();
+	mOrientationInterpolationParameter = 0.0f;
+
+	dbglog << "Interpolating from " << getOrientation() << " over " << ori << " to " << estimatedOrientation;
 }
 
 v3 PhysicsObject::getPosition() const
@@ -686,6 +732,7 @@ void PhysicsObject::registerEvents()
 	mPhysicsEvents.push_back(ID::PE_UPDATE_ROTATION_VELOCITY);
 	
 	mPhysicsEvents.push_back(ID::PE_INTERPOLATE_POSITION);
+	mPhysicsEvents.push_back(ID::PE_INTERPOLATE_ORIENTATION);
 	
 	mPhysicsEvents.push_back(ID::PE_DEBUG);
 		
@@ -730,9 +777,13 @@ void PhysicsObject::eventHandler(Physics::Event* event)
 		break;
 
 	case ID::PE_INTERPOLATE_POSITION:
-		interpolatePosition(boost::get<InterpolationData>(event->getData()));
+		interpolatePosition(boost::get<InterpolationDataV3>(event->getData()));
 		break;
 		
+	case ID::PE_INTERPOLATE_ORIENTATION:
+		interpolateOrientation(boost::get<InterpolationDataQv4>(event->getData()));
+		break;
+
 	case ID::PE_DEBUG:
 	{
 		std::string s;

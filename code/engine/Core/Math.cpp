@@ -219,4 +219,20 @@ bool nearEnough(const v3& position1,
 	return near_enough;
 }
 
+qv4 lerp(const qv4& q0, const qv4& q1, f32 h)
+{
+	// http://www.itu.dk/people/erikdam/DOWNLOAD/98-5.pdf (6.3)
+	return qv4(q0 * (1.0f - h) + q1 * h);
+}
+
+qv4 slerp(const qv4& q0, const qv4& q1, f32 h)
+{
+	// http://www.itu.dk/people/erikdam/DOWNLOAD/98-5.pdf (6.13)
+
+	f32 omega = angleBetween(q0, q1);
+	if (std::abs(omega) <= EPSILON_F)
+		return q1;
+
+	return qv4((q0*sin((1.0f - h)*omega) + q1*sin(h*omega)) * (1/sin(omega)));
+}
 }

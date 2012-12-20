@@ -101,7 +101,7 @@ void Networked::onNetworkEvent(Network::DataPacketEvent* e)
 			stringToVector3(msg, v);
 			dbglog << "Networked:onNetworkEvent: receivedPosition: " << v;
 			
-			mInterpolationData = boost::make_tuple(payload.mTimestamp, payload.mAge, v);
+			mV3InterpolationData = boost::make_tuple(payload.mTimestamp, payload.mAge, v);
 			mUpdatePosition = true;
 			break;
 		}
@@ -112,9 +112,9 @@ void Networked::onNetworkEvent(Network::DataPacketEvent* e)
 			std::string msg(payload.mAppData.data(), payload.mAppDataLen);
 			qv4 o;
 			stringToQuaternion4(msg, o);
-			dbglog << "Networked:onNetworkEvent: Quaternion: " << o;
+			dbglog << "Networked:onNetworkEvent: receivedOrientation: " << o;
 
-			mOrientation = o;
+			mQv4InterpolationData = boost::make_tuple(payload.mTimestamp, payload.mAge, o);
 			mUpdateOrientation = true;
 			break;
 		}
@@ -179,7 +179,7 @@ void Networked::onPhysicsEvent(Physics::Event* e)
 
 void Networked::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 {
-	if (!receivesData())
+	if (!receivesData()) // server
 	{
 		if (mTimer.stop() < 1000)
 			return;
@@ -189,13 +189,13 @@ void Networked::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 		if (mUpdatePosition)
 		{
 			const f32 epsilon = 0.1f;
-			if (!nearEnough(mInterpolationData.get<2>(), mDeltaStorage.get<0>(), epsilon))
+			if (!nearEnough(mV3InterpolationData.get<2>(), mDeltaStorage.get<0>(), epsilon))
 			{
 
-				dbglog << "Networked:onPosition: " << mInterpolationData.get<2>();
+				dbglog << "Networked:onPosition: " << mV3InterpolationData.get<2>();
 
 				std::stringstream ss;
-				ss << mInterpolationData.get<2>();
+				ss << mV3InterpolationData.get<2>();
 
 				CharArray512T ca512 = stringToArray<512>(ss.str());
 
@@ -209,18 +209,18 @@ void Networked::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 				);
 
 				emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload);
-				mDeltaStorage.get<0>() = mInterpolationData.get<2>();
+				mDeltaStorage.get<0>() = mV3InterpolationData.get<2>();
 			}
 			mUpdatePosition = false;
 		}
 
 		if (mUpdateOrientation)
 		{
-			if (angleBetween(mOrientation, mDeltaStorage.get<1>()) < 0.08727f)
+			if (angleBetween(mQv4InterpolationData.get<2>(), mDeltaStorage.get<1>()) < 0.08727f)
 				return;
 
 			std::stringstream ss;
-			ss << mOrientation;
+			ss << mQv4InterpolationData.get<2>();
 
 			CharArray512T ca512 = stringToArray<512>(ss.str());
 
@@ -234,19 +234,19 @@ void Networked::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 			);
 
 			emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload);
-			mDeltaStorage.get<1>() = mOrientation;
+			mDeltaStorage.get<1>() = mQv4InterpolationData.get<2>();
 			mUpdateOrientation = false;
 		}
 
 	}
-	else
+	else // client
 	{
 		Location go = getGoValue<Location>(ID::PV_Location, pluginId());
 
 		if (!mInitialized)
 		{
-			mInterpolationData.get<2>() = go.position;
-			mOrientation = go.orientation;
+			mV3InterpolationData.get<2>() = go.position;
+			mQv4InterpolationData.get<2>() = go.orientation;
 			mInitialized = true;
 		}
 
@@ -255,21 +255,25 @@ void Networked::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 			// Only update if the new position is too different from our own calculated one.
 			v3 velocity = getGoValue<v3>(ID::PV_Velocity, pluginId());
 			f32 speed = length(velocity);
+			v3 correction = velocity * timeSinceLastFrame.value();
 
-			if (!nearEnough(go.position, mInterpolationData.get<2>(), speed * 0.1f))
+			if (!nearEnough(go.position + correction, mV3InterpolationData.get<2>(), speed * 0.1f))
 			{
-				dbglog << "Updating since distance was " << length(go.position - mInterpolationData.get<2>());
+				dbglog << "Updating since distance was " << length(go.position - mV3InterpolationData.get<2>());
 				dbglog << "Speed was " << speed;
-				emit<Physics::Event>(ID::PE_INTERPOLATE_POSITION, mInterpolationData, ownerHandle());
+				emit<Physics::Event>(ID::PE_INTERPOLATE_POSITION, mV3InterpolationData, ownerHandle());
 			}
 			mUpdatePosition = false;
 		}
 		if (mUpdateOrientation)
 		{
-			if(angleBetween(mOrientation, go.orientation) > 0.08727f)
+			v3 rotVelocity = getGoValue<v3>(ID::PV_RotationVelocity, pluginId());
+			qv4 correctionX = eulerToQuaternion(rotVelocity * timeSinceLastFrame.value());
+
+			if(angleBetween(mQv4InterpolationData.get<2>(), go.orientation * correctionX) > 0.08727f)
 			{
-				dbglog << "AngleBetween: " << angleBetween(mOrientation, go.orientation);
-				emit<Physics::Event>(ID::PE_UPDATE_ORIENTATION, mOrientation, ownerHandle());
+				dbglog << "AngleBetween: " << angleBetween(mQv4InterpolationData.get<2>(), go.orientation);
+				emit<Physics::Event>(ID::PE_INTERPOLATE_ORIENTATION, mQv4InterpolationData, ownerHandle());
 			}
 			mUpdateOrientation = false;
 		}
@@ -296,7 +300,7 @@ void Networked::onPosition(const v3& newPosition)
 	if (!sendsData())
 		return;
 
-	mInterpolationData = boost::make_tuple(0, 0, newPosition);
+	mV3InterpolationData = boost::make_tuple(0, 0, newPosition);
 	dbglog << "Networked:onPosition(original): " << newPosition;
 	mUpdatePosition = true;
 }
@@ -307,7 +311,7 @@ void Networked::onOrientation(const qv4& newOrientation)
 	if (!sendsData())
 		return;
 
-	mOrientation = newOrientation;
+	mQv4InterpolationData = boost::make_tuple(0, 0, newOrientation);
 	dbglog << "Networked:onOrientation: " << newOrientation;
 	mUpdateOrientation = true;
 }

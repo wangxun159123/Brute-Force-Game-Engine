@@ -47,7 +47,14 @@ typedef boost::tuple
 	u32,                      // Timestamp
 	u16,                      // Age of data
 	v3                        // Abs. Position
-> InterpolationData;
+> InterpolationDataV3;
+
+typedef boost::tuple
+<
+	u32,                      // Timestamp
+	u16,                      // Age of data
+	qv4                       // Orientation
+> InterpolationDataQv4;
 
 typedef boost::tuple
 <
@@ -113,7 +120,8 @@ typedef boost::variant
 	ModuleCreationParams,
 	ModuleRemovalParams,
 	ObjectAttachmentParams,
-	InterpolationData
+	InterpolationDataV3,
+	InterpolationDataQv4
 > PayloadT;
 
 typedef Event

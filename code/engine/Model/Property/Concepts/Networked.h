@@ -69,8 +69,9 @@ private:
 
 	Physics::FullSyncData mDeltaStorage;
 
-	Physics::InterpolationData mInterpolationData;
-	qv4 mOrientation;
+	Physics::InterpolationDataV3  mV3InterpolationData;
+	Physics::InterpolationDataQv4 mQv4InterpolationData;
+
 	bool mInitialized;
 
 	Clock::StopWatch mTimer;

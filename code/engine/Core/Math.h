@@ -141,6 +141,20 @@ bool BFG_CORE_API nearEnough(const v3& position1,
                              const v3& position2,
                              f32 radius);
 
+//! \brief Linear Quaternion interpolation
+//! \param[in] Quaternion at the beginning of the interpolation
+//! \param[in] Quaternion at the end of the interpolation
+//! \param[in] Interpolation parameter in the range from 0 to 1
+//! \return The interpolated quaternion
+qv4 BFG_CORE_API lerp(const qv4& q0, const qv4& q1, f32 h);
+
+//! \brief Spherical Linear Quaternion interpolation
+//! \param[in] Quaternion at the beginning of the interpolation
+//! \param[in] Quaternion at the end of the interpolation
+//! \param[in] Interpolation parameter in the range from 0 to 1
+//! \return The interpolated quaternion
+qv4 BFG_CORE_API slerp(const qv4& q0, const qv4& q1, f32 h);
+
 } // namespace BFG
 
 

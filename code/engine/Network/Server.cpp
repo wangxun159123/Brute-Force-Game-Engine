@@ -84,6 +84,7 @@ void Server::startAccepting()
 	NetworkModule* netModule = new NetworkModule(mLoop, mService, peerId, mLocalTime);
 	mNetworkModules.insert(std::make_pair(peerId, netModule));
 
+	dbglog << "Created Networkmodule(" << netModule << ")";
 	mAcceptor->async_accept(*netModule->socket(), bind(&Server::acceptHandler, this, _1, peerId));
 }
 
