@@ -259,7 +259,7 @@ void Networked::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 
 			if (!nearEnough(go.position + correction, mV3InterpolationData.get<2>(), speed * 0.1f))
 			{
-				dbglog << "Updating since distance was " << length(go.position - mV3InterpolationData.get<2>());
+				dbglog << "Updating since distance was " << length(go.position + correction - mV3InterpolationData.get<2>());
 				dbglog << "Speed was " << speed;
 				emit<Physics::Event>(ID::PE_INTERPOLATE_POSITION, mV3InterpolationData, ownerHandle());
 			}
@@ -268,11 +268,11 @@ void Networked::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 		if (mUpdateOrientation)
 		{
 			v3 rotVelocity = getGoValue<v3>(ID::PV_RotationVelocity, pluginId());
-			qv4 correctionX = eulerToQuaternion(rotVelocity * timeSinceLastFrame.value());
+			qv4 correction = eulerToQuaternion(rotVelocity * timeSinceLastFrame.value());
 
-			if(angleBetween(mQv4InterpolationData.get<2>(), go.orientation * correctionX) > 0.08727f)
+			if(angleBetween(mQv4InterpolationData.get<2>(), go.orientation * correction) > 0.08727f)
 			{
-				dbglog << "AngleBetween: " << angleBetween(mQv4InterpolationData.get<2>(), go.orientation);
+				dbglog << "AngleBetween: " << angleBetween(mQv4InterpolationData.get<2>(), go.orientation * correction);
 				emit<Physics::Event>(ID::PE_INTERPOLATE_ORIENTATION, mQv4InterpolationData, ownerHandle());
 			}
 			mUpdateOrientation = false;
