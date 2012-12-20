@@ -67,11 +67,9 @@ private:
 	void onDisconnect(const PeerIdT& peerId);
 	
 	u16 calculateHandshakeChecksum(const Handshake& hs);
-	void calculateServerTimestampOffset(u32 serverTimestamp, s32& offset, s32& rtt);
 
 	void printErrorCode(const error_code &ec, const std::string& method);
 
-	void sendTimesyncRequest();
 	void setTimeSyncTimer(const long& waitTime_ms);
 	void timerHandler(const error_code &ec);
 
@@ -88,7 +86,6 @@ private:
 	// TODO: This will wreak havoc after 7 weeks.
 	// TODO: Reset this watch somehow.
 	boost::shared_ptr<Clock::StopWatch> mLocalTime;
-	Clock::StopWatch mRTT;
 
 	Handshake::SerializationT mHandshakeBuffer;
 

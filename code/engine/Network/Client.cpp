@@ -35,8 +35,7 @@ namespace Network{
 
 Client::Client(EventLoop* loop) :
 mLoop(loop),
-mLocalTime(new Clock::StopWatch(Clock::milliSecond)),
-mRTT(Clock::milliSecond)
+mLocalTime(new Clock::StopWatch(Clock::milliSecond))
 {
 	mLocalTime->start();
 
@@ -47,7 +46,6 @@ mRTT(Clock::milliSecond)
 	mLoop->connect(ID::NE_CONNECT, this, &Client::controlEventHandler);
 	mLoop->connect(ID::NE_DISCONNECT, this, &Client::controlEventHandler);
 	mLoop->connect(ID::NE_SHUTDOWN, this, &Client::controlEventHandler);
-
 	mLoop->connect(ID::NE_RECEIVED, this, &Client::dataPacketEventHandler);
 
 	mNetworkModule = new NetworkModule(mLoop, mService, 0, mLocalTime);
@@ -102,7 +100,6 @@ void Client::resolveHandler(const error_code &ec, tcp::resolver::iterator it)
 	dbglog << "NetworkModule::resolveHandler";
 	if (!ec) 
 	{
-		mRTT.start();
 		mNetworkModule->socket()->async_connect(*it, bind(&Client::connectHandler, this, _1)); 
 	}
 	else
@@ -151,29 +148,18 @@ void Client::readHandshakeHandler(const error_code &ec, size_t bytesTransferred)
 			dbglog << "Received peer ID: " << hs.mPeerId;
 			mPeerId = hs.mPeerId;
 
-			s32 offset;
-			s32 rtt;
-			calculateServerTimestampOffset(hs.mTimestamp, offset, rtt);
-
-			mNetworkModule->setTimestampOffset(offset, rtt);
-
 			mNetworkModule->startReading();
 
 			Emitter e(mLoop);
 			e.emit<ControlEvent>(ID::NE_CONNECTED, mPeerId);
 
+			mNetworkModule->sendTimesyncRequest();
 			setTimeSyncTimer(TIME_SYNC_WAIT_TIME);
 		}
 	}
 }
 
-void Client::sendTimesyncRequest()
-{
-	dbglog << "Sending timesync request";
-	Network::DataPayload payload(ID::NE_TIMESYNC, 0, 0, 0, CharArray512T());
-	mNetworkModule->queueTimeCriticalPacket(payload);
-	mRTT.restart();
-}
+
 
 void Client::setTimeSyncTimer(const long& waitTime_ms)
 {
@@ -188,7 +174,7 @@ void Client::timerHandler(const error_code &ec)
 {
 	if (!ec)
 	{
-		sendTimesyncRequest();
+		mNetworkModule->sendTimesyncRequest();
 		setTimeSyncTimer(TIME_SYNC_WAIT_TIME);
 	}
 	else
@@ -226,17 +212,10 @@ void Client::dataPacketEventHandler(DataPacketEvent* e)
 
 		switch(payload.mAppEventId)
 		{
-		case ID::NE_TIMESYNC:
+		default:
 		{
-			u32 serverTimestamp;
-			memcpy(&serverTimestamp, payload.mAppData.data(), payload.mAppDataLen);
-
-//			dbglog << "Client: ServerTimestamp: " << serverTimestamp;
-			s32 offset;
-			s32 rtt;
-			calculateServerTimestampOffset(serverTimestamp, offset, rtt);
-
-			mNetworkModule->setTimestampOffset(offset, rtt);
+			warnlog << "Client::dataPacketEventHandler: Got event ("
+			        << payload.mAppEventId << ") but has no handler.";
 		}
 		}
 
@@ -262,22 +241,6 @@ u16 Client::calculateHandshakeChecksum(const Handshake& hs)
 	boost::crc_16_type result;
 	result.process_bytes(&(hs.mPeerId), sizeof(PeerIdT));
 	return result.checksum();
-}
-
-void Client::calculateServerTimestampOffset(u32 serverTimestamp, s32& offset, s32& rtt)
-{
-	// https://en.wikipedia.org/wiki/Cristian%27s_algorithm
-	// offset = tS + dP/2 - tC
-	u32 dP = mRTT.stop();
-	u32 tC = mLocalTime->stop();
-	s32 serverOffset = serverTimestamp + dP / 2 - tC;
-
-	errlog << "Calculated server Timestamp Offset: " << serverOffset 
-		<< " with RTT of " << dP;
-	dbglog << "LocalTime was: " << tC;
-	
-	offset = serverOffset;
-	rtt = dP;
 }
 
 void Client::printErrorCode(const error_code &ec, const std::string& method)

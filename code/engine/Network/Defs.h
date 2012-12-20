@@ -59,8 +59,6 @@ struct Handshake
 		char* p = output.data();
 		memcpy(p, &mPeerId, sizeof(PeerIdT));
 		p += sizeof(PeerIdT);
-		memcpy(p, &mTimestamp, sizeof(u32));
-		p += sizeof(u32);
 		memcpy(p, &mProtocolVersion, sizeof(u16));
 		p += sizeof(u16);
 		memcpy(p, &mChecksum, sizeof(u16));
@@ -71,8 +69,6 @@ struct Handshake
 		const char* p = input.data();
 		memcpy(&mPeerId, p, sizeof(PeerIdT));
 		p += sizeof(PeerIdT);
-		memcpy(&mTimestamp, p, sizeof(u32));
-		p += sizeof(u32);
 		memcpy(&mProtocolVersion, p, sizeof(u16));
 		p += sizeof(u16);
 		memcpy(&mChecksum, p, sizeof(u16));
@@ -81,7 +77,6 @@ struct Handshake
 	// TODO: replace PeerIdT with simpler type
 	PeerIdT mPeerId;
 
-	u32 mTimestamp;
 	u16 mProtocolVersion;
 	u16 mChecksum;
 };

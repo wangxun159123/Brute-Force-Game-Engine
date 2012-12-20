@@ -218,8 +218,8 @@ void PhysicsManager::move(quantity<si::time, f32> timeSinceLastFrame)
 	for (; it != mPhysicsObjects.end(); ++it)
 	{
 		it->second->clearForces();
-		//it->second->sendDeltas();
-		it->second->sendFullSync();
+		it->second->sendDeltas();
+		//it->second->sendFullSync();
 	}
 	
 	

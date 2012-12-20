@@ -57,18 +57,15 @@ public:
 
 	void startReading();
 
-	void setTimestampOffset(const s32 offset, const s32 rtt);
-	
-	//! Use this function to send packets as fast as possible.
-	//! (e.g. for time synchronization). The payload will be sent almost
-	//! immediately together with any other packets which were yet waiting
-	//! for delivery. Therefore, delays caused by the event system or flush
-	//! wait times are avoided.
-	void queueTimeCriticalPacket(DataPayload& payload);
+	void sendTimesyncRequest();
 	
 private:
 	void setFlushTimer(const long& waitTime_ms);
 
+	//! Enable or disable Nagle's Algorithm
+	//! Enabling this could cause a delay in latency
+	void setTcpDelay(bool);
+	
 	void write(const char* data, size_t size);
 	void read();
 
@@ -78,11 +75,25 @@ private:
 	void readDataHandler(const error_code &ec, std::size_t bytesTransferred, u32 packetChecksum);
 	void writeHandler(const error_code &ec, std::size_t bytesTransferred);
 
+	//! Use this function to send packets as fast as possible.
+	//! (e.g. for time synchronization). The payload will be sent almost
+	//! immediately together with any other packets which were yet waiting
+	//! for delivery. Therefore, delays caused by the event system or flush
+	//! wait times are avoided.
+	void queueTimeCriticalPacket(DataPayload& payload);
+	
 	void dataPacketEventHandler(DataPacketEvent* ne);
 	void onSend(DataPayload& payload);
 	void onReceive(const char* data, size_t size);
 	void flush();
 
+	typedef u32 TimestampT;
+	
+	void onTimeSyncRequest();
+	void onTimeSyncResponse(TimestampT serverTimestamp);
+	
+	void setTimestampOffset(const s32 offset, const s32 rtt);
+	
 	u16 calculateHeaderChecksum(const NetworkEventHeader& neh);
 
 	template <typename PacketT>
@@ -93,6 +104,8 @@ private:
 		return result.checksum();
 	}
 
+	void calculateServerTimestampOffset(u32 serverTimestamp, s32& offset, s32& rtt);
+	
 	void printErrorCode(const error_code &ec, const std::string& method);
 
 	boost::array<char, PACKET_MTU> mBackPacket;
@@ -111,6 +124,7 @@ private:
 
 	s32 mTimestampOffset;
 	Rtt<s32, 10> mRtt;
+	Clock::StopWatch mRTT;
 
 	PeerIdT mPeerId;
 

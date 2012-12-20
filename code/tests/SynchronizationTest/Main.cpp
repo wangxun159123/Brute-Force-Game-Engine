@@ -101,59 +101,59 @@ struct SynchronizationTestState: BFG::State
 	mStateHandle(handle),
 	mPlayer(NULL_HANDLE),
 	mEnvironment(new BFG::Environment)
-{
-	// create cube
-	BFG::Path p;
-	std::string def = p.Get(BFG::ID::P_SCRIPTS_LEVELS) + "default/";
+	{
+		// create cube
+		BFG::Path p;
+		std::string def = p.Get(BFG::ID::P_SCRIPTS_LEVELS) + "default/";
 
-	BFG::Loader::LevelConfig lc;
+		BFG::Loader::LevelConfig lc;
 
-	lc.mModules.push_back(def + "Object.xml");
-	lc.mAdapters.push_back(def + "Adapter.xml");
-	lc.mConcepts.push_back(def + "Concept.xml");
-	lc.mProperties.push_back(def + "Value.xml");
+		lc.mModules.push_back(def + "Object.xml");
+		lc.mAdapters.push_back(def + "Adapter.xml");
+		lc.mConcepts.push_back(def + "Concept.xml");
+		lc.mProperties.push_back(def + "Value.xml");
 
-	using BFG::Property::ValueId;
+		using BFG::Property::ValueId;
 
-	BFG::PluginId spId = ValueId::ENGINE_PLUGIN_ID;
-	boost::shared_ptr<BFG::SpacePlugin> sp(new BFG::SpacePlugin(spId));
-	mPluginMap.insert(sp);
+		BFG::PluginId spId = ValueId::ENGINE_PLUGIN_ID;
+		boost::shared_ptr<BFG::SpacePlugin> sp(new BFG::SpacePlugin(spId));
+		mPluginMap.insert(sp);
 
-	boost::shared_ptr<BFG::Loader::Interpreter> interpreter(new BFG::Loader::Interpreter(mPluginMap));
+		boost::shared_ptr<BFG::Loader::Interpreter> interpreter(new BFG::Loader::Interpreter(mPluginMap));
 
-	mGof.reset(new BFG::Loader::GameObjectFactory(this->loop(), lc, mPluginMap, interpreter, mEnvironment, mStateHandle));
+		mGof.reset(new BFG::Loader::GameObjectFactory(this->loop(), lc, mPluginMap, interpreter, mEnvironment, mStateHandle));
 
-	mSector.reset(new BFG::Sector(this->loop(), 1, "Blah", mGof));
-}
+		mSector.reset(new BFG::Sector(this->loop(), 1, "Blah", mGof));
+	}
 
-virtual ~SynchronizationTestState()
-{
-}
+	virtual ~SynchronizationTestState()
+	{
+	}
 
-// You may update objects and other things here.
-virtual void onTick(const quantity<si::time, f32> TSLF)
-{
-	mSector->update(TSLF);
+	// You may update objects and other things here.
+	virtual void onTick(const quantity<si::time, f32> TSLF)
+	{
+		mSector->update(TSLF);
 
-	emit<BFG::Physics::Event>(BFG::ID::PE_STEP, TSLF.value());
-}
+		emit<BFG::Physics::Event>(BFG::ID::PE_STEP, TSLF.value());
+	}
 
-virtual void createObject(const BFG::Loader::ObjectParameter& param)
-{
-	boost::shared_ptr<BFG::GameObject> playerShip = mGof->createGameObject(param);
-	mSector->addObject(playerShip);
+	virtual void createObject(const BFG::Loader::ObjectParameter& param)
+	{
+		boost::shared_ptr<BFG::GameObject> playerShip = mGof->createGameObject(param);
+		mSector->addObject(playerShip);
 
-	mPlayer = playerShip->getHandle();
-}
+		mPlayer = playerShip->getHandle();
+	}
 
 protected:
 	GameHandle mStateHandle;
 	GameHandle mPlayer;
+	boost::shared_ptr<BFG::Environment> mEnvironment;
 
 private:
 	BFG::Property::PluginMapT mPluginMap;
 	boost::shared_ptr<BFG::Sector> mSector;
-	boost::shared_ptr<BFG::Environment> mEnvironment;
 	boost::shared_ptr<BFG::Loader::GameObjectFactory> mGof;
 
 };
@@ -192,6 +192,8 @@ struct ServerState: public SynchronizationTestState
 			{
 				infolog << "Starting Simulation 0";
 
+				emit<BFG::Physics::Event>(BFG::ID::PE_DEBUG, 0, mObject1);
+				emit<BFG::Physics::Event>(BFG::ID::PE_DEBUG, 0, mObject2);
 				emit<BFG::Physics::Event>(BFG::ID::PE_UPDATE_VELOCITY, v3::ZERO, mObject1);
 				emit<BFG::Physics::Event>(BFG::ID::PE_UPDATE_VELOCITY, v3::ZERO, mObject2);
 				emit<BFG::Physics::Event>(BFG::ID::PE_UPDATE_ROTATION_VELOCITY, v3::ZERO, mObject1);
@@ -210,7 +212,7 @@ struct ServerState: public SynchronizationTestState
 			case START_SIMULATION_2:
 			{
 				infolog << "Starting Simulation 2";
-				v3 force = v3(-100000.0f, 0.0f, 0.0f);
+				v3 force = v3(-1000000.0f, 0.0f, 0.0f);
 				emit<BFG::Physics::Event>(BFG::ID::PE_APPLY_FORCE, force, mPlayer);
 
 				break;
@@ -288,6 +290,11 @@ private:
 	GameHandle mObject2;
 };
 
+bool alwaysTrue(boost::shared_ptr<BFG::GameObject>)
+{
+	return true;
+}
+
 struct ClientState : public SynchronizationTestState
 {
 	ClientState(GameHandle handle, EventLoop* loop) :
@@ -341,6 +348,10 @@ struct ClientState : public SynchronizationTestState
 		}
 		case SIMULATION_0:
 		{
+			std::vector<GameHandle> all = mEnvironment->find_all(alwaysTrue);
+			for (size_t i=0; i<all.size(); ++i)
+				emit<BFG::Physics::Event>(BFG::ID::PE_DEBUG, 0, all[i]);
+			
 			CharArray512T ca512 = CharArray512T();
 			BFG::Network::DataPayload payload
 			(

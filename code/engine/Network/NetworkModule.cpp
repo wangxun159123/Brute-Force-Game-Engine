@@ -35,12 +35,17 @@ namespace Network{
 using namespace boost::asio::ip;
 using namespace boost::system;
 
-NetworkModule::NetworkModule(EventLoop* loop_, boost::asio::io_service& service, PeerIdT peerId, boost::shared_ptr<Clock::StopWatch> localTime) :
+NetworkModule::NetworkModule(EventLoop* loop_,
+                             boost::asio::io_service& service,
+                             PeerIdT peerId,
+                             boost::shared_ptr<Clock::StopWatch> localTime) :
 BFG::Emitter(loop_),
 mPeerId(peerId),
 mOutPacketPosition(0),
-mLocalTime(localTime)
+mLocalTime(localTime),
+mRTT(Clock::milliSecond)
 {
+	mRTT.start();
 	mSocket.reset(new tcp::socket(service));
 	mTimer.reset(new boost::asio::deadline_timer(service));
 }
@@ -65,7 +70,17 @@ void NetworkModule::startReading()
 	if (mPeerId)
 		loop()->connect(ID::NE_SEND, this, &NetworkModule::dataPacketEventHandler, mPeerId);
 
+	setTcpDelay(false);
+	
 	read();
+}
+
+void NetworkModule::sendTimesyncRequest()
+{
+	dbglog << "Sending timesync request";
+	Network::DataPayload payload(ID::NE_TIMESYNC_REQUEST, 0, 0, 512, CharArray512T());
+	queueTimeCriticalPacket(payload);
+	mRTT.restart();
 }
 
 void NetworkModule::setFlushTimer(const long& waitTime_ms)
@@ -77,10 +92,15 @@ void NetworkModule::setFlushTimer(const long& waitTime_ms)
 	mTimer->async_wait(boost::bind(&NetworkModule::timerHandler, this, _1));
 }
 
-void NetworkModule::queueTimeCriticalPacket(DataPayload& payload)
+void NetworkModule::setTcpDelay(bool on)
 {
-	onSend(payload);
-	flush();
+	boost::asio::ip::tcp::no_delay oldOption;
+	mSocket->get_option(oldOption);
+	boost::asio::ip::tcp::no_delay newOption(true);
+	mSocket->set_option(newOption);
+	
+	dbglog << "Set TCP_NODELAY from " << oldOption.value()
+	       << " to " << newOption.value();
 }
 
 void NetworkModule::write(const char* data, size_t size)
@@ -98,7 +118,7 @@ void NetworkModule::write(const char* data, size_t size)
 
 void NetworkModule::read()
 {
-	dbglog << "NetworkModule::read";
+	dbglog << "NetworkModule::read (" << mPeerId << ")";
 	boost::asio::async_read
 	(
 		*mSocket, 
@@ -106,6 +126,7 @@ void NetworkModule::read()
 		boost::asio::transfer_exactly(NetworkEventHeader::SerializationT::size()),
 		bind(&NetworkModule::readHeaderHandler, this, _1, _2)
 	);
+	dbglog << "NetworkModule::read Done";
 }
 
 // async Handler
@@ -228,6 +249,15 @@ void NetworkModule::writeHandler(const error_code &ec, std::size_t bytesTransfer
 	}
 } 
 
+void NetworkModule::queueTimeCriticalPacket(DataPayload& payload)
+{
+	dbglog << "NetworkModule::queueTimeCriticalPacket -> onSend";
+	onSend(payload);
+	dbglog << "NetworkModule::queueTimeCriticalPacket -> Flush";
+	flush();
+	dbglog << "NetworkModule::queueTimeCriticalPacket -> Done";
+}
+
 void NetworkModule::dataPacketEventHandler(DataPacketEvent* e)
 {
 	switch(e->getId())
@@ -300,6 +330,18 @@ void NetworkModule::onReceive(const char* data, size_t size)
 			mRtt.mean() / 2
 		);
 
+		if (s.appEventId == ID::NE_TIMESYNC_REQUEST)
+		{
+			onTimeSyncRequest();
+			return;
+		}
+		else if (s.appEventId == ID::NE_TIMESYNC_RESPONSE)
+		{
+			TimestampT serverTimestamp;
+			memcpy(&serverTimestamp, payload.mAppData.data(), payload.mAppDataLen);
+			onTimeSyncResponse(serverTimestamp);
+		}
+		
 		try 
 		{
 			dbglog << "NetworkModule::onReceive: Emitting NE_RECEIVED to: " << s.destinationId << " from: " << mPeerId;
@@ -330,13 +372,37 @@ void NetworkModule::flush()
 
 	neh.serialize(mWriteHeaderBuffer);
 	
-	dbglog << "Flushing: " << mOutPacketPosition;
+	dbglog << "NetworkModule::flush -> Flushing: " << mOutPacketPosition;
 	write(mWriteHeaderBuffer.data(), NetworkEventHeader::SerializationT::size());
 	write(mFrontPacket.data(), mOutPacketPosition);
 
 	// Cleanup
 	memset(mFrontPacket.c_array(), 0, mFrontPacket.size());
 	mOutPacketPosition = 0;
+}
+
+void NetworkModule::onTimeSyncRequest()
+{
+	dbglog << "Got time sync request from PeerId: " << mPeerId;
+
+	TimestampT timestamp = mLocalTime->stop();
+
+	CharArray512T ca512;
+	memcpy(ca512.data(), &timestamp, sizeof(TimestampT));
+	Network::DataPayload payload(ID::NE_TIMESYNC_RESPONSE, 0, 0, sizeof(TimestampT), ca512);
+
+	queueTimeCriticalPacket(payload);
+}
+
+void NetworkModule::onTimeSyncResponse(TimestampT serverTimestamp)
+{
+	dbglog << "Got time sync response from PeerId: " << mPeerId;
+
+	s32 offset;
+	s32 rtt;
+	calculateServerTimestampOffset(serverTimestamp, offset, rtt);
+
+	setTimestampOffset(offset, rtt);
 }
 
 u16 NetworkModule::calculateHeaderChecksum(const NetworkEventHeader& neh)
@@ -346,6 +412,23 @@ u16 NetworkModule::calculateHeaderChecksum(const NetworkEventHeader& neh)
 	result.process_bytes(&(neh.mTimestamp), sizeof(neh.mTimestamp));
 	result.process_bytes(&(neh.mPacketChecksum), sizeof(neh.mPacketChecksum));
 	return result.checksum();
+}
+
+
+void NetworkModule::calculateServerTimestampOffset(u32 serverTimestamp, s32& offset, s32& rtt)
+{
+	// https://en.wikipedia.org/wiki/Cristian%27s_algorithm
+	// offset = tS + dP/2 - tC
+	u32 dP = mRTT.stop();
+	u32 tC = mLocalTime->stop();
+	s32 serverOffset = serverTimestamp + dP / 2 - tC;
+
+	dbglog << "Calculated server Timestamp Offset: " << serverOffset 
+		<< " with RTT of " << dP;
+	dbglog << "LocalTime was: " << tC;
+	
+	offset = serverOffset;
+	rtt = dP;
 }
 
 void NetworkModule::printErrorCode(const error_code &ec, const std::string& method)

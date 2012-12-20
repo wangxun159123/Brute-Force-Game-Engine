@@ -350,21 +350,33 @@ void PhysicsObject::performInterpolation(quantity<si::time, f32> timeSinceLastFr
 	{
 		const quantity<si::time, f32> INTERPOLATION_DURATION = 0.5f * si::seconds;
 
+#if 0
 		Base::EaseInOutInterpolation x(mInterpolationStartPosition.x, mInterpolationEndPosition.x);
 		Base::EaseInOutInterpolation y(mInterpolationStartPosition.y, mInterpolationEndPosition.y);
 		Base::EaseInOutInterpolation z(mInterpolationStartPosition.z, mInterpolationEndPosition.z);
+#endif
 
 		mPositionInterpolationParameter += (timeSinceLastFrame / INTERPOLATION_DURATION).value();
+#if 0
 		v3 interpolatedPosition
 		(
 			x.interpolate(mPositionInterpolationParameter),
 			y.interpolate(mPositionInterpolationParameter),
 			z.interpolate(mPositionInterpolationParameter)
 		);
+#endif
+		v3 interpolatedPosition = interpolate
+		(
+			mInterpolationStartPosition,
+			mInterpolationEndPosition,
+			mPositionInterpolationParameter
+		);
 		
+#if 0
 		dbglog << "Ode Pos: " << getPosition()
-		        << " Interp Pos: " << interpolatedPosition
-		        << " at: " << mPositionInterpolationParameter;
+		       << " Interp Pos: " << interpolatedPosition
+		       << " at: " << mPositionInterpolationParameter;
+#endif
 		setPosition(interpolatedPosition);
 		
 		if (mPositionInterpolationParameter >= 1.0f)
@@ -514,14 +526,20 @@ void PhysicsObject::interpolatePosition(InterpolationDataV3& interpData)
 	u32 timeStamp = interpData.get<0>();
 	u16 age = interpData.get<1>();
 	v3& pos = interpData.get<2>();
+
+	v3 deltaVelocity = getVelocity() * static_cast<f32>(age) / 1000.0f;
+	dbglog << "dv/dt: " << deltaVelocity;
 	
-	v3 estimatedPosition = pos + getVelocity() * static_cast<f32>(age) / 1000.0f;
+	v3 estimatedPosition = pos + deltaVelocity;
 	
 	mInterpolationEndPosition = estimatedPosition;
 	mInterpolationStartPosition = getPosition();
 	mPositionInterpolationParameter = 0.0f;
 	
-	dbglog << "Interpolating from " << getPosition() << " over " << pos << " to " << estimatedPosition;
+	dbglog << "Interpolating from " << getPosition()
+	       << " over last " << pos
+	       << " to estimated: " << estimatedPosition
+	       << " (" << static_cast<f32>(age)/1000.0f << "s)";
 }
 
 void PhysicsObject::interpolateOrientation(InterpolationDataQv4& interpData)

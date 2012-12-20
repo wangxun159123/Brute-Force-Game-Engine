@@ -142,18 +142,29 @@ bool BFG_CORE_API nearEnough(const v3& position1,
                              f32 radius);
 
 //! \brief Linear Quaternion interpolation
-//! \param[in] Quaternion at the beginning of the interpolation
-//! \param[in] Quaternion at the end of the interpolation
-//! \param[in] Interpolation parameter in the range from 0 to 1
+//! \param[in] q0 Quaternion at the beginning of the interpolation
+//! \param[in] q1 Quaternion at the end of the interpolation
+//! \param[in] h Interpolation parameter in the range from 0 to 1
 //! \return The interpolated quaternion
 qv4 BFG_CORE_API lerp(const qv4& q0, const qv4& q1, f32 h);
 
 //! \brief Spherical Linear Quaternion interpolation
-//! \param[in] Quaternion at the beginning of the interpolation
-//! \param[in] Quaternion at the end of the interpolation
-//! \param[in] Interpolation parameter in the range from 0 to 1
+//! \param[in] q0 Quaternion at the beginning of the interpolation
+//! \param[in] q1 Quaternion at the end of the interpolation
+//! \param[in] h Interpolation parameter in the range from 0 to 1
 //! \return The interpolated quaternion
 qv4 BFG_CORE_API slerp(const qv4& q0, const qv4& q1, f32 h);
+
+//! \brief Linear interpolation
+//! \param[in] a The beginning of the interpolation
+//! \param[in] b The end of the interpolation
+//! \param[in] coefficient Parameter in the range from 0 to 1
+//! \return The interpolated value
+template <typename T, typename ScalarT>
+T interpolate(const T& a, const T& b, const ScalarT coefficient)
+{
+    return a + (b - a) * coefficient;
+}
 
 } // namespace BFG
 

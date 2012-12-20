@@ -301,7 +301,7 @@ void Networked::onPosition(const v3& newPosition)
 		return;
 
 	mV3InterpolationData = boost::make_tuple(0, 0, newPosition);
-	dbglog << "Networked:onPosition(original): " << newPosition;
+	//dbglog << "Networked:onPosition(original): " << newPosition;
 	mUpdatePosition = true;
 }
 

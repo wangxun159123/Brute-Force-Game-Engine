@@ -67,6 +67,7 @@ private:
 
 	void onListen(const u16 port);
 	void onDisconnect(const PeerIdT& peerId);
+	
 	void printErrorCode(const error_code &ec, const std::string& method);
 	
 	u16 calculateHandshakeChecksum(const Handshake& hs);

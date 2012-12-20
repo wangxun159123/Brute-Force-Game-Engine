@@ -110,7 +110,6 @@ void Server::sendHandshake(PeerIdT peerId)
 	dbglog << "Server::sendHandshake peer ID: " << peerId;
 	Handshake hs;
 	hs.mPeerId = peerId;
-	hs.mTimestamp = mLocalTime->stop();
 	hs.mChecksum = calculateHandshakeChecksum(hs);
 
 	hs.serialize(mHandshakeBuffer);
@@ -161,14 +160,10 @@ void Server::dataPacketEventHandler(DataPacketEvent* e)
 
 		switch(payload.mAppEventId)
 		{
-		case ID::NE_TIMESYNC:
+		default:
 		{
-			dbglog << "Got time sync request from PeerId: " << e->mSender;
-			u32 timestamp = mLocalTime->stop();
-			CharArray512T ca512;
-			memcpy(ca512.data(), &timestamp, sizeof(u32));
-			Network::DataPayload payload(ID::NE_TIMESYNC, 0, 0, sizeof(u32), ca512);
-			mNetworkModules[e->mSender]->queueTimeCriticalPacket(payload);
+			warnlog << "Server::dataPacketEventHandler: Got event ("
+			        << payload.mAppEventId << ") but has no handler.";
 		}
 		}
 
