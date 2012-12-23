@@ -46,7 +46,6 @@ mLocalTime(new Clock::StopWatch(Clock::milliSecond))
 	mLoop->connect(ID::NE_CONNECT, this, &Client::controlEventHandler);
 	mLoop->connect(ID::NE_DISCONNECT, this, &Client::controlEventHandler);
 	mLoop->connect(ID::NE_SHUTDOWN, this, &Client::controlEventHandler);
-	mLoop->connect(ID::NE_RECEIVED, this, &Client::dataPacketEventHandler);
 
 	mNetworkModule = new NetworkModule(mLoop, mService, 0, mLocalTime);
 }
@@ -159,36 +158,12 @@ void Client::readHandshakeHandler(const error_code &ec, size_t bytesTransferred)
 	}
 }
 
-
-
-void Client::setTimeSyncTimer(const long& waitTime_ms)
+void Client::controlEventHandler(ControlEvent* e)
 {
-	if (waitTime_ms == 0)
-		return;
-
-	mTimeSyncTimer->expires_from_now(boost::posix_time::milliseconds(waitTime_ms));
-	mTimeSyncTimer->async_wait(boost::bind(&Client::timerHandler, this, _1));
-}
-
-void Client::timerHandler(const error_code &ec)
-{
-	if (!ec)
-	{
-		mNetworkModule->sendTimesyncRequest();
-		setTimeSyncTimer(TIME_SYNC_WAIT_TIME);
-	}
-	else
-	{
-		printErrorCode(ec, "timerHandler");
-	}
-}
-
-void Client::controlEventHandler(ControlEvent* nce)
-{
-	switch(nce->getId())
+	switch(e->getId())
 	{
 	case ID::NE_CONNECT:
-		onConnect(boost::get<EndpointT>(nce->getData()));
+		onConnect(boost::get<EndpointT>(e->getData()));
 		break;
 	case ID::NE_DISCONNECT:
 	case ID::NE_SHUTDOWN:
@@ -196,31 +171,10 @@ void Client::controlEventHandler(ControlEvent* nce)
 		break;
 	default:
 		warnlog << "Client: Can't handle event with ID: "
-		        << nce->getId();
+			<< e->getId();
 		break;
 	}
 
-}
-
-void Client::dataPacketEventHandler(DataPacketEvent* e)
-{
-	switch(e->getId())
-	{
-	case ID::NE_RECEIVED:
-	{
-		DataPayload& payload = e->getData();
-
-		switch(payload.mAppEventId)
-		{
-		default:
-		{
-			warnlog << "Client::dataPacketEventHandler: Got event ("
-			        << payload.mAppEventId << ") but has no handler.";
-		}
-		}
-
-	}
-	}
 }
 
 void Client::onConnect(const EndpointT& endpoint)
@@ -234,6 +188,28 @@ void Client::onDisconnect(const PeerIdT& peerId)
 	stop();
 	Emitter e(mLoop);
 	e.emit<ControlEvent>(ID::NE_DISCONNECTED, peerId);
+}
+
+void Client::setTimeSyncTimer(const long& waitTime_ms)
+{
+	if (waitTime_ms == 0)
+		return;
+
+	mTimeSyncTimer->expires_from_now(boost::posix_time::milliseconds(waitTime_ms));
+	mTimeSyncTimer->async_wait(boost::bind(&Client::syncTimerHandler, this, _1));
+}
+
+void Client::syncTimerHandler(const error_code &ec)
+{
+	if (!ec)
+	{
+		mNetworkModule->sendTimesyncRequest();
+		setTimeSyncTimer(TIME_SYNC_WAIT_TIME);
+	}
+	else
+	{
+		printErrorCode(ec, "timerHandler");
+	}
 }
 
 u16 Client::calculateHandshakeChecksum(const Handshake& hs)

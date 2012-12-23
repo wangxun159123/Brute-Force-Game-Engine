@@ -47,8 +47,6 @@ mLocalTime(new Clock::StopWatch(Clock::milliSecond))
 	mLoop->connect(ID::NE_LISTEN, this, &Server::controlEventHandler);
 	mLoop->connect(ID::NE_DISCONNECT, this, &Server::controlEventHandler);
 	mLoop->connect(ID::NE_SHUTDOWN, this, &Server::controlEventHandler);
-
-	mLoop->connect(ID::NE_RECEIVED, this, &Server::dataPacketEventHandler);
 }
 
 Server::~Server()
@@ -88,23 +86,6 @@ void Server::startAccepting()
 	mAcceptor->async_accept(*netModule->socket(), bind(&Server::acceptHandler, this, _1, peerId));
 }
 
-void Server::acceptHandler(const boost::system::error_code &ec, PeerIdT peerId)
-{ 
-	dbglog << "Client connected: "
-	       << mNetworkModules[peerId]->socket()->remote_endpoint().address()
-	       << ":" 
-	       << mNetworkModules[peerId]->socket()->remote_endpoint().port();
-	if (!ec) 
-	{ 
-		sendHandshake(peerId);
-		startAccepting();
-	}
-	else
-	{
-		printErrorCode(ec, "acceptHandler");
-	}
-}
-
 void Server::sendHandshake(PeerIdT peerId)
 {
 	dbglog << "Server::sendHandshake peer ID: " << peerId;
@@ -120,6 +101,23 @@ void Server::sendHandshake(PeerIdT peerId)
 		boost::asio::buffer(mHandshakeBuffer.data(), Handshake::SerializationT::size()),
 		boost::bind(&Server::writeHandshakeHandler, this, _1, _2, peerId)
 	);
+}
+
+void Server::acceptHandler(const boost::system::error_code &ec, PeerIdT peerId)
+{ 
+	dbglog << "Client connected: "
+	       << mNetworkModules[peerId]->socket()->remote_endpoint().address()
+	       << ":" 
+	       << mNetworkModules[peerId]->socket()->remote_endpoint().port();
+	if (!ec) 
+	{ 
+		sendHandshake(peerId);
+		startAccepting();
+	}
+	else
+	{
+		printErrorCode(ec, "acceptHandler");
+	}
 }
 
 void Server::writeHandshakeHandler(const error_code &ec, std::size_t bytesTransferred, PeerIdT peerId)
@@ -147,27 +145,6 @@ void Server::controlEventHandler(ControlEvent* e)
 		warnlog << "Server: Can't handle event with ID: "
 		        << e->getId();
 		break;
-	}
-}
-
-void Server::dataPacketEventHandler(DataPacketEvent* e)
-{
-	switch(e->getId())
-	{
-	case ID::NE_RECEIVED:
-	{
-		DataPayload& payload = e->getData();
-
-		switch(payload.mAppEventId)
-		{
-		default:
-		{
-			warnlog << "Server::dataPacketEventHandler: Got event ("
-			        << payload.mAppEventId << ") but has no handler.";
-		}
-		}
-
-	}
 	}
 }
 

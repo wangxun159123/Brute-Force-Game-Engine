@@ -41,11 +41,10 @@ NetworkModule::NetworkModule(EventLoop* loop_,
                              boost::shared_ptr<Clock::StopWatch> localTime) :
 BFG::Emitter(loop_),
 mPeerId(peerId),
-mOutPacketPosition(0),
 mLocalTime(localTime),
-mRTT(Clock::milliSecond)
+mOutPacketPosition(0),
+mRoundTripTimer(Clock::milliSecond)
 {
-	mRTT.start();
 	mSocket.reset(new tcp::socket(service));
 	mTimer.reset(new boost::asio::deadline_timer(service));
 }
@@ -80,7 +79,7 @@ void NetworkModule::sendTimesyncRequest()
 	dbglog << "Sending timesync request";
 	Network::DataPayload payload(ID::NE_TIMESYNC_REQUEST, 0, 0, 512, CharArray512T());
 	queueTimeCriticalPacket(payload);
-	mRTT.restart();
+	mRoundTripTimer.start();
 }
 
 void NetworkModule::setFlushTimer(const long& waitTime_ms)
@@ -96,7 +95,7 @@ void NetworkModule::setTcpDelay(bool on)
 {
 	boost::asio::ip::tcp::no_delay oldOption;
 	mSocket->get_option(oldOption);
-	boost::asio::ip::tcp::no_delay newOption(true);
+	boost::asio::ip::tcp::no_delay newOption(!on);
 	mSocket->set_option(newOption);
 	
 	dbglog << "Set TCP_NODELAY from " << oldOption.value()
@@ -405,6 +404,18 @@ void NetworkModule::onTimeSyncResponse(TimestampT serverTimestamp)
 	setTimestampOffset(offset, rtt);
 }
 
+void NetworkModule::setTimestampOffset(const s32 offset, const s32 rtt)
+{
+	dbglog << "NetworkModule:setTimestampOffset: "
+		<< offset << "(" << offset - mTimestampOffset << ")" << ", "
+		<< rtt << "(" << rtt - mRtt.last() << ")";
+
+	mTimestampOffset = offset;
+	mRtt.add(rtt);
+
+	dbglog << "New avg rtt: " << mRtt.mean();
+}
+
 u16 NetworkModule::calculateHeaderChecksum(const NetworkEventHeader& neh)
 {
 	boost::crc_16_type result;
@@ -419,7 +430,7 @@ void NetworkModule::calculateServerTimestampOffset(u32 serverTimestamp, s32& off
 {
 	// https://en.wikipedia.org/wiki/Cristian%27s_algorithm
 	// offset = tS + dP/2 - tC
-	u32 dP = mRTT.stop();
+	u32 dP = mRoundTripTimer.stop();
 	u32 tC = mLocalTime->stop();
 	s32 serverOffset = serverTimestamp + dP / 2 - tC;
 
@@ -436,17 +447,6 @@ void NetworkModule::printErrorCode(const error_code &ec, const std::string& meth
 	warnlog << "This (" << this << ") " << "[" << method << "] Error Code: " << ec.value() << ", message: " << ec.message();
 }
 
-void NetworkModule::setTimestampOffset(const s32 offset, const s32 rtt)
-{
-	dbglog << "NetworkModule:setTimestampOffset: "
-	       << offset << "(" << offset - mTimestampOffset << ")" << ", "
-	       << rtt << "(" << rtt - mRtt.last() << ")";
-
-	mTimestampOffset = offset;
-	mRtt.add(rtt);
-
-	dbglog << "New avg rtt: " << mRtt.mean();
-}
 
 } // namespace Network
 } // namespace BFG

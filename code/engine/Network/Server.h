@@ -47,45 +47,75 @@ using namespace boost::system;
 
 class NetworkModule;
 
+//! This class represents a network server. It starts accepting connections from clients 
+//! using several NetworkModules
 class NETWORK_API Server
 {
 public:
+	//! \brief Constructor
+	//! \param[in] loop EventLoop of the EventSystem
 	Server(EventLoop* loop);
 	~Server();
 private:
 	typedef std::map<PeerIdT, NetworkModule* > ModulesMap;
 
+	//! \brief Stops all communication to and from all clients
 	void stop();
+
+	//! \brief Starts an asynchronous accept for clients
 	void startAccepting();
+
+	//! \brief Sends a Handshake to a connected client
+	//! \param[in] peerId NetworkHandle of the client
 	void sendHandshake(PeerIdT peerId);
 
+	//! \brief Handler of an asio accept attempt
+	//! \param[in] ec Error code of boost::asio
+	//! \param[in] peerId NetworkHandle of the client
 	void acceptHandler(const boost::system::error_code &ec, PeerIdT peerId);
+
+	//! \brief Handler of a sendHandshake attempt
+	//! \param[in] ec Error code of boost::asio
+	//! \param[in] bytesTransferred size of the data written
+	//! \param[in] peerId NetworkHandle of the client
 	void writeHandshakeHandler(const error_code &ec, std::size_t bytesTransferred, PeerIdT peerId);
 
+	//! \brief Handler to distribute ControlEvents
+	//! \param[in] e Received ControlEvent
 	void controlEventHandler(ControlEvent* ne);
-	void dataPacketEventHandler(DataPacketEvent* e);
 
+	//! \brief Starts listening to a network port
+	//! \param[in] port Network port the server is listening to
 	void onListen(const u16 port);
+
+	//! \brief Stops the communication
+	//! \param[in] peerId ID of the NetworkModule to stop communicating
 	void onDisconnect(const PeerIdT& peerId);
 	
+	//! \brief Calculates the checksum of a Handshake
+	//! \param[in] hs The Handshake to calculate the checksum for
+	//! \return Calculated checksum
+	u16 calculateHandshakeChecksum(const Handshake& hs);
+
+	//! \brief Logs an error_code
+	//! \param[in] ec Error code to log
+	//! \param[in] method Name of the method that received the error
 	void printErrorCode(const error_code &ec, const std::string& method);
 	
-	u16 calculateHandshakeChecksum(const Handshake& hs);
+	EventLoop* mLoop;
 
 	boost::asio::io_service mService;
 	boost::shared_ptr<tcp::acceptor> mAcceptor;
+	boost::thread mThread;
 
 	// TODO: This works only for 7 weeks of server runtime!
 	// TODO: This will wreak havoc after 7 weeks.
 	// TODO: Reset this watch somehow.
 	boost::shared_ptr<Clock::StopWatch> mLocalTime;
 
-	boost::thread mThread;
-
-	EventLoop* mLoop;
-	ModulesMap mNetworkModules;
-	
 	Handshake::SerializationT mHandshakeBuffer;
+
+	ModulesMap mNetworkModules;
 };
 
 } // namespace Network
