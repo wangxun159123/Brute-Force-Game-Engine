@@ -52,6 +52,8 @@ using namespace boost::system;
 class NetworkModule : public Emitter
 {
 public:
+	typedef tcp::socket SocketT;
+	
 	//! \brief Constructor
 	//! \param[in] loop Eventloop the NetworkModule is connected to 
 	//! \param[in] service Asio service for the network connection
@@ -62,7 +64,7 @@ public:
 
 	//! \brief Returns the socket of the connection
 	//! \return tcp::socket of the connection
-	boost::shared_ptr<tcp::socket> socket(){return mSocket;}
+	boost::shared_ptr<SocketT> socket(){return mSocket;}
 
 	//! \brief The connection is ready to receive data
 	void startReading();
@@ -185,7 +187,7 @@ private:
 	NetworkEventHeader::SerializationT mWriteHeaderBuffer;
 	NetworkEventHeader::SerializationT mReadHeaderBuffer;
 
-	boost::shared_ptr<tcp::socket>                 mSocket;
+	boost::shared_ptr<SocketT>                     mSocket;
 	boost::shared_ptr<boost::asio::deadline_timer> mTimer;
 	boost::mutex                                   mPacketMutex;
 

@@ -45,7 +45,7 @@ mLocalTime(localTime),
 mOutPacketPosition(0),
 mRoundTripTimer(Clock::milliSecond)
 {
-	mSocket.reset(new tcp::socket(service));
+	mSocket.reset(new SocketT(service));
 	mTimer.reset(new boost::asio::deadline_timer(service));
 }
 
