@@ -7,5 +7,9 @@
     <PC id="Networked" properties="NoProperties"/>
   </ConceptConfig>
 
+  <ConceptConfig name="CubeGhostConcept" >
+    <PC id="Triggers" properties="NoProperties"/>
+  </ConceptConfig>
+
 </ConceptConfigs>
 

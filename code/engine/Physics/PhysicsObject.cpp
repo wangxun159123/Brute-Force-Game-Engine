@@ -346,10 +346,15 @@ void PhysicsObject::sendFullSync() const
 
 void PhysicsObject::performInterpolation(quantity<si::time, f32> timeSinceLastFrame)
 {
+	// Depends on UPDATES_PER_SECOND in Networked::internalUpdate
+	// This is UPDATE_DELAY / 1000
+	const quantity<si::time, f32> INTERPOLATION_DURATION = 0.05f * si::seconds;
+
+	// We interpolate from 0.0f to 1.0f
+	const f32 INTERPOLATION_SCALE = 1.0f;
+
 	if (mInterpolatePosition)
 	{
-		const quantity<si::time, f32> INTERPOLATION_DURATION = 0.5f * si::seconds;
-
 #if 0
 		Base::EaseInOutInterpolation x(mInterpolationStartPosition.x, mInterpolationEndPosition.x);
 		Base::EaseInOutInterpolation y(mInterpolationStartPosition.y, mInterpolationEndPosition.y);
@@ -379,14 +384,12 @@ void PhysicsObject::performInterpolation(quantity<si::time, f32> timeSinceLastFr
 #endif
 		setPosition(interpolatedPosition);
 		
-		if (mPositionInterpolationParameter >= 1.0f)
+		if (mPositionInterpolationParameter >= INTERPOLATION_SCALE)
 			mInterpolatePosition = false;
 	}
 
 	if (mInterpolateOrientation)
 	{
-		const quantity<si::time, f32> INTERPOLATION_DURATION = 0.5f * si::seconds;
-
 		mOrientationInterpolationParameter += (timeSinceLastFrame / INTERPOLATION_DURATION).value();
 
  		qv4 interpolatedOrientation
@@ -398,13 +401,14 @@ void PhysicsObject::performInterpolation(quantity<si::time, f32> timeSinceLastFr
 				mOrientationInterpolationParameter
 			)
  		);
-
+#if 0
 		warnlog << "Ode Ori: " << getOrientation()
 		        << " Interp Ori: " << interpolatedOrientation
 		        << " at: " << mOrientationInterpolationParameter;
+#endif
 		setOrientation(interpolatedOrientation);
 		
-		if (mOrientationInterpolationParameter >= 1.0f)
+		if (mOrientationInterpolationParameter >= INTERPOLATION_SCALE)
 			mInterpolateOrientation = false;
 	}
 }

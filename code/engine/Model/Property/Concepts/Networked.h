@@ -58,6 +58,7 @@ private:
 	void onRotationVelocity(const Physics::VelocityComposite& newVelocity);
 
 	void onSynchronizationMode(ID::SynchronizationMode mode);
+	void onGhostMode(bool enable);
 
 	bool receivesData() const;
 	bool sendsData() const;
@@ -79,7 +80,10 @@ private:
 	bool mUpdatePosition;
 	bool mUpdateOrientation;
 	
-
+	GameHandle mGhost;
+	
+	v3  mExtrapolatedPositionDelta;
+	qv4 mExtrapolatedOrientationDelta;
 };
 
 } // namespace BFG

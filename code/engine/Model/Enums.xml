@@ -46,6 +46,7 @@
             <value>GOE_DETACH_MODULE</value>
 
             <value>GOE_SYNCHRONIZATION_MODE</value>
+            <value>GOE_GHOST_MODE</value>
           
             <value>GOE_ENDGOEEVENTS</value>
 

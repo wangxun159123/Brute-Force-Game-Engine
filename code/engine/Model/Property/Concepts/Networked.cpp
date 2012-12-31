@@ -24,6 +24,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <Core/Utils.h> // generateHandle()
 #include <Model/Property/Concepts/Networked.h>
 
 #include <boost/foreach.hpp>
@@ -32,6 +33,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Core/Math.h>
 #include <Network/Event.h>
 #include <Physics/Event.h>
+#include <View/Event.h>
+#include <Model/Events/SectorEvent.h>
 
 namespace BFG {
 
@@ -41,7 +44,10 @@ mSynchronizationMode(ID::SYNC_MODE_NETWORK_NONE),
 mInitialized(false),
 mTimer(Clock::milliSecond),
 mUpdatePosition(false),
-mUpdateOrientation(false)
+mUpdateOrientation(false),
+mGhost(NULL_HANDLE),
+mExtrapolatedPositionDelta(v3::ZERO),
+mExtrapolatedOrientationDelta(qv4::IDENTITY)
 {
 	require("Physical");
 
@@ -61,6 +67,7 @@ mUpdateOrientation(false)
 	}
 
 	requestEvent(ID::GOE_SYNCHRONIZATION_MODE);
+	requestEvent(ID::GOE_GHOST_MODE);
 
 	mTimer.start();
 }
@@ -95,11 +102,20 @@ void Networked::onNetworkEvent(Network::DataPacketEvent* e)
 		case ID::PE_UPDATE_POSITION:
 		{
 			assert(ownerHandle() == payload.mAppDestination);
-				
+
 			std::string msg(payload.mAppData.data(), payload.mAppDataLen);
 			v3 v;
 			stringToVector3(msg, v);
 			dbglog << "Networked:onNetworkEvent: receivedPosition: " << v;
+
+			// Update Ghost
+			if (mGhost != NULL_HANDLE)
+				emit<View::Event>(ID::VE_UPDATE_POSITION, v, mGhost);
+			
+			// Only update if the new position is too different from our own calculated one.
+			v3 velocity = getGoValue<v3>(ID::PV_Velocity, pluginId());
+			f32 deltaTime = payload.mAge / 1000.0f;
+			mExtrapolatedPositionDelta = velocity * deltaTime;
 			
 			mV3InterpolationData = boost::make_tuple(payload.mTimestamp, payload.mAge, v);
 			mUpdatePosition = true;
@@ -114,6 +130,13 @@ void Networked::onNetworkEvent(Network::DataPacketEvent* e)
 			stringToQuaternion4(msg, o);
 			dbglog << "Networked:onNetworkEvent: receivedOrientation: " << o;
 
+			// Update Ghost
+			if (mGhost != NULL_HANDLE)
+				emit<View::Event>(ID::VE_UPDATE_ORIENTATION, o, mGhost);
+
+			v3 rotVelocity = getGoValue<v3>(ID::PV_RotationVelocity, pluginId());
+			f32 deltaTime = payload.mAge / 1000.0f;
+			
 			mQv4InterpolationData = boost::make_tuple(payload.mTimestamp, payload.mAge, o);
 			mUpdateOrientation = true;
 			break;
@@ -179,17 +202,32 @@ void Networked::onPhysicsEvent(Physics::Event* e)
 
 void Networked::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 {
+	// Updates per second (cl_updaterate)
+	const u32 UPDATES_PER_SECOND = 20;
+
+	// Server: Wait time in ms till next update
+	const u32 UPDATE_DELAY = 1000 / UPDATES_PER_SECOND;
+
+	// Server: The positional distance an object must have to be updated (in meters)
+	const f32 MAX_POSITION_DELTA = 0.1f;
+	
+	// Server/Client: The orientational distance an object must have to be updated (in rad)
+	const f32 MAX_ORIENTATION_DELTA = 0.08727f;
+	
+	// Client: The threshold with regard to velocity for the maximum allowed
+	//         distance between the extrapolated position and the received one.
+	const f32 MAX_EXTRAPOLATED_POSITION_DELTA = 0.1f;
+	
 	if (!receivesData()) // server
 	{
-		if (mTimer.stop() < 1000)
+		if (mTimer.stop() < UPDATE_DELAY)
 			return;
 
 		mTimer.restart();
 
 		if (mUpdatePosition)
 		{
-			const f32 epsilon = 0.1f;
-			if (!nearEnough(mV3InterpolationData.get<2>(), mDeltaStorage.get<0>(), epsilon))
+			if (!nearEnough(mV3InterpolationData.get<2>(), mDeltaStorage.get<0>(), MAX_POSITION_DELTA))
 			{
 
 				dbglog << "Networked:onPosition: " << mV3InterpolationData.get<2>();
@@ -216,7 +254,7 @@ void Networked::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 
 		if (mUpdateOrientation)
 		{
-			if (angleBetween(mQv4InterpolationData.get<2>(), mDeltaStorage.get<1>()) < 0.08727f)
+			if (angleBetween(mQv4InterpolationData.get<2>(), mDeltaStorage.get<1>()) < MAX_ORIENTATION_DELTA)
 				return;
 
 			std::stringstream ss;
@@ -252,14 +290,12 @@ void Networked::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 
 		if (mUpdatePosition)
 		{
-			// Only update if the new position is too different from our own calculated one.
 			v3 velocity = getGoValue<v3>(ID::PV_Velocity, pluginId());
 			f32 speed = length(velocity);
-			v3 correction = velocity * timeSinceLastFrame.value();
 
-			if (!nearEnough(go.position + correction, mV3InterpolationData.get<2>(), speed * 0.1f))
+			if (!nearEnough(go.position + mExtrapolatedPositionDelta, mV3InterpolationData.get<2>(), speed * MAX_EXTRAPOLATED_POSITION_DELTA))
 			{
-				dbglog << "Updating since distance was " << length(go.position + correction - mV3InterpolationData.get<2>());
+				dbglog << "Updating since distance was " << length(go.position + mExtrapolatedPositionDelta - mV3InterpolationData.get<2>());
 				dbglog << "Speed was " << speed;
 				emit<Physics::Event>(ID::PE_INTERPOLATE_POSITION, mV3InterpolationData, ownerHandle());
 			}
@@ -267,12 +303,9 @@ void Networked::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 		}
 		if (mUpdateOrientation)
 		{
-			v3 rotVelocity = getGoValue<v3>(ID::PV_RotationVelocity, pluginId());
-			qv4 correction = eulerToQuaternion(rotVelocity * timeSinceLastFrame.value());
-
-			if(angleBetween(mQv4InterpolationData.get<2>(), go.orientation * correction) > 0.08727f)
+			if(angleBetween(mQv4InterpolationData.get<2>(), go.orientation * mExtrapolatedOrientationDelta) > MAX_ORIENTATION_DELTA)
 			{
-				dbglog << "AngleBetween: " << angleBetween(mQv4InterpolationData.get<2>(), go.orientation * correction);
+				dbglog << "AngleBetween: " << angleBetween(mQv4InterpolationData.get<2>(), go.orientation * mExtrapolatedOrientationDelta);
 				emit<Physics::Event>(ID::PE_INTERPOLATE_ORIENTATION, mQv4InterpolationData, ownerHandle());
 			}
 			mUpdateOrientation = false;
@@ -291,6 +324,12 @@ void Networked::internalOnEvent(EventIdT action,
 	case ID::GOE_SYNCHRONIZATION_MODE:
 	{
 		onSynchronizationMode(static_cast<ID::SynchronizationMode>(static_cast<s32>(payload)));
+		break;
+	}
+	case ID::GOE_GHOST_MODE:
+	{
+		onGhostMode(payload);
+		break;
 	}
 	}
 }
@@ -369,6 +408,30 @@ void Networked::onSynchronizationMode(ID::SynchronizationMode mode)
 	mSynchronizationMode = mode;
 
 	dbglog << "Networked: setting synchronization mode to " << mode;
+}
+
+void Networked::onGhostMode(bool enable)
+{
+	if (enable && mGhost == NULL_HANDLE)
+	{
+		Loader::ObjectParameter op;
+		std::stringstream ss;
+		ss << "Ghost of " << ownerHandle();
+		op.mName = ss.str();
+		op.mType = "Cube_Ghost";
+		op.mLocation = v3(10000,10000,10000);  // far far away
+		op.mLinearVelocity = v3::ZERO;
+
+		mGhost = op.mHandle = generateHandle();
+		emit<SectorEvent>(ID::S_CREATE_GO, op);
+		infolog << "Ghost mode enabled for " << ownerHandle();
+	}
+	else if (not enable)
+	{
+		emit<SectorEvent>(ID::S_DESTROY_GO, mGhost);
+		mGhost = NULL_HANDLE;
+		infolog << "Ghost mode disabled for " << ownerHandle();
+	}
 }
 
 bool Networked::receivesData() const
