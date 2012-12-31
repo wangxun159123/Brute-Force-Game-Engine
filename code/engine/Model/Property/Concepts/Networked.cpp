@@ -426,7 +426,7 @@ void Networked::onGhostMode(bool enable)
 		emit<SectorEvent>(ID::S_CREATE_GO, op);
 		infolog << "Ghost mode enabled for " << ownerHandle();
 	}
-	else if (not enable)
+	else if (!enable)
 	{
 		emit<SectorEvent>(ID::S_DESTROY_GO, mGhost);
 		mGhost = NULL_HANDLE;
