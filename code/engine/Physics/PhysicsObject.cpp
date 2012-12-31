@@ -527,7 +527,7 @@ void PhysicsObject::interpolatePosition(InterpolationDataV3& interpData)
 {
 	mInterpolatePosition = true;
 	
-	u32 timeStamp = interpData.get<0>();
+	u32 timeStamp = interpData.get<0>(); // TODO: Unused parameter
 	u16 age = interpData.get<1>();
 	v3& pos = interpData.get<2>();
 

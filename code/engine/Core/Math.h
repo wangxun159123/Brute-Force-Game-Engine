@@ -163,7 +163,10 @@ qv4 BFG_CORE_API slerp(const qv4& q0, const qv4& q1, f32 h);
 template <typename T, typename ScalarT>
 T interpolate(const T& a, const T& b, const ScalarT coefficient)
 {
-    return a + (b - a) * coefficient;
+	if (coefficient > 1.0f)
+		return b;
+	else
+		return a + (b - a) * coefficient;
 }
 
 } // namespace BFG
