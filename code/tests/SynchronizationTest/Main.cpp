@@ -77,6 +77,7 @@ const s32 SIMULATION_0 = 10001;
 const s32 SIMULATION_1 = 10002;
 const s32 SIMULATION_2 = 10003;
 const s32 SIMULATION_3 = 10004;
+const s32 A_CONSOLE = 10005;
 const s32 CREATE_TEST_OBJECT = 15000;
 const s32 START_SIMULATION_0 = 15001;
 const s32 START_SIMULATION_1 = 15002;
@@ -319,6 +320,7 @@ struct ClientState : public SynchronizationTestState
 		loop->connect(SIMULATION_1, this, &ClientState::controllerEventHandler);
 		loop->connect(SIMULATION_2, this, &ClientState::controllerEventHandler);
 		loop->connect(SIMULATION_3, this, &ClientState::controllerEventHandler);
+		loop->connect(A_CONSOLE, this, &ClientState::controllerEventHandler);
 		loop->connect(BFG::ID::NE_RECEIVED, this, &ClientState::networkEventHandler, CLIENT_STATE_HANDLE);
 	}
 
@@ -330,6 +332,7 @@ struct ClientState : public SynchronizationTestState
 		loop()->disconnect(SIMULATION_1, this);
 		loop()->disconnect(SIMULATION_2, this);
 		loop()->disconnect(SIMULATION_3, this);
+		loop()->disconnect(A_CONSOLE, this);
 		loop()->disconnect(BFG::ID::NE_RECEIVED, this);
 	}
 
@@ -477,6 +480,12 @@ struct ClientState : public SynchronizationTestState
 		case SIMULATION_3:
 			onSimulation3();
 			break;
+		case A_CONSOLE:
+		{
+			dbglog << "A_CONSOLE";
+			emit<BFG::View::Event>(BFG::ID::VE_CONSOLE, boost::get<bool>(e->getData()));
+			break;
+		}
 		}
 	}
 
@@ -538,6 +547,7 @@ void initController(BFG::GameHandle stateHandle, EventLoop* loop)
 	actions[SIMULATION_1] = "SIMULATION_1";
 	actions[SIMULATION_2] = "SIMULATION_2";
 	actions[SIMULATION_3] = "SIMULATION_3";
+	actions[A_CONSOLE] = "A_CONSOLE";
 	BFG::Controller_::fillWithDefaultActions(actions);
 	BFG::Controller_::sendActionsToController(emitter.loop(), actions);
 
