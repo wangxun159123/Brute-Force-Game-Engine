@@ -40,8 +40,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <View/HudElement.h>
 #include <View/Event.h>
 
-namespace BFG{
-namespace View{
+namespace BFG {
+namespace View {
 
 Console::Console(EventLoop* Loop) :
 HudElement("Console.layout", "Console"),
@@ -90,19 +90,19 @@ void colorFormatter(std::ostream& strm, logging::record const& rec)
 	else if (sl == Base::Logger::SL_WARNING)     strm << "#FFFF00";
 	else if (sl == Base::Logger::SL_ERROR)       strm << "#FF0000";
 
-    strm << rec.message();
+	strm << rec.message();
 }
 
 void Console::registerSink()
 {
 	// Construct the sink
-    mSink = boost::make_shared<text_sink>();
-	
-    // Add a stream to write log to
-    mSink->locked_backend()->add_stream(boost::make_shared<std::ostream>(this));
+	mSink = boost::make_shared<text_sink>();
+
+	// Add a stream to write log to
+	mSink->locked_backend()->add_stream(boost::make_shared<std::ostream>(this));
 	mSink->locked_backend()->set_formatter(&colorFormatter);
 
-    // Register the sink in the logging core
+	// Register the sink in the logging core
 	boost::log::core::get()->add_sink(mSink);
 }
 
@@ -129,8 +129,8 @@ void Console::input(MyGUI::Edit* Sender)
 	emit<Event>(BFG::ID::VE_CONSOLE_COMMAND, command);
 
 	mConsoleContent += command + "\n";
- 	mStaticText->setCaption(mConsoleContent);
- 	mEdit->eraseText(0, -1);
+	mStaticText->setCaption(mConsoleContent);
+	mEdit->eraseText(0, -1);
 }
 
 //! virtual function of std::streambuf, is expected to display c
@@ -150,5 +150,5 @@ int Console::xsputn(const char * s, int n)
 	return n;
 }
 
-}}
-
+} // namespace View
+} // namespace BFG

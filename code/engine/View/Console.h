@@ -54,29 +54,26 @@ public:
 	Console(EventLoop*);
 	~Console();
 	
-	// Those Methods are eventhandler methods
-
 	//! \brief Hides or Shows the Console
-	//! \brief Is called by the Event ID::A_CONSOLE
+	//! This method is called by View::Main since it is also the owner of
+	//! the one single instance of this class. This instance does not get
+	//! created and destroyed every time the Console is triggered. Instead,
+	//! this function is called (for better performance).
 	void toggleVisible(bool show);
-
-	//! \brief Is called, when someone presses enter in the inputline
-	void input(MyGUI::Edit*);
 
 protected:
 	//! \brief Initiates the UserInterface of the Console
 	void createUI();
 
-	/** @brief	this 2 methods are part of std::streambuf 
-				and have to be overwritten.
-	*/
-	
+	//! \brief These 2 methods are part of std::streambuf.
 	//! @{
 	int xsputn ( const char * s, int n );
 	int overflow(int);
 	//! @}
 
-
+	//! \brief Is called, when someone presses enter in the inputline
+	void input(MyGUI::Edit*);
+	
 	//Widgets:
 	MyGUI::StaticTextPtr mStaticText;
 	MyGUI::EditPtr mEdit;
@@ -96,7 +93,6 @@ private:
 	
 	typedef boost::log::sinks::asynchronous_sink<boost::log::sinks::text_ostream_backend> text_sink;
 	boost::shared_ptr<text_sink> mSink;
-
 };
 
 }}
