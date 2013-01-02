@@ -45,6 +45,8 @@ namespace Loader {
 //! \exception std::runtime_error If the input couldn't be converted. 
 Property::Value MODEL_API StringToPropertyValue(const std::string& input);
 
+bool strToBool(const std::string& input, bool& output);
+
 //! \brief Serializes string data into engine structures
 class MODEL_API Interpreter
 {

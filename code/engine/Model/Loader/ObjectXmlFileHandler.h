@@ -34,6 +34,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Model/Loader/Types.h>
 #include <Model/Loader/Connection.h>
+#include <Model/Loader/Interpreter.h>
 #include <Model/Property/Plugin.h>
 
 namespace BFG {
@@ -66,7 +67,9 @@ protected:
 		mConcept = tree->child("Concepts")->elementData();
 		mCollision = ID::asCollisionMode(tree->child("Collision")->elementData());
 		
-		mVisible = boost::lexical_cast<bool>(tree->child("Visible")->elementData());
+		std::string visibleStr = tree->child("Visible")->elementData();
+		Loader::strToBool(visibleStr, mVisible);
+
 		mDensity = boost::lexical_cast<f32>(tree->child("Density")->elementData());
 		Loader::parseConnection(tree->child("Connection")->elementData(), mConnection);
 	}
@@ -90,7 +93,7 @@ protected:
 	void load(XmlTreeT tree)
 	{
 		mName = tree->attribute("name");
-		XmlTreeListT childList = tree->childList("ObjectConfig");
+		XmlTreeListT childList = tree->childList("Module");
 
 		XmlTreeListT::iterator it = childList.begin();
 		for (;it != childList.end();++it)

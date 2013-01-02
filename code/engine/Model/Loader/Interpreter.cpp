@@ -49,6 +49,23 @@ static void print(boost::shared_ptr<TagWithAttributesT> attributes)
 	}
 }
 
+bool strToBool(const std::string& input, bool& output)
+{
+	if (input == "yes" || input == "true" || input == "1")
+	{
+		output = true;
+		return true;
+	}
+	else 
+	if (input == "no" || input == "false" || input == "0")
+	{
+		output = false;
+		return true;
+	}
+
+	return false;
+}
+
 Property::Value StringToPropertyValue(const std::string& input)
 {
 	Property::Value result;
@@ -95,17 +112,10 @@ Property::Value StringToPropertyValue(const std::string& input)
 	catch (std::out_of_range) {}
 	
 	// is bool
-	if (boost::iequals(input, "yes") || boost::iequals(input, "true"))
-	{
-		result = true;
+	if (strToBool(input, result))
 		return result;
-	}
-	else if (boost::iequals(input, "no") || boost::iequals(input, "false"))
-	{
-		result = false;
-		return result;
-	}
-
+	
+	// is string
 	result = stringToArray<128>(input);
 	return result;
 }
@@ -471,10 +481,8 @@ void Interpreter::interpretCameraDefinition(const TagWithAttributesT& definition
 
 	if (grab(Tag::fullscreen, definitions, bufferString, true))
 	{
-	 	if (bufferString == "yes")
-	 		cameraParameters.mFullscreen = true;
-	 	else
-	 		cameraParameters.mFullscreen = false;
+	 	if (!strToBool(bufferString, cameraParameters.mFullscreen))
+			throw std::logic_error("Unexpected value for cameraParameters 'Fullscreen'.");
 	}
 
 	grab(Tag::reactionTime, definitions, bufferString);
@@ -583,8 +591,7 @@ void Interpreter::convert(const std::string& in, v3& out) const
 
 void Interpreter::convert(const std::string& in, bool& out) const
 {
-	if      (in == "yes" || in == "true" || in == "1") out = true;
-	else if (in == "no" || in == "false" || in == "0") out = false;
+	strToBool(in, out);
 }
 
 void Interpreter::convert(const std::string& in, cv4& out) const
