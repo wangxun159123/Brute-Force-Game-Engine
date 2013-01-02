@@ -3,68 +3,58 @@
 <ObjectConfigs>
 
   <ObjectConfig name="Invader">
-    <Module
-      name="Root"
-      mesh="Packer.mesh"
-      connection=""
-      adapters="Empty"
-      concepts="InvaderConcept"
-      collision="CM_Standard"
-      visible="yes"
-      density="50.0"
-      />
+    <Module name="Root">
+      <Mesh>Packer.mesh</Mesh>
+      <Adapters>Empty</Adapters>
+      <Concepts>InvaderConcept</Concepts>
+      <Collision>CM_Standard</Collision>
+      <Visible>yes</Visible>
+      <Density>50.0</Density>
+    </Module>
   </ObjectConfig>
 
   <ObjectConfig name="Ship">
-    <Module
-      name="Root"
-      mesh="Arrow.mesh"
-      connection=""
-      adapters="Empty"
-      concepts="ShipConcept"
-      collision="CM_Standard"
-      visible="yes"
-      density="10000.0"
-      />
+    <Module name="Root">
+      <Mesh>Arrow.mesh</Mesh>
+      <Adapters>Empty</Adapters>
+      <Concepts>ShipConcept</Concepts>
+      <Collision>CM_Standard</Collision>
+      <Visible>yes</Visible>
+      <Density>10000.0</Density>
+    </Module>
   </ObjectConfig>
 
   <ObjectConfig name="Projectile">
-    <Module
-      name="Root"
-      mesh="Rocket.mesh"
-      connection=""
-      adapters="Empty"
-      concepts="ProjectileConcept"
-      collision="CM_Standard"
-      visible="yes"
-      density="5.0"
-      />
+    <Module name="Root">
+      <Mesh>Rocket.mesh</Mesh>
+      <Adapters>Empty</Adapters>
+      <Concepts>ProjectileConcept</Concepts>
+      <Collision>CM_Standard</Collision>
+      <Visible>yes</Visible>
+      <Density>5.0</Density>
+    </Module>
   </ObjectConfig>
 
   <ObjectConfig name="AutoProjectile">
-    <Module
-      name="Root"
-      mesh="Rocket.mesh"
-      connection=""
-      adapters="Empty"
-      concepts="AutoProjectileConcept"
-      collision="CM_Standard"
-      visible="yes"
-      density="5.0"
-      />
+    <Module name="Root">
+      <Mesh>Rocket.mesh</Mesh>
+      <Adapters>Empty</Adapters>
+      <Concepts>AutoProjectileConcept</Concepts>
+      <Collision>CM_Standard</Collision>
+      <Visible>yes</Visible>
+      <Density>5.0</Density>
+    </Module>
   </ObjectConfig>
 
   <ObjectConfig name="Powerup">
-    <Module
-      name="Root"
-      mesh="Cube.mesh"
-      connection=""
-      adapters="Empty"
-      concepts="PowerupConcept"
-      collision="CM_Ghost"
-      visible="yes"
-      density="5.0"
-      />
+    <Module name="Root">
+      <Mesh>Cube.mesh</Mesh>
+      <Adapters>Empty</Adapters>
+      <Concepts>PowerupConcept</Concepts>
+      <Collision>CM_Ghost</Collision>
+      <Visible>yes</Visible>
+      <Density>5.0</Density>
+    </Module>
   </ObjectConfig>
 
 </ObjectConfigs>
