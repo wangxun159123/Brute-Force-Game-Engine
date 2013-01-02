@@ -33,6 +33,13 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <EventSystem/Emitter.h>
 
 #include <Model/Loader/Types.h>
+#include <Model/Loader/FileHandleFactory.h>
+
+#include <Model/Loader/ConceptFactory.h> 
+#include <Model/Loader/AdapterFactory.h>
+#include <Model/Loader/ObjectXmlFileHandler.h>
+#include <Model/Loader/ValueFactory.h>
+
 #include <Model/Property/Plugin.h>
 
 namespace BFG {
@@ -78,22 +85,32 @@ public:
 private:
 	GoModuleMapT mGoModules;
 	GoMapT mGameObjects;
-	
+
 	const Property::PluginMapT& mPropertyPlugins;
 
 	boost::shared_ptr<Interpreter> mInterpreter;
 	boost::shared_ptr<Environment> mEnvironment;
-	
-	typedef std::map<std::string, std::vector<ModuleParameter> > ModuleParameterMapT;
-	typedef std::map<std::string, std::vector<AdapterParameter> > AdapterParameterMapT;
-	typedef std::map<std::string, std::vector<ConceptParameter> > ConceptParameterMapT;
-	typedef std::map<std::string, std::vector<ValueParameter> > ValueParameterMapT;
-	
-	ModuleParameterMapT mModuleParameters;
-	AdapterParameterMapT mAdapterParameters;
-	ConceptParameterMapT mConceptParameters;
-	ValueParameterMapT mValueParameters;
-	
+
+	typedef FileHandleFactory<AdapterConfigParametersT, AdapterFactory> AdapterAgentT;
+	typedef FileHandleFactory<ObjectConfigParametersT, ObjectXmlFileHandler> ModuleAgentT;
+	typedef FileHandleFactory<ConceptConfigT, ConceptFactory> ConceptAgentT;
+	typedef FileHandleFactory<ValueConfigT, ValueFactory> ValueAgentT;
+	 
+	AdapterAgentT mAdapterParameters;
+	ModuleAgentT mModuleParameters;
+	ConceptAgentT mConceptParameters;
+	ValueAgentT mValueParameters;
+
+	// typedef std::map<std::string, std::vector<ModuleParameter> > ModuleParameterMapT;
+	// typedef std::map<std::string, std::vector<AdapterParameter> > AdapterParameterMapT;
+	// typedef std::map<std::string, std::vector<ConceptParameter> > ConceptParameterMapT;
+	// typedef std::map<std::string, std::vector<ValueParameter> > ValueParameterMapT;
+
+	// ModuleParameterMapT mModuleParameters;
+	// AdapterParameterMapT mAdapterParameters;
+	// ConceptParameterMapT mConceptParameters;
+	// ValueParameterMapT mValueParameters;
+
 	GameHandle mStateHandle;
 };
 
