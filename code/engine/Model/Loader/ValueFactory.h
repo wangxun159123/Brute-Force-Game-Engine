@@ -120,7 +120,7 @@ public:
 
 	~ValueFactory() {}
 
-	ValueConfigT createValueParameter(const std::string& valueName)
+	ValueConfigT create(const std::string& valueName)
 	{
 		ValueMapT::iterator it = mValues.find(valueName);
 
@@ -149,6 +149,8 @@ protected:
 	typedef std::map<std::string, ValueConfigT> ValueMapT;
 	ValueMapT mValues;
 };
+
+typedef boost::shared_ptr<ValueFactory> ValueConfigFileHandlerT;
 
 }
 

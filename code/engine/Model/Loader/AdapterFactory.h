@@ -63,6 +63,8 @@ protected:
 	}
 };
 
+typedef boost::shared_ptr<AdapterParameters> AdapterParametersT;
+
 struct AdapterConfigParameters
 {
 	AdapterConfigParameters(XmlTreeT tree)
@@ -71,7 +73,8 @@ struct AdapterConfigParameters
 	}
 	
 	std::string mName;
-	std::vector<AdapterParameters> mAdapter;
+	typedef std::vector<AdapterParametersT> AdapterParameterListT;
+	AdapterParameterListT mAdapters;
 	
 protected:
 
@@ -83,11 +86,10 @@ protected:
 		XmlTreeListT::iterator it = childList.begin();
 		for (;it != childList.end();++it)
 		{
-			mAdapter.push_back(AdapterParameters(*it));
+			mAdapters.push_back(AdapterParametersT(new AdapterParameters(*it)));
 		}
 	}
 };
-
 
 typedef boost::shared_ptr<AdapterConfigParameters> AdapterConfigParametersT;
 
@@ -100,7 +102,7 @@ public:
 		load();
 	}
 
-	AdapterConfigParametersT createAdapters(const std::string& adapterConfigName)
+	AdapterConfigParametersT create(const std::string& adapterConfigName)
 	{
 		AdapterConfigsT::iterator it = mAdapterConfigs.find(adapterConfigName);
 		
@@ -132,6 +134,8 @@ private:
 	XmlFileHandleT mAdapterConfigFile;
 	AdapterConfigsT mAdapterConfigs;
 };
+
+typedef boost::shared_ptr<AdapterFactory> AdapterFileHandlerT;
 
 }
 

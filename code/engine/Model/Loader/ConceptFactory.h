@@ -43,7 +43,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace BFG
 {
 
-
 struct ConceptParameter
 {
 	ConceptParameter(XmlTreeT tree)
@@ -101,7 +100,7 @@ public:
 		load();
 	}
 
-	ConceptConfigT createConceptParameter(const std::string& conceptName)
+	ConceptConfigT create(const std::string& conceptName)
 	{
 		ConceptConfigMapT::iterator it = mConcepts.find(conceptName);
 
@@ -130,6 +129,8 @@ protected:
 	typedef std::map<std::string, ConceptConfigT> ConceptConfigMapT;
 	ConceptConfigMapT mConcepts;
 };
+
+typedef boost::shared_ptr<ConceptFactory> ConfigFileHandlerT;
 
 }
 
