@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE (defaultAdapter)
 	BOOST_REQUIRE_NO_THROW
 	(
 		AdapterFactory factory = AdapterFactory(fileHandle);
-		AdapterConfigParametersT acp = factory.createAdapters("CubeAllAdapters")
+		AdapterConfigParametersT acp = factory.create("CubeAllAdapters")
 	);
 }
 
@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE (defaultValuesTest)
 	BOOST_REQUIRE_NO_THROW
 	(
 		ValueFactory factory = ValueFactory(fileHandle);
-		ValueConfigT vcp = factory.createValueParameter("ExplodeOnContact")
+		ValueConfigT vcp = factory.create("ExplodeOnContact")
 	);
 }
 
@@ -132,11 +132,9 @@ BOOST_AUTO_TEST_CASE (defaultConceptsTest)
 	BOOST_REQUIRE_NO_THROW
 	(
 		ConceptFactory factory = ConceptFactory(fileHandle);
-		ConceptConfigT vcp = factory.createConceptParameter("CubeConcept")
+		ConceptConfigT vcp = factory.create("CubeConcept")
 	);
 }
-
-
 
 } // BFG
 } // Test
