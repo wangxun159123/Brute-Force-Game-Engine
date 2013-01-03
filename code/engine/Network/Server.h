@@ -28,6 +28,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #define __SERVER_H__
 
 #include <boost/asio.hpp>
+#include <boost/enable_shared_from_this.hpp>
 #include <boost/thread.hpp>
 
 #include <Base/EntryPoint.h>
@@ -57,7 +58,7 @@ public:
 	Server(EventLoop* loop);
 	~Server();
 private:
-	typedef std::map<PeerIdT, NetworkModule* > ModulesMap;
+	typedef std::map<PeerIdT, boost::shared_ptr<NetworkModule> > ModulesMap;
 
 	//! \brief Stops all communication to and from all clients
 	void stop();

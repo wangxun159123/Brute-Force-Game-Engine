@@ -68,7 +68,7 @@ void Server::stop()
 	if (!mNetworkModules.empty())
 	{
 		for(ModulesMap::iterator it = mNetworkModules.begin(); it != mNetworkModules.end(); ++it)
-			delete it->second;
+			it->second.reset();
 
 		mNetworkModules.clear();
 	}
@@ -79,7 +79,7 @@ void Server::startAccepting()
 	dbglog << "Server::startAccepting";
 	
 	PeerIdT peerId = generateNetworkHandle();
-	NetworkModule* netModule = new NetworkModule(mLoop, mService, peerId, mLocalTime);
+	boost::shared_ptr<NetworkModule> netModule(new NetworkModule(mLoop, mService, peerId, mLocalTime));
 	mNetworkModules.insert(std::make_pair(peerId, netModule));
 
 	dbglog << "Created Networkmodule(" << netModule << ")";
@@ -123,9 +123,10 @@ void Server::acceptHandler(const boost::system::error_code &ec, PeerIdT peerId)
 void Server::writeHandshakeHandler(const error_code &ec, std::size_t bytesTransferred, PeerIdT peerId)
 {
 	dbglog << "Server: peer ID was sent";
+	mNetworkModules[peerId]->startReading();
+
 	Emitter e(mLoop);
 	e.emit<ControlEvent>(ID::NE_CONNECTED, peerId);
-	mNetworkModules[peerId]->startReading();
 }
 
 void Server::controlEventHandler(ControlEvent* e)
@@ -168,7 +169,7 @@ void Server::onDisconnect(const PeerIdT& peerId)
 	ModulesMap::iterator it = mNetworkModules.find(peerId);
 	if (it != mNetworkModules.end())
 	{
-		delete mNetworkModules[peerId];
+		mNetworkModules[peerId].reset();
 		mNetworkModules.erase(it);
 		Emitter e(mLoop);
 		e.emit<ControlEvent>(ID::NE_DISCONNECTED, peerId);
