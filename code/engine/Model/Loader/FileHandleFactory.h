@@ -79,7 +79,7 @@ ConfigT requestConfig(const std::string& configName)
 	for(;fileIt != mFileList.end(); ++fileIt)
 		files += *fileIt+" ";
 	
-	throw std::logic_error(" Could not find: "+configName+" in: "+files+".");
+	throw std::logic_error("Could not find: "+configName+" in: "+files+".");
 }
 
 private:

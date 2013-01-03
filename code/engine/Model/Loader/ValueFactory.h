@@ -126,7 +126,11 @@ public:
 
 		if (it == mValues.end())
 		{
-			throw std::logic_error("ValueFactory: "+valueName+" not found.");
+			// return a NULL pointer with boost::shared_ptr type.
+			ValueConfigT t;
+			t.reset();
+			
+			return t;
 		}
 
 		return it->second;

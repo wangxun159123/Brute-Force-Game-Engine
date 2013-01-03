@@ -126,9 +126,7 @@ public:
 
 		if (it == mObjectConfigs.end())
 		{
-			// todo substiude throwing exception with a more robust error handling. Exception throwing will be moved one level higher.
-			// throw std::logic_error("Fileformat in: "+mObjectConfigFile->path()+" Could not find "+objectConfigName);	
-			
+			// return a NULL pointer with boost::shared_ptr type.
 			ObjectConfigParametersT t;
 			t.reset();
 			

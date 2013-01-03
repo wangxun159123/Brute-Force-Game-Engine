@@ -108,7 +108,11 @@ public:
 		
 		if (it == mAdapterConfigs.end())
 		{
-			throw std::logic_error("Fileformat in: "+mAdapterConfigFile->path()+" Could not find "+adapterConfigName);	
+			// return a NULL pointer with boost::shared_ptr type.
+			AdapterConfigParametersT t;
+			t.reset();
+			
+			return t;
 		}
 
 		return it->second;

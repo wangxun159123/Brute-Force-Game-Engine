@@ -220,19 +220,22 @@ GameObjectFactory::createGameObject(const ObjectParameter& parameter)
 		{
 			std::vector<Adapter> adapterVector;
 
-			AdapterConfigParametersT adapterParameter = mAdapterParameters.requestConfig(moduleParameter->mAdapter);
-			AdapterConfigParameters::AdapterParameterListT::iterator adapterIt = adapterParameter->mAdapters.begin();
-
-			for (; adapterIt != adapterParameter->mAdapters.end(); ++adapterIt)
+			if (!moduleParameter->mAdapter.empty())
 			{
-				AdapterParametersT adapterParameter = *adapterIt;
+				AdapterConfigParametersT adapterParameter = mAdapterParameters.requestConfig(moduleParameter->mAdapter);
+				AdapterConfigParameters::AdapterParameterListT::iterator adapterIt = adapterParameter->mAdapters.begin();
 
-				Adapter adapter;
-				adapter.mParentPosition = adapterParameter->mPosition;
-				adapter.mParentOrientation = adapterParameter->mOrientation;
-				adapter.mIdentifier = adapterParameter->mId;
+				for (; adapterIt != adapterParameter->mAdapters.end(); ++adapterIt)
+				{
+					AdapterParametersT adapterParameter = *adapterIt;
 
-				adapterVector.push_back(adapter);
+					Adapter adapter;
+					adapter.mParentPosition = adapterParameter->mPosition;
+					adapter.mParentOrientation = adapterParameter->mOrientation;
+					adapter.mIdentifier = adapterParameter->mId;
+
+					adapterVector.push_back(adapter);
+				}
 			}
 
 			gameObject->attachModule

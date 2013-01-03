@@ -106,7 +106,11 @@ public:
 
 		if (it == mConcepts.end())
 		{
-			throw std::logic_error("ConceptFactory: "+conceptName+" not found.");
+			// return a NULL pointer with boost::shared_ptr type.
+			ConceptConfigT t;
+			t.reset();
+			
+			return t;
 		}
 
 		return it->second;
