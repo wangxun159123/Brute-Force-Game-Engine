@@ -51,13 +51,17 @@ static void print(boost::shared_ptr<TagWithAttributesT> attributes)
 
 bool strToBool(const std::string& input, bool& output)
 {
-	if (input == "yes" || input == "true" || input == "1")
+	if (boost::iequals(input, "yes")  || 
+		boost::iequals(input, "true") ||
+		boost::iequals(input, "1"))
 	{
 		output = true;
 		return true;
 	}
 	else 
-	if (input == "no" || input == "false" || input == "0")
+	if (boost::iequals(input, "no")  || 
+		boost::iequals(input, "false") ||
+		boost::iequals(input, "0"))
 	{
 		output = false;
 		return true;
