@@ -99,16 +99,6 @@ private:
 	ConceptAgentT mConceptParameters;
 	ValueAgentT mValueParameters;
 
-	// typedef std::map<std::string, std::vector<ModuleParameter> > ModuleParameterMapT;
-	// typedef std::map<std::string, std::vector<AdapterParameter> > AdapterParameterMapT;
-	// typedef std::map<std::string, std::vector<ConceptParameter> > ConceptParameterMapT;
-	// typedef std::map<std::string, std::vector<ValueParameter> > ValueParameterMapT;
-
-	// ModuleParameterMapT mModuleParameters;
-	// AdapterParameterMapT mAdapterParameters;
-	// ConceptParameterMapT mConceptParameters;
-	// ValueParameterMapT mValueParameters;
-
 	GameHandle mStateHandle;
 };
 
