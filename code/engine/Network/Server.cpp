@@ -51,6 +51,7 @@ mLocalTime(new Clock::StopWatch(Clock::milliSecond))
 
 Server::~Server()
 {
+	dbglog << "Server::~Server";
 	stop();
 	mLoop->disconnect(ID::NE_LISTEN, this);
 	mLoop->disconnect(ID::NE_DISCONNECT, this);
@@ -62,16 +63,19 @@ Server::~Server()
 void Server::stop()
 {
 	dbglog << "Server::stop";
-	mService.stop();
-	mThread.join();
 
 	if (!mNetworkModules.empty())
 	{
 		for(ModulesMap::iterator it = mNetworkModules.begin(); it != mNetworkModules.end(); ++it)
-			it->second.reset();
+		{
+			if (it->second && it->second->socket()->is_open())
+				it->second->socket()->close();
+		}
 
 		mNetworkModules.clear();
 	}
+	mService.stop();
+	mThread.join();
 }
 
 void Server::startAccepting()
