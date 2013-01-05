@@ -66,7 +66,6 @@ public:
 	GameObjectFactory(EventLoop* loop,
 	                  const LevelConfig& files,
 	                  const Property::PluginMapT& propertyPlugins,
-	                  boost::shared_ptr<Interpreter> interpreter,
 	                  boost::shared_ptr<Environment> environment,
 	                  GameHandle stateHandle);
 
@@ -88,13 +87,12 @@ private:
 
 	const Property::PluginMapT& mPropertyPlugins;
 
-	boost::shared_ptr<Interpreter> mInterpreter;
 	boost::shared_ptr<Environment> mEnvironment;
 
-	typedef FileHandleFactory<AdapterConfigParametersT, AdapterFactory> AdapterAgentT;
-	typedef FileHandleFactory<ObjectConfigParametersT, ObjectXmlFileHandler> ModuleAgentT;
-	typedef FileHandleFactory<ConceptConfigT, ConceptFactory> ConceptAgentT;
-	typedef FileHandleFactory<ValueConfigT, ValueFactory> ValueAgentT;
+	typedef FileHandleFactory<AdapterFactory> AdapterAgentT;
+	typedef FileHandleFactory<ObjectXmlFileHandler> ModuleAgentT;
+	typedef FileHandleFactory<ConceptFactory> ConceptAgentT;
+	typedef FileHandleFactory<ValueFactory> ValueAgentT;
 	 
 	AdapterAgentT mAdapterParameters;
 	ModuleAgentT mModuleParameters;

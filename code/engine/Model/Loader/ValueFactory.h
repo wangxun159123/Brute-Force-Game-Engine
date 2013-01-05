@@ -113,6 +113,9 @@ class ValueFactory
 
 public:
 	
+	// This typedef will be used for abstraction in FileHandleFactory.h.
+	typedef ValueConfigT ReturnT;
+
 	ValueFactory(XmlFileHandleT valueConfig) : mValueConfigFile(valueConfig)
 	{
 		load();

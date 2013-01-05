@@ -115,6 +115,9 @@ class ObjectXmlFileHandler
 {
 public:
 
+	// This typedef will be used for abstraction in FileHandleFactory.h.
+	typedef ObjectConfigParametersT ReturnT;
+
 	ObjectXmlFileHandler(XmlFileHandleT objectConfig) : mObjectConfigFile(objectConfig)
 	{
 		load();

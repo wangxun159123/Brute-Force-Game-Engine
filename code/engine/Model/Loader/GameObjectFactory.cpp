@@ -47,12 +47,10 @@ namespace Loader {
 GameObjectFactory::GameObjectFactory(EventLoop* loop,
                                      const LevelConfig& files,
                                      const Property::PluginMapT& propertyPlugins,
-                                     boost::shared_ptr<Interpreter> interpreter,
                                      boost::shared_ptr<Environment> environment,
                                      GameHandle stateHandle) :
 Emitter(loop),
 mPropertyPlugins(propertyPlugins),
-mInterpreter(interpreter),
 mEnvironment(environment),
 mStateHandle(stateHandle),
 mModuleParameters(files.mModules),

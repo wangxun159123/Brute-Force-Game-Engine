@@ -40,11 +40,13 @@ namespace BFG {
 
 //! This class provides the creation of filehanling objects of a specific type.
 //! ConfigT Type of config data object
-template<class ConfigT, class FileHandlerT>
+template<class FileHandlerT>
 class FileHandleFactory
 {
 
 public:
+
+typedef typename FileHandlerT::ReturnT ConfigT;
 
 FileHandleFactory(const std::vector<std::string>& files)
 {
@@ -89,6 +91,12 @@ typedef std::vector<FileHandlerT_ptr> FileHandlerListT;
 
 FileHandlerListT mFileHandlerList;
 std::vector<std::string> mFileList;
+
+};
+
+template <class AdapterConfigT, class ConceptsConfigT, class ModuleConfigT, class PropertyConfigT>
+struct levelConfigDefault
+{
 
 };
 

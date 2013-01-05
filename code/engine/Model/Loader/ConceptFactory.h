@@ -95,6 +95,9 @@ class ConceptFactory
 
 public:
 	
+	// This typedef will be used for abstraction in FileHandleFactory.h.
+	typedef ConceptConfigT ReturnT;
+
 	ConceptFactory(XmlFileHandleT conceptConfig) : mConceptConfigFile(conceptConfig)
 	{
 		load();

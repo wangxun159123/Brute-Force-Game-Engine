@@ -102,7 +102,10 @@ public:
 		load();
 	}
 
-	AdapterConfigParametersT create(const std::string& adapterConfigName)
+	// This typedef will be used for abstraction in FileHandleFactory.h.
+	typedef AdapterConfigParametersT ReturnT;
+	
+	ReturnT create(const std::string& adapterConfigName)
 	{
 		AdapterConfigsT::iterator it = mAdapterConfigs.find(adapterConfigName);
 		
