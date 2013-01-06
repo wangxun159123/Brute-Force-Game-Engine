@@ -87,6 +87,8 @@ const s32 START_SIMULATION_3 = 15004;
 const GameHandle SERVER_STATE_HANDLE = 42;
 const GameHandle CLIENT_STATE_HANDLE = 43;
 
+const s32 ROWS = 5;
+
 bool alwaysTrue(boost::shared_ptr<BFG::GameObject>)
 {
 	return true;
@@ -206,7 +208,7 @@ struct ServerState: public SynchronizationTestState
 			case START_SIMULATION_1:
 			{
 				infolog << "Starting Simulation 1";
-				v3 position = v3(2.0f, 0.0f, 50.0f);
+				v3 position = v3(2.0f, -1.0f, 50.0f);
 				emit<BFG::Physics::Event>(BFG::ID::PE_UPDATE_POSITION, position, mPlayer);
 
 				break;
@@ -241,54 +243,33 @@ struct ServerState: public SynchronizationTestState
 		BFG::Loader::ObjectParameter op;
 		op.mType = "Cube";
 
-		op.mHandle = BFG::generateNetworkHandle();
-		op.mName = "TestCube1";
-		op.mLocation = v3(0.0f, -1.0f, 50.0f);
-		handles << op.mHandle << " ";
-		createObject(op);
-		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
+		f32 width = 1.0f;
+		f32 height = 1.0f;
+		f32 offset = 0.5f;
 
-		op.mHandle = BFG::generateNetworkHandle();
-		op.mName = "TestCube2";
-		op.mLocation = v3(0.0f, 1.0f, 50.0f);
-		handles << op.mHandle << " ";
-		createObject(op);
-		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
+		int counter = 0;
 
-		op.mHandle = BFG::generateNetworkHandle();
-		op.mName = "TestCube3";
-		op.mLocation = v3(-5.0f, 1.0f, 50.0f);
-		handles << op.mHandle << " ";
-		createObject(op);
-		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
+		for (int i = 0; i < ROWS; ++i)
+		{
+			for(int j = 0; j <= i; ++j)
+			{
+				f32 x = - i * (width + offset) - 5.0f;
+				f32 y = j * (height + offset) - (i * (height + offset) / 2.0f);
 
-		op.mHandle = BFG::generateNetworkHandle();
-		op.mName = "TestCube4";
-		op.mLocation = v3(-5.0f, -1.0f, 50.0f);
-		handles << op.mHandle << " ";
-		createObject(op);
-		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
+				std::stringstream number;
+				number << ++counter;
+				op.mHandle = BFG::generateNetworkHandle();
+				op.mName = "TestCube" + number.str();
+				op.mLocation.position = v3(x, y, 50.0f);
+				if (i == j == (ROWS-1))
+					handles << op.mHandle;
+				else
+					handles << op.mHandle << " ";
 
-		op.mHandle = BFG::generateNetworkHandle();
-		op.mName = "TestCube5";
-		op.mLocation = v3(-7.0f, 2.0f, 50.0f);
-		handles << op.mHandle << " ";
-		createObject(op);
-		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
-
-		op.mHandle = BFG::generateNetworkHandle();
-		op.mName = "TestCube6";
-		op.mLocation = v3(-7.0f, -2.0f, 50.0f);
-		handles << op.mHandle << " ";
-		createObject(op);
-		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
-
-		op.mHandle = BFG::generateNetworkHandle();
-		op.mName = "TestCube7";
-		op.mLocation = v3(-7.0f, 0.0f, 50.0f);
-		handles << op.mHandle;
-		createObject(op);
-		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
+				createObject(op);
+				emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
+			}
+		}
 
 		mCreatedHandles = handles.str();
 		mSceneCreated = true;
@@ -485,48 +466,29 @@ struct ClientState : public SynchronizationTestState
 		BFG::Loader::ObjectParameter op;
 		op.mType = "Cube_Remote";
 		
-		oss >> op.mHandle;
-		op.mName = "TestCube";
-		op.mLocation = v3(0.0f, -1.0f, 50.0f);
-		createObject(op);
-		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_READ, op.mHandle);
-		
-		oss >> op.mHandle;
-		op.mName = "TestCube2";
-		op.mLocation = v3(0.0f, 1.0f, 50.0f);
-		createObject(op);
-		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_READ, op.mHandle);
-		
-		oss >> op.mHandle;
-		op.mName = "TestCube3";
-		op.mLocation = v3(-5.0f, 1.0f, 50.0f);
-		createObject(op);
-		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_READ, op.mHandle);
-		
-		oss >> op.mHandle;
-		op.mName = "TestCube4";
-		op.mLocation = v3(-5.0f, -1.0f, 50.0f);
-		createObject(op);
-		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_READ, op.mHandle);
-		
-		oss >> op.mHandle;
-		op.mName = "TestCube5";
-		op.mLocation = v3(-7.0f, 2.0f, 50.0f);
-		createObject(op);
-		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_READ, op.mHandle);
-		
-		oss >> op.mHandle;
-		op.mName = "TestCube6";
-		op.mLocation = v3(-7.0f, -2.0f, 50.0f);
-		createObject(op);
-		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_READ, op.mHandle);
-		
-		oss >> op.mHandle;
-		op.mName = "TestCube7";
-		op.mLocation = v3(-7.0f, 0.0f, 50.0f);
-		createObject(op);
-		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_READ, op.mHandle);
-		
+		f32 width = 1.0f;
+		f32 height = 1.0f;
+		f32 offset = 0.5f;
+
+		int counter = 0;
+
+		for (int i = 0; i < ROWS; ++i)
+		{
+			for(int j = 0; j <= i; ++j)
+			{
+				f32 x = - i * (width + offset) - 5.0f;
+				f32 y = j * (height + offset) - (i * (height + offset) / 2.0f);
+
+				std::stringstream number;
+				number << ++counter;
+				oss >> op.mHandle;
+				op.mName = "TestCube" + number.str();
+				op.mLocation.position = v3(x, y, 50.0f);
+
+				createObject(op);
+				emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_READ, op.mHandle);
+			}
+		}		
 		
 	}
 	
