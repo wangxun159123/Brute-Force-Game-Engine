@@ -125,7 +125,7 @@ private:
 
 	boost::shared_ptr<boost::asio::deadline_timer> mTimeSyncTimer;
 
-	NetworkModule* mNetworkModule;
+	boost::shared_ptr<NetworkModule> mNetworkModule;
 
 	PeerIdT mPeerId;
 

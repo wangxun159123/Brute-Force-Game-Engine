@@ -47,11 +47,12 @@ mLocalTime(new Clock::StopWatch(Clock::milliSecond))
 	mLoop->connect(ID::NE_DISCONNECT, this, &Client::controlEventHandler);
 	mLoop->connect(ID::NE_SHUTDOWN, this, &Client::controlEventHandler);
 
-	mNetworkModule = new NetworkModule(mLoop, mService, 0, mLocalTime);
+	mNetworkModule.reset(new NetworkModule(mLoop, mService, 0, mLocalTime));
 }
 
 Client::~Client()
 {
+	dbglog << "Client::~Client";
 	stop();
 	mLoop->disconnect(ID::NE_CONNECT, this);
 	mLoop->disconnect(ID::NE_DISCONNECT, this);
@@ -71,8 +72,10 @@ void Client::stop()
 	mService.stop();
 	mThread.join();
 
-	delete mNetworkModule;
-	mNetworkModule = NULL;
+	if (mNetworkModule && mNetworkModule->socket()->is_open())
+		mNetworkModule->socket()->close();	
+
+	mNetworkModule.reset();
 }
 
 void Client::startConnecting(const std::string& ip, const std::string& port)

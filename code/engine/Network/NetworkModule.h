@@ -30,6 +30,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/array.hpp>
 #include <boost/asio.hpp>
 #include <boost/crc.hpp>
+#include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <Core/ClockUtils.h>
@@ -49,7 +50,7 @@ using namespace boost::system;
 
 //! A NetworkModule is used to communicate over the network. The data can be send using the NE_SEND event. 
 //! Received data is send via the NE_RECEIVED event.
-class NetworkModule : public Emitter
+class NetworkModule : public Emitter, public boost::enable_shared_from_this<NetworkModule>
 {
 public:
 	typedef tcp::socket SocketT;

@@ -51,13 +51,21 @@ mRoundTripTimer(Clock::milliSecond)
 
 NetworkModule::~NetworkModule()
 {
-	dbglog << "NetworkModule::~NetworkModule";
+	mTimer.reset();
+
+	dbglog << "NetworkModule::~NetworkModule (" << this << ")";
 	loop()->disconnect(ID::NE_SEND, this);
 
-	mTimer->cancel();
+	mBackPacket.empty();
+	mFrontPacket.empty();
+	mWriteBuffer.empty();
+	mReadBuffer.empty();
+	mReadHeaderBuffer.empty();
+	mWriteHeaderBuffer.empty();
+
+	mOutPacketPosition = 0;
 
 	mSocket.reset();
-	mTimer.reset();
 }
 
 void NetworkModule::startReading()
@@ -77,7 +85,7 @@ void NetworkModule::startReading()
 void NetworkModule::sendTimesyncRequest()
 {
 	dbglog << "Sending timesync request";
-	Network::DataPayload payload(ID::NE_TIMESYNC_REQUEST, 0, 0, 512, CharArray512T());
+	Network::DataPayload payload(ID::NE_TIMESYNC_REQUEST, 0, 0, 0, CharArray512T());
 	queueTimeCriticalPacket(payload);
 	mRoundTripTimer.start();
 }
@@ -88,7 +96,7 @@ void NetworkModule::setFlushTimer(const long& waitTime_ms)
 		return;
 
 	mTimer->expires_from_now(boost::posix_time::milliseconds(waitTime_ms));
-	mTimer->async_wait(boost::bind(&NetworkModule::timerHandler, this, _1));
+	mTimer->async_wait(boost::bind(&NetworkModule::timerHandler, shared_from_this(), _1));
 }
 
 void NetworkModule::setTcpDelay(bool on)
@@ -111,7 +119,7 @@ void NetworkModule::write(const char* data, size_t size)
 	(
 		*mSocket,
 		boost::asio::buffer(mWriteBuffer, size),
-		boost::bind(&NetworkModule::writeHandler, this, _1, _2)
+		boost::bind(&NetworkModule::writeHandler, shared_from_this(), _1, _2)
 	);
 }
 
@@ -123,7 +131,7 @@ void NetworkModule::read()
 		*mSocket, 
 		boost::asio::buffer(mReadHeaderBuffer),
 		boost::asio::transfer_exactly(NetworkEventHeader::SerializationT::size()),
-		bind(&NetworkModule::readHeaderHandler, this, _1, _2)
+		bind(&NetworkModule::readHeaderHandler, shared_from_this(), _1, _2)
 	);
 	dbglog << "NetworkModule::read Done";
 }
@@ -188,7 +196,7 @@ void NetworkModule::readHeaderHandler(const error_code &ec, std::size_t bytesTra
 			*mSocket, 
 			boost::asio::buffer(mReadBuffer),
 			boost::asio::transfer_exactly(neh.mPacketSize),
-			bind(&NetworkModule::readDataHandler, this, _1, _2, neh.mPacketChecksum)
+			bind(&NetworkModule::readDataHandler, shared_from_this(), _1, _2, neh.mPacketChecksum)
 		);
 	}
 	else if (ec.value() == boost::asio::error::connection_reset)

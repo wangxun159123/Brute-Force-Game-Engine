@@ -142,6 +142,11 @@ struct SynchronizationTestState: BFG::State
 		mPlayer = playerShip->getHandle();
 	}
 
+	virtual void destroyObject(GameHandle handle)
+	{
+		mSector->removeObject(handle);
+	}
+
 protected:
 	GameHandle mStateHandle;
 	GameHandle mPlayer;
@@ -156,17 +161,22 @@ private:
 
 struct ServerState: public SynchronizationTestState
 {
+	typedef std::vector<BFG::Network::PeerIdT> ClientListT;
+
 	ServerState(GameHandle handle, EventLoop* loop) :
-	SynchronizationTestState(handle, loop)
+	SynchronizationTestState(handle, loop),
+	mSceneCreated(false)
 	{
 		loop->connect(BFG::ID::NE_RECEIVED, this, &ServerState::networkPacketEventHandler, SERVER_STATE_HANDLE);
 		loop->connect(BFG::ID::NE_CONNECTED, this, &ServerState::networkControlEventHandler);
+		loop->connect(BFG::ID::NE_DISCONNECTED, this, &ServerState::networkControlEventHandler);
 	}
 	
 	virtual ~ServerState()
 	{
 		loop()->disconnect(BFG::ID::NE_RECEIVED, this);
 		loop()->disconnect(BFG::ID::NE_CONNECTED, this);
+		loop()->disconnect(BFG::ID::NE_DISCONNECTED, this);
 	}
 
 	void networkPacketEventHandler(BFG::Network::DataPacketEvent* e)
@@ -223,91 +233,154 @@ struct ServerState: public SynchronizationTestState
 		}
 	}
 
+	void createScene()
+	{
+		std::stringstream handles;
+
+		// First cube
+		BFG::Loader::ObjectParameter op;
+		op.mType = "Cube";
+
+		op.mHandle = BFG::generateNetworkHandle();
+		op.mName = "TestCube1";
+		op.mLocation = v3(0.0f, -1.0f, 50.0f);
+		handles << op.mHandle << " ";
+		createObject(op);
+		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
+
+		op.mHandle = BFG::generateNetworkHandle();
+		op.mName = "TestCube2";
+		op.mLocation = v3(0.0f, 1.0f, 50.0f);
+		handles << op.mHandle << " ";
+		createObject(op);
+		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
+
+		op.mHandle = BFG::generateNetworkHandle();
+		op.mName = "TestCube3";
+		op.mLocation = v3(-5.0f, 1.0f, 50.0f);
+		handles << op.mHandle << " ";
+		createObject(op);
+		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
+
+		op.mHandle = BFG::generateNetworkHandle();
+		op.mName = "TestCube4";
+		op.mLocation = v3(-5.0f, -1.0f, 50.0f);
+		handles << op.mHandle << " ";
+		createObject(op);
+		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
+
+		op.mHandle = BFG::generateNetworkHandle();
+		op.mName = "TestCube5";
+		op.mLocation = v3(-7.0f, 2.0f, 50.0f);
+		handles << op.mHandle << " ";
+		createObject(op);
+		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
+
+		op.mHandle = BFG::generateNetworkHandle();
+		op.mName = "TestCube6";
+		op.mLocation = v3(-7.0f, -2.0f, 50.0f);
+		handles << op.mHandle << " ";
+		createObject(op);
+		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
+
+		op.mHandle = BFG::generateNetworkHandle();
+		op.mName = "TestCube7";
+		op.mLocation = v3(-7.0f, 0.0f, 50.0f);
+		handles << op.mHandle;
+		createObject(op);
+		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
+
+		mCreatedHandles = handles.str();
+		mSceneCreated = true;
+	}
+
+	void destroyScene()
+	{
+		std::vector<GameHandle> all = mEnvironment->find_all(&alwaysTrue);
+		std::vector<GameHandle>::const_iterator it = all.begin();
+		for (; it != all.end(); ++it)
+		{
+			destroyObject(*it);
+		}
+		
+		mCreatedHandles = "";
+		mSceneCreated = false;
+	}
+
+	void onConneced(BFG::Network::PeerIdT peerId)
+	{
+		dbglog << "Client (" << peerId << ") wants to connect";
+		ClientListT::iterator it = std::find(mClientList.begin(), mClientList.end(), peerId);
+
+		if (it != mClientList.end())
+		{
+			errlog << "Client with the same PeerID (" << peerId << ") already connected!";
+			return;
+		}
+			
+		mClientList.push_back(peerId);
+
+		if (!mSceneCreated)
+			createScene();
+			
+		CharArray512T ca512 = stringToArray<512>(mCreatedHandles);
+
+		BFG::Network::DataPayload payload
+		(
+			CREATE_TEST_OBJECT, 
+			CLIENT_STATE_HANDLE, 
+			SERVER_STATE_HANDLE,
+			mCreatedHandles.length(),
+			ca512
+		);
+
+		emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload, peerId);
+	}
+
+	void onDisconnected(BFG::Network::PeerIdT peerId)
+	{
+		ClientListT::const_iterator it = std::find(mClientList.begin(), mClientList.end(), peerId);
+
+		if (it == mClientList.end())
+		{
+			errlog << "Client (" << peerId << ") was not connected!";
+			return;
+		}
+
+		mClientList.erase(it);
+
+		if (mClientList.empty())
+		{
+			destroyScene();
+		}
+	}
+
 	void networkControlEventHandler(BFG::Network::ControlEvent* e)
 	{
 		switch(e->getId())
 		{
 		case BFG::ID::NE_CONNECTED:
 		{
-			std::stringstream handles;
-
-			// First cube
-			BFG::Loader::ObjectParameter op;
-			op.mType = "Cube";
-
-			op.mHandle = BFG::generateNetworkHandle();
-			op.mName = "TestCube1";
-			op.mLocation = v3(0.0f, -1.0f, 50.0f);
-			handles << op.mHandle << " ";
-			createObject(op);
-			emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
-
-			op.mHandle = BFG::generateNetworkHandle();
-			op.mName = "TestCube2";
-			op.mLocation = v3(0.0f, 1.0f, 50.0f);
-			handles << op.mHandle << " ";
-			createObject(op);
-			emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
-			
-			op.mHandle = BFG::generateNetworkHandle();
-			op.mName = "TestCube3";
-			op.mLocation = v3(-5.0f, 1.0f, 50.0f);
-			handles << op.mHandle << " ";
-			createObject(op);
-			emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
-			
-			op.mHandle = BFG::generateNetworkHandle();
-			op.mName = "TestCube4";
-			op.mLocation = v3(-5.0f, -1.0f, 50.0f);
-			handles << op.mHandle << " ";
-			createObject(op);
-			emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
-			
-			op.mHandle = BFG::generateNetworkHandle();
-			op.mName = "TestCube5";
-			op.mLocation = v3(-7.0f, 2.0f, 50.0f);
-			handles << op.mHandle << " ";
-			createObject(op);
-			emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
-			
-			op.mHandle = BFG::generateNetworkHandle();
-			op.mName = "TestCube6";
-			op.mLocation = v3(-7.0f, -2.0f, 50.0f);
-			handles << op.mHandle << " ";
-			createObject(op);
-			emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
-			
-			op.mHandle = BFG::generateNetworkHandle();
-			op.mName = "TestCube7";
-			op.mLocation = v3(-7.0f, 0.0f, 50.0f);
-			handles << op.mHandle;
-			createObject(op);
-			emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
-			
-			CharArray512T ca512 = stringToArray<512>(handles.str());
-
-			BFG::Network::DataPayload payload
-			(
-				CREATE_TEST_OBJECT, 
-				CLIENT_STATE_HANDLE, 
-				SERVER_STATE_HANDLE,
-				handles.str().length(),
-				ca512
-			);
-
-			emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload);
-
+			const BFG::Network::PeerIdT peerId = boost::get<BFG::Network::PeerIdT>(e->getData());
+			onConneced(peerId);
 			break;
 		}
+		case BFG::ID::NE_DISCONNECTED:
+		{
+			const BFG::Network::PeerIdT peerId = boost::get<BFG::Network::PeerIdT>(e->getData());
+			onDisconnected(peerId);
+			break;
+		}
+
 		}
 
 	}
 
 private:
-	std::vector<GameHandle> mClientList;
+	ClientListT mClientList;
 
-	GameHandle mObject1;
-	GameHandle mObject2;
+	std::string mCreatedHandles;
+	bool mSceneCreated;
 };
 
 struct ClientState : public SynchronizationTestState
