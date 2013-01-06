@@ -62,20 +62,26 @@ private:
 
 	bool receivesData() const;
 	bool sendsData() const;
+
+	void sendPosition() const;
+	void sendOrientation() const;
+	void sendVelocity(const v3& newVelocity) const;
+	void sendRotationVelocity(const v3& newRotationVelocity) const;
 	
 	std::vector<ID::PhysicsAction> mPhysicsActions;
 	std::vector<ID::NetworkAction> mNetworkActions;
 
 	ID::SynchronizationMode mSynchronizationMode;
 
-	Physics::FullSyncData mDeltaStorage;
+	Physics::FullSyncData mLastSentDelta;
 
-	Physics::InterpolationDataV3  mV3InterpolationData;
-	Physics::InterpolationDataQv4 mQv4InterpolationData;
+	Physics::InterpolationDataV3  mLastPhysicsPosition;
+	Physics::InterpolationDataQv4 mLastPhysicsOrientation;
 
 	bool mInitialized;
 
 	Clock::StopWatch mTimer;
+	Clock::StopWatch mFullSyncTimer;
 
 	bool mUpdatePosition;
 	bool mUpdateOrientation;

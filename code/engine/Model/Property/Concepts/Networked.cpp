@@ -43,6 +43,7 @@ Property::Concept(owner, "Networked", pid),
 mSynchronizationMode(ID::SYNC_MODE_NETWORK_NONE),
 mInitialized(false),
 mTimer(Clock::milliSecond),
+mFullSyncTimer(Clock::milliSecond),
 mUpdatePosition(false),
 mUpdateOrientation(false),
 mGhost(NULL_HANDLE),
@@ -70,6 +71,7 @@ mExtrapolatedOrientationDelta(qv4::IDENTITY)
 	requestEvent(ID::GOE_GHOST_MODE);
 
 	mTimer.start();
+	mFullSyncTimer.start();
 }
 
 Networked::~Networked()
@@ -117,7 +119,7 @@ void Networked::onNetworkEvent(Network::DataPacketEvent* e)
 			f32 deltaTime = payload.mAge / 1000.0f;
 			mExtrapolatedPositionDelta = velocity * deltaTime;
 			
-			mV3InterpolationData = boost::make_tuple(payload.mTimestamp, payload.mAge, v);
+			mLastPhysicsPosition = boost::make_tuple(payload.mTimestamp, payload.mAge, v);
 			mUpdatePosition = true;
 			break;
 		}
@@ -137,7 +139,7 @@ void Networked::onNetworkEvent(Network::DataPacketEvent* e)
 			v3 rotVelocity = getGoValue<v3>(ID::PV_RotationVelocity, pluginId());
 			f32 deltaTime = payload.mAge / 1000.0f;
 			
-			mQv4InterpolationData = boost::make_tuple(payload.mTimestamp, payload.mAge, o);
+			mLastPhysicsOrientation = boost::make_tuple(payload.mTimestamp, payload.mAge, o);
 			mUpdateOrientation = true;
 			break;
 		}
@@ -193,6 +195,7 @@ void Networked::onPhysicsEvent(Physics::Event* e)
 	case ID::PE_ROTATION_VELOCITY:
 		onRotationVelocity(boost::get<Physics::VelocityComposite>(e->getData()));
 		break;
+
 	default:
 		warnlog << "Networked: Can't handle event with ID: "
 			<< e->getId();
@@ -218,8 +221,22 @@ void Networked::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 	//         distance between the extrapolated position and the received one.
 	const f32 MAX_EXTRAPOLATED_POSITION_DELTA = 0.1f;
 	
+	const u32 FULLSYNCUPDATE_DELAY = 5000;
+
 	if (!receivesData()) // server
 	{
+		if (mFullSyncTimer.stop() > FULLSYNCUPDATE_DELAY)
+		{
+			sendPosition();
+			mLastSentDelta.get<0>() = mLastPhysicsPosition.get<2>();
+			sendOrientation();
+			mLastSentDelta.get<1>() = mLastPhysicsOrientation.get<2>();
+			sendVelocity(getGoValue<v3>(ID::PV_Velocity, pluginId()));
+			sendRotationVelocity(getGoValue<v3>(ID::PV_RotationVelocity, pluginId()));
+
+			mFullSyncTimer.restart();
+		}
+
 		if (mTimer.stop() < UPDATE_DELAY)
 			return;
 
@@ -227,54 +244,24 @@ void Networked::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 
 		if (mUpdatePosition)
 		{
-			if (!nearEnough(mV3InterpolationData.get<2>(), mDeltaStorage.get<0>(), MAX_POSITION_DELTA))
-			{
+			if (nearEnough(mLastPhysicsPosition.get<2>(), mLastSentDelta.get<0>(), MAX_POSITION_DELTA))
+				return;
 
-				dbglog << "Networked:onPosition: " << mV3InterpolationData.get<2>();
-
-				std::stringstream ss;
-				ss << mV3InterpolationData.get<2>();
-
-				CharArray512T ca512 = stringToArray<512>(ss.str());
-
-				BFG::Network::DataPayload payload
-				(
-					ID::PE_UPDATE_POSITION, 
-					ownerHandle(),
-					ownerHandle(),
-					ss.str().length(),
-					ca512
-				);
-
-				emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload);
-				mDeltaStorage.get<0>() = mV3InterpolationData.get<2>();
-			}
+			sendPosition();
+			mLastSentDelta.get<0>() = mLastPhysicsPosition.get<2>();
 			mUpdatePosition = false;
 		}
 
 		if (mUpdateOrientation)
 		{
-			if (angleBetween(mQv4InterpolationData.get<2>(), mDeltaStorage.get<1>()) < MAX_ORIENTATION_DELTA)
+			if (angleBetween(mLastPhysicsOrientation.get<2>(), mLastSentDelta.get<1>()) < MAX_ORIENTATION_DELTA)
 				return;
 
-			std::stringstream ss;
-			ss << mQv4InterpolationData.get<2>();
-
-			CharArray512T ca512 = stringToArray<512>(ss.str());
-
-			BFG::Network::DataPayload payload
-			(
-				ID::PE_UPDATE_ORIENTATION, 
-				ownerHandle(),
-				ownerHandle(),
-				ss.str().length(),
-				ca512
-			);
-
-			emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload);
-			mDeltaStorage.get<1>() = mQv4InterpolationData.get<2>();
+			sendOrientation();
+			mLastSentDelta.get<1>() = mLastPhysicsOrientation.get<2>();
 			mUpdateOrientation = false;
 		}
+
 
 	}
 	else // client
@@ -283,8 +270,8 @@ void Networked::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 
 		if (!mInitialized)
 		{
-			mV3InterpolationData.get<2>() = go.position;
-			mQv4InterpolationData.get<2>() = go.orientation;
+			mLastPhysicsPosition.get<2>() = go.position;
+			mLastPhysicsOrientation.get<2>() = go.orientation;
 			mInitialized = true;
 		}
 
@@ -293,20 +280,20 @@ void Networked::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 			v3 velocity = getGoValue<v3>(ID::PV_Velocity, pluginId());
 			f32 speed = length(velocity);
 
-			if (!nearEnough(go.position + mExtrapolatedPositionDelta, mV3InterpolationData.get<2>(), speed * MAX_EXTRAPOLATED_POSITION_DELTA))
+			if (!nearEnough(go.position + mExtrapolatedPositionDelta, mLastPhysicsPosition.get<2>(), speed * MAX_EXTRAPOLATED_POSITION_DELTA))
 			{
-				dbglog << "Updating since distance was " << length(go.position + mExtrapolatedPositionDelta - mV3InterpolationData.get<2>());
+				dbglog << "Updating since distance was " << length(go.position + mExtrapolatedPositionDelta - mLastPhysicsPosition.get<2>());
 				dbglog << "Speed was " << speed;
-				emit<Physics::Event>(ID::PE_INTERPOLATE_POSITION, mV3InterpolationData, ownerHandle());
+				emit<Physics::Event>(ID::PE_INTERPOLATE_POSITION, mLastPhysicsPosition, ownerHandle());
 			}
 			mUpdatePosition = false;
 		}
 		if (mUpdateOrientation)
 		{
-			if(angleBetween(mQv4InterpolationData.get<2>(), go.orientation * mExtrapolatedOrientationDelta) > MAX_ORIENTATION_DELTA)
+			if(angleBetween(mLastPhysicsOrientation.get<2>(), go.orientation * mExtrapolatedOrientationDelta) > MAX_ORIENTATION_DELTA)
 			{
-				dbglog << "AngleBetween: " << angleBetween(mQv4InterpolationData.get<2>(), go.orientation * mExtrapolatedOrientationDelta);
-				emit<Physics::Event>(ID::PE_INTERPOLATE_ORIENTATION, mQv4InterpolationData, ownerHandle());
+				dbglog << "AngleBetween: " << angleBetween(mLastPhysicsOrientation.get<2>(), go.orientation * mExtrapolatedOrientationDelta);
+				emit<Physics::Event>(ID::PE_INTERPOLATE_ORIENTATION, mLastPhysicsOrientation, ownerHandle());
 			}
 			mUpdateOrientation = false;
 		}
@@ -339,7 +326,7 @@ void Networked::onPosition(const v3& newPosition)
 	if (!sendsData())
 		return;
 
-	mV3InterpolationData = boost::make_tuple(0, 0, newPosition);
+	mLastPhysicsPosition = boost::make_tuple(0, 0, newPosition);
 	//dbglog << "Networked:onPosition(original): " << newPosition;
 	mUpdatePosition = true;
 }
@@ -350,7 +337,7 @@ void Networked::onOrientation(const qv4& newOrientation)
 	if (!sendsData())
 		return;
 
-	mQv4InterpolationData = boost::make_tuple(0, 0, newOrientation);
+	mLastPhysicsOrientation = boost::make_tuple(0, 0, newOrientation);
 	dbglog << "Networked:onOrientation: " << newOrientation;
 	mUpdateOrientation = true;
 }
@@ -362,21 +349,8 @@ void Networked::onVelocity(const Physics::VelocityComposite& newVelocity)
 
 	dbglog << "Networked:onVelocity: " << newVelocity.get<0>();
 
-	std::stringstream ss;
-	ss << newVelocity.get<0>();
+	sendVelocity(newVelocity.get<0>());
 
-	CharArray512T ca512 = stringToArray<512>(ss.str());
-
-	BFG::Network::DataPayload payload
-	(
-		ID::PE_UPDATE_VELOCITY, 
-		ownerHandle(),
-		ownerHandle(),
-		ss.str().length(),
-		ca512
-	);
-
-	emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload);
 }
 
 void Networked::onRotationVelocity(const Physics::VelocityComposite& newVelocity)
@@ -386,21 +360,7 @@ void Networked::onRotationVelocity(const Physics::VelocityComposite& newVelocity
 
 	dbglog << "Networked:onRotationVelocity: " << newVelocity.get<0>();
 
-	std::stringstream ss;
-	ss << newVelocity.get<0>();
-
-	CharArray512T ca512 = stringToArray<512>(ss.str());
-
-	BFG::Network::DataPayload payload
-	(
-		ID::PE_UPDATE_ROTATION_VELOCITY, 
-		ownerHandle(),
-		ownerHandle(),
-		ss.str().length(),
-		ca512
-	);
-
-	emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload);
+	sendRotationVelocity(newVelocity.get<0>());
 }
 
 void Networked::onSynchronizationMode(ID::SynchronizationMode mode)
@@ -446,6 +406,82 @@ bool Networked::sendsData() const
 	// A server *writes* data.
 	return mSynchronizationMode == ID::SYNC_MODE_NETWORK_WRITE ||
 	       mSynchronizationMode == ID::SYNC_MODE_NETWORK_RW;
+}
+
+void Networked::sendPosition() const
+{
+	std::stringstream ss;
+	ss << mLastPhysicsPosition.get<2>();
+
+	CharArray512T ca512 = stringToArray<512>(ss.str());
+
+	BFG::Network::DataPayload payload
+	(
+		ID::PE_UPDATE_POSITION, 
+		ownerHandle(),
+		ownerHandle(),
+		ss.str().length(),
+		ca512
+	);
+
+	emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload);
+}
+
+void Networked::sendOrientation() const
+{
+	std::stringstream ss;
+	ss << mLastPhysicsOrientation.get<2>();
+
+	CharArray512T ca512 = stringToArray<512>(ss.str());
+
+	BFG::Network::DataPayload payload
+	(
+		ID::PE_UPDATE_ORIENTATION, 
+		ownerHandle(),
+		ownerHandle(),
+		ss.str().length(),
+		ca512
+	);
+
+	emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload);
+}
+
+void Networked::sendVelocity(const v3& newVelocity) const
+{
+	std::stringstream ss;
+	ss << newVelocity;
+
+	CharArray512T ca512 = stringToArray<512>(ss.str());
+
+	BFG::Network::DataPayload payload
+	(
+		ID::PE_UPDATE_VELOCITY, 
+		ownerHandle(),
+		ownerHandle(),
+		ss.str().length(),
+		ca512
+	);
+
+	emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload);
+}
+
+void Networked::sendRotationVelocity(const v3& newRotationVelocity) const
+{
+	std::stringstream ss;
+	ss << newRotationVelocity;
+
+	CharArray512T ca512 = stringToArray<512>(ss.str());
+
+	BFG::Network::DataPayload payload
+	(
+		ID::PE_UPDATE_ROTATION_VELOCITY, 
+		ownerHandle(),
+		ownerHandle(),
+		ss.str().length(),
+		ca512
+	);
+
+	emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload);
 }
 
 } // namespace BFG
