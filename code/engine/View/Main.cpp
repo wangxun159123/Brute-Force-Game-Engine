@@ -315,7 +315,7 @@ void Main::onDebugFps(bool enable)
 void Main::onConsole(bool enable)
 {
 	if (!mConsole)
-		mConsole.reset(new Console(eventLoop()));
+		mConsole.reset(new Console(eventLoop(), mRoot));
 
 	mConsole->toggleVisible(enable);
 }
