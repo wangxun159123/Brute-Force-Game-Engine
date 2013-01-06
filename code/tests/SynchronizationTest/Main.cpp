@@ -261,7 +261,7 @@ struct ServerState: public SynchronizationTestState
 				op.mHandle = BFG::generateNetworkHandle();
 				op.mName = "TestCube" + number.str();
 				op.mLocation.position = v3(x, y, 50.0f);
-				if (i == j == (ROWS-1))
+				if (i == j && i == (ROWS-1))
 					handles << op.mHandle;
 				else
 					handles << op.mHandle << " ";
