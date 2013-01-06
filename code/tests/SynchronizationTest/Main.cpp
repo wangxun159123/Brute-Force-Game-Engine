@@ -339,7 +339,7 @@ struct ServerState: public SynchronizationTestState
 
 	void onDisconnected(BFG::Network::PeerIdT peerId)
 	{
-		ClientListT::const_iterator it = std::find(mClientList.begin(), mClientList.end(), peerId);
+		ClientListT::iterator it = std::find(mClientList.begin(), mClientList.end(), peerId);
 
 		if (it == mClientList.end())
 		{
