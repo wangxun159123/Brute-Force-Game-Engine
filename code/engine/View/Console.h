@@ -29,29 +29,30 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <View/HudElement.h>
 
-// Included to fix an operator problem with clang
-#include <Base/Logger.h>
-
-#include <boost/log/sinks.hpp>
-#include <EventSystem/Emitter.h>
-
-#include <MyGUI.h>
+#include <Base/Logger.h>      // Included to fix an operator problem with clang
 #include <iostream>
+#include <boost/log/sinks.hpp>
+#include <OgreFrameListener.h>
+#include <EventSystem/Emitter.h>
+#include <Controller/ControllerEvents_fwd.h>
+
+namespace Ogre {
+	class Rectangle2D;
+}
 
 class EventLoop;
 
 namespace BFG {
 namespace View {
 
-
 //! The Class is derived from std::streambuf, so it's possible to redirect
 //! the logger output.
-class Console : public HudElement,
-                private Emitter,
-                public std::streambuf
+class Console : public std::streambuf,
+                Ogre::FrameListener,
+                Emitter
 {
 public:
-	Console(EventLoop*);
+	Console(EventLoop*, boost::shared_ptr<Ogre::Root> root);
 	~Console();
 	
 	//! \brief Hides or Shows the Console
@@ -61,23 +62,37 @@ public:
 	//! this function is called (for better performance).
 	void toggleVisible(bool show);
 
-protected:
+private:
 	//! \brief Initiates the UserInterface of the Console
 	void createUI();
 
-	//! \brief These 2 methods are part of std::streambuf.
-	//! @{
-	int xsputn ( const char * s, int n );
-	int overflow(int);
-	//! @}
-
-	//! \brief Is called, when someone presses enter in the inputline
-	void input(MyGUI::Edit*);
+	//! \brief Used to connect the console Outputfield with the Logger.
+	void registerSink();
 	
-	//Widgets:
-	MyGUI::StaticTextPtr mStaticText;
-	MyGUI::EditPtr mEdit;
-	MyGUI::WidgetPtr mWin;
+	//! \brief Used to disconnect the console Outputfield with the Logger.
+	void unregisterSink();
+	
+	//! \brief Override for std::streambuf
+	//! This function is expected to display the first n letters in s
+	int xsputn(const char* s, int n);
+
+	//! \brief Override for std::streambuf
+	//! This function is expected to display one char.
+	int overflow(int);
+
+	void eventHandler(Controller_::VipEvent* event);
+	
+	//! \brief Is called, when someone presses enter in the inputline
+	void onReturn();
+
+	//! \brief Is called, when someone presses backspace in the inputline
+	void onBackspace();
+
+	//! \brief Is called, when a printable character has been entered in the inputline
+	void onPrintable(unsigned char);
+	
+	bool frameStarted(const Ogre::FrameEvent&);
+	bool frameEnded(const Ogre::FrameEvent&);
 
 	bool mHasNewContent;
 	bool mIsVisible;
@@ -86,15 +101,24 @@ protected:
 
 	EventLoop* mLoop;
 
-private:
-	//! \brief Used to connect the console Outputfield with the Logger.
-	void registerSink();
-	void internalUpdate(f32);
-	
-	typedef boost::log::sinks::asynchronous_sink<boost::log::sinks::text_ostream_backend> text_sink;
+	boost::shared_ptr<Ogre::Root> mRoot;
+	boost::shared_ptr<Ogre::Rectangle2D> mRect;
+	boost::shared_ptr<Ogre::SceneNode> mNode;
+	boost::shared_ptr<Ogre::OverlayElement> mTextBox;
+
+	f32 mHeight;
+	u32 mDisplayedLines;
+
+	std::string mInput;
+
+	typedef boost::log::sinks::asynchronous_sink<
+		boost::log::sinks::text_ostream_backend
+	> text_sink;
+
 	boost::shared_ptr<text_sink> mSink;
 };
 
-}}
+} // namespace View
+} // namespace BFG
 
 #endif
