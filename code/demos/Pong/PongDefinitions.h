@@ -39,6 +39,8 @@ const BFG::s32 A_SHIP_AXIS_Y = 10000;
 const BFG::s32 A_SHIP_FIRE   = 10001;
 const BFG::s32 A_QUIT        = 10002;
 const BFG::s32 A_FPS         = 10003;
+const BFG::s32 A_CONSOLE     = 10004;
+const BFG::s32 CREATE_SCENE  = 15000;
 
 const BFG::f32 OBJECT_Z_POSITION = 25.0f;
 const BFG::f32 SPECIAL_PACKER_MESH_OFFSET = 4.0f;

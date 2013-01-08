@@ -35,6 +35,7 @@ TARGET_LINK_LIBRARIES(bfgPong
 	bfgCore
 	bfgEventCore
 	bfgModel
+	bfgNetwork
 	bfgPhysics
 	bfgView
 	${BoostLog_LIBRARIES}

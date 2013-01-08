@@ -35,4 +35,36 @@
       />
   </ObjectConfig>
 
+  <ObjectConfig name="Pong Ball Remote">
+    <Module
+      name="Root"
+      mesh="Cube.mesh"
+      concepts="PongBallConcept"
+      collision="CM_Disabled"
+      visible="yes"
+      density="50.0"
+      />
+  </ObjectConfig>
+
+  <ObjectConfig name="Pong Lower Bar Remote">
+    <Module
+      name="Root"
+      mesh="Packer.mesh"
+      concepts="PongLowerBarConcept"
+      collision="CM_Disabled"
+      visible="yes"
+      density="10000.0"
+      />
+  </ObjectConfig>
+
+  <ObjectConfig name="Pong Upper Bar Remote">
+    <Module
+      name="Root"
+      mesh="Packer.mesh"
+      concepts="PongUpperBarConcept"
+      collision="CM_Disabled"
+      visible="yes"
+      density="10000.0"
+      />
+  </ObjectConfig>
 </ObjectConfigs>

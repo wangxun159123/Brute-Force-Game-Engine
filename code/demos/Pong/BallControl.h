@@ -51,6 +51,9 @@ public:
 		Location go = getGoValue<Location>(ID::PV_Location, ValueId::ENGINE_PLUGIN_ID);
 		v3 newVelocity = getGoValue<v3>(ID::PV_Velocity, ValueId::ENGINE_PLUGIN_ID);
 
+		if (nearEnough(newVelocity, v3::ZERO, EPSILON_F))
+			return;
+
 		// Simulate a wall
 		if (std::abs(go.position.x) > DISTANCE_TO_WALL)
 		{
