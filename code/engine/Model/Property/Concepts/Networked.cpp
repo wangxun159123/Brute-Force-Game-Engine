@@ -341,7 +341,7 @@ void Networked::onOrientation(const qv4& newOrientation)
 		return;
 
 	mLastPhysicsOrientation = boost::make_tuple(0, 0, newOrientation);
-	dbglog << "Networked:onOrientation: " << newOrientation;
+	//dbglog << "Networked:onOrientation: " << newOrientation;
 	mUpdateOrientation = true;
 }
 
