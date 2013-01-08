@@ -95,6 +95,9 @@ void Networked::onNetworkEvent(Network::DataPacketEvent* e)
 	{
 	case ID::NE_RECEIVED:
 	{
+		if (!mInitialized)
+			return;
+
 		const BFG::Network::DataPayload& payload = e->getData();
 
 		dbglog << "Current Server Time: " << payload.mTimestamp;
