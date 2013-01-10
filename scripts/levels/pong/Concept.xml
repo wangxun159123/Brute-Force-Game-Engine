@@ -8,16 +8,20 @@
     <PC id="Physical" properties="NoProperties" />
   </ConceptConfig>
 
-  <ConceptConfig name="PongLowerBarConcept" >
+  <ConceptConfig name="PongBallRemoteConcept" >
+    <PC id="Networked" properties="NoProperties"/>
+    <PC id="Physical" properties="NoProperties" />
+  </ConceptConfig>
+
+  <ConceptConfig name="PongBarConcept" >
     <PC id="Physical" properties="NoProperties" />
     <PC id="Networked" properties="NoProperties"/>
     <PC id="BarControl" properties="NoProperties" />
   </ConceptConfig>
 
-  <ConceptConfig name="PongUpperBarConcept" >
+  <ConceptConfig name="PongBarRemoteConcept" >
     <PC id="Physical" properties="NoProperties" />
     <PC id="Networked" properties="NoProperties"/>
-    <PC id="BarControl" properties="NoProperties" />
   </ConceptConfig>
 
 </ConceptConfigs>

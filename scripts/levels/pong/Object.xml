@@ -17,7 +17,7 @@
     <Module
       name="Root"
       mesh="Packer.mesh"
-      concepts="PongLowerBarConcept"
+      concepts="PongBarConcept"
       collision="CM_Standard"
       visible="yes"
       density="10000.0"
@@ -28,7 +28,7 @@
     <Module
       name="Root"
       mesh="Packer.mesh"
-      concepts="PongUpperBarConcept"
+      concepts="PongBarConcept"
       collision="CM_Standard"
       visible="yes"
       density="10000.0"
@@ -39,7 +39,7 @@
     <Module
       name="Root"
       mesh="Cube.mesh"
-      concepts="PongBallConcept"
+      concepts="PongBallRemoteConcept"
       collision="CM_Disabled"
       visible="yes"
       density="50.0"
@@ -50,7 +50,7 @@
     <Module
       name="Root"
       mesh="Packer.mesh"
-      concepts="PongLowerBarConcept"
+      concepts="PongBarRemoteConcept"
       collision="CM_Disabled"
       visible="yes"
       density="10000.0"
@@ -61,7 +61,7 @@
     <Module
       name="Root"
       mesh="Packer.mesh"
-      concepts="PongUpperBarConcept"
+      concepts="PongBarRemoteConcept"
       collision="CM_Disabled"
       visible="yes"
       density="10000.0"
