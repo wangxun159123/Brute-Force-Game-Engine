@@ -416,7 +416,7 @@ void Interpreter::interpretRaceCondition(const TagWithAttributesT& definitions,
 	grab(Tag::timeout, definitions, result);
 	interpret<f32>(result, raceCondition.mTimeout);
 }
-#endif
+
 
 
 void Interpreter::interpretLightDefinition(const TagWithAttributesT& definitions,
@@ -514,7 +514,7 @@ void Interpreter::interpretPlaylistDefinition(const TagWithAttributesT& definiti
 	grab(Tag::name, definitions, publicName);
 	grab(Tag::filename, definitions, filename);
 }
-
+#endif
 bool Interpreter::grab(const std::string& tag,
                        const TagWithAttributesT& container,
                        std::string& out,

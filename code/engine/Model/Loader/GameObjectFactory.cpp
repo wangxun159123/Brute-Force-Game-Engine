@@ -61,17 +61,21 @@ mValueParameters(files.mProperties)
 	assert(environment && "GameObjectFactory: You must preserve a constructed Environment object");
 }
 
+
+GameHandle checkGoHandle(GameHandle handle)
+{
+
+	if (handle != NULL_HANDLE)
+		return handle;
+	
+	return generateHandle();
+}
+
+
 boost::shared_ptr<GameObject>
 GameObjectFactory::createGameObject(const ObjectParameter& parameter)
 {
-	GameHandle goHandle;
-	if (parameter.mHandle != NULL_HANDLE)
-		goHandle = parameter.mHandle;
-	else
-		goHandle = generateHandle();
-
-	infolog << "GameObjectFactory: Creating GO:" << goHandle
-	        << " (" << parameter.mName << ")";
+	GameHandle goHandle = checkGoHandle(parameter.mHandle);
 
 	// Create the PhysicsObject
 	Physics::ObjectCreationParams ocp(goHandle, parameter.mLocation);
