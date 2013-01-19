@@ -97,8 +97,8 @@ struct Server : BFG::Emitter
 	{
 		serverGotReceived = true;
 		BOOST_REQUIRE_EQUAL(e->getId(), BFG::ID::NE_RECEIVED);
-		BOOST_REQUIRE_EQUAL(e->mDestination, serverApplicationHandle);
-		BOOST_REQUIRE_NE(e->mSender, 0);
+		BOOST_REQUIRE_EQUAL(e->destination(), serverApplicationHandle);
+		BOOST_REQUIRE_NE(e->sender(), 0);
 		
 		const BFG::Network::DataPayload& payload = e->getData();
 
@@ -155,8 +155,8 @@ struct Client : BFG::Emitter
 	{
 		clientGotReceived = true;
 		BOOST_REQUIRE_EQUAL(e->getId(), BFG::ID::NE_RECEIVED);
-		BOOST_REQUIRE_EQUAL(e->mDestination, clientApplicationHandle);
-		BOOST_REQUIRE_EQUAL(e->mSender, 0);
+		BOOST_REQUIRE_EQUAL(e->destination(), clientApplicationHandle);
+		BOOST_REQUIRE_EQUAL(e->sender(), 0);
 		
 		const BFG::Network::DataPayload& payload = e->getData();
 

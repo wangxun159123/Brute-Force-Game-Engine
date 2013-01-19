@@ -125,10 +125,10 @@ struct Server : Emitter
 		payload.mAppDestination = payload.mAppSender;
 		payload.mAppSender = mHandle;
 		
-		dbglog << "Chat::Server: Sending NOT to " << e->mSender;
+		dbglog << "Chat::Server: Sending NOT to " << e->sender();
 		for (size_t i=0; i<peers.size(); ++i)
 		{
-			if (peers[i] != e->mSender)
+			if (peers[i] != e->sender())
 			{
 				dbglog << "Chat::Server: Sending to " << peers[i];
 				emit<Network::DataPacketEvent>(ID::NE_SEND, payload, peers[i], 0);
