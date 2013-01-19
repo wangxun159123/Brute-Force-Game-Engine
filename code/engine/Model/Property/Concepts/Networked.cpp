@@ -141,6 +141,7 @@ void Networked::onNetworkEvent(Network::DataPacketEvent* e)
 
 			v3 rotVelocity = getGoValue<v3>(ID::PV_RotationVelocity, pluginId());
 			f32 deltaTime = payload.mAge / 1000.0f;
+			// TODO: deltaTime and mExtrapolatedOrientationDelta are unused
 			
 			mLastPhysicsOrientation = boost::make_tuple(payload.mTimestamp, payload.mAge, o);
 			mUpdateOrientation = true;
