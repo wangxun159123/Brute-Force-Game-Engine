@@ -94,12 +94,6 @@ std::vector<std::string> mFileList;
 
 };
 
-template <class AdapterConfigT, class ConceptsConfigT, class ModuleConfigT, class PropertyConfigT>
-struct levelConfigDefault
-{
-
-};
-
 } // namespace BFG
 
 #endif
