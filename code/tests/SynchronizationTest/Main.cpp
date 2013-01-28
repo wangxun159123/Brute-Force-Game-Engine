@@ -115,7 +115,7 @@ struct SynchronizationTestState: BFG::State
 
 	boost::shared_ptr<BFG::Loader::Interpreter> interpreter(new BFG::Loader::Interpreter(mPluginMap));
 
-	mGof.reset(new BFG::Loader::GameObjectFactory(this->loop(), lc, mPluginMap, interpreter, mEnvironment, mStateHandle));
+	mGof.reset(new BFG::Loader::GameObjectFactory(this->loop(), lc, mPluginMap, mEnvironment, mStateHandle));
 
 	mSector.reset(new BFG::Sector(this->loop(), 1, "Blah", mGof));
 }
