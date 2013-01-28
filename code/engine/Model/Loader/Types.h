@@ -144,6 +144,11 @@ struct ObjectParameter
 		mLinearVelocity(v3::ZERO),
 		mAngularVelocity(v3::ZERO) {}
 
+	ObjectParameter(XmlTreeT tree)
+	{
+		load(tree);
+	}
+
 	GameHandle mHandle;
 	std::string mName;
 	std::string mType;
@@ -151,7 +156,19 @@ struct ObjectParameter
 	v3 mLinearVelocity;
 	v3 mAngularVelocity;
 	Connection mConnection;
+
+	protected:
+	
+	void load(XmlTreeT tree)
+	{
+		mType = tree->attribute("type");
+		mName = tree->attribute("name");
+
+		mLocation.position = loadVector3(tree->child("Position"));
+		mLocation.orientation = loadQuaternion(tree->child("Orientation"));
+	}
 };
+
 
 struct SectorParameter
 {
