@@ -27,6 +27,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #ifndef CAMERA_H_
 #define CAMERA_H_
 
+#include <boost/lexical_cast.hpp>
 
 #include <boost/units/systems/si/velocity.hpp>
 #include <boost/units/systems/si/length.hpp>
@@ -37,13 +38,19 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Base/Interpolate.h>
 #include <Model/Waypoint.h>
 #include <Model/Property/Concept.h>
+#include <Model/Loader/Interpreter.h>
+#include <Core/XmlTree.h>
 
 namespace BFG {
 
 struct CameraParameter
 {
 	
-	// standard constructor
+	CameraParameter(XmlTreeT tree)
+	{
+		load(tree);
+	}
+	
 	CameraParameter(ID::CameraMode mode = ID::CM_Fixed,
 	                const v3& maxRot = v3(1.5708f),
 	                f32 maxSpeed = 20.0f) :
@@ -74,6 +81,19 @@ struct CameraParameter
 	mFullscreen(true),
 	mStiffness(stiffness) {}
 
+	void load(XmlTreeT tree)
+	{
+		mMode = ID::asCameraMode(tree->attribute("type"));
+		mOffset = loadVector3(tree->child("Offset"));
+		mParentObject = tree->child("ParentObject")->elementData();
+		
+		std::string fs = tree->child("Fullscreen")->elementData();
+		Loader::strToBool(fs, mFullscreen);
+		
+		mReactionTime = boost::lexical_cast<f32>(tree->child("Fullscreen")->elementData()) * si::second;
+		mMaxDistance = boost::lexical_cast<f32>(tree->child("MaxDistance")->elementData()) * si::meter;
+	}
+	
 	ID::CameraMode mMode;
 
 	// free cam parameter
@@ -94,6 +114,7 @@ struct CameraParameter
 	bool mFullscreen;
 
 	quantity<si::dimensionless, f32> mStiffness;
+	std::string mParentObject;
 
 };
 
