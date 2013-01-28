@@ -81,19 +81,6 @@ struct CameraParameter
 	mFullscreen(true),
 	mStiffness(stiffness) {}
 
-	void load(XmlTreeT tree)
-	{
-		mMode = ID::asCameraMode(tree->attribute("type"));
-		mOffset = loadVector3(tree->child("Offset"));
-		mParentObject = tree->child("ParentObject")->elementData();
-		
-		std::string fs = tree->child("Fullscreen")->elementData();
-		Loader::strToBool(fs, mFullscreen);
-		
-		mReactionTime = boost::lexical_cast<f32>(tree->child("Fullscreen")->elementData()) * si::second;
-		mMaxDistance = boost::lexical_cast<f32>(tree->child("MaxDistance")->elementData()) * si::meter;
-	}
-	
 	ID::CameraMode mMode;
 
 	// free cam parameter
@@ -116,7 +103,22 @@ struct CameraParameter
 	quantity<si::dimensionless, f32> mStiffness;
 	std::string mParentObject;
 
+protected:
+
+	void load(XmlTreeT tree)
+	{
+		mMode = ID::asCameraMode(tree->attribute("type"));
+		mOffset = loadVector3(tree->child("Offset"));
+		mParentObject = tree->child("ParentObject")->elementData();
+		
+		std::string fs = tree->child("Fullscreen")->elementData();
+		Loader::strToBool(fs, mFullscreen);
+		
+		mReactionTime = boost::lexical_cast<f32>(tree->child("Fullscreen")->elementData()) * si::second;
+		mMaxDistance = boost::lexical_cast<f32>(tree->child("MaxDistance")->elementData()) * si::meter;
+	}
 };
+
 
 class Camera : public Property::Concept
 {
