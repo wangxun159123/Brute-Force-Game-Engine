@@ -107,15 +107,22 @@ protected:
 
 	void load(XmlTreeT tree)
 	{
-		mMode = ID::asCameraMode(tree->attribute("type"));
-		mOffset = loadVector3(tree->child("Offset"));
-		mParentObject = tree->child("ParentObject")->elementData();
+		try
+		{
+			mMode = ID::asCameraMode(tree->attribute("type"));
+			mOffset = loadVector3(tree->child("Offset"));
+			mParentObject = tree->child("ParentObject")->elementData();
 		
-		std::string fs = tree->child("Fullscreen")->elementData();
-		Loader::strToBool(fs, mFullscreen);
+			std::string fs = tree->child("Fullscreen")->elementData();
+			Loader::strToBool(fs, mFullscreen);
 		
-		mReactionTime = boost::lexical_cast<f32>(tree->child("Fullscreen")->elementData()) * si::second;
-		mMaxDistance = boost::lexical_cast<f32>(tree->child("MaxDistance")->elementData()) * si::meter;
+			mReactionTime = boost::lexical_cast<f32>(tree->child("ReactionTime")->elementData()) * si::second;
+			mMaxDistance = boost::lexical_cast<f32>(tree->child("MaxDistance")->elementData()) * si::meter;
+		}
+		catch (std::exception& e)
+		{
+			throw std::logic_error(e.what()+std::string(" At CameraParameter::load(...)"));
+		}
 	}
 };
 
