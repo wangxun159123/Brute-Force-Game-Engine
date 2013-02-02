@@ -196,7 +196,7 @@ struct ServerState: public SynchronizationTestState
 			{
 			case A_SHIP_AXIS_Y:
 			{
-				GameHandle playerHandle = getPlayerHandle(e->mSender);
+				GameHandle playerHandle = getPlayerHandle(e->sender());
 				if (playerHandle == NULL_HANDLE)
 					return;
 				f32 data;

@@ -35,9 +35,9 @@ std::string NETWORK_API debug(const DataPacketEvent& e)
 {
 	std::stringstream ss;
 		
-	ss << "e.mId: " << e.getId() << "\n";
-	ss << "e.mDestination: " << e.mDestination << "\n";
-	ss << "e.mSender: " << e.mSender << "\n";
+	ss << "e.id: " << e.id() << "\n";
+	ss << "e.destination: " << e.destination() << "\n";
+	ss << "e.sender: " << e.sender() << "\n";
 
 	const DataPayload& payload = e.getData();
 	ss << "payload.AppId: " << payload.mAppEventId << "\n";

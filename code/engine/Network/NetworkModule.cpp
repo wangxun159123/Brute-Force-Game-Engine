@@ -42,8 +42,8 @@ NetworkModule::NetworkModule(EventLoop* loop_,
 BFG::Emitter(loop_),
 mPeerId(peerId),
 mLocalTime(localTime),
-mOutPacketPosition(0),
-mRoundTripTimer(Clock::milliSecond)
+mRoundTripTimer(Clock::milliSecond),
+mOutPacketPosition(0)
 {
 	mSocket.reset(new SocketT(service));
 	mTimer.reset(new boost::asio::deadline_timer(service));
