@@ -27,15 +27,10 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #define INTERPRETER_H_
 
 #include <Model/Defs.h>
-#include <Model/Loader/Types.h>
-#include <Model/Loader/Exceptions.h>
-#include <Model/Property/Plugin.h>
-
-#include <View/LightParameters.h>
+#include <Model/Property/Value.h>
 
 namespace BFG {
 
-class Environment;
 
 namespace Loader {
 
@@ -46,84 +41,12 @@ Property::Value MODEL_API StringToPropertyValue(const std::string& input);
 
 bool MODEL_API strToBool(const std::string& input, bool& output);
 
-//! \brief Serializes string data into engine structures
-class MODEL_API Interpreter
-{
-public:
-	Interpreter(const Property::PluginMapT& pm);
 
-	void interpretConceptConfig(const ManyTagsT& definitions,
-	                            std::vector<ConceptParameter>& conceptVector) const;
-	                            
-	void interpretConceptDefinition(const TagWithAttributesT& definitions,
-	                                ConceptParameter& conceptParameters) const;
-
-	void interpretValueConfig(const ManyTagsT& definitions,
-	                          std::vector<ValueParameter>& propertyVector) const;
-
-	void interpretValueDefinition(const TagWithAttributesT& definitions,
-	                              ValueParameter& valueParameters) const;
-
-	void interpretAdapterConfig(const ManyTagsT& definitions,
-	                            std::vector<AdapterParameter>& adapterVector) const;
-
-	void interpretAdapterDefinition(const TagWithAttributesT& definitions,
-	                                AdapterParameter& adapterParameters) const;
-
-	void interpretModuleConfig(const ManyTagsT& definitions,
-	                            std::vector<ModuleParameter>& moduleVector) const;
-
-	void interpretModuleDefinition(const TagWithAttributesT& definitions,
-	                               ModuleParameter& moduleParameters) const;
-	                               
-	void interpretObjectConfig(const ManyTagsT& definitions,
-	                           std::vector<ObjectParameter>& objectVector) const;
-
-	void interpretObjectDefinition(const TagWithAttributesT& definitions,
-	                               ObjectParameter& objectParameters) const;
-
-#if 0
-	void interpretRaceCondition(const TagWithAttributesT& definitions,
-	                            RaceCondition& raceCondition,
-	                            std::string& path) const;
-
-	                            
-	void interpretLightDefinition(const TagWithAttributesT& definitions,
-	                              View::LightParameters& lightParameters) const;
-	                              
-	void interpretCameraDefinition(const TagWithAttributesT& definitions,
-	                               CameraParameter& cameraParameters,
-	                               std::string& objectName) const;
-	                               
-	void interpretPlaylistDefinition(const TagWithAttributesT& definitions,
-	                                 std::string& publicName,
-	                                 std::string& filename) const;
-
-#endif
+//! \todo Move it to racer!
 #if 0	                                 
 	GameHandle interpretPathDefinition(const std::string& waypointDefiniton,
 	                                   SectorFactory& sectorFactory) const;	
 #endif
-
-private:
-	Property::PluginMapT mPropertyPlugins;	
-
-	bool grab(const std::string& tag,
-	          const TagWithAttributesT& container,
-	          std::string& out,
-	          bool optional = false) const;
-
-	template <typename targetT>
-	void interpret(const std::string& in, targetT& out) const;
-	void interpret(const std::string& in, s32& out) const;
-
-	template<typename targetT>
-	void convert(const std::string& in, targetT& out) const;
-	void convert(const std::string& in, qv4& out) const;
-	void convert(const std::string& in, v3& out) const;
-	void convert(const std::string& in, bool& out) const;
-	void convert(const std::string& in, cv4& out) const;
-};
 
 } // namespace Loader
 } // namespace BFG
