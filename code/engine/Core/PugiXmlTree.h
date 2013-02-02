@@ -39,16 +39,28 @@ class BFG_CORE_API PugiXmlTree : public XmlTree
 
 public:
 
-	boost::shared_ptr<XmlTree> child(const std::string& name);
-	std::vector<boost::shared_ptr<XmlTree> > childList(const std::string& name);
+	XmlTreeT child(const std::string& name);
+	//{
+	//	XmlTreeT result;
+	//	
+	//	pugi::xml_node node = mXmlNode.child(name.c_str());
+
+	//	if (!node)
+	//		return result;
+
+	//	result.reset(new PugiXmlTree(node));
+	//	return result;
+	//}
+
+	XmlTreeListT childList(const std::string& name);
 	std::string attribute(const std::string& name);
 
     //! \return An empty string if element has no data.
     std::string elementData();
 
-	boost::shared_ptr<XmlTree> addElement(const std::string& name, const std::string& value);
+	XmlTreeT addElement(const std::string& name, const std::string& value);
 	void addAttribute(const std::string& name, const std::string& value);
-	void addElement(boost::shared_ptr<XmlTree> value);
+	void addElement(XmlTreeT value);
 
 private:
 

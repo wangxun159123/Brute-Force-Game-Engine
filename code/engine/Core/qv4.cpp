@@ -67,15 +67,22 @@ void stringToQuaternion4(const std::string& in, qv4& out)
 
 qv4 loadQuaternion(XmlTreeT tree)
 {
-	std::string w = tree->child("w")->elementData();
-	std::string x = tree->child("x")->elementData();
-	std::string y = tree->child("y")->elementData();
-	std::string z = tree->child("z")->elementData();
+	try
+	{
+		std::string w = tree->child("w")->elementData();
+		std::string x = tree->child("x")->elementData();
+		std::string y = tree->child("y")->elementData();
+		std::string z = tree->child("z")->elementData();
 
-	return qv4(boost::lexical_cast<f32>(w),
-	           boost::lexical_cast<f32>(x),
-	           boost::lexical_cast<f32>(y),
-	           boost::lexical_cast<f32>(z));
+		return qv4(boost::lexical_cast<f32>(w),
+				   boost::lexical_cast<f32>(x),
+				   boost::lexical_cast<f32>(y),
+				   boost::lexical_cast<f32>(z));
+	}
+	catch (std::exception e)
+	{
+		throw std::logic_error(e.what()+std::string(" At loadQuaternion(...)"));
+	}
 }
 
 } // namespace BFG

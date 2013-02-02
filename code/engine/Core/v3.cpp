@@ -27,6 +27,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Core/v3.h>
 #include <stdexcept>
 #include <boost\lexical_cast.hpp>
+#include <base/Logger.h>
 
 namespace BFG {
 
@@ -58,13 +59,23 @@ void stringToVector3(const std::string& in, v3& out)
 
 v3 loadVector3(XmlTreeT tree)
 {
-	std::string x = tree->child("x")->elementData();
-	std::string y = tree->child("y")->elementData();
-	std::string z = tree->child("z")->elementData();
+	try
+	{
+		std::string x = tree->child("x")->elementData();
+		errlog << "X: " << x;
+		std::string y = tree->child("y")->elementData();
+		errlog << "Y: " << y;
+		std::string z = tree->child("z")->elementData();
+		errlog << "Z: " << z;
 
-	return v3(boost::lexical_cast<f32>(x), 
-	          boost::lexical_cast<f32>(y),
-	          boost::lexical_cast<f32>(z));
+		return v3(boost::lexical_cast<f32>(x), 
+				  boost::lexical_cast<f32>(y),
+				  boost::lexical_cast<f32>(z));
+	}
+	catch (std::exception e)
+	{
+		throw std::logic_error(e.what()+std::string(" At loadVector3(...)"));
+	}
 }
 
 } // namespace BFG

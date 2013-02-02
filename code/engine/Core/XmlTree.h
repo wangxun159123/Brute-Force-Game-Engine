@@ -36,7 +36,7 @@ namespace BFG {
 class XmlTree;
 
 typedef boost::shared_ptr<XmlTree> XmlTreeT;
-typedef std::vector<boost::shared_ptr<XmlTree> > XmlTreeListT;
+typedef std::vector<XmlTreeT > XmlTreeListT;
 
 
 class BFG_CORE_API XmlTree
@@ -44,7 +44,7 @@ class BFG_CORE_API XmlTree
 
 public:
 
-    virtual XmlTreeT child(const std::string& name) = 0;
+	virtual XmlTreeT child(const std::string& name) = 0;
     virtual XmlTreeListT childList(const std::string& name) = 0;
 	virtual std::string attribute(const std::string& name) = 0;
     virtual std::string elementData() = 0;
