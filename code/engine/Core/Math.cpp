@@ -219,6 +219,19 @@ bool nearEnough(const v3& position1,
 	return near_enough;
 }
 
+bool nearEnough(const f32 value1,
+                const f32 value2,
+                const f32 distance)
+{
+	assert(! (distance < 0.0f));
+	if (value1 < value2)
+		return distance > abs(value2 - value1);
+	else
+		return distance > abs(value1 - value2);
+
+	return true;
+}
+
 qv4 lerp(const qv4& q0, const qv4& q1, f32 h)
 {
 	// http://www.itu.dk/people/erikdam/DOWNLOAD/98-5.pdf (6.3)

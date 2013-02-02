@@ -141,6 +141,11 @@ bool BFG_CORE_API nearEnough(const v3& position1,
                              const v3& position2,
                              f32 radius);
 
+//! \return True, if the two values are in distance of each other.
+bool BFG_CORE_API nearEnough(const f32 value1,
+                             const f32 value2,
+                             const f32 distance);
+
 //! \brief Linear Quaternion interpolation
 //! \param[in] q0 Quaternion at the beginning of the interpolation
 //! \param[in] q1 Quaternion at the end of the interpolation
