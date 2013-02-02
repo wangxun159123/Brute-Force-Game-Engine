@@ -9,7 +9,7 @@
       concepts="PongBallConcept"
       collision="CM_Standard"
       visible="yes"
-      density="50.0"
+      density="0.1"
       />
   </ObjectConfig>
 
@@ -20,7 +20,7 @@
       concepts="PongBarConcept"
       collision="CM_Standard"
       visible="yes"
-      density="10000.0"
+      density="100000.0"
       />
   </ObjectConfig>
 
@@ -31,7 +31,7 @@
       concepts="PongBarConcept"
       collision="CM_Standard"
       visible="yes"
-      density="10000.0"
+      density="100000.0"
       />
   </ObjectConfig>
 
@@ -42,7 +42,7 @@
       concepts="PongBallRemoteConcept"
       collision="CM_Disabled"
       visible="yes"
-      density="50.0"
+      density="0.1"
       />
   </ObjectConfig>
 
@@ -53,7 +53,7 @@
       concepts="PongBarRemoteConcept"
       collision="CM_Disabled"
       visible="yes"
-      density="10000.0"
+      density="100000.0"
       />
   </ObjectConfig>
 
@@ -64,7 +64,7 @@
       concepts="PongBarRemoteConcept"
       collision="CM_Disabled"
       visible="yes"
-      density="10000.0"
+      density="100000.0"
       />
   </ObjectConfig>
 </ObjectConfigs>

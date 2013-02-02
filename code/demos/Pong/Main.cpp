@@ -1,3 +1,4 @@
+
 /*    ___  _________     ____          __         
      / _ )/ __/ ___/____/ __/___ ___ _/_/___ ___ 
     / _  / _// (_ //___/ _/ / _ | _ `/ // _ | -_)
@@ -423,18 +424,17 @@ struct ClientState : public SynchronizationTestState
 
 	void onAxisY(BFG::f32 axisValue)
 	{
-		CharArray512T ca512 = CharArray512T();
-		valueToArray(axisValue, ca512, 0);
-		BFG::Network::DataPayload payload
-		(
-			A_SHIP_AXIS_Y, 
-			SERVER_STATE_HANDLE, 
-			CLIENT_STATE_HANDLE,
-			sizeof(f32),
-			ca512
-		);
-
-		emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload);
+ 			CharArray512T ca512 = CharArray512T();
+ 			valueToArray(BFG::clamp(axisValue, -1.0f, 1.0f), ca512, 0);
+ 			BFG::Network::DataPayload payload
+ 			(
+ 				A_SHIP_AXIS_Y, 
+ 				SERVER_STATE_HANDLE, 
+ 				CLIENT_STATE_HANDLE,
+ 				sizeof(f32),
+ 				ca512
+ 			);
+ 			emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload);
 	}
 
 	void controllerEventHandler(BFG::Controller_::VipEvent* e)
