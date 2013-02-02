@@ -26,8 +26,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Core/v3.h>
 #include <stdexcept>
-#include <boost\lexical_cast.hpp>
-#include <base/Logger.h>
+#include <boost/lexical_cast.hpp>
+#include <Base/Logger.h>
 
 namespace BFG {
 

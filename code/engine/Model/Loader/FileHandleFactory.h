@@ -63,7 +63,7 @@ FileHandleFactory(const std::vector<std::string>& files)
 ConfigT requestConfig(const std::string& configName)
 {
 	ConfigT result;
-	FileHandlerListT::iterator it = mFileHandlerList.begin();
+	typename FileHandlerListT::iterator it = mFileHandlerList.begin();
 	
 	for (; it != mFileHandlerList.end(); ++it)
 	{
