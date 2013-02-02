@@ -62,11 +62,8 @@ v3 loadVector3(XmlTreeT tree)
 	try
 	{
 		std::string x = tree->child("x")->elementData();
-		errlog << "X: " << x;
 		std::string y = tree->child("y")->elementData();
-		errlog << "Y: " << y;
 		std::string z = tree->child("z")->elementData();
-		errlog << "Z: " << z;
 
 		return v3(boost::lexical_cast<f32>(x), 
 				  boost::lexical_cast<f32>(y),

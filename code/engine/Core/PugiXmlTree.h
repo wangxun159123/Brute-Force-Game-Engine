@@ -40,17 +40,6 @@ class BFG_CORE_API PugiXmlTree : public XmlTree
 public:
 
 	XmlTreeT child(const std::string& name);
-	//{
-	//	XmlTreeT result;
-	//	
-	//	pugi::xml_node node = mXmlNode.child(name.c_str());
-
-	//	if (!node)
-	//		return result;
-
-	//	result.reset(new PugiXmlTree(node));
-	//	return result;
-	//}
 
 	XmlTreeListT childList(const std::string& name);
 	std::string attribute(const std::string& name);
