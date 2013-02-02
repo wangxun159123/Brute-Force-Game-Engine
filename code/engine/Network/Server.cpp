@@ -38,34 +38,44 @@ using namespace boost::asio::ip;
 using namespace boost::system;
 
 Server::Server(EventLoop* loop) :
-mLoop(loop)
+mLoop(loop),
+mLocalTime(new Clock::StopWatch(Clock::milliSecond))
 {
-	mLoop->connect(ID::NE_LISTEN, this, &Server::NetworkControlEventHandler);
-	mLoop->connect(ID::NE_DISCONNECT, this, &Server::NetworkControlEventHandler);
-	mLoop->connect(ID::NE_SHUTDOWN, this, &Server::NetworkControlEventHandler);
+
+	mLocalTime->start();
+
+	mLoop->connect(ID::NE_LISTEN, this, &Server::controlEventHandler);
+	mLoop->connect(ID::NE_DISCONNECT, this, &Server::controlEventHandler);
+	mLoop->connect(ID::NE_SHUTDOWN, this, &Server::controlEventHandler);
 }
 
 Server::~Server()
 {
+	dbglog << "Server::~Server";
 	stop();
 	mLoop->disconnect(ID::NE_LISTEN, this);
 	mLoop->disconnect(ID::NE_DISCONNECT, this);
 	mLoop->disconnect(ID::NE_SHUTDOWN, this);
+
+	mLoop->disconnect(ID::NE_RECEIVED, this);
 }
 
 void Server::stop()
 {
 	dbglog << "Server::stop";
-	mService.stop();
-	mThread.join();
 
 	if (!mNetworkModules.empty())
 	{
 		for(ModulesMap::iterator it = mNetworkModules.begin(); it != mNetworkModules.end(); ++it)
-			delete it->second;
+		{
+			if (it->second && it->second->socket()->is_open())
+				it->second->socket()->close();
+		}
 
 		mNetworkModules.clear();
 	}
+	mService.stop();
+	mThread.join();
 }
 
 void Server::startAccepting()
@@ -73,27 +83,11 @@ void Server::startAccepting()
 	dbglog << "Server::startAccepting";
 	
 	PeerIdT peerId = generateNetworkHandle();
-	NetworkModule* netModule = new NetworkModule(mLoop, mService, peerId);
+	boost::shared_ptr<NetworkModule> netModule(new NetworkModule(mLoop, mService, peerId, mLocalTime));
 	mNetworkModules.insert(std::make_pair(peerId, netModule));
 
+	dbglog << "Created Networkmodule(" << netModule << ")";
 	mAcceptor->async_accept(*netModule->socket(), bind(&Server::acceptHandler, this, _1, peerId));
-}
-
-void Server::acceptHandler(const boost::system::error_code &ec, PeerIdT peerId)
-{ 
-	dbglog << "Client connected: "
-	       << mNetworkModules[peerId]->socket()->remote_endpoint().address()
-	       << ":" 
-	       << mNetworkModules[peerId]->socket()->remote_endpoint().port();
-	if (!ec) 
-	{ 
-		sendHandshake(peerId);
-		startAccepting();
-	}
-	else
-	{
-		printErrorCode(ec, "acceptHandler");
-	}
 }
 
 void Server::sendHandshake(PeerIdT peerId)
@@ -113,30 +107,48 @@ void Server::sendHandshake(PeerIdT peerId)
 	);
 }
 
+void Server::acceptHandler(const boost::system::error_code &ec, PeerIdT peerId)
+{ 
+	dbglog << "Client connected: "
+	       << mNetworkModules[peerId]->socket()->remote_endpoint().address()
+	       << ":" 
+	       << mNetworkModules[peerId]->socket()->remote_endpoint().port();
+	if (!ec) 
+	{ 
+		sendHandshake(peerId);
+		startAccepting();
+	}
+	else
+	{
+		printErrorCode(ec, "acceptHandler");
+	}
+}
+
 void Server::writeHandshakeHandler(const error_code &ec, std::size_t bytesTransferred, PeerIdT peerId)
 {
 	dbglog << "Server: peer ID was sent";
-	Emitter e(mLoop);
-	e.emit<NetworkControlEvent>(ID::NE_CONNECTED, peerId);
 	mNetworkModules[peerId]->startReading();
+
+	Emitter e(mLoop);
+	e.emit<ControlEvent>(ID::NE_CONNECTED, peerId);
 }
 
-void Server::NetworkControlEventHandler(NetworkControlEvent* nce)
+void Server::controlEventHandler(ControlEvent* e)
 {
-	switch(nce->getId())
+	switch(e->getId())
 	{
 	case ID::NE_LISTEN:
-		onListen(boost::get<u16>(nce->getData()));
+		onListen(boost::get<u16>(e->getData()));
 		break;
 	case ID::NE_DISCONNECT:
-		onDisconnect(boost::get<PeerIdT>(nce->getData()));
+		onDisconnect(boost::get<PeerIdT>(e->getData()));
 		break;
 	case ID::NE_SHUTDOWN:
 		stop();
 		break;
 	default:
 		warnlog << "Server: Can't handle event with ID: "
-		        << nce->getId();
+		        << e->getId();
 		break;
 	}
 }
@@ -161,10 +173,10 @@ void Server::onDisconnect(const PeerIdT& peerId)
 	ModulesMap::iterator it = mNetworkModules.find(peerId);
 	if (it != mNetworkModules.end())
 	{
-		delete mNetworkModules[peerId];
+		mNetworkModules[peerId].reset();
 		mNetworkModules.erase(it);
 		Emitter e(mLoop);
-		e.emit<NetworkControlEvent>(ID::NE_DISCONNECTED, peerId);
+		e.emit<ControlEvent>(ID::NE_DISCONNECTED, peerId);
 	}
 }
 

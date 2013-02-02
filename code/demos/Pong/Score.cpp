@@ -37,9 +37,9 @@ namespace BFG {
 namespace View {
 
 Score::Score() :
+HudElement("PongScore.layout", "Score"),
 mUpperScore(0),
-mLowerScore(0),
-HudElement("PongScore.layout", "Score")
+mLowerScore(0)
 {
 	Main::eventLoop()->connect
 	(

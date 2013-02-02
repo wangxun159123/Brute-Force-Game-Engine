@@ -29,7 +29,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Network/Interface.h>
 #include <Network/Enums.hh>
-#include <Network/Event_fwd.h>
+#include <Network/Event.h>
 
 #define BOOST_TEST_MODULE NetworkTest2
 #include <boost/test/unit_test.hpp>
@@ -79,39 +79,39 @@ struct Server : BFG::Emitter
 		loop()->disconnect(BFG::ID::NE_RECEIVED, this);
 	}
 	
-	void netConnectHandler(BFG::Network::NetworkControlEvent* e)
+	void netConnectHandler(BFG::Network::ControlEvent* e)
 	{
 		serverGotConnected = true;
 		BOOST_REQUIRE_EQUAL(e->getId(), BFG::ID::NE_CONNECTED);
 		BOOST_REQUIRE_NE(boost::get<BFG::Network::PeerIdT>(e->getData()), 0);
 	}
 	
-	void netDisconnectHandler(BFG::Network::NetworkControlEvent* e)
+	void netDisconnectHandler(BFG::Network::ControlEvent* e)
 	{
 		serverGotDisconnected = true;
 		BOOST_REQUIRE_EQUAL(e->getId(), BFG::ID::NE_DISCONNECTED);
 		BOOST_REQUIRE_NE(boost::get<BFG::Network::PeerIdT>(e->getData()), 0);
 	}
 
-	void netPacketHandler(BFG::Network::NetworkPacketEvent* e)
+	void netPacketHandler(BFG::Network::DataPacketEvent* e)
 	{
 		serverGotReceived = true;
 		BOOST_REQUIRE_EQUAL(e->getId(), BFG::ID::NE_RECEIVED);
-		BOOST_REQUIRE_EQUAL(e->mDestination, serverApplicationHandle);
-		BOOST_REQUIRE_NE(e->mSender, 0);
+		BOOST_REQUIRE_EQUAL(e->destination(), serverApplicationHandle);
+		BOOST_REQUIRE_NE(e->sender(), 0);
 		
-		const BFG::Network::NetworkPayloadType& payload = e->getData();
+		const BFG::Network::DataPayload& payload = e->getData();
 
-		EventIdT appId = boost::get<0>(payload);		
-		BFG::GameHandle destinationHandle = boost::get<1>(payload);
-		BFG::GameHandle senderHandle = boost::get<2>(payload);
+		EventIdT appId = payload.mAppEventId;
+		BFG::GameHandle destinationHandle = payload.mAppDestination;
+		BFG::GameHandle senderHandle = payload.mAppSender;
 		
 		BOOST_REQUIRE_EQUAL (appId, testAppId);
 		BOOST_REQUIRE_EQUAL (destinationHandle, serverApplicationHandle);
 		BOOST_REQUIRE_EQUAL (senderHandle, clientApplicationHandle);
 		
-		BFG::u16 packetSize = boost::get<3>(payload);
-		CharArray512T data = boost::get<4>(payload);
+		BFG::u16 packetSize = payload.mAppDataLen;
+		CharArray512T data = payload.mAppData;
 		
 		BOOST_REQUIRE_EQUAL (packetSize, testMsg.size());
 		BOOST_REQUIRE_EQUAL_COLLECTIONS (data.begin(), data.begin()+packetSize, testData.begin(), testData.begin() + testMsg.size());
@@ -137,39 +137,39 @@ struct Client : BFG::Emitter
 		loop()->disconnect(BFG::ID::NE_RECEIVED, this);
 	}
 
-	void netConnectHandler(BFG::Network::NetworkControlEvent* e)
+	void netConnectHandler(BFG::Network::ControlEvent* e)
 	{
 		clientGotConnected = true;
 		BOOST_REQUIRE_EQUAL(e->getId(), BFG::ID::NE_CONNECTED);
 		BOOST_REQUIRE_NE(boost::get<BFG::Network::PeerIdT>(e->getData()), 0);
 	}
 
-	void netDisconnectHandler(BFG::Network::NetworkControlEvent* e)
+	void netDisconnectHandler(BFG::Network::ControlEvent* e)
 	{
 		clientGotDisconnected = true;
 		BOOST_REQUIRE_EQUAL(e->getId(), BFG::ID::NE_DISCONNECTED);
 		BOOST_REQUIRE_EQUAL(boost::get<BFG::Network::PeerIdT>(e->getData()), 0);
 	}
 
-	void netPacketHandler(BFG::Network::NetworkPacketEvent* e)
+	void netPacketHandler(BFG::Network::DataPacketEvent* e)
 	{
 		clientGotReceived = true;
 		BOOST_REQUIRE_EQUAL(e->getId(), BFG::ID::NE_RECEIVED);
-		BOOST_REQUIRE_EQUAL(e->mDestination, clientApplicationHandle);
-		BOOST_REQUIRE_EQUAL(e->mSender, 0);
+		BOOST_REQUIRE_EQUAL(e->destination(), clientApplicationHandle);
+		BOOST_REQUIRE_EQUAL(e->sender(), 0);
 		
-		const BFG::Network::NetworkPayloadType& payload = e->getData();
+		const BFG::Network::DataPayload& payload = e->getData();
 
-		EventIdT appId = boost::get<0>(payload);		
-		BFG::GameHandle destinationHandle = boost::get<1>(payload);
-		BFG::GameHandle senderHandle = boost::get<2>(payload);
+		EventIdT appId = payload.mAppEventId;		
+		BFG::GameHandle destinationHandle = payload.mAppDestination;
+		BFG::GameHandle senderHandle = payload.mAppSender;
 		
 		BOOST_REQUIRE_EQUAL (appId, testAppId);
 		BOOST_REQUIRE_EQUAL (destinationHandle, clientApplicationHandle);
 		BOOST_REQUIRE_EQUAL (senderHandle, serverApplicationHandle);
 		
-		BFG::u16 packetSize = boost::get<3>(payload);
-		CharArray512T data = boost::get<4>(payload);
+		BFG::u16 packetSize = payload.mAppDataLen;
+		CharArray512T data = payload.mAppData;
 		
 		BOOST_REQUIRE_EQUAL (packetSize, testMsg.size());
 		BOOST_REQUIRE_EQUAL_COLLECTIONS (data.begin(), data.begin()+packetSize, testData.begin(), testData.begin() + testMsg.size());
@@ -259,9 +259,9 @@ BOOST_AUTO_TEST_CASE (ConnectionTest)
 	std::string portString;
 	generateRandomPort(port, portString);
 	
-	serverEmitter->emit<BFG::Network::NetworkControlEvent>(BFG::ID::NE_LISTEN, static_cast<BFG::u16>(port));
+	serverEmitter->emit<BFG::Network::ControlEvent>(BFG::ID::NE_LISTEN, static_cast<BFG::u16>(port));
 
-	clientEmitter->emit<BFG::Network::NetworkControlEvent>
+	clientEmitter->emit<BFG::Network::ControlEvent>
 	(
 		BFG::ID::NE_CONNECT,
 		boost::make_tuple(stringToArray<128>("127.0.0.1"), stringToArray<128>(portString))
@@ -280,8 +280,8 @@ BOOST_AUTO_TEST_CASE (ClientToServerDataCheck)
 	BOOST_TEST_MESSAGE( "ClientToServerDataCheck is starting" );
 	resetEventStatus();
 
-	BFG::Network::NetworkPayloadType payload = boost::make_tuple(testAppId, serverApplicationHandle, clientApplicationHandle, testMsg.length(), testData);
-	clientEmitter->emit<BFG::Network::NetworkPacketEvent>(BFG::ID::NE_SEND, payload);
+	BFG::Network::DataPayload payload(testAppId, serverApplicationHandle, clientApplicationHandle, testMsg.length(), testData);
+	clientEmitter->emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload);
 	
 	boost::this_thread::sleep(boost::posix_time::milliseconds(250));
 
@@ -298,8 +298,8 @@ BOOST_AUTO_TEST_CASE (ClientToServerDestinationNotNullCheck)
 	
 	BFG::GameHandle bogusDestination = 123456789;
 
-	BFG::Network::NetworkPayloadType payload = boost::make_tuple(testAppId, serverApplicationHandle, clientApplicationHandle, testMsg.length(), testData);
-	clientEmitter->emit<BFG::Network::NetworkPacketEvent>(BFG::ID::NE_SEND, payload, bogusDestination);
+	BFG::Network::DataPayload payload(testAppId, serverApplicationHandle, clientApplicationHandle, testMsg.length(), testData);
+	clientEmitter->emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload, bogusDestination);
 	
 	boost::this_thread::sleep(boost::posix_time::milliseconds(250));
 
@@ -320,8 +320,8 @@ BOOST_AUTO_TEST_CASE (ServerToClientDataCheck)
 	BOOST_TEST_MESSAGE( "ServerToClientDataCheck is starting" );
 	resetEventStatus();
 
-	BFG::Network::NetworkPayloadType payload = boost::make_tuple(testAppId, clientApplicationHandle, serverApplicationHandle, testMsg.length(), testData);
-	serverEmitter->emit<BFG::Network::NetworkPacketEvent>(BFG::ID::NE_SEND, payload);
+	BFG::Network::DataPayload payload(testAppId, clientApplicationHandle, serverApplicationHandle, testMsg.length(), testData);
+	serverEmitter->emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload);
 	
 	boost::this_thread::sleep(boost::posix_time::milliseconds(250));
 
@@ -335,7 +335,7 @@ BOOST_AUTO_TEST_CASE (ClientDisconnect)
 {
 	BOOST_TEST_MESSAGE( "ClientDisconnect is starting" );
 	resetEventStatus();
-	clientEmitter->emit<BFG::Network::NetworkControlEvent>(BFG::ID::NE_DISCONNECT, static_cast<BFG::u16>(0));
+	clientEmitter->emit<BFG::Network::ControlEvent>(BFG::ID::NE_DISCONNECT, static_cast<BFG::u16>(0));
 
 	boost::this_thread::sleep(boost::posix_time::milliseconds(250));
 
@@ -349,7 +349,7 @@ BOOST_AUTO_TEST_CASE (ServerShutdown)
 {
 	BOOST_TEST_MESSAGE( "ServerShutdown is starting" );
 	resetEventStatus();
-	serverEmitter->emit<BFG::Network::NetworkControlEvent>(BFG::ID::NE_SHUTDOWN, static_cast<BFG::u16>(0));
+	serverEmitter->emit<BFG::Network::ControlEvent>(BFG::ID::NE_SHUTDOWN, static_cast<BFG::u16>(0));
 
 	boost::this_thread::sleep(boost::posix_time::seconds(1));
 	

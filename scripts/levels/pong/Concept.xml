@@ -2,20 +2,28 @@
 
 <ConceptConfigs>
 
-  <ConceptConfig name="PongBallConcept" >
-    <PC name="BallControl">NoProperties</PC>
-    <PC name="Physical">NoProperties</PC/>
-  </ConceptConfig>
+	<ConceptConfig name="PongBallConcept">
+		<PC name="BallControl">NoProperties</PC>
+		<PC name="Physical">NoProperties</PC>
+		<PC name="Networked">NoProperties</PC>
+	</ConceptConfig>
 
-  <ConceptConfig name="PongLowerBarConcept" >
-    <PC name="Physical">NoProperties</PC>
-    <PC name="BarControl">NoProperties</PC>
-  </ConceptConfig>
+	<ConceptConfig name="PongBarConcept">
+		<PC name="Physical">NoProperties</PC>
+		<PC name="BarControl">NoProperties</PC>
+		<PC name="Networked">NoProperties</PC>
+	</ConceptConfig>
 
-  <ConceptConfig name="PongUpperBarConcept" >
-    <PC name="Physical">NoProperties</PC>
-    <PC name="BarControl">NoProperties</PC>
-  </ConceptConfig>
+
+	<ConceptConfig name="PongBallRemoteConcept">
+		<PC name="Physical">NoProperties</PC>
+		<PC name="Networked">NoProperties</PC>
+	</ConceptConfig>
+
+	<ConceptConfig name="PongBarRemoteConcept">
+		<PC name="Physical">NoProperties</PC>
+		<PC name="Networked">NoProperties</PC>
+	</ConceptConfig>
 
 </ConceptConfigs>
 

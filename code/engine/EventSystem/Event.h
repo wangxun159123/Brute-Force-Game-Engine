@@ -36,43 +36,64 @@ namespace BFG {
 template 
 <
 	typename _ActionT,
-	typename _PayloadT,
+	typename _DataT,
 	typename _DestinationT,
 	typename _SenderT
 >
-class Event : public TBaseEvent<_PayloadT>
+class Event : public TBaseEvent<_DataT>
 {
 public:
 	typedef _ActionT      ActionT;
-	typedef _PayloadT     PayloadT;
+	typedef _DataT        DataT;
 	typedef _DestinationT DestinationT;
 	typedef _SenderT      SenderT;
+
+	// The following is deprecated. The term "payload" is now used within a
+	// networking context.
+	typedef _DataT        PayloadT;
 	
-	typedef typename TBaseEvent<_PayloadT>::IdT IdT;
+	typedef typename TBaseEvent<_DataT>::IdT IdT;
 
 	Event(ActionT ai = static_cast<ActionT>(UNASSIGNED_EVENTID),
-	      PayloadT data = PayloadT()) :
-	TBaseEvent<PayloadT>(static_cast<EventIdT>(ai), data)
-	{
-	}
+	      DataT data = DataT()) :
+	TBaseEvent<DataT>(static_cast<EventIdT>(ai), data)
+	{}
 	
 	Event(ActionT ai,
-	      PayloadT data,
+	      DataT data,
 	      DestinationT destination,
 	      SenderT sender) :
-	TBaseEvent<PayloadT>(static_cast<EventIdT>(ai), data, destination),
-	mDestination(destination),
+	TBaseEvent<DataT>(static_cast<EventIdT>(ai), data, destination),
 	mSender(sender)
-	{
-	}
+	{}
 	
-	Event* copy()
+	ActionT id() const
 	{
-		return new Event<ActionT, PayloadT, DestinationT, SenderT>(*this);
+		return static_cast<ActionT>(TBaseEvent<DataT>::getId());
 	}
 
-	DestinationT mDestination;
-	SenderT      mSender;
+	const DataT& data() const
+	{
+		return TBaseEvent<DataT>::getData();
+	}
+
+	DestinationT destination() const
+	{
+		return TBaseEvent<DataT>::getReceiver();
+	}
+
+	SenderT sender() const
+	{
+		return mSender;
+	}
+
+	Event* copy()
+	{
+		return new Event<ActionT, DataT, DestinationT, SenderT>(*this);
+	}
+
+private:
+	SenderT mSender;
 };
 
 } // namespace BFG

@@ -24,56 +24,29 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef USR_CONTROL_EMITTER_H
-#define USR_CONTROL_EMITTER_H
-
-#include <EventSystem/EventFactory.h>
+#include <sstream>
+#include <Network/Defs.h>
+#include <Network/Event.h>
 
 namespace BFG {
-
-class Emitter
+namespace Network {
+	
+std::string NETWORK_API debug(const DataPacketEvent& e)
 {
-public:
-	Emitter(EventLoop* loop) :
-	mLoop(loop)
-	{
-		assert(loop);
-	}
+	std::stringstream ss;
+		
+	ss << "e.id: " << e.id() << "\n";
+	ss << "e.destination: " << e.destination() << "\n";
+	ss << "e.sender: " << e.sender() << "\n";
 
-	EventLoop* loop() const { return mLoop; }
+	const DataPayload& payload = e.getData();
+	ss << "payload.AppId: " << payload.mAppEventId << "\n";
+	ss << "payload.Destination: " << payload.mAppDestination << "\n";
+	ss << "payload.Sender: " << payload.mAppSender << "\n";
+	ss << "payload.PacketSize: " << payload.mAppDataLen;
 	
-	template <typename EventT, typename PayloadT>
-	void emit(typename EventT::ActionT action,
-	          const PayloadT& payload,
-	          typename EventT::DestinationT destination,
-	          typename EventT::SenderT sender = typename EventT::SenderT()) const
-	{
-		BFG::EventFactory::Create<EventT>
-		(
-			loop(),
-			action,
-			typename EventT::PayloadT(payload),
-			destination,
-			sender
-		);
-	}
-	
-	template <typename EventT, typename PayloadT>
-	void emit(typename EventT::ActionT action,
-	          const PayloadT& payload = PayloadT()) const
-	{
-		BFG::EventFactory::Create<EventT>
-		(
-			loop(),
-			action,
-			typename EventT::PayloadT(payload)
-		);
-	}
+	return ss.str();
+}
 
-private:
-	EventLoop* const mLoop;
-};
-
+} // namespace Network
 } // namespace BFG
-
-#endif

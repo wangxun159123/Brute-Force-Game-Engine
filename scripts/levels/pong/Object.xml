@@ -1,37 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <ObjectConfigs>
-
-  <ObjectConfig name="Pong Ball">
-    <Module name="Root">
-      <mesh>Cube.mesh</mesh>
-      <concepts>PongBallConcept</concepts>
-      <collision>CM_Standard</collision>
-      <visible>yes</visible>
-      <density>50.0</density>
-    </Module>
-  </ObjectConfig>
-
-  <ObjectConfig name="Pong Lower Bar">
-    <Module
-      name="Root"
-      mesh="Packer.mesh"
-      concepts="PongLowerBarConcept"
-      collision="CM_Standard"
-      visible="yes"
-      density="10000.0"
-      />
-  </ObjectConfig>
-
-  <ObjectConfig name="Pong Upper Bar">
-    <Module
-      name="Root"
-      mesh="Packer.mesh"
-      concepts="PongUpperBarConcept"
-      collision="CM_Standard"
-      visible="yes"
-      density="10000.0"
-      />
-  </ObjectConfig>
-
+	<ObjectConfig name="PongBall">
+		<Module name="Root">
+			<mesh>Cube.mesh</mesh>
+			<concepts>PongBallConcept</concepts>
+			<collision>CM_Standard</collision>
+			<visible>yes</visible>
+			<density>0.01</density>
+		</Module>
+	</ObjectConfig>
+  	<ObjectConfig name="PongLowerBar">
+		<Module name="Root">
+			<Mesh>Packer.mesh</Mesh>
+			<Adapters>CubeAllAdapters</Adapters>
+			<Concepts>PongBarConcept</Concepts>
+			<Collision>CM_Standard</Collision>
+			<Visible>yes</Visible>
+			<Density>10000.0</Density>
+		</Module>
+	</ObjectConfig>
+	<ObjectConfig name="PongUpperBar">
+		<Module name="Root">
+			<Mesh>Packer.mesh</Mesh>
+			<Adapters>CubeAllAdapters</Adapters>
+			<Concepts>PongBarConcept</Concepts>
+			<Collision>CM_Standard</Collision>
+			<Visible>yes</Visible>
+			<Density>10000.0</Density>
+		</Module>
+	</ObjectConfig>
+	<ObjectConfig name="PongBallRemote">
+		<Module name="Root">
+			<Mesh>Cube.mesh</Mesh>
+			<Concepts>PongBallRemoteConcept</Concepts>
+			<Collision>CM_Disabled</Collision>
+			<Visible>yes</Visible>
+			<Density>0.01</Density>
+		</Module>
+	</ObjectConfig>
+  	<ObjectConfig name="PongLowerBarRemote">
+		<Module name="Root">
+			<Mesh>Packer.mesh</Mesh>
+			<Adapters>CubeAllAdapters</Adapters>
+			<Concepts>PongBarRemoteConcept</Concepts>
+			<Collision>CM_Disabled</Collision>
+			<Visible>yes</Visible>
+			<Density>10000.0</Density>
+		</Module>
+	</ObjectConfig>
+	<ObjectConfig name="PongUpperBarRemote">
+		<Module name="Root">
+			<Mesh>Packer.mesh</Mesh>
+			<Adapters>CubeAllAdapters</Adapters>
+			<Concepts>PongBarRemoteConcept</Concepts>
+			<Collision>CM_Disabled</Collision>
+			<Visible>yes</Visible>
+			<Density>10000.0</Density>
+		</Module>
+	</ObjectConfig>
 </ObjectConfigs>

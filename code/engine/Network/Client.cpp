@@ -27,29 +27,38 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Network/Client.h>
 
 #include <Base/Logger.h>
+#include <Network/Event.h>
 #include <Network/NetworkModule.h>
 
 namespace BFG {
 namespace Network{
 
 Client::Client(EventLoop* loop) :
-mLoop(loop)
+mLoop(loop),
+mLocalTime(new Clock::StopWatch(Clock::milliSecond))
 {
+	mLocalTime->start();
+
 	mResolver.reset(new tcp::resolver(mService));
+	
+	mTimeSyncTimer.reset(new boost::asio::deadline_timer(mService));
 
-	mLoop->connect(ID::NE_CONNECT, this, &Client::NetworkControlEventHandler);
-	mLoop->connect(ID::NE_DISCONNECT, this, &Client::NetworkControlEventHandler);
-	mLoop->connect(ID::NE_SHUTDOWN, this, &Client::NetworkControlEventHandler);
+	mLoop->connect(ID::NE_CONNECT, this, &Client::controlEventHandler);
+	mLoop->connect(ID::NE_DISCONNECT, this, &Client::controlEventHandler);
+	mLoop->connect(ID::NE_SHUTDOWN, this, &Client::controlEventHandler);
 
-	mNetworkModule = new NetworkModule(mLoop, mService, 0);
+	mNetworkModule.reset(new NetworkModule(mLoop, mService, 0, mLocalTime));
 }
 
 Client::~Client()
 {
+	dbglog << "Client::~Client";
 	stop();
 	mLoop->disconnect(ID::NE_CONNECT, this);
 	mLoop->disconnect(ID::NE_DISCONNECT, this);
 	mLoop->disconnect(ID::NE_SHUTDOWN, this);
+
+	mLoop->disconnect(ID::NE_RECEIVED, this);
 
 	if (mResolver)
 		mResolver->cancel();
@@ -63,15 +72,17 @@ void Client::stop()
 	mService.stop();
 	mThread.join();
 
-	delete mNetworkModule;
-	mNetworkModule = NULL;
+	if (mNetworkModule && mNetworkModule->socket()->is_open())
+		mNetworkModule->socket()->close();	
+
+	mNetworkModule.reset();
 }
 
 void Client::startConnecting(const std::string& ip, const std::string& port)
 {
 	dbglog << "NetworkModule::startConnecting";
-	boost::asio::ip::tcp::resolver::query query(ip, port); 
-	mResolver->async_resolve(query, boost::bind(&Client::resolveHandler, this, _1, _2)); 
+	boost::asio::ip::tcp::resolver::query query(ip, port);
+	mResolver->async_resolve(query, boost::bind(&Client::resolveHandler, this, _1, _2));
 }
 
 void Client::readHandshake()
@@ -90,7 +101,9 @@ void Client::resolveHandler(const error_code &ec, tcp::resolver::iterator it)
 { 
 	dbglog << "NetworkModule::resolveHandler";
 	if (!ec) 
+	{
 		mNetworkModule->socket()->async_connect(*it, bind(&Client::connectHandler, this, _1)); 
+	}
 	else
 		printErrorCode(ec, "resolveHandler");
 }
@@ -100,7 +113,6 @@ void Client::connectHandler(const error_code &ec)
 	dbglog << "Client::connectHandler";
 	if (!ec) 
 	{
-		// TODO: remove when handshake is ready
 		readHandshake();
 	}
 	else
@@ -137,19 +149,24 @@ void Client::readHandshakeHandler(const error_code &ec, size_t bytesTransferred)
 		{
 			dbglog << "Received peer ID: " << hs.mPeerId;
 			mPeerId = hs.mPeerId;
+
 			mNetworkModule->startReading();
+
 			Emitter e(mLoop);
-			e.emit<NetworkControlEvent>(ID::NE_CONNECTED, mPeerId);
+			e.emit<ControlEvent>(ID::NE_CONNECTED, mPeerId);
+
+			mNetworkModule->sendTimesyncRequest();
+			setTimeSyncTimer(TIME_SYNC_WAIT_TIME);
 		}
 	}
 }
 
-void Client::NetworkControlEventHandler(NetworkControlEvent* nce)
+void Client::controlEventHandler(ControlEvent* e)
 {
-	switch(nce->getId())
+	switch(e->getId())
 	{
 	case ID::NE_CONNECT:
-		onConnect(boost::get<NetworkEndpointT>(nce->getData()));
+		onConnect(boost::get<EndpointT>(e->getData()));
 		break;
 	case ID::NE_DISCONNECT:
 	case ID::NE_SHUTDOWN:
@@ -157,13 +174,13 @@ void Client::NetworkControlEventHandler(NetworkControlEvent* nce)
 		break;
 	default:
 		warnlog << "Client: Can't handle event with ID: "
-		        << nce->getId();
+			<< e->getId();
 		break;
 	}
 
 }
 
-void Client::onConnect(const NetworkEndpointT& endpoint)
+void Client::onConnect(const EndpointT& endpoint)
 {
 	startConnecting(endpoint.get<0>().data(), endpoint.get<1>().data());
 	mThread = boost::thread(boost::bind(&boost::asio::io_service::run, &mService));
@@ -173,7 +190,29 @@ void Client::onDisconnect(const PeerIdT& peerId)
 {
 	stop();
 	Emitter e(mLoop);
-	e.emit<NetworkControlEvent>(ID::NE_DISCONNECTED, peerId);
+	e.emit<ControlEvent>(ID::NE_DISCONNECTED, peerId);
+}
+
+void Client::setTimeSyncTimer(const long& waitTime_ms)
+{
+	if (waitTime_ms == 0)
+		return;
+
+	mTimeSyncTimer->expires_from_now(boost::posix_time::milliseconds(waitTime_ms));
+	mTimeSyncTimer->async_wait(boost::bind(&Client::syncTimerHandler, this, _1));
+}
+
+void Client::syncTimerHandler(const error_code &ec)
+{
+	if (!ec)
+	{
+		mNetworkModule->sendTimesyncRequest();
+		setTimeSyncTimer(TIME_SYNC_WAIT_TIME);
+	}
+	else
+	{
+		printErrorCode(ec, "timerHandler");
+	}
 }
 
 u16 Client::calculateHandshakeChecksum(const Handshake& hs)

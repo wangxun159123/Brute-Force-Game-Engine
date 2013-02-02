@@ -321,7 +321,7 @@ void Camera::updateChase(quantity<si::time, f32> timeSinceLastFrame)
 	mFactor = clamp(mFactor.value(), 0.0f, 1.0f);
 
 	// ease in ease out interpolation till the maxDistance is reached.
-	f32 distance = mInterpol.Interpolate(mFactor);
+	f32 distance = mInterpol.interpolate(mFactor);
 	
 	mLastObjVelocity = objVel;
 	mLastObjLocation.position = mWaypoint->mLocation.position;

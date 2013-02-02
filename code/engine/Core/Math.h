@@ -104,7 +104,7 @@ qv4 BFG_CORE_API rotationTo(const v3& src,
                             const v3& fallbackAxis = v3::ZERO);
 
 //! \brief Compares two quaternions
-bool BFG_CORE_API equals(const qv4& lhs, const qv4& rhs);
+bool BFG_CORE_API equals(const qv4& lhs, const qv4& rhs, const f32 epsilon = EPSILON_F);
 
 //! \brief Calculates the distance from zero to a given vector.
 f32 BFG_CORE_API length(const v3& vec);
@@ -117,6 +117,12 @@ f32 BFG_CORE_API distance(const v3& first, const v3& second);
 //! \param[in] dest Second vector
 //! \return Result in RAD
 f32 BFG_CORE_API angleBetween(const v3& src, const v3& dest);
+
+//! \brief Calculates the angle between two quaternions
+//! \param[in] src First quaternion
+//! \param[in] dest Second quaternion
+//! \return Result in RAD
+f32 BFG_CORE_API angleBetween(const qv4& src, const qv4& dest);
 
 //! \brief Clamp for vectors.
 //! \return The result.
@@ -135,7 +141,41 @@ bool BFG_CORE_API nearEnough(const v3& position1,
                              const v3& position2,
                              f32 radius);
 
+//! \return True, if the two values are in distance of each other.
+bool BFG_CORE_API nearEnough(const f32 value1,
+                             const f32 value2,
+                             const f32 distance);
+
+//! \brief Linear Quaternion interpolation
+//! \param[in] q0 Quaternion at the beginning of the interpolation
+//! \param[in] q1 Quaternion at the end of the interpolation
+//! \param[in] h Interpolation parameter in the range from 0 to 1
+//! \return The interpolated quaternion
+qv4 BFG_CORE_API lerp(const qv4& q0, const qv4& q1, f32 h);
+
+//! \brief Spherical Linear Quaternion interpolation
+//! \param[in] q0 Quaternion at the beginning of the interpolation
+//! \param[in] q1 Quaternion at the end of the interpolation
+//! \param[in] h Interpolation parameter in the range from 0 to 1
+//! \return The interpolated quaternion
+qv4 BFG_CORE_API slerp(const qv4& q0, const qv4& q1, f32 h);
+
+//! \brief Linear interpolation
+//! \param[in] a The beginning of the interpolation
+//! \param[in] b The end of the interpolation
+//! \param[in] coefficient Parameter in the range from 0 to 1
+//! \return The interpolated value
+template <typename T, typename ScalarT>
+T interpolate(const T& a, const T& b, const ScalarT coefficient)
+{
+	if (coefficient > 1.0f)
+		return b;
+	else
+		return a + (b - a) * coefficient;
+}
+
 } // namespace BFG
+
 
 
 #endif

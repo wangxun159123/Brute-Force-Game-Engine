@@ -40,8 +40,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Core/CharArray.h>
 #include <EventSystem/Emitter.h>
 #include <EventSystem/Event_fwd.h>
-#include <Network/Event_fwd.h>
 #include <Network/Enums.hh>
+#include <Network/Event.h>
 #include <View/ControllerMyGuiAdapter.h>
 #include <View/Event_fwd.h>
 #include <View/HudElement.h>
@@ -86,7 +86,7 @@ struct Server : Emitter
 		loop()->disconnect(ID::NE_RECEIVED, this);
 	}
 	
-	void netControlHandler(Network::NetworkControlEvent* e)
+	void netControlHandler(Network::ControlEvent* e)
 	{
 		dbglog << "Chat::Server::netControlHandler: " << ID::asStr(static_cast<ID::NetworkAction>(e->getId()));
 		
@@ -113,31 +113,31 @@ struct Server : Emitter
 		}
 	}
 	
-	void netPacketHandler(Network::NetworkPacketEvent* e)
+	void netPacketHandler(Network::DataPacketEvent* e)
 	{
 		dbglog << "Chat::Server::netPacketHandler: " << ID::asStr(static_cast<ID::NetworkAction>(e->getId()));
 
-		Network::NetworkPayloadType& payload = e->getData();
-		std::string msg(boost::get<4>(payload).data(), boost::get<3>(payload));
+		Network::DataPayload& payload = e->getData();
+		std::string msg(payload.mAppData.data(), payload.mAppDataLen);
 		
 		dbglog << Network::debug(*e);
 		
-		payload.get<1>() = payload.get<2>(); // <1> = Destination
-		payload.get<2>() = mHandle;          // <2> = Sender
+		payload.mAppDestination = payload.mAppSender;
+		payload.mAppSender = mHandle;
 		
-		dbglog << "Chat::Server: Sending NOT to " << e->mSender;
+		dbglog << "Chat::Server: Sending NOT to " << e->sender();
 		for (size_t i=0; i<peers.size(); ++i)
 		{
-			if (peers[i] != e->mSender)
+			if (peers[i] != e->sender())
 			{
 				dbglog << "Chat::Server: Sending to " << peers[i];
-				emit<Network::NetworkPacketEvent>(ID::NE_SEND, payload, peers[i], 0);
+				emit<Network::DataPacketEvent>(ID::NE_SEND, payload, peers[i], 0);
 			}
 		}
 // 		dbglog << "Chat::Server: Sending broadcast.";
-// 		memcpy(payload.get<4>().data(), "Broadcast", 10);
-// 		payload.get<3>() = 10;
-// 		emit<Network::NetworkPacketEvent>(ID::NE_SEND, payload);
+// 		payload.mAppDataLen = 10;
+// 		memcpy(payload.mAppData.data(), "Broadcast", payload.mAppDataLen);
+// 		emit<Network::DataPacketEvent>(ID::NE_SEND, payload);
 	}
 	
 	std::vector<Network::PeerIdT> peers;
@@ -213,7 +213,7 @@ struct Client : Emitter
 		loop()->disconnect(ID::NE_RECEIVED, this);
 	}
 
-	void netControlHandler(Network::NetworkControlEvent* e)
+	void netControlHandler(Network::ControlEvent* e)
 	{
 		dbglog << "Chat::Client::netControlHandler: " << ID::asStr(static_cast<ID::NetworkAction>(e->getId()));
 		
@@ -238,12 +238,12 @@ struct Client : Emitter
 		}
 	}
 
-	void netPacketHandler(Network::NetworkPacketEvent* e)
+	void netPacketHandler(Network::DataPacketEvent* e)
 	{
 		dbglog << "Chat::Client::netPacketHandler: " << ID::asStr(static_cast<ID::NetworkAction>(e->getId()));
 
-		const Network::NetworkPayloadType& payload = e->getData();
-		std::string msg(boost::get<4>(payload).data(), boost::get<3>(payload));
+		const Network::DataPayload& payload = e->getData();
+		std::string msg(payload.mAppData.data(), payload.mAppDataLen);
 
 		dbglog << Network::debug(*e);
 		dbglog << "Chat::Client: " << msg;
@@ -256,8 +256,8 @@ struct Client : Emitter
 		std::string msg = mChatInput->getCaption();
 		CharArray512T data = stringToArray<512>(msg);
 
-		Network::NetworkPayloadType payload = boost::make_tuple(CHAT_MESSAGE, 123, mHandle, msg.length(), data);
-		emit<Network::NetworkPacketEvent>(ID::NE_SEND, payload);
+		Network::DataPayload payload(CHAT_MESSAGE, 123, mHandle, msg.length(), data);
+		emit<Network::DataPacketEvent>(ID::NE_SEND, payload);
 
 		sender->setCaption("");
 	}
@@ -313,7 +313,7 @@ int main( int argc, const char* argv[] ) try
 		boost::this_thread::sleep(boost::posix_time::milliseconds(500));
 
 		Emitter e(&loop1);
-		e.emit<Network::NetworkControlEvent>(ID::NE_LISTEN, port);
+		e.emit<Network::ControlEvent>(ID::NE_LISTEN, port);
 		
 		Base::pause();
 
@@ -338,12 +338,12 @@ int main( int argc, const char* argv[] ) try
 
 		boost::this_thread::sleep(boost::posix_time::milliseconds(5000));
 
-		Network::NetworkEndpointT payload = make_tuple(stringToArray<128>(ip), stringToArray<128>(port));
+		Network::EndpointT payload = boost::make_tuple(stringToArray<128>(ip), stringToArray<128>(port));
 
 		Client c(&loop1);
 		
 		Emitter e(&loop1);
-		e.emit<Network::NetworkControlEvent>(ID::NE_CONNECT, payload);
+		e.emit<Network::ControlEvent>(ID::NE_CONNECT, payload);
 		
 		Base::pause();
 		

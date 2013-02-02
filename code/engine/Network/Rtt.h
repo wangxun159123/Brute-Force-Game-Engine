@@ -24,56 +24,76 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef USR_CONTROL_EMITTER_H
-#define USR_CONTROL_EMITTER_H
+#ifndef BFG_NETWORK_RTT_H
+#define BFG_NETWORK_RTT_H
 
-#include <EventSystem/EventFactory.h>
+#include <list>
+#include <numeric>
+#include <Core/Types.h>
 
 namespace BFG {
+namespace Network {
 
-class Emitter
+//! Helper for calculation of round-trip time mean values
+template <typename RttT, int Size>
+class Rtt
 {
 public:
-	Emitter(EventLoop* loop) :
-	mLoop(loop)
+	typedef std::list<RttT> RttHistoryContainerT;
+	
+	Rtt() :
+	mMean(0)
 	{
-		assert(loop);
 	}
 
-	EventLoop* loop() const { return mLoop; }
-	
-	template <typename EventT, typename PayloadT>
-	void emit(typename EventT::ActionT action,
-	          const PayloadT& payload,
-	          typename EventT::DestinationT destination,
-	          typename EventT::SenderT sender = typename EventT::SenderT()) const
+	//! Adds a rtt value to the collection
+	void add(RttT rtt)
 	{
-		BFG::EventFactory::Create<EventT>
-		(
-			loop(),
-			action,
-			typename EventT::PayloadT(payload),
-			destination,
-			sender
-		);
+		mRttHistory.push_back(rtt);
+
+		while (mRttHistory.size() > Size)
+			mRttHistory.pop_front();
+
+		calculateMean();
 	}
 	
-	template <typename EventT, typename PayloadT>
-	void emit(typename EventT::ActionT action,
-	          const PayloadT& payload = PayloadT()) const
+	RttT last() const
 	{
-		BFG::EventFactory::Create<EventT>
-		(
-			loop(),
-			action,
-			typename EventT::PayloadT(payload)
-		);
+		if (mRttHistory.empty())
+			return 0;
+		else
+			return mRttHistory.back();
+	}
+	
+	
+	//! Returns the mean (or average) of all added rtt values in constant time.
+	//! \return The mean or 0 if no values have been added yet.
+	RttT mean() const
+	{
+		return mMean;
+	}
+
+	//! Returns the whole history
+	const RttHistoryContainerT& history() const
+	{
+		return mRttHistory;
 	}
 
 private:
-	EventLoop* const mLoop;
+	void calculateMean()
+	{
+		if (mRttHistory.empty())
+			return;
+		
+		s32 total = std::accumulate(mRttHistory.begin(), mRttHistory.end(), 0);
+		mMean = total / mRttHistory.size();
+	}
+
+	RttHistoryContainerT mRttHistory;
+	RttT mMean;
 };
 
+} // namespace Network
 } // namespace BFG
 
-#endif
+#endif // BFG_NETWORK_RTT_H

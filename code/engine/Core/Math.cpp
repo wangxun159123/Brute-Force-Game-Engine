@@ -125,12 +125,12 @@ qv4 rotationTo(const v3& src,
 	return q;
 }
 
-bool equals(const qv4& lhs, const qv4& rhs)
+bool equals(const qv4& lhs, const qv4& rhs, const f32 epsilon)
 {
-	if(std::abs(lhs.w - rhs.w) < EPSILON_F &&
-	   std::abs(lhs.x - rhs.x) < EPSILON_F &&
-	   std::abs(lhs.y - rhs.y) < EPSILON_F &&
-	   std::abs(lhs.z - rhs.z) < EPSILON_F)
+	if(std::abs(lhs.w - rhs.w) < epsilon &&
+	   std::abs(lhs.x - rhs.x) < epsilon &&
+	   std::abs(lhs.y - rhs.y) < epsilon &&
+	   std::abs(lhs.z - rhs.z) < epsilon)
 	   return true;
 
 	return false;
@@ -158,6 +158,13 @@ f32 angleBetween(const v3& src, const v3& dest)
 
 	f = clamp(f, -1.0f, 1.0f);
 	return std::acos(f);
+}
+
+f32 BFG_CORE_API angleBetween(const qv4& src, const qv4& dest)
+{
+	//http://math.stackexchange.com/questions/90081/quaternion-distance
+	f32 prod = src.w*dest.w + src.x*dest.x + src.y*dest.y + src.z*dest.z;
+	return std::acos(prod*prod*2.0f - 1.0f);
 }
 
 v3 clamp(const v3& original, const v3& minVec, const v3& maxVec)
@@ -212,4 +219,31 @@ bool nearEnough(const v3& position1,
 	return near_enough;
 }
 
+bool nearEnough(const f32 value1,
+                const f32 value2,
+                const f32 distance)
+{
+	assert(! (distance < 0.0f));
+	if (value1 < value2)
+		return distance > abs(value2 - value1);
+
+	return distance > abs(value1 - value2);
+}
+
+qv4 lerp(const qv4& q0, const qv4& q1, f32 h)
+{
+	// http://www.itu.dk/people/erikdam/DOWNLOAD/98-5.pdf (6.3)
+	return qv4(q0 * (1.0f - h) + q1 * h);
+}
+
+qv4 slerp(const qv4& q0, const qv4& q1, f32 h)
+{
+	// http://www.itu.dk/people/erikdam/DOWNLOAD/98-5.pdf (6.13)
+
+	f32 omega = angleBetween(q0, q1);
+	if (std::abs(omega) <= EPSILON_F)
+		return q1;
+
+	return qv4((q0*sin((1.0f - h)*omega) + q1*sin(h*omega)) * (1/sin(omega)));
+}
 }

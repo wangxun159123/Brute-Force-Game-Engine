@@ -18,6 +18,8 @@
             <value>NE_CONNECT</value>
             <value>NE_DISCONNECT</value>
             <value>NE_SHUTDOWN</value>
+            <value>NE_TIMESYNC_REQUEST</value>
+            <value>NE_TIMESYNC_RESPONSE</value>
         </enum>
 
     </namespace>

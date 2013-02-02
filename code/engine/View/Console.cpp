@@ -33,116 +33,213 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/log/formatters/stream.hpp>
 #include <boost/log/formatters/attr.hpp>
 #include <boost/log/attributes/value_extraction.hpp>
-#include <MyGUI_TextIterator.h>
+
+#include <OgreFrameListener.h>
+#include <Ogre.h>
+
+#include <Controller/ControllerEvents.h>
 
 #include <Core/Path.h>
 
 #include <View/HudElement.h>
 #include <View/Event.h>
 
-namespace BFG{
-namespace View{
+namespace logging = boost::log;
+namespace fmt = boost::log::formatters;
 
-Console::Console(EventLoop* Loop) :
-HudElement("Console.layout", "Console"),
-Emitter(Loop),
+namespace BFG {
+namespace View {
+
+static std::string lastlines(const std::string& s, size_t lines)
+{
+	std::string result;
+	std::size_t totalLines = std::count(s.begin(), s.end(), '\n');
+
+	if (totalLines <= lines)
+		return s;
+
+	std::size_t linesTillStart = totalLines - lines;
+	std::size_t start = 0;
+	for (std::size_t i=0; i<linesTillStart; ++i) {
+		start = s.find('\n', start + 1);
+	}
+	result = s.substr(start + 1);
+	return result;
+}
+
+static std::wstring atow(const std::string& str)
+{
+	std::wstringstream wstrm;
+	wstrm << str.c_str();
+	return wstrm.str();
+}
+
+Console::Console(EventLoop* loop, boost::shared_ptr<Ogre::Root> root) :
+Emitter(loop),
 mHasNewContent(false),
 mIsVisible(false),
-mLoop(Loop)
+mLoop(loop),
+mRoot(root),
+mHeight(1.0f),
+mDisplayedLines(15)
 {
 	createUI();
 	registerSink();
+	mRoot->addFrameListener(this);
+	mLoop->connect(BFG::ID::A_KEY_PRESSED, this, &Console::eventHandler);
 }
 
 Console::~Console()
 {
-	boost::log::core::get()->remove_sink(mSink);
+	unregisterSink();
+	mRoot->removeFrameListener(this);
+	mLoop->disconnect(BFG::ID::A_KEY_PRESSED, this);
+}
+
+void Console::toggleVisible(bool show)
+{
+	mInput.clear();
+	mHasNewContent = true;
+	mIsVisible = show;
 }
 
 void Console::createUI()
-{ 
-	using namespace MyGUI;
-
-	Gui& gui = Gui::getInstance();
-
-	mStaticText = gui.findWidget<StaticText>("ConsoleText");
-	mEdit = gui.findWidget<Edit>("ConsoleEdit");
-
-	this->setVisible(false);
-
-	//binding events
-	mEdit->eventEditSelectAccept += newDelegate(this, &Console::input);
-}
-
-namespace logging = boost::log;
-namespace fmt = boost::log::formatters;
-
-void colorFormatter(std::ostream& strm, logging::record const& rec)
 {
-	Base::Logger::SeverityLevel sl = logging::extract<Base::Logger::SeverityLevel>
+	mRect.reset(new Ogre::Rectangle2D(true));
+	mRect->setCorners(-1.0f, 1.0f, 1.0f, 1.0f - mHeight);
+	mRect->setMaterial("console/background");
+	mRect->setRenderQueueGroup(Ogre::RENDER_QUEUE_OVERLAY);
+	mRect->setBoundingBox
 	(
-		"Severity",
-		rec.attribute_values()
-	).get();
+		Ogre::AxisAlignedBox
+		(
+			-100000.0 * Ogre::Vector3::UNIT_SCALE,
+			100000.0 * Ogre::Vector3::UNIT_SCALE
+		)
+	);
 	
-	if      (sl == Base::Logger::SL_DEBUG)       strm << "#000080";
-	else if (sl == Base::Logger::SL_INFORMATION) strm << "#FFFFFF";
-	else if (sl == Base::Logger::SL_WARNING)     strm << "#FFFF00";
-	else if (sl == Base::Logger::SL_ERROR)       strm << "#FF0000";
+	Ogre::SceneManager* scene = mRoot->getSceneManager(BFG_SCENEMANAGER);
+	mNode.reset(scene->getRootSceneNode()->createChildSceneNode("#Console"));
+	mNode->attachObject(mRect.get());
 
-    strm << rec.message();
+	mTextBox.reset(Ogre::OverlayManager::getSingleton().createOverlayElement("TextArea","ConsoleText"));
+	mTextBox->setMetricsMode(Ogre::GMM_RELATIVE);
+	mTextBox->setPosition(0,0);
+	mTextBox->setParameter("font_name","Console");
+	mTextBox->setParameter("colour_top","1 1 1");
+	mTextBox->setParameter("colour_bottom","1 1 1");
+	mTextBox->setParameter("char_height","0.03");
+
+	Ogre::Overlay* overlay;
+	overlay = Ogre::OverlayManager::getSingleton().create("Console");   
+	overlay->add2D(static_cast<Ogre::OverlayContainer*>(mTextBox.get()));
+	overlay->show();
+	
+	//! TODO: Add logging output from OGRE
+	//Ogre::LogManager::getSingleton().getDefaultLog()->addListener(this);
 }
 
 void Console::registerSink()
 {
 	// Construct the sink
-    mSink = boost::make_shared<text_sink>();
-	
-    // Add a stream to write log to
-    mSink->locked_backend()->add_stream(boost::make_shared<std::ostream>(this));
-	mSink->locked_backend()->set_formatter(&colorFormatter);
+	mSink = boost::make_shared<text_sink>();
 
-    // Register the sink in the logging core
+	// Add a stream to write log to
+	mSink->locked_backend()->add_stream(boost::make_shared<std::ostream>(this));
+
+	// Register the sink in the logging core
 	boost::log::core::get()->add_sink(mSink);
 }
 
-void Console::toggleVisible(bool show)
+void Console::unregisterSink()
 {
-	this->setVisible(show);
-	mIsVisible = show;
+	boost::log::core::get()->remove_sink(mSink);
 }
 
-void Console::internalUpdate(f32)
+void Console::eventHandler(Controller_::VipEvent* event)
 {
-	if (mHasNewContent && mIsVisible)
-	{	
-		mStaticText->setCaption(mConsoleContent);
-		mHasNewContent = false;
+	switch(event->getId())
+	{
+	case BFG::ID::A_KEY_PRESSED:
+	{
+		ID::KeyboardButton code = static_cast<ID::KeyboardButton>(boost::get<s32>(event->getData()));
+		
+		dbglog << "Got key code: " << static_cast<s32>(code);
+		
+		if (code == ID::KB_RETURN)
+			onReturn();
+		else if (code == ID::KB_BACKSPACE)
+			onBackspace();
+		else if (isprint(code))
+			onPrintable(static_cast<unsigned char>(code));
+		break;
+	}
 	}
 }
 
-//! Adds the Text of the Inputfield to the output field, 
-//! and clears the input field
-void Console::input(MyGUI::Edit* Sender)
+void Console::onReturn()
 {
-	std::string command = mEdit->getCaption();
-	emit<Event>(BFG::ID::VE_CONSOLE_COMMAND, command);
-
-	mConsoleContent += command + "\n";
- 	mStaticText->setCaption(mConsoleContent);
- 	mEdit->eraseText(0, -1);
-}
-
-//! virtual function of std::streambuf, is expected to display c
-int Console::overflow(int c)
-{
-	mConsoleContent += c;
+	emit<View::Event>(BFG::ID::VE_CONSOLE_COMMAND, mInput);
+	mInput.clear();
 	mHasNewContent = true;
-	return 0;
 }
 
-//! virtual function of std::streambuf, is expected to display the first n
-//! letters in s
+void Console::onBackspace()
+{
+	if (!mInput.empty())
+		mInput.resize(mInput.size() - 1);
+}
+
+void Console::onPrintable(unsigned char printable)
+{
+	mInput += printable;
+}
+
+bool Console::frameStarted(const Ogre::FrameEvent& evt)
+{
+	// Console raise/lower animation logic
+	if (mIsVisible && mHeight < 1)
+	{
+		mHeight += evt.timeSinceLastFrame*2;
+		mTextBox->show();
+
+		if (mHeight >= 1)
+		{
+			mHeight = 1;
+		}
+	}
+	else if (!mIsVisible && mHeight > 0)
+	{
+		mHeight -= evt.timeSinceLastFrame*2;
+		if (mHeight <= 0)
+		{
+			mHeight = 0;
+			mTextBox->hide();
+		}
+	}
+
+	mTextBox->setPosition(0.0f, (mHeight - 1.0f) * 0.5f);
+	mRect->setCorners(-1.0f, 1.0f + mHeight, 1.0f, 1.0f - mHeight);
+
+	if (mHasNewContent)
+	{
+		// Truncate buffer in memory
+		const size_t MAX_LINES = 200;
+		mConsoleContent = lastlines(mConsoleContent, MAX_LINES);
+
+		// Display buffer
+		std::string all = lastlines(mConsoleContent, mDisplayedLines);
+		all += "] " + mInput;
+		mTextBox->setCaption(Ogre::UTFString((atow(all))));
+	}
+	return true;
+}
+
+bool Console::frameEnded(const Ogre::FrameEvent& evt)
+{
+	return true;
+}
+
 int Console::xsputn(const char * s, int n)
 {
 	mConsoleContent += std::string(s, n);
@@ -150,5 +247,13 @@ int Console::xsputn(const char * s, int n)
 	return n;
 }
 
-}}
 
+int Console::overflow(int c)
+{
+	mConsoleContent += c;
+	mHasNewContent = true;
+	return 0;
+}
+
+} // namespace View
+} // namespace BFG

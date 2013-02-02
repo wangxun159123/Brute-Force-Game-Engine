@@ -27,6 +27,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Network/NetworkModule.h>
 
 #include <Network/Enums.hh>
+#include <Network/Event.h>
 
 namespace BFG {
 namespace Network{
@@ -34,36 +35,59 @@ namespace Network{
 using namespace boost::asio::ip;
 using namespace boost::system;
 
-NetworkModule::NetworkModule(EventLoop* loop_, boost::asio::io_service& service, PeerIdT peerId) :
+NetworkModule::NetworkModule(EventLoop* loop_,
+                             boost::asio::io_service& service,
+                             PeerIdT peerId,
+                             boost::shared_ptr<Clock::StopWatch> localTime) :
 BFG::Emitter(loop_),
 mPeerId(peerId),
+mLocalTime(localTime),
+mRoundTripTimer(Clock::milliSecond),
 mOutPacketPosition(0)
 {
-	mSocket.reset(new tcp::socket(service));
+	mSocket.reset(new SocketT(service));
 	mTimer.reset(new boost::asio::deadline_timer(service));
-
-	setFlushTimer(FLUSH_WAIT_TIME);
-
-	loop()->connect(ID::NE_SEND, this, &NetworkModule::NetworkPacketEventHandler);
-	if (peerId)
-		loop()->connect(ID::NE_SEND, this, &NetworkModule::NetworkPacketEventHandler, peerId);
 }
 
 NetworkModule::~NetworkModule()
 {
-	dbglog << "NetworkModule::~NetworkModule";
+	mTimer.reset();
+
+	dbglog << "NetworkModule::~NetworkModule (" << this << ")";
 	loop()->disconnect(ID::NE_SEND, this);
 
-	mTimer->cancel();
+	mBackPacket.empty();
+	mFrontPacket.empty();
+	mWriteBuffer.empty();
+	mReadBuffer.empty();
+	mReadHeaderBuffer.empty();
+	mWriteHeaderBuffer.empty();
+
+	mOutPacketPosition = 0;
 
 	mSocket.reset();
-	mTimer.reset();
 }
 
 void NetworkModule::startReading()
 {
 	dbglog << "NetworkModule::startReading";
+	setFlushTimer(FLUSH_WAIT_TIME);
+
+	loop()->connect(ID::NE_SEND, this, &NetworkModule::dataPacketEventHandler);
+	if (mPeerId)
+		loop()->connect(ID::NE_SEND, this, &NetworkModule::dataPacketEventHandler, mPeerId);
+
+	setTcpDelay(false);
+	
 	read();
+}
+
+void NetworkModule::sendTimesyncRequest()
+{
+	dbglog << "Sending timesync request";
+	Network::DataPayload payload(ID::NE_TIMESYNC_REQUEST, 0, 0, 0, CharArray512T());
+	queueTimeCriticalPacket(payload);
+	mRoundTripTimer.start();
 }
 
 void NetworkModule::setFlushTimer(const long& waitTime_ms)
@@ -72,7 +96,18 @@ void NetworkModule::setFlushTimer(const long& waitTime_ms)
 		return;
 
 	mTimer->expires_from_now(boost::posix_time::milliseconds(waitTime_ms));
-	mTimer->async_wait(boost::bind(&NetworkModule::timerHandler, this, _1));
+	mTimer->async_wait(boost::bind(&NetworkModule::timerHandler, shared_from_this(), _1));
+}
+
+void NetworkModule::setTcpDelay(bool on)
+{
+	boost::asio::ip::tcp::no_delay oldOption;
+	mSocket->get_option(oldOption);
+	boost::asio::ip::tcp::no_delay newOption(!on);
+	mSocket->set_option(newOption);
+	
+	dbglog << "Set TCP_NODELAY from " << oldOption.value()
+	       << " to " << newOption.value();
 }
 
 void NetworkModule::write(const char* data, size_t size)
@@ -84,20 +119,21 @@ void NetworkModule::write(const char* data, size_t size)
 	(
 		*mSocket,
 		boost::asio::buffer(mWriteBuffer, size),
-		boost::bind(&NetworkModule::writeHandler, this, _1, _2)
+		boost::bind(&NetworkModule::writeHandler, shared_from_this(), _1, _2)
 	);
 }
 
 void NetworkModule::read()
 {
-	dbglog << "NetworkModule::read";
+	dbglog << "NetworkModule::read (" << mPeerId << ")";
 	boost::asio::async_read
 	(
 		*mSocket, 
 		boost::asio::buffer(mReadHeaderBuffer),
 		boost::asio::transfer_exactly(NetworkEventHeader::SerializationT::size()),
-		bind(&NetworkModule::readHeaderHandler, this, _1, _2)
+		bind(&NetworkModule::readHeaderHandler, shared_from_this(), _1, _2)
 	);
+	dbglog << "NetworkModule::read Done";
 }
 
 // async Handler
@@ -107,6 +143,10 @@ void NetworkModule::timerHandler(const error_code &ec)
 	{
 		flush();
 		setFlushTimer(FLUSH_WAIT_TIME);
+	}
+	else if (ec.value() == boost::asio::error::operation_aborted)
+	{
+		dbglog << "NetworkModule: mTimer was cancelled!";
 	}
 	else
 	{
@@ -156,12 +196,17 @@ void NetworkModule::readHeaderHandler(const error_code &ec, std::size_t bytesTra
 			*mSocket, 
 			boost::asio::buffer(mReadBuffer),
 			boost::asio::transfer_exactly(neh.mPacketSize),
-			bind(&NetworkModule::readDataHandler, this, _1, _2, neh.mPacketChecksum)
+			bind(&NetworkModule::readDataHandler, shared_from_this(), _1, _2, neh.mPacketChecksum)
 		);
+	}
+	else if (ec.value() == boost::asio::error::connection_reset)
+	{
+		dbglog << "NetworkModule: connection was closed!";
+		emit<ControlEvent>(ID::NE_DISCONNECT, mPeerId);
 	}
 	else
 	{
-		emit<NetworkControlEvent>(ID::NE_DISCONNECT, mPeerId);
+		emit<ControlEvent>(ID::NE_DISCONNECT, mPeerId);
 		printErrorCode(ec, "readHeaderHandler");
 	}
 }
@@ -190,9 +235,14 @@ void NetworkModule::readDataHandler(const error_code &ec, std::size_t bytesTrans
 		onReceive(mReadBuffer.c_array(), bytesTransferred);
 		read();
 	}
+	else if (ec.value() == boost::asio::error::connection_reset)
+	{
+		dbglog << "NetworkModule: connection was closed!";
+		emit<ControlEvent>(ID::NE_DISCONNECT, mPeerId);
+	}
 	else
 	{
-		emit<NetworkControlEvent>(ID::NE_DISCONNECT, mPeerId);
+		emit<ControlEvent>(ID::NE_DISCONNECT, mPeerId);
 		printErrorCode(ec, "readDataHandler");
 	}
 }
@@ -206,29 +256,41 @@ void NetworkModule::writeHandler(const error_code &ec, std::size_t bytesTransfer
 	}
 } 
 
-void NetworkModule::NetworkPacketEventHandler(NetworkPacketEvent* ne)
+void NetworkModule::queueTimeCriticalPacket(DataPayload& payload)
 {
-	switch(ne->getId())
+	dbglog << "NetworkModule::queueTimeCriticalPacket -> onSend";
+	onSend(payload);
+	dbglog << "NetworkModule::queueTimeCriticalPacket -> Flush";
+	flush();
+	dbglog << "NetworkModule::queueTimeCriticalPacket -> Done";
+}
+
+void NetworkModule::dataPacketEventHandler(DataPacketEvent* e)
+{
+	switch(e->getId())
 	{
 	case ID::NE_SEND:
-		onSend(ne->getData());
+		onSend(e->getData());
 		break;
 	default:
 		warnlog << "NetworkModule: Can't handle event with ID: "
-		        << ne->getId();
+		        << e->getId();
 		break;
 	}
 }
 
-void NetworkModule::onSend(NetworkPayloadType payload)
+void NetworkModule::onSend(DataPayload& payload)
 {
-	dbglog << "onSend: " << payload.get<3>() + sizeof(Segment) << "(" << payload.get<3>() << "|" << sizeof(Segment) << ")";
+	dbglog << "onSend: " << payload.mAppDataLen + sizeof(Segment)
+	       << " (" << sizeof(Segment) << " + " << payload.mAppDataLen << ")";
+
+	dbglog << "NetworkModule:Current Time: " << mLocalTime->stop();
 
 	Segment s;
-	s.appEventId = payload.get<0>();
-	s.destinationId = payload.get<1>();
-	s.senderId = payload.get<2>();
-	s.dataSize = payload.get<3>();
+	s.appEventId = payload.mAppEventId;
+	s.destinationId = payload.mAppDestination;
+	s.senderId = payload.mAppSender;
+	s.dataSize = payload.mAppDataLen;
 
 	size_t requiredSize = s.dataSize + sizeof(Segment);
 	size_t sizeLeft = mBackPacket.size() - mOutPacketPosition;
@@ -237,7 +299,7 @@ void NetworkModule::onSend(NetworkPayloadType payload)
 		boost::mutex::scoped_lock scoped_lock(mPacketMutex);
 		memcpy(&mBackPacket[mOutPacketPosition], &s, sizeof(Segment));
 		mOutPacketPosition += sizeof(Segment);
-		memcpy(&mBackPacket[mOutPacketPosition], payload.get<4>().c_array(), s.dataSize);
+		memcpy(&mBackPacket[mOutPacketPosition], payload.mAppData.c_array(), s.dataSize);
 		mOutPacketPosition += s.dataSize;
 	}
 	else
@@ -262,12 +324,35 @@ void NetworkModule::onReceive(const char* data, size_t size)
 		memcpy(ca.data(), &data[packetPosition], s.dataSize);
 		packetPosition += s.dataSize;
 
-		NetworkPayloadType payload(s.appEventId, s.destinationId, s.senderId, s.dataSize, ca);
+		u32 currentServerTimestamp = mTimestampOffset + mLocalTime->stop();
 
+		DataPayload payload
+		(
+			s.appEventId,
+			s.destinationId,
+			s.senderId,
+			s.dataSize,
+			ca,
+			currentServerTimestamp,
+			mRtt.mean() / 2
+		);
+
+		if (s.appEventId == ID::NE_TIMESYNC_REQUEST)
+		{
+			onTimeSyncRequest();
+			return;
+		}
+		else if (s.appEventId == ID::NE_TIMESYNC_RESPONSE)
+		{
+			TimestampT serverTimestamp;
+			memcpy(&serverTimestamp, payload.mAppData.data(), payload.mAppDataLen);
+			onTimeSyncResponse(serverTimestamp);
+		}
+		
 		try 
 		{
 			dbglog << "NetworkModule::onReceive: Emitting NE_RECEIVED to: " << s.destinationId << " from: " << mPeerId;
-			emit<NetworkPacketEvent>(ID::NE_RECEIVED, payload, s.destinationId, mPeerId);
+			emit<DataPacketEvent>(ID::NE_RECEIVED, payload, s.destinationId, mPeerId);
 		}
 		catch (std::exception& ex)
 		{
@@ -294,13 +379,49 @@ void NetworkModule::flush()
 
 	neh.serialize(mWriteHeaderBuffer);
 	
-	dbglog << "Flushing: " << mOutPacketPosition;
+	dbglog << "NetworkModule::flush -> Flushing: " << mOutPacketPosition;
 	write(mWriteHeaderBuffer.data(), NetworkEventHeader::SerializationT::size());
 	write(mFrontPacket.data(), mOutPacketPosition);
 
 	// Cleanup
 	memset(mFrontPacket.c_array(), 0, mFrontPacket.size());
 	mOutPacketPosition = 0;
+}
+
+void NetworkModule::onTimeSyncRequest()
+{
+	dbglog << "Got time sync request from PeerId: " << mPeerId;
+
+	TimestampT timestamp = mLocalTime->stop();
+
+	CharArray512T ca512;
+	memcpy(ca512.data(), &timestamp, sizeof(TimestampT));
+	Network::DataPayload payload(ID::NE_TIMESYNC_RESPONSE, 0, 0, sizeof(TimestampT), ca512);
+
+	queueTimeCriticalPacket(payload);
+}
+
+void NetworkModule::onTimeSyncResponse(TimestampT serverTimestamp)
+{
+	dbglog << "Got time sync response from PeerId: " << mPeerId;
+
+	s32 offset;
+	s32 rtt;
+	calculateServerTimestampOffset(serverTimestamp, offset, rtt);
+
+	setTimestampOffset(offset, rtt);
+}
+
+void NetworkModule::setTimestampOffset(const s32 offset, const s32 rtt)
+{
+	dbglog << "NetworkModule:setTimestampOffset: "
+		<< offset << "(" << offset - mTimestampOffset << ")" << ", "
+		<< rtt << "(" << rtt - mRtt.last() << ")";
+
+	mTimestampOffset = offset;
+	mRtt.add(rtt);
+
+	dbglog << "New avg rtt: " << mRtt.mean();
 }
 
 u16 NetworkModule::calculateHeaderChecksum(const NetworkEventHeader& neh)
@@ -312,12 +433,27 @@ u16 NetworkModule::calculateHeaderChecksum(const NetworkEventHeader& neh)
 	return result.checksum();
 }
 
-void NetworkModule::printErrorCode(const error_code &ec, const std::string& method)
+
+void NetworkModule::calculateServerTimestampOffset(u32 serverTimestamp, s32& offset, s32& rtt)
 {
-	warnlog << "[" << method << "] Error Code: " << ec.value() << ", message: " << ec.message();
+	// https://en.wikipedia.org/wiki/Cristian%27s_algorithm
+	// offset = tS + dP/2 - tC
+	u32 dP = mRoundTripTimer.stop();
+	u32 tC = mLocalTime->stop();
+	s32 serverOffset = serverTimestamp + dP / 2 - tC;
+
+	dbglog << "Calculated server Timestamp Offset: " << serverOffset 
+		<< " with RTT of " << dP;
+	dbglog << "LocalTime was: " << tC;
+	
+	offset = serverOffset;
+	rtt = dP;
 }
 
-
+void NetworkModule::printErrorCode(const error_code &ec, const std::string& method)
+{
+	warnlog << "This (" << this << ") " << "[" << method << "] Error Code: " << ec.value() << ", message: " << ec.message();
+}
 
 
 } // namespace Network

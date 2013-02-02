@@ -51,10 +51,16 @@ public:
 		Location go = getGoValue<Location>(ID::PV_Location, ValueId::ENGINE_PLUGIN_ID);
 		v3 newVelocity = getGoValue<v3>(ID::PV_Velocity, ValueId::ENGINE_PLUGIN_ID);
 
+		bool updateVelocity = false;
+		bool updatePosition = false;
+		if (nearEnough(newVelocity, v3::ZERO, EPSILON_F))
+			return;
+
 		// Simulate a wall
 		if (std::abs(go.position.x) > DISTANCE_TO_WALL)
 		{
 			newVelocity.x = std::abs(newVelocity.x) * -BFG::sign(go.position.x);
+			updateVelocity = true;
 		}
 
 		// Make sure it doesn't move on the z axis
@@ -62,6 +68,8 @@ public:
 		{
 			go.position.z = OBJECT_Z_POSITION;
 			newVelocity.z = 0.0;
+			updateVelocity = true;
+			updatePosition = true;
 		}
 		
 		// If it passed through a player bar, set it back to zero
@@ -86,6 +94,8 @@ public:
 		{
 			go.position = v3(0.0f, 0.0f, OBJECT_Z_POSITION);
 			newVelocity   = BALL_START_VELOCITY;
+			updatePosition = true;
+			updateVelocity = true;
 		}
 
 		f32 currentSpeed = BFG::length(newVelocity);
@@ -94,15 +104,20 @@ public:
 		if (currentSpeed < startSpeed)
 		{
 			newVelocity *= startSpeed / currentSpeed;
+			updateVelocity = true;
 		}
 
 		if (std::abs(newVelocity.y) < DESIRED_SPEED)
 		{
 			newVelocity.y *= std::abs(DESIRED_SPEED / newVelocity.y);
+			updateVelocity = true;
 		}
 
-		emit<Physics::Event>(ID::PE_UPDATE_POSITION, go.position, ownerHandle());
-		emit<Physics::Event>(ID::PE_UPDATE_VELOCITY, newVelocity, ownerHandle());
+		if (updatePosition)
+			emit<Physics::Event>(ID::PE_UPDATE_POSITION, go.position, ownerHandle());
+
+		if (updateVelocity)
+			emit<Physics::Event>(ID::PE_UPDATE_VELOCITY, newVelocity, ownerHandle());
 	}
 };
 

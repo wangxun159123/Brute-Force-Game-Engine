@@ -274,15 +274,15 @@ void GameObject::detachModule(GameHandle handle)
 void GameObject::EventHandler(GameObjectEvent* goe)
 {
 	// Ignore Events which are not for this GameObject or its Modules.
-	if (! hasModuleWithHandle(goe->mDestination))
+	if (! hasModuleWithHandle(goe->destination()))
 		return;
 
 	distributeEvent
 	(
 		static_cast<EventIdT>(goe->getId()),
 		goe->getData(),
-		goe->mDestination,
-		goe->mSender
+		goe->destination(),
+		goe->sender()
 	);
 
 	switch(goe->getId())

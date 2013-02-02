@@ -95,11 +95,19 @@ public:
 
 	void sendFullSync() const;
 
+	//! Send delta of current physics simulation in form of new absolute values.
+	void sendDeltas() const;
+
+	void performInterpolation(quantity<si::time, f32> timeSinceLastFrame);
+
 private:
 	void debugOutput(std::string& output) const;
 
 	void setPosition(const v3& pos);
 	void setOrientation(const qv4& rot);
+
+	void interpolatePosition(InterpolationDataV3& pos);
+	void interpolateOrientation(InterpolationDataQv4& interpData);
 
 	void setOffsetPosition(GameHandle moduleHandle, const v3& pos);
 	void setOffsetOrientation(GameHandle moduleHandle, const qv4& rot);
@@ -164,6 +172,19 @@ private:
 	v3                mForce;
 	v3                mTorque;
 	
+	bool              mInterpolatePosition;
+	f32               mPositionInterpolationParameter;
+	v3                mInterpolationStartPosition;
+	v3                mInterpolationEndPosition;
+
+	bool              mInterpolateOrientation;
+	f32               mOrientationInterpolationParameter;
+	qv4               mInterpolationStartOrientation;
+	qv4               mInterpolationEndOrientation;
+
+
+	mutable FullSyncData mDeltaStorage;
+
 	ID::CollisionMode mCollisionMode;
 	
 	std::vector<ID::PhysicsAction> mPhysicsEvents;

@@ -39,10 +39,9 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Core/v3.h>
 #include <EventSystem/Emitter.h>
 #include <EventSystem/Event_fwd.h>
-#include <Network/Event_fwd.h>
+#include <Network/Event.h>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
-//#include <boost/thread.hpp>
 
 #define TESTID 54321
 #define EVENT_WAIT_TIME 5 // milliseconds
@@ -95,11 +94,11 @@ void networkEventTest(EventLoop* loop)
 
 		CharArray512T ca512 = stringToArray<512>(ss.str());
 
-		Network::NetworkPayloadType payload = boost::make_tuple(TESTID, generateHandle(), generateHandle(), ss.str().size(), ca512);
+		Network::DataPayload payload(TESTID, generateHandle(), generateHandle(), ss.str().size(), ca512);
 
 		Emitter e(loop);
 
-		e.emit<Network::NetworkPacketEvent>(ID::NE_SEND, payload);
+		e.emit<Network::DataPacketEvent>(ID::NE_SEND, payload);
 		boost::this_thread::sleep(boost::posix_time::milliseconds(EVENT_WAIT_TIME));
 	}
 }
@@ -147,7 +146,7 @@ int main( int argc, const char* argv[] ) try
 		boost::this_thread::sleep(boost::posix_time::milliseconds(500));
 
 		Emitter e(&loop1);
-		e.emit<Network::NetworkControlEvent>(ID::NE_LISTEN, port);
+		e.emit<Network::ControlEvent>(ID::NE_LISTEN, port);
 
 		Base::pause();
 
@@ -169,10 +168,10 @@ int main( int argc, const char* argv[] ) try
 
 		boost::this_thread::sleep(boost::posix_time::milliseconds(500));
 
-		Network::NetworkEndpointT payload = make_tuple(stringToArray<128>(ip), stringToArray<128>(port));
+		Network::EndpointT payload = make_tuple(stringToArray<128>(ip), stringToArray<128>(port));
 
 		Emitter e(&loop1);
-		e.emit<Network::NetworkControlEvent>(ID::NE_CONNECT, payload);
+		e.emit<Network::ControlEvent>(ID::NE_CONNECT, payload);
 
 		networkEventTest(&loop1);
 

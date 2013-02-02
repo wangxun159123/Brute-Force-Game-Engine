@@ -160,7 +160,7 @@ private:
 	v3 mLastObjVelocity;
 
 #if 0
-	Base::CEaseInOutInterpolation mInterpol;
+	Base::EaseInOutInterpolation mInterpol;
 
 	quantity<si::velocity, f32> mMaxSpeed;
 	quantity<si::velocity, f32> mSpeedInput;

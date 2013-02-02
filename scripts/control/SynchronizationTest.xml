@@ -6,18 +6,32 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="Controller Controller.xsd"
 version = "1">
 
-  <include>MyGUI.xml</include>
+  <include>Console.xml</include>
 
   <action id = "A_EXIT">
     <vip type = "VIP_CLICK">
       <special button = "KB_ESCAPE" />
     </vip>
   </action>
-  
+
+  <action id = "SIMULATION_0">
+    <vip type = "VIP_CLICK">
+      <special button = "KB_0" />
+    </vip>
+  </action>
   <action id = "SIMULATION_1">
     <vip type = "VIP_CLICK">
       <special button = "KB_1" />
     </vip>
   </action>
-  
+  <action id = "SIMULATION_2">
+    <vip type = "VIP_CLICK">
+      <special button = "KB_2" />
+    </vip>
+  </action>
+  <action id = "SIMULATION_3">
+    <vip type = "VIP_CLICK">
+      <special button = "KB_3" />
+    </vip>
+  </action>
 </controller>
