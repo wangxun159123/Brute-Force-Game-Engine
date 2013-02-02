@@ -144,7 +144,10 @@ struct ObjectParameter
 		mLinearVelocity(v3::ZERO),
 		mAngularVelocity(v3::ZERO) {}
 
-	ObjectParameter(XmlTreeT tree)
+	ObjectParameter(XmlTreeT tree) :
+		mHandle(NULL_HANDLE),
+		mLinearVelocity(v3::ZERO),
+		mAngularVelocity(v3::ZERO)
 	{
 		load(tree);
 	}
@@ -164,8 +167,15 @@ struct ObjectParameter
 		mType = tree->attribute("type");
 		mName = tree->attribute("name");
 
-		mLocation.position = loadVector3(tree->child("Position"));
-		mLocation.orientation = loadQuaternion(tree->child("Orientation"));
+		try
+		{
+			mLocation.position = loadVector3(tree->child("Position"));
+			mLocation.orientation = loadQuaternion(tree->child("Orientation"));
+		}
+		catch (std::exception& e)
+		{
+			throw std::logic_error(e.what()+std::string(" At ObjectParameter::load(...)"));
+		}
 	}
 };
 

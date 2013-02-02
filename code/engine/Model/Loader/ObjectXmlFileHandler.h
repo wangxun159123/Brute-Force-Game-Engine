@@ -60,18 +60,35 @@ protected:
 
 	void load(XmlTreeT tree)
 	{
-		mName = tree->attribute("name");
+		try
+		{
+			mName = tree->attribute("name");
 
-		mMesh = tree->child("Mesh")->elementData();
-		mAdapter = tree->child("Adapters")->elementData();
-		mConcept = tree->child("Concepts")->elementData();
-		mCollision = ID::asCollisionMode(tree->child("Collision")->elementData());
+			mMesh = tree->child("Mesh")->elementData();
+			mAdapter = tree->child("Adapters")->elementData();
+			mConcept = tree->child("Concepts")->elementData();
+			
+			std::string collisionMode = tree->child("Collision")->elementData();
+			
+			if (collisionMode != "")
+				mCollision = ID::asCollisionMode(collisionMode);
 		
-		std::string visibleStr = tree->child("Visible")->elementData();
-		Loader::strToBool(visibleStr, mVisible);
+			std::string visibleStr = tree->child("Visible")->elementData();
+			
+			if (visibleStr != "")
+				Loader::strToBool(visibleStr, mVisible);
 
-		mDensity = boost::lexical_cast<f32>(tree->child("Density")->elementData());
-		Loader::parseConnection(tree->child("Connection")->elementData(), mConnection);
+			std::string density = tree->child("Density")->elementData();
+			
+			if (density != "")
+				mDensity = boost::lexical_cast<f32>(density);
+			
+			Loader::parseConnection(tree->child("Connection")->elementData(), mConnection);
+		}
+		catch (std::exception& e)
+		{
+			throw std::logic_error(e.what()+std::string(" At ModuleParameters::load(...)"));
+		}
 	}
 };
 

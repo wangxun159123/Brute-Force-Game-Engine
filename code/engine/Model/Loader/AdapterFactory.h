@@ -55,11 +55,18 @@ protected:
 	
 	void load(XmlTreeT tree)
 	{
-		mId = boost::lexical_cast<u32>(tree->attribute("id"));
-		mName = tree->attribute("name");
+		try
+		{
+			mId = boost::lexical_cast<u32>(tree->attribute("id"));
+			mName = tree->attribute("name");
 
-		mPosition = loadVector3(tree->child("position"));
-		mOrientation = loadQuaternion(tree->child("orientation"));
+			mPosition = loadVector3(tree->child("position"));
+			mOrientation = loadQuaternion(tree->child("orientation"));
+		}
+		catch (std::exception& e)
+		{
+			throw std::logic_error(e.what()+std::string(" At AdapterParameters::load(...)"));
+		}
 	}
 };
 
