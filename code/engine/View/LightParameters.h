@@ -55,18 +55,25 @@ struct VIEW_API LightParameters
 
 	LightParameters(XmlTreeT tree)
 	{
-		mName = tree->attribute("name");
-		mType = ID::asLightType(tree->attribute("type"));
-	
-		switch(mType)
+		try
 		{
-			case ID::LT_Directional:
-				mDirection = loadVector3(tree->child("Direction"));
-			break;
-			case ID::LT_Point:
-				throw std::logic_error("LT_Point loader is not implemented yet.");
-			case ID::LT_Spot:
-				throw std::logic_error("LT_Spot loader is not implemented yet.");
+			mName = tree->attribute("name");
+			mType = ID::asLightType(tree->attribute("type"));
+	
+			switch(mType)
+			{
+				case ID::LT_Directional:
+					mDirection = loadVector3(tree->child("Direction"));
+				break;
+				case ID::LT_Point:
+					throw std::logic_error("LT_Point loader is not implemented yet.");
+				case ID::LT_Spot:
+					throw std::logic_error("LT_Spot loader is not implemented yet.");
+			}
+		}
+		catch (std::exception& e)
+		{
+			throw std::logic_error(e.what()+std::string(" At LightParameters::load(...)"));
 		}
 	}
 
