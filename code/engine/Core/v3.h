@@ -46,8 +46,10 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/geometry/geometries/register/point.hpp>
 #include <boost/geometry/util/write_dsv.hpp>
 
-#include <Core/Types.h>
 #include <Core/Defs.h>
+#include <Core/Types.h>
+#include <Core/XmlTree.h>
+
 
 namespace BFG {
 
@@ -226,11 +228,12 @@ std::ostream& operator << (std::ostream& lhs, const vector3<T>& rhs)
 //! \exception std::runtime_error If the string couldn't be parsed
 BFG_CORE_API void stringToVector3(const std::string& input, v3& output);
 
+BFG_CORE_API v3 loadVector3(XmlTreeT tree);
+
 } // namespace BFG
 
 using BFG::v3;
 
 BOOST_GEOMETRY_REGISTER_POINT_3D(v3, BFG::f32, cs::cartesian, x, y, z)
-
 
 #endif

@@ -31,7 +31,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Model/Property/SpacePlugin.h>
 #include <Model/Loader/GameObjectFactory.h>
-#include <Model/Loader/Interpreter.h>
 
 #include "SiPropertyPlugin.h"
 
@@ -70,10 +69,8 @@ mHumanGeneral(loop, mEnvironment)
 	mPluginMap.insert(sp);
 	mPluginMap.insert(sip);
 
-	boost::shared_ptr<Loader::Interpreter> interpreter(new Loader::Interpreter(mPluginMap));
-
 	boost::shared_ptr<Loader::GameObjectFactory> gof;
-	gof.reset(new Loader::GameObjectFactory(loop, lc, mPluginMap, interpreter, mEnvironment, handle));
+	gof.reset(new Loader::GameObjectFactory(loop, lc, mPluginMap, mEnvironment, handle));
 
 	mSector.reset(new Sector(loop, 1, "Blah", gof));
 

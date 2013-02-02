@@ -28,7 +28,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Model/Defs.h>
 #include <Model/Loader/Types.h>
-#include <Model/Loader/SectorFactory.h>
 #include <Model/Loader/Exceptions.h>
 #include <Model/Property/Plugin.h>
 
@@ -44,6 +43,8 @@ namespace Loader {
 //! Not all types of the GoePayloadT are supported though.
 //! \exception std::runtime_error If the input couldn't be converted. 
 Property::Value MODEL_API StringToPropertyValue(const std::string& input);
+
+bool MODEL_API strToBool(const std::string& input, bool& output);
 
 //! \brief Serializes string data into engine structures
 class MODEL_API Interpreter
@@ -85,7 +86,7 @@ public:
 	void interpretRaceCondition(const TagWithAttributesT& definitions,
 	                            RaceCondition& raceCondition,
 	                            std::string& path) const;
-#endif
+
 	                            
 	void interpretLightDefinition(const TagWithAttributesT& definitions,
 	                              View::LightParameters& lightParameters) const;
@@ -98,6 +99,7 @@ public:
 	                                 std::string& publicName,
 	                                 std::string& filename) const;
 
+#endif
 #if 0	                                 
 	GameHandle interpretPathDefinition(const std::string& waypointDefiniton,
 	                                   SectorFactory& sectorFactory) const;	

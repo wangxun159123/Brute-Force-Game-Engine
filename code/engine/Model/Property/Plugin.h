@@ -42,6 +42,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace BFG {
 namespace Property {
 
+//! \todo This whole file badly needs documentation!
 struct MODEL_API Plugin
 {
 	Plugin(PluginId id, const std::string& name) :

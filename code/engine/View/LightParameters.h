@@ -29,6 +29,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Core/ExternalTypes.h>
 #include <Core/v3.h>
+#include <Core/XmlTree.h>
 
 #include <View/Enums.hh>
 
@@ -51,6 +52,30 @@ struct VIEW_API LightParameters
 	mSpecularColor(cv4::Black),
 	mPower(1.0f)
 	{}
+
+	LightParameters(XmlTreeT tree)
+	{
+		try
+		{
+			mName = tree->attribute("name");
+			mType = ID::asLightType(tree->attribute("type"));
+	
+			switch(mType)
+			{
+				case ID::LT_Directional:
+					mDirection = loadVector3(tree->child("Direction"));
+				break;
+				case ID::LT_Point:
+					throw std::logic_error("LT_Point loader is not implemented yet.");
+				case ID::LT_Spot:
+					throw std::logic_error("LT_Spot loader is not implemented yet.");
+			}
+		}
+		catch (std::exception& e)
+		{
+			throw std::logic_error(e.what()+std::string(" At LightParameters::load(...)"));
+		}
+	}
 
 	std::string   mName;
 	GameHandle    mHandle;

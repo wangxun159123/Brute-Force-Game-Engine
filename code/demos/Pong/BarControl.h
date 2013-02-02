@@ -39,7 +39,8 @@ class BarControl : public BFG::Property::Concept
 {
 public:
 	BarControl(BFG::GameObject& Owner, BFG::PluginId pid) :
-	BFG::Property::Concept(Owner, "BarControl", pid)
+	BFG::Property::Concept(Owner, "BarControl", pid),
+	mInitialized(false)
 	{
 		require("Physical");
 		requestEvent(BFG::ID::GOE_CONTROL_YAW);
@@ -50,22 +51,30 @@ public:
 		using namespace BFG;
 
 		Location go = getGoValue<Location>(ID::PV_Location, ValueId::ENGINE_PLUGIN_ID);
+		if (!mInitialized)
+		{
+			Location go = getGoValue<Location>(ID::PV_Location, ValueId::ENGINE_PLUGIN_ID);
+			emit<Physics::Event>(ID::PE_UPDATE_POSITION, go.position, ownerHandle());
+			emit<Physics::Event>(ID::PE_UPDATE_ORIENTATION, qv4::IDENTITY, ownerHandle());
+			emit<Physics::Event>(ID::PE_UPDATE_ROTATION_VELOCITY, v3::ZERO, ownerHandle());
+			mInitialized = true;
+		}
 
 		// Simulate a wall
 		if (std::abs(go.position.x) > DISTANCE_TO_WALL)
 		{
 			emit<Physics::Event>(ID::PE_UPDATE_VELOCITY, v3::ZERO, ownerHandle());
 			go.position.x = sign(go.position.x) * (DISTANCE_TO_WALL - 0.01f);
+			emit<Physics::Event>(ID::PE_UPDATE_POSITION, go.position, ownerHandle());
 		}
 	
 		// Make sure it doesn't move to much on the z axis
 		if (std::abs(go.position.z) - OBJECT_Z_POSITION > EPSILON_F)
 		{
 			go.position.z = OBJECT_Z_POSITION + SPECIAL_PACKER_MESH_OFFSET;
+			emit<Physics::Event>(ID::PE_UPDATE_POSITION, go.position, ownerHandle());
 		}
 
-		emit<Physics::Event>(ID::PE_UPDATE_POSITION, go.position, ownerHandle());
-		emit<Physics::Event>(ID::PE_UPDATE_ORIENTATION, qv4::IDENTITY, ownerHandle());
 	}
 	
 	void internalOnEvent(EventIdT action,
@@ -79,17 +88,18 @@ public:
 		{
 			case ID::GOE_CONTROL_YAW:
 			{
-				const f32 barSpeedMultiplier = 45.0f;
 				emit<Physics::Event>
 				(
 					ID::PE_UPDATE_VELOCITY,
-					v3(payload * barSpeedMultiplier, 0, 0),
+					v3(payload * BAR_MAX_SPEED, 0, 0),
 					ownerHandle()
 				);
 				break;
 			}
 		}
 	}
+
+	bool mInitialized;
 };
 
 #endif //__PONG_BAR_CONTROL_H_

@@ -1,4 +1,4 @@
-/*    ___  _________     ____          __         
+/*    ___  _________     ____          __
      / _ )/ __/ ___/____/ __/___ ___ _/_/___ ___ 
     / _  / _// (_ //___/ _/ / _ | _ `/ // _ | -_)
    /____/_/  \___/    /___//_//_|_, /_//_//_|__/ 
@@ -8,7 +8,7 @@ This file is part of the Brute-Force Game Engine, BFG-Engine
 
 For the latest info, see http://www.brute-force-games.com
 
-Copyright (c) 2011 Brute-Force Games GbR
+Copyright (c) 2012 Brute-Force Games GbR
 
 The BFG-Engine is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -24,39 +24,42 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef WEAPONRACK_H_
-#define WEAPONRACK_H_
+#ifndef BFG_PUGI_XML_TREE__
+#define BFG_PUGI_XML_TREE__
 
-#include <Model/Property/Concept.h>
+#include <Core/XmlTree.h>
+#include <pugixml.hpp>
 
 namespace BFG {
 
-class WeaponRack : public Property::Concept
+class BFG_CORE_API PugiXmlTree : public XmlTree
 {
+
+	friend class PugiXmlFileHandle;
+
 public:
-	const static s32 ROCKET_AMMO_START_AMOUNT_FOR_TESTING = 100;
-	
-	WeaponRack(GameObject& owner, PluginId pid);
+
+	XmlTreeT child(const std::string& name);
+
+	XmlTreeListT childList(const std::string& name);
+	std::string attribute(const std::string& name);
+
+    //! \return An empty string if element has no data.
+    std::string elementData();
+
+	XmlTreeT addElement(const std::string& name, const std::string& value);
+	void addAttribute(const std::string& name, const std::string& value);
+	void addElement(XmlTreeT value);
 
 private:
-	virtual void internalUpdate(quantity<si::time, f32> timeSinceLastFrame);
-	virtual void internalOnEvent(EventIdT action, Property::Value payload, GameHandle module, GameHandle sender);
 
-	void fireRocket();
-	void fireLaser();
+	PugiXmlTree(pugi::xml_node& node): mXmlNode(node) {}
+	PugiXmlTree(const PugiXmlTree& copy)
+	{
+		mXmlNode = copy.mXmlNode;
+	}
 
-	void updateGuiAmmo() const;
-	
-	void calculateVelocity(f32 startImpulse,
-	                       v3& newVelocity,
-	                       bool addShipVelocity) const;
-
-	void calculateSpawnLocation(Location& spawnLocation,
-	                            f32 spawnDistance) const;
-
-	s32 mRocketAmmo;
-
-	GameHandle mTarget;
+	pugi::xml_node mXmlNode;
 };
 
 } // namespace BFG

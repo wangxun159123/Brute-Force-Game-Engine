@@ -35,6 +35,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace BFG {
 namespace Property {
 
+//! \todo This whole file badly needs documentation!
 template <typename PartialT_, typename CompleteT_>
 struct ComposedId
 {

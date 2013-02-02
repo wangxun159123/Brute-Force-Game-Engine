@@ -118,9 +118,7 @@ struct SynchronizationTestState: BFG::State
 		boost::shared_ptr<BFG::SpacePlugin> sp(new BFG::SpacePlugin(spId));
 		mPluginMap.insert(sp);
 
-		boost::shared_ptr<BFG::Loader::Interpreter> interpreter(new BFG::Loader::Interpreter(mPluginMap));
-
-		mGof.reset(new BFG::Loader::GameObjectFactory(this->loop(), lc, mPluginMap, interpreter, mEnvironment, mStateHandle));
+		mGof.reset(new BFG::Loader::GameObjectFactory(this->loop(), lc, mPluginMap, mEnvironment, mStateHandle));
 
 		mSector.reset(new BFG::Sector(this->loop(), 1, "Blah", mGof));
 	}
@@ -654,7 +652,7 @@ int main( int argc, const char* argv[] ) try
 		new EventSystem::NoCommunication()
 	);
 
-	BFG::Base::Logger::SeverityLevel level = BFG::Base::Logger::SL_DEBUG;
+	BFG::Base::Logger::SeverityLevel level = BFG::Base::Logger::SL_ERROR;
 	if (server)
 	{
 		BFG::Path p;

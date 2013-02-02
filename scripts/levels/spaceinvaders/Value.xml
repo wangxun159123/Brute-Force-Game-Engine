@@ -1,29 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <ValueConfigs>
-  <ValueConfig name="DefaultCannon">
-    <PV id="ProjectileSpeed" value="20.0" />
-    <PV id="ProjectileSpawnDistance" value="7.5" />
+ 
+ <ValueConfig name="DefaultCannon">
+    <PV name="ProjectileSpeed" type="stdVal">20.0</PV>
+    <PV name="ProjectileSpawnDistance">7.5</PV>
   </ValueConfig>
 
   <ValueConfig name="PowerUpDestroyable">
-    <PV id="Destroyed" value="no" />
-    <PV id="Respawns" value="no" />
-    <PV id="Armor" value="1.0" />
-    <PV id="Damage" value="0.0" />
-    <PV id="RespawnCountdown" value="0" />
-    <PV id="Effect" value="Powerup_1" />
-    <PV id="SoundEffect" value="Explosion_small" />
+    <PV name="Destroyed" type="stdVal">no</PV>
+    <PV name="Respawns" type="stdVal">no</PV>
+    <PV name="Armor" type="stdVal">1.0</PV>
+    <PV name="Damage" type="stdVal">0.0</PV>
+    <PV name="RespawnCountdown" type="stdVal">0</PV>
+    <PV name="Effect" type="stdVal">Powerup_1</PV>
+    <PV name="SoundEffect" type="stdVal">Explosion_small</PV>
   </ValueConfig>
 
   <ValueConfig name="PlayerDestroyable">
-    <PV id="Destroyed" value="no" />
-    <PV id="Respawns" value="no" />
-    <PV id="Armor" value="50.0" />
-    <PV id="Damage" value="0.0" />
-    <PV id="RespawnCountdown" value="0" />
-    <PV id="Effect" value="Explosion_1" />
-    <PV id="SoundEffect" value="Explosion_big" />
+    <PV name="Destroyed" type="stdVal">no</PV>
+    <PV name="Respawns" type="stdVal">no</PV>
+    <PV name="Armor" type="stdVal">50.0</PV>
+    <PV name="Damage" type="stdVal">0.0</PV>
+    <PV name="RespawnCountdown" type="stdVal">0</PV>
+    <PV name="Effect" type="stdVal">Explosion_1</PV>
+    <PV name="SoundEffect" type="stdVal">Explosion_big</PV>
   </ValueConfig>
-</ValueConfigs>
+
+ </ValueConfigs>
 

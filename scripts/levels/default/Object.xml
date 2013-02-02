@@ -1,37 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <ObjectConfigs>
-  <ObjectConfig name="Cube">
-    <Module
-      name="Root"
-      mesh="Cube.mesh"
-      adapters="CubeAllAdapters"
-      concepts="CubeConcept"
-      collision="CM_Standard"
-      visible="yes"
-      density="1000.0"
-      />
-  </ObjectConfig>
-  <ObjectConfig name="Cube_Remote">
-    <Module
-      name="Root"
-      mesh="Cube.mesh"
-      adapters="CubeAllAdapters"
-      concepts="CubeConcept"
-      collision="CM_Disabled"
-      visible="yes"
-      density="1000.0"
-      />
-  </ObjectConfig>
-  <ObjectConfig name="Cube_Ghost">
-    <Module
-      name="Root"
-      mesh="Cube_ghost.mesh"
-      adapters="CubeAllAdapters"
-      concepts="CubeGhostConcept"
-      collision="CM_Disabled"
-      visible="yes"
-      density="1000.0"
-      />
-  </ObjectConfig>
+	<ObjectConfig name="Cube">
+		<Module name="Root">
+			<Mesh>Cube.mesh</Mesh>
+			<Adapters>CubeAllAdapters</Adapters>
+			<Concepts>CubeConcept</Concepts>
+			<Collision>CM_Standard</Collision>
+			<Visible>yes</Visible>
+			<Density>1000.0</Density>
+		</Module>
+	</ObjectConfig>
+	<ObjectConfig name="Cube_Remote">
+		<Module name="Root">
+			<Mesh>Cube.mesh</Mesh>
+			<Adapters>CubeAllAdapters</Adapters>
+			<Concepts>CubeConcept</Concepts>
+			<Collision>CM_Disabled</Collision>
+			<Visible>yes</Visible>
+			<Density>1000.0</Density>
+		</Module>
+	</ObjectConfig>
+	<ObjectConfig name="Cube_Ghost">
+		<Module name="Root">
+			<Mesh>Cube_ghost.mesh</Mesh>
+			<Adapters>CubeAllAdapters</Adapters>
+			<Concepts>CubeGhostConcept</Concepts>
+			<Collision>CM_Disabled</Collision>
+			<Visible>yes</Visible>
+			<Density>1000.0</Density>
+		</Module>
+	</ObjectConfig>
 </ObjectConfigs>

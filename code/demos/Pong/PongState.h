@@ -91,7 +91,7 @@ struct PongServerState : BFG::Emitter
 		boost::shared_ptr<BFG::Loader::Interpreter> interpreter(new BFG::Loader::Interpreter(pm));
 
 		boost::shared_ptr<BFG::Loader::GameObjectFactory> gof;
-		gof.reset(new BFG::Loader::GameObjectFactory(loop, lc, pm, interpreter, environment, handle));
+		gof.reset(new BFG::Loader::GameObjectFactory(loop, lc, pm, environment, handle));
 
 		// Hack: We don't use the SectorFactory directly, since there's still
 		//       race-related stuff inside

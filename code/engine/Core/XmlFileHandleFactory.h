@@ -8,7 +8,7 @@ This file is part of the Brute-Force Game Engine, BFG-Engine
 
 For the latest info, see http://www.brute-force-games.com
 
-Copyright (c) 2011 Brute-Force Games GbR
+Copyright (c) 2012 Brute-Force Games GbR
 
 The BFG-Engine is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -24,39 +24,19 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef WEAPONRACK_H_
-#define WEAPONRACK_H_
+#ifndef BFG_XML_FILE_HANDLE_FACTORY__
+#define BFG_XML_FILE_HANDLE_FACTORY__
 
-#include <Model/Property/Concept.h>
+#include <boost/shared_ptr.hpp>
+#include <Core/XmlFileHandle.h>
+#include <Core/Defs.h>
 
 namespace BFG {
 
-class WeaponRack : public Property::Concept
+class BFG_CORE_API XmlFileHandleFactory
 {
 public:
-	const static s32 ROCKET_AMMO_START_AMOUNT_FOR_TESTING = 100;
-	
-	WeaponRack(GameObject& owner, PluginId pid);
-
-private:
-	virtual void internalUpdate(quantity<si::time, f32> timeSinceLastFrame);
-	virtual void internalOnEvent(EventIdT action, Property::Value payload, GameHandle module, GameHandle sender);
-
-	void fireRocket();
-	void fireLaser();
-
-	void updateGuiAmmo() const;
-	
-	void calculateVelocity(f32 startImpulse,
-	                       v3& newVelocity,
-	                       bool addShipVelocity) const;
-
-	void calculateSpawnLocation(Location& spawnLocation,
-	                            f32 spawnDistance) const;
-
-	s32 mRocketAmmo;
-
-	GameHandle mTarget;
+	static XmlFileHandleT createWithPugiXml(const std::string& path);
 };
 
 } // namespace BFG

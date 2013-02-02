@@ -72,7 +72,7 @@
             <value>GUI_ENDGUIEVENTS</value>
         </enum>
 
-        <enum name = "HudElementTypes">
+        <enum name = "HudElementTypes" export = "MODEL_API">
             <value>HET_ObjectList</value>
             <value>HET_ObjectView</value>
             <value>HET_Radar</value>
@@ -83,21 +83,21 @@
             <value>HET_Size</value>
         </enum>
 
-        <enum name = "CameraMode">
+        <enum name = "CameraMode" export = "MODEL_API">
             <value>CM_Fixed</value>
             <value>CM_Chase</value>
             <value>CM_ChaseTarget</value>
             <value>CM_Free</value>
         </enum>
 
-        <enum name = "SynchronizationMode">
+        <enum name = "SynchronizationMode" export = "MODEL_API">
             <value>SYNC_MODE_NETWORK_NONE</value>
             <value>SYNC_MODE_NETWORK_READ</value>
             <value>SYNC_MODE_NETWORK_WRITE</value>
             <value>SYNC_MODE_NETWORK_RW</value>
         </enum>
       
-        <enum name = "ObjectType">
+        <enum name = "ObjectType" export = "MODEL_API">
             <value>OT_Unspecified</value>
             <value>OT_GameObject</value>
             <value>OT_Camera</value>
@@ -108,7 +108,7 @@
             <value>OT_Module</value>
         </enum>
 
-        <enum name = "PropertyVar">
+        <enum name = "PropertyVar" export = "MODEL_API">
             <!-- PC_AutoNavigator -->
             <value>PV_TriggerRadius</value>
 
@@ -149,7 +149,7 @@
             <value>PV_MaxSpeed</value>
         </enum>
 
-        <enum name = "GuiElementType">
+        <enum name = "GuiElementType" export = "MODEL_API">
             <value>GUI_Target</value>
             <value>GUI_Armor</value>
             <value>GUI_Speed</value>

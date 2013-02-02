@@ -28,10 +28,14 @@ DEBIAN_ARCH="i386"
 USER_AGENT='Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.1.16) Gecko/20120421 Firefox/11.0'
 BOOST_URL='http://garr.dl.sourceforge.net/project/boost/boost/1.47.0/boost_1_47_0.tar.bz2'
 OGRE_URL="http://garr.dl.sourceforge.net/project/ogre/ogre/1.7/ogre_src_v1-7-3.tar.bz2"
+PUGIXML_URL="https://pugixml.googlecode.com/files/pugixml-1.2.tar.gz"
 
 BOOST_FILENAME='boost_1_47_0.tar.bz2'
 OGRE_FILENAME='ogre_src_v1-7-3.tar.bz2'
+PUGIXML_FILENAME="pugixml-1.2.tar.gz"
+
 BOOST_DIR='boost_1_47_0'
+PUGIXML_DIR='pugixml-1.2'
 
 BOOST_LOG_REV='607'
 BOOST_GEOMETRY_EXTENSIONS_REV='77829'
@@ -70,6 +74,7 @@ function prelude
 
 	$WGET -U "$USER_AGENT" -c $BOOST_URL -O $BOOST_FILENAME
 	$WGET -U "$USER_AGENT" -c $OGRE_URL -O $OGRE_FILENAME
+	$WGET -U "$USER_AGENT" -c $PUGIXML_URL -O $PUGIXML_FILENAME
 
 	$SVN export -r $BOOST_LOG_REV https://boost-log.svn.sourceforge.net/svnroot/boost-log/trunk/boost-log boost-log
 	$SVN export -r $MYGUI_REV https://my-gui.svn.sourceforge.net/svnroot/my-gui/trunk my-gui
@@ -83,6 +88,10 @@ function prelude
 
 	echo "Unpacking $OGRE_FILENAME ..."
 	$TAR -xjf $OGRE_FILENAME
+
+	echo "Unpacking $PUGIXML_FILENAME ..."
+	/bin/mkdir $PUGIXML_DIR
+	/bin/tar -C $PUGIXML_DIR -xzf $PUGIXML_FILENAME
 
 	/bin/cp -r boost-log/* $BOOST_DIR
 
@@ -195,6 +204,18 @@ function buildMyGUI
 	/bin/cp -vR my-gui/Media $PREFIX/share/MyGUI
 }
 
+# Build PugiXml
+################
+
+function buildPugiXml
+{
+	mkdir pugixml-build
+	cd pugixml-build
+	$CMAKE ../$PUGIXML_DIR/scripts -DCMAKE_INSTALL_PREFIX=../$PREFIX
+	make -j$JOBS install
+	cd ..
+}
+
 # MD5SUMS
 ##########
 
@@ -235,6 +256,7 @@ buildBoostLog
 #buildOpenAL  (unnecessary: debian package is fine)
 buildOgre
 buildMyGUI
+buildPugiXml
 makePackage
 postlude
 

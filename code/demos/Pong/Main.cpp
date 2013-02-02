@@ -1,3 +1,4 @@
+
 /*    ___  _________     ____          __         
      / _ )/ __/ ___/____/ __/___ ___ _/_/___ ___ 
     / _  / _// (_ //___/ _/ / _ | _ `/ // _ | -_)
@@ -120,9 +121,7 @@ struct SynchronizationTestState: BFG::State
 		mPluginMap.insert(sp);
 		mPluginMap.insert(pp);
 
-		boost::shared_ptr<BFG::Loader::Interpreter> interpreter(new BFG::Loader::Interpreter(mPluginMap));
-
-		mGof.reset(new BFG::Loader::GameObjectFactory(this->loop(), lc, mPluginMap, interpreter, mEnvironment, mStateHandle));
+		mGof.reset(new BFG::Loader::GameObjectFactory(this->loop(), lc, mPluginMap, mEnvironment, mStateHandle));
 
 		mSector.reset(new BFG::Sector(this->loop(), 1, "Blah", mGof));
 	}
@@ -216,7 +215,7 @@ struct ServerState: public SynchronizationTestState
 		BFG::Loader::ObjectParameter op;
 		op.mHandle = BFG::generateNetworkHandle();
 		op.mName = "Ball";
-		op.mType = "Pong Ball";
+		op.mType = "PongBall";
 		op.mLocation = v3(0.0f, 0.0f, OBJECT_Z_POSITION);
 		op.mLinearVelocity = v3(0.0f, -15.0f, 0.0f);
 		handles << op.mHandle << " ";
@@ -226,8 +225,8 @@ struct ServerState: public SynchronizationTestState
 
 		op = BFG::Loader::ObjectParameter();
 		op.mHandle = BFG::generateNetworkHandle();
-		op.mName = "Lower Bar";
-		op.mType = "Pong Lower Bar";
+		op.mName = "LowerBar";
+		op.mType = "PongLowerBar";
 		op.mLocation = v3(0.0f, -BAR_Y_POSITION, OBJECT_Z_POSITION + SPECIAL_PACKER_MESH_OFFSET);
 		handles << op.mHandle << " ";
 		mPlayer = op.mHandle;
@@ -237,8 +236,8 @@ struct ServerState: public SynchronizationTestState
 
 		op = BFG::Loader::ObjectParameter();
 		op.mHandle = BFG::generateNetworkHandle();
-		op.mName = "Upper Bar";
-		op.mType = "Pong Upper Bar";
+		op.mName = "UpperBar";
+		op.mType = "PongUpperBar";
 		op.mLocation.position = v3(0.0f, BAR_Y_POSITION, OBJECT_Z_POSITION + SPECIAL_PACKER_MESH_OFFSET);
 		op.mLocation.orientation = BFG::qv4::IDENTITY;
 		BFG::fromAngleAxis(op.mLocation.orientation, 180 * DEG2RAD, BFG::v3::UNIT_Z);
@@ -394,7 +393,7 @@ struct ClientState : public SynchronizationTestState
 		BFG::Loader::ObjectParameter op;
 		oss >> op.mHandle;
 		op.mName = "Ball";
-		op.mType = "Pong Ball Remote";
+		op.mType = "PongBallRemote";
 		op.mLocation = v3(0.0f, 0.0f, OBJECT_Z_POSITION);
 
 		createObject(op);
@@ -402,8 +401,8 @@ struct ClientState : public SynchronizationTestState
 
 		op = BFG::Loader::ObjectParameter();
 		oss >> op.mHandle;
-		op.mName = "Lower Bar";
-		op.mType = "Pong Lower Bar Remote";
+		op.mName = "LowerBar";
+		op.mType = "PongLowerBarRemote";
 		op.mLocation = v3(0.0f, -BAR_Y_POSITION, OBJECT_Z_POSITION + SPECIAL_PACKER_MESH_OFFSET);
 
 		createObject(op);
@@ -411,8 +410,8 @@ struct ClientState : public SynchronizationTestState
 
 		op = BFG::Loader::ObjectParameter();
 		oss >> op.mHandle;
-		op.mName = "Upper Bar";
-		op.mType = "Pong Upper Bar Remote";
+		op.mName = "UpperBar";
+		op.mType = "PongUpperBarRemote";
 		op.mLocation.position = v3(0.0f, BAR_Y_POSITION, OBJECT_Z_POSITION + SPECIAL_PACKER_MESH_OFFSET);
 		op.mLocation.orientation = BFG::qv4::IDENTITY;
 		BFG::fromAngleAxis(op.mLocation.orientation, 180 * DEG2RAD, BFG::v3::UNIT_Z);
@@ -424,7 +423,7 @@ struct ClientState : public SynchronizationTestState
 	void onAxisY(BFG::f32 axisValue)
 	{
 		CharArray512T ca512 = CharArray512T();
-		valueToArray(axisValue, ca512, 0);
+		valueToArray(BFG::clamp(axisValue, -1.0f, 1.0f), ca512, 0);
 		BFG::Network::DataPayload payload
 		(
 			A_SHIP_AXIS_Y, 
@@ -433,7 +432,6 @@ struct ClientState : public SynchronizationTestState
 			sizeof(f32),
 			ca512
 		);
-
 		emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload);
 	}
 
