@@ -98,7 +98,7 @@ struct SynchronizationTestState: BFG::State
 		std::string def = p.Get(BFG::ID::P_SCRIPTS_LEVELS) + "default/";
 		std::string level = p.Get(BFG::ID::P_SCRIPTS_LEVELS) + "pong/";
 
-		BFG::Loader::LevelConfig lc;
+		BFG::LevelConfig lc;
 
 		lc.mModules.push_back(def + "Object.xml");
 		lc.mAdapters.push_back(def + "Adapter.xml");
@@ -136,7 +136,7 @@ struct SynchronizationTestState: BFG::State
 		emit<BFG::Physics::Event>(BFG::ID::PE_STEP, TSLF.value());
 	}
 
-	virtual void createObject(const BFG::Loader::ObjectParameter& param)
+	virtual void createObject(const BFG::ObjectParameter& param)
 	{
 		boost::shared_ptr<BFG::GameObject> playerShip = mGof->createGameObject(param);
 		mSector->addObject(playerShip);
@@ -211,7 +211,7 @@ struct ServerState: public SynchronizationTestState
 	{
 		std::stringstream handles;
 
-		BFG::Loader::ObjectParameter op;
+		BFG::ObjectParameter op;
 		op.mHandle = BFG::generateNetworkHandle();
 		op.mName = "Ball";
 		op.mType = "PongBall";
@@ -222,7 +222,7 @@ struct ServerState: public SynchronizationTestState
 		createObject(op);
 		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
 
-		op = BFG::Loader::ObjectParameter();
+		op = BFG::ObjectParameter();
 		op.mHandle = BFG::generateNetworkHandle();
 		op.mName = "LowerBar";
 		op.mType = "PongLowerBar";
@@ -233,7 +233,7 @@ struct ServerState: public SynchronizationTestState
 		createObject(op);
 		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
 
-		op = BFG::Loader::ObjectParameter();
+		op = BFG::ObjectParameter();
 		op.mHandle = BFG::generateNetworkHandle();
 		op.mName = "UpperBar";
 		op.mType = "PongUpperBar";
@@ -389,7 +389,7 @@ struct ClientState : public SynchronizationTestState
 	{
 		std::stringstream oss(payload.mAppData.data());
 
-		BFG::Loader::ObjectParameter op;
+		BFG::ObjectParameter op;
 		oss >> op.mHandle;
 		op.mName = "Ball";
 		op.mType = "PongBallRemote";
@@ -398,7 +398,7 @@ struct ClientState : public SynchronizationTestState
 		createObject(op);
 		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_READ, op.mHandle);
 
-		op = BFG::Loader::ObjectParameter();
+		op = BFG::ObjectParameter();
 		oss >> op.mHandle;
 		op.mName = "LowerBar";
 		op.mType = "PongLowerBarRemote";
@@ -407,7 +407,7 @@ struct ClientState : public SynchronizationTestState
 		createObject(op);
 		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_READ, op.mHandle);
 
-		op = BFG::Loader::ObjectParameter();
+		op = BFG::ObjectParameter();
 		oss >> op.mHandle;
 		op.mName = "UpperBar";
 		op.mType = "PongUpperBarRemote";

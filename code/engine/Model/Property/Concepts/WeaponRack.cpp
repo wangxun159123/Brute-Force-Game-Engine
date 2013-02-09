@@ -116,7 +116,7 @@ void WeaponRack::fireRocket()
 	std::stringstream ss;
 	ss << "Rocket " << count;
 
-	Loader::ObjectParameter op;
+	ObjectParameter op;
 	op.mHandle = generateHandle();
 	op.mName = ss.str();
 	op.mType = "Rocket";

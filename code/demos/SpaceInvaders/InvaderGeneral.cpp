@@ -45,7 +45,7 @@ InvaderGeneral::InvaderGeneral(EventLoop* loop,
 
 void InvaderGeneral::spawnWave()
 {
-	Loader::ObjectParameter op;
+	ObjectParameter op;
 
 	for (size_t i=0; i < (size_t) INVADERS_PER_ROW; ++i)
 	{
@@ -56,7 +56,7 @@ void InvaderGeneral::spawnWave()
 
 			boost::shared_ptr<GameObject> invader;
 
-			op = Loader::ObjectParameter();
+			op = ObjectParameter();
 			op.mHandle = generateHandle();
 			op.mName = ss.str();
 			op.mType = "Invader";

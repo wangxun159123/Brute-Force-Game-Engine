@@ -118,7 +118,7 @@ void Sector::onCreateObject(SectorEvent* se)
 {
 	boost::shared_ptr<GameObject> go = mGameObjectFactory->createGameObject
 	(	
-		boost::get<Loader::ObjectParameter>(se->getData())
+		boost::get<ObjectParameter>(se->getData())
 	);
 	
 	addObject(go);

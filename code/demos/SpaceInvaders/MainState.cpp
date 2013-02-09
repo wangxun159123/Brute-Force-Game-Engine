@@ -46,7 +46,7 @@ mHumanGeneral(loop, mEnvironment)
 	std::string level = p.Get(ID::P_SCRIPTS_LEVELS) + "spaceinvaders/";
 	std::string def = p.Get(ID::P_SCRIPTS_LEVELS) + "default/";
 
-	Loader::LevelConfig lc;
+	LevelConfig lc;
 
 	lc.mModules.push_back(def + "Object.xml");
 	lc.mAdapters.push_back(def + "Adapter.xml");
@@ -77,7 +77,7 @@ mHumanGeneral(loop, mEnvironment)
 	View::SkyCreation sc("sky01");
 	emit<View::Event>(ID::VE_SET_SKY, sc);
 
-	Loader::ObjectParameter op;
+	ObjectParameter op;
 	op.mHandle = generateHandle();
 	op.mName = "The Hero's Mighty Ship";
 	op.mType = "Ship";

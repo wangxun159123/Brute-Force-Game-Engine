@@ -54,8 +54,8 @@ void HumanGeneral::update(quantity<si::time, f32> timeSinceLastFrame)
 
 void HumanGeneral::spawnPowerupAtRandomPosition() const
 {
-	Loader::ObjectParameter op;
-	op = Loader::ObjectParameter();
+	ObjectParameter op;
+	op = ObjectParameter();
 	op.mHandle = generateHandle();
 	op.mName = "Test Powerup";
 	op.mType = "Powerup";

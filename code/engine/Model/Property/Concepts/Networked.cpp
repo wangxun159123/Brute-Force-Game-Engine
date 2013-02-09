@@ -378,7 +378,7 @@ void Networked::onGhostMode(bool enable)
 {
 	if (enable && mGhost == NULL_HANDLE)
 	{
-		Loader::ObjectParameter op;
+		ObjectParameter op;
 		std::stringstream ss;
 		ss << "Ghost of " << ownerHandle();
 		op.mName = ss.str();

@@ -104,7 +104,7 @@ void Cannon::fireRocket(bool autoRocket)
 	ss << "Projectile " << count;
 
 	// Make Configuration
-	Loader::ObjectParameter op;
+	ObjectParameter op;
 	op.mHandle = generateHandle();
 	op.mName = ss.str();
 	if (autoRocket) op.mType = "AutoProjectile";

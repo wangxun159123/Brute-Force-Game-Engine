@@ -61,7 +61,7 @@ struct PongServerState : BFG::Emitter
 		std::string level = p.Get(BFG::ID::P_SCRIPTS_LEVELS) + "pong/";
 		std::string def = p.Get(BFG::ID::P_SCRIPTS_LEVELS) + "default/";
 
-		BFG::Loader::LevelConfig lc;
+		BFG::LevelConfig lc;
 
 		lc.mModules.push_back(def + "Object.xml");
 		lc.mAdapters.push_back(def + "Adapter.xml");
@@ -94,7 +94,7 @@ struct PongServerState : BFG::Emitter
 
 		// Hack: We don't use the SectorFactory directly, since there's still
 		//       race-related stuff inside
-		BFG::Loader::ObjectParameter op;
+		BFG::ObjectParameter op;
 		op.mHandle = BFG::generateHandle();
 		op.mName = "Ball";
 		op.mType = "Pong Ball";
@@ -102,14 +102,14 @@ struct PongServerState : BFG::Emitter
 		op.mLinearVelocity = BALL_START_VELOCITY;
 		mBall = gof->createGameObject(op);
 
-		op = BFG::Loader::ObjectParameter();
+		op = BFG::ObjectParameter();
 		op.mHandle = 123;
 		op.mName = "Lower Bar";
 		op.mType = "Pong Lower Bar";
 		op.mLocation = v3(0.0f, -BAR_Y_POSITION, OBJECT_Z_POSITION + SPECIAL_PACKER_MESH_OFFSET);
 		mLowerBar = gof->createGameObject(op);
 
-		op = BFG::Loader::ObjectParameter();
+		op = BFG::ObjectParameter();
 		op.mHandle = 456;
 		op.mName = "Upper Bar";
 		op.mType = "Pong Upper Bar";

@@ -104,7 +104,7 @@ struct SynchronizationTestState: BFG::State
 		BFG::Path p;
 		std::string def = p.Get(BFG::ID::P_SCRIPTS_LEVELS) + "default/";
 
-		BFG::Loader::LevelConfig lc;
+		BFG::LevelConfig lc;
 
 		lc.mModules.push_back(def + "Object.xml");
 		lc.mAdapters.push_back(def + "Adapter.xml");
@@ -133,7 +133,7 @@ struct SynchronizationTestState: BFG::State
 		emit<BFG::Physics::Event>(BFG::ID::PE_STEP, TSLF.value());
 	}
 
-	virtual void createObject(const BFG::Loader::ObjectParameter& param)
+	virtual void createObject(const BFG::ObjectParameter& param)
 	{
 		boost::shared_ptr<BFG::GameObject> playerShip = mGof->createGameObject(param);
 		mSector->addObject(playerShip);
@@ -237,7 +237,7 @@ struct ServerState: public SynchronizationTestState
 		std::stringstream handles;
 
 		// First cube
-		BFG::Loader::ObjectParameter op;
+		BFG::ObjectParameter op;
 		op.mType = "Cube";
 
 		f32 width = 1.0f;
@@ -460,7 +460,7 @@ struct ClientState : public SynchronizationTestState
 	{
 		std::stringstream oss(payload.mAppData.data());
 		
-		BFG::Loader::ObjectParameter op;
+		BFG::ObjectParameter op;
 		op.mType = "Cube_Remote";
 		
 		f32 width = 1.0f;

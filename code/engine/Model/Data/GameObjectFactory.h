@@ -32,7 +32,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <EventSystem/Emitter.h>
 
-#include <Model/Data/Types.h>
+#include <Model/Data/LevelConfig.h>
+#include <Model/Data/ObjectParameters.h>
 #include <Model/Data/FileHandleFactory.h>
 
 #include <Model/Data/ConceptXml.h> 

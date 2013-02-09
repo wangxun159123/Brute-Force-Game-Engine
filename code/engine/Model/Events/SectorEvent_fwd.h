@@ -30,7 +30,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/variant.hpp>
 
 #include <Core/Types.h>
-#include <Model/Data/Types.h>
+#include <Model/Data/ObjectParameters.h>
+#include <Model/Enums.hh>
 
 #include <EventSystem/Event_fwd.h>
 
@@ -39,7 +40,7 @@ namespace BFG {
 typedef boost::variant
 <
 	GameHandle,
-	Loader::ObjectParameter
+	ObjectParameter
 >
 SePayloadT;
 

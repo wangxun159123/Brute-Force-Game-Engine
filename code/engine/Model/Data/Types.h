@@ -59,113 +59,51 @@ class PropertyConcept;
 
 namespace Loader {
 
-struct ValueParameter
-{
-	Property::ValueId mId;
-	Property::Value mValue;
-};
 
-struct ConceptParameter
-{
-	Property::ConceptId mId;
-	std::string mProperties;	
-};
+//struct ValueParameter
+//{
+//	Property::ValueId mId;
+//	Property::Value mValue;
+//};
 
-struct AdapterParameter
-{
-	u32 mId;
-	Location mLocation;
-};
+//struct ConceptParameter
+//{
+//	Property::ConceptId mId;
+//	std::string mProperties;	
+//};
+
+//struct AdapterParameter
+//{
+//	u32 mId;
+//	Location mLocation;
+//};
 
 //typedef std::pair<std::string, std::vector<Adapter> > AdapterConfigT;
 
-struct ModuleParameter
-{
-	ModuleParameter() : 
-		mCollisionMode(ID::CM_Disabled),
-		mVisible(false),
-		mDensity(0) {}
+//struct ModuleParameter
+//{
+//	ModuleParameter() : 
+//		mCollisionMode(ID::CM_Disabled),
+//		mVisible(false),
+//		mDensity(0) {}
+//
+//	std::string mName;
+//	std::string mMeshName;
+//	Connection mConnection;
+//	std::string mAdapters;
+//	std::string mConcepts;
+//	ID::CollisionMode mCollisionMode;
+//	bool mVisible;
+//	f32 mDensity;
+//};
 
-	std::string mName;
-	std::string mMeshName;
-	Connection mConnection;
-	std::string mAdapters;
-	std::string mConcepts;
-	ID::CollisionMode mCollisionMode;
-	bool mVisible;
-	f32 mDensity;
-};
-
-//! This struct saves the interpreted object data which is not(!) defined by PropertyConcepts.
-struct ObjectParameter
-{
-	typedef std::map
-	<
-		std::string,
-		ObjectParameter
-	> MapT;
-
-	ObjectParameter() :
-		mHandle(NULL_HANDLE),
-		mLinearVelocity(v3::ZERO),
-		mAngularVelocity(v3::ZERO) {}
-
-	ObjectParameter(XmlTreeT tree) :
-		mHandle(NULL_HANDLE),
-		mLinearVelocity(v3::ZERO),
-		mAngularVelocity(v3::ZERO)
-	{
-		load(tree);
-	}
-
-	GameHandle mHandle;
-	std::string mName;
-	std::string mType;
-	Location mLocation;
-	v3 mLinearVelocity;
-	v3 mAngularVelocity;
-	Connection mConnection;
-
-	protected:
-	
-	void load(XmlTreeT tree)
-	{
-		mType = tree->attribute("type");
-		mName = tree->attribute("name");
-
-		try
-		{
-			mLocation.position = loadVector3(tree->child("Position"));
-			mLocation.orientation = loadQuaternion(tree->child("Orientation"));
-		}
-		catch (std::exception& e)
-		{
-			throw std::logic_error(e.what()+std::string(" At ObjectParameter::load(...)"));
-		}
-	}
-};
-
-
-struct SectorParameter
-{
-	std::string           mName;
-	ObjectParameter::MapT mObjects;
-};
+//struct SectorParameter
+//{
+//	std::string           mName;
+//	ObjectParameter::MapT mObjects;
+//};
 
 // struct LightParameters now only defined in View to avoid having 2 identical structures.
-
-//! Contains the complete data for all objectTypes ready for creation.
-typedef std::vector<boost::shared_ptr<ObjectParameter> > ObjectDefinitionsT;
-
-struct LevelConfig
-{
-	typedef std::vector<std::string> ConfigFilesT;
-	
-	ConfigFilesT mModules;
-	ConfigFilesT mAdapters;
-	ConfigFilesT mConcepts;
-	ConfigFilesT mProperties;
-};
 
 } // namespace Loader
 } // namespace BFG
