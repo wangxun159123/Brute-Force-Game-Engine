@@ -51,9 +51,15 @@ BOOST_AUTO_TEST_CASE (EditAndSaveFile)
 	BOOST_REQUIRE(newElement);
 	BOOST_REQUIRE_NO_THROW(fileHandle->save());
 
+	BOOST_REQUIRE_NO_THROW(newElement->editElementData("A new element was born! Edited"));
+	BOOST_REQUIRE_NO_THROW(fileHandle->save());
+
 	BOOST_REQUIRE_NO_THROW(newElement->addAttribute("AtrName", "AtrValue"));
 	BOOST_REQUIRE_NO_THROW(fileHandle->save());
 
+	BOOST_REQUIRE_NO_THROW(newElement->editAttributeData("AtrName", "AtrValueEdited"));
+	BOOST_REQUIRE_NO_THROW(fileHandle->save());
+	
 	BOOST_REQUIRE_NO_THROW(newElement->removeAttribute("AtrName"));
 	BOOST_REQUIRE_NO_THROW(fileHandle->save());
 
