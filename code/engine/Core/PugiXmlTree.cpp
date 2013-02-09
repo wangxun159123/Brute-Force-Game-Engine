@@ -29,19 +29,19 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 namespace BFG {
 
-	boost::shared_ptr<XmlTree> PugiXmlTree::child(const std::string& name)
+	XmlTreeT PugiXmlTree::child(const std::string& name)
 	{
 		pugi::xml_node node = mXmlNode.child(name.c_str());
-		return boost::shared_ptr<XmlTree>(new PugiXmlTree(node));
+		return XmlTreeT(new PugiXmlTree(node));
 	}
 
-	std::vector<boost::shared_ptr<XmlTree> > PugiXmlTree::childList(const std::string& name)
+	XmlTreeListT PugiXmlTree::childList(const std::string& name)
 	{
-		std::vector<boost::shared_ptr<XmlTree> > treeList;
+		XmlTreeListT treeList;
 
 		for (pugi::xml_node node = mXmlNode.child(name.c_str()); node; node = node.next_sibling(name.c_str()))
 		{
-			treeList.push_back(boost::shared_ptr<XmlTree>(new PugiXmlTree(node)));
+			treeList.push_back(XmlTreeT(new PugiXmlTree(node)));
 		}
 
 		return treeList;
@@ -57,7 +57,7 @@ namespace BFG {
         return mXmlNode.text().get();
     }
 
-    boost::shared_ptr<XmlTree> PugiXmlTree::addElement(const std::string& name, const std::string& value)
+    XmlTreeT PugiXmlTree::addElement(const std::string& name, const std::string& value)
 	{
 		pugi::xml_node node = mXmlNode.append_child();
 		node.set_name(name.c_str());
@@ -71,7 +71,7 @@ namespace BFG {
 		mXmlNode.append_attribute(name.c_str()).set_value(value.c_str());
 	}
 
-	void PugiXmlTree::addElement(boost::shared_ptr<XmlTree> value)
+	void PugiXmlTree::addElement(XmlTreeT value)
 	{
 		//tbd
 	}
