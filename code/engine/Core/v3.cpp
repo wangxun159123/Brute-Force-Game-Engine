@@ -75,7 +75,7 @@ v3 loadVector3(XmlTreeT tree)
 	}
 }
 
-BFG_CORE_API void saveVector3(const v3& in, XmlTreeT parentNode)
+void saveVector3(const v3& in, XmlTreeT parentNode)
 {
 	try
 	{
