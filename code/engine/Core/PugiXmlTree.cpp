@@ -60,10 +60,20 @@ namespace BFG {
     XmlTreeT PugiXmlTree::addElement(const std::string& name, const std::string& value)
 	{
 		pugi::xml_node node = mXmlNode.append_child();
-		node.set_name(name.c_str());
-		node.set_value(value.c_str());
+		
+		if (!node.set_name(name.c_str()))
+		{
+			throw std::logic_error("Could not set name for new XML Node. At PugiXmlTree::addElement(...)");
+		}
+		
+		pugi::xml_node data = node.append_child(pugi::node_pcdata);
 
-		return boost::shared_ptr<XmlTree>(new PugiXmlTree(node));
+		if (!data.set_value(value.c_str()))
+		{
+			throw std::logic_error("Could not set element value for new XML Node. At PugiXmlTree::addElement(...)");
+		}
+
+		return XmlTreeT(new PugiXmlTree(node));
 	}
 
 	void PugiXmlTree::addAttribute(const std::string& name, const std::string& value)
@@ -71,9 +81,12 @@ namespace BFG {
 		mXmlNode.append_attribute(name.c_str()).set_value(value.c_str());
 	}
 
-	void PugiXmlTree::addElement(XmlTreeT value)
+	void PugiXmlTree::removeElement(const std::string& name)
 	{
-		//tbd
+		if (!mXmlNode.remove_child(name.c_str()))
+		{
+			throw std::logic_error("No such element \'"+name+"\' found. At PugiXmlTree::removeElement.");
+		}
 	}
 
 } // namespace BFG

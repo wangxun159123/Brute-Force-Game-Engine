@@ -65,7 +65,7 @@ void PugiXmlFileHandle::save(const std::string& path = "")
 
 	try
 	{
-		if (path != "")
+		if (path == "")
 		{
 			errorInformationPath = mPath;
 			dbglog << mDocument.save_file(mPath.c_str());

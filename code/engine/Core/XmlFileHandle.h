@@ -45,7 +45,7 @@ public:
 
 	XmlFileHandle(const std::string& path): mPath(path) {}
 
-	virtual void save(const std::string& path) = 0;
+	virtual void save(const std::string& path = "") = 0;
 	XmlTreeT root() { return mRoot; }
 	std::string path() { return mPath; }
 

@@ -49,7 +49,8 @@ public:
 
 	XmlTreeT addElement(const std::string& name, const std::string& value);
 	void addAttribute(const std::string& name, const std::string& value);
-	void addElement(XmlTreeT value);
+
+	void removeElement(const std::string& name);
 
 private:
 
