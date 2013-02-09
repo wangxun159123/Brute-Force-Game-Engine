@@ -61,6 +61,12 @@ namespace BFG {
     }
 
 
+	void PugiXmlTree::editElementData(const std::string& value)
+	{
+		mXmlNode.text().set(value.c_str());
+	}
+
+
     XmlTreeT PugiXmlTree::addElement(const std::string& name, const std::string& value)
 	{
 		pugi::xml_node node = mXmlNode.append_child();
@@ -103,5 +109,8 @@ namespace BFG {
 			throw std::logic_error("No such attribute \'"+name+"\' found. At PugiXmlTree::removeAttribute.");
 		}
 	}
+
+
+
 
 } // namespace BFG
