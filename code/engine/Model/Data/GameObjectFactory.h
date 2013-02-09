@@ -55,8 +55,6 @@ struct CameraParameter;
 
 namespace Loader {
 
-class Interpreter;
-
 class MODEL_API GameObjectFactory : Emitter
 {
 public:

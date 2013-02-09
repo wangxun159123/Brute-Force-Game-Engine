@@ -31,7 +31,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Model/Data/Types.h>
 #include <Model/Data/Connection.h>
-#include <Model/Data/Interpreter.h>
 #include <Model/Property/Plugin.h>
 
 #include <Model/Data/ModuleConfig.h>

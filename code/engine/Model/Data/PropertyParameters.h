@@ -31,8 +31,10 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Core/v3.h>
 #include <Core/qv4.h>
+#include <Core/strToBool.h>
 
-#include <Model/Data/Interpreter.h>
+#include <Model/Enums.hh>
+#include <Model/Property/Value.h>
 
 
 namespace BFG
@@ -67,8 +69,62 @@ protected:
 		}
 		else
 		{
-			mValue = Loader::StringToPropertyValue(tree->elementData());
+			mValue = stringToPropertyValue(tree->elementData());
 		}
+	}
+
+	Property::Value stringToPropertyValue(const std::string& input)
+	{
+		Property::Value result;
+	
+		// is qv4
+		try {
+			qv4 output;
+			stringToQuaternion4(input, output);
+			result = output;
+			return result;
+		}
+		catch (std::runtime_error) {}
+	
+		// is v3
+		try {
+			v3 output;
+			stringToVector3(input, output);
+			result = output;
+			return result;
+		}
+		catch (std::runtime_error) {}
+
+		// is integer
+		try
+		{
+			result = boost::lexical_cast<s32>(input);
+			return result;
+		}
+		catch (boost::bad_lexical_cast &) {}
+
+		// is float
+		try
+		{
+			result = boost::lexical_cast<f32>(input);
+			return result;
+		}
+		catch (boost::bad_lexical_cast &) {}
+
+		// is ID::CameraMode
+		try {
+			result = ID::asCameraMode(input);
+			return result;
+		}
+		catch (std::out_of_range) {}
+	
+		// is bool
+		if (strToBool(input, result))
+			return result;
+	
+		// is string
+		result = stringToArray<128>(input);
+		return result;
 	}
 };
 

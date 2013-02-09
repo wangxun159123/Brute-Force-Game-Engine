@@ -27,6 +27,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #ifndef BFG_BASE_INTERPOLATE_H_
 #define BFG_BASE_INTERPOLATE_H_
 
+#include <Core/Types.h>
+
 namespace BFG {
 namespace Base {
 

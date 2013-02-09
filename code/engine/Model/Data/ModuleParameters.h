@@ -27,10 +27,12 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #ifndef MODULE_PARAMETERS_H__
 #define MODULE_PARAMETERS_H__
 
+#include <Core/strToBool.h>
+
 #include <Model/Data/Types.h>
 #include <Model/Data/Connection.h>
 #include <Model/Property/Plugin.h>
-#include <Model/Data/Interpreter.h>
+
 
 namespace BFG {
 
@@ -71,7 +73,7 @@ protected:
 			std::string visibleStr = tree->child("Visible")->elementData();
 			
 			if (visibleStr != "")
-				Loader::strToBool(visibleStr, mVisible);
+				strToBool(visibleStr, mVisible);
 
 			std::string density = tree->child("Density")->elementData();
 			

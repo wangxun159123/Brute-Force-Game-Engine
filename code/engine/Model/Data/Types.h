@@ -59,40 +59,6 @@ class PropertyConcept;
 
 namespace Loader {
 
-/*! These three following types are crucial to save the native string data
-    ready to get interpreted by the interpreter (Interpreter.h)*/
-typedef boost::unordered_map
-<
-	std::string,
-	std::string
-> TagWithAttributesT;
-
-//! \note The actual tag name is not needed here (see ManyManyTagsT)
-typedef std::vector
-<
-	boost::shared_ptr<TagWithAttributesT>
-> ManyTagsT;
-
-//! \note The key type is actually the name attribute of a ManyTagsT
-typedef boost::unordered_map
-<
-	std::string,
-	boost::shared_ptr<ManyTagsT>
-> ManyManyTagsT;
-
-//! This struct will be filled by the file loader (FileLoader.h) to save the native string data of one sector (level)
-struct SectorDraft
-{
-	boost::shared_ptr<ManyTagsT>          mObjects;
-	boost::shared_ptr<ManyManyTagsT>      mPaths;
-	boost::shared_ptr<TagWithAttributesT> mSectorProperties;
-	boost::shared_ptr<TagWithAttributesT> mConditions;
-	boost::shared_ptr<ManyTagsT>          mCameras;
-	boost::shared_ptr<TagWithAttributesT> mSkybox;
-	boost::shared_ptr<ManyTagsT>          mLights;
-	boost::shared_ptr<ManyTagsT>          mPlaylist;
-};
-
 struct ValueParameter
 {
 	Property::ValueId mId;

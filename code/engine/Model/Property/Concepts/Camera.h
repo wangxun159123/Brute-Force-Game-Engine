@@ -34,12 +34,15 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/units/systems/si/time.hpp>
 #include <boost/units/systems/si/dimensionless.hpp>
 
-#include <Core/Types.h>
 #include <Base/Interpolate.h>
+
+#include <Core/Types.h>
+#include <Core/XmlTree.h>
+#include <Core/strToBool.h>
+
 #include <Model/Waypoint.h>
 #include <Model/Property/Concept.h>
-#include <Model/Data/Interpreter.h>
-#include <Core/XmlTree.h>
+
 
 namespace BFG {
 
@@ -114,7 +117,7 @@ protected:
 			mParentObject = tree->child("ParentObject")->elementData();
 		
 			std::string fs = tree->child("Fullscreen")->elementData();
-			Loader::strToBool(fs, mFullscreen);
+			strToBool(fs, mFullscreen);
 		
 			mReactionTime = boost::lexical_cast<f32>(tree->child("ReactionTime")->elementData()) * si::second;
 			mMaxDistance = boost::lexical_cast<f32>(tree->child("MaxDistance")->elementData()) * si::meter;

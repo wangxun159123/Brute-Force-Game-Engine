@@ -49,7 +49,7 @@ struct Connection
 	BFG::u32 mConnectedExternAt;
 };
 
-//! \brief Utility function for Interpreter
+//! \brief Utility function
 //! \param[in] input Example: "Wing:5" or "Body:1". Both parts are mandatory.
 //! \param[out] connection Result of parsing
 //! \exception std::runtime_error If the input couldn't be parsed. 

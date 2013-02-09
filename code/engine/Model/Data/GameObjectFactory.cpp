@@ -30,7 +30,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Core/Utils.h> // generateHandle()
 
-#include <Model/Data/Interpreter.h>
 #include <Model/Adapter.h>
 #include <Model/Environment.h>
 #include <Model/GameObject.h>
