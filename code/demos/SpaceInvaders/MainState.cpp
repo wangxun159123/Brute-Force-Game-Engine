@@ -30,7 +30,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Core/Path.h>
 
 #include <Model/Property/SpacePlugin.h>
-#include <Model/Loader/GameObjectFactory.h>
+#include <Model/Data/GameObjectFactory.h>
 
 #include "SiPropertyPlugin.h"
 

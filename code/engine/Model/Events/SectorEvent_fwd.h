@@ -30,7 +30,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/variant.hpp>
 
 #include <Core/Types.h>
-#include <Model/Loader/Types.h>
+#include <Model/Data/Types.h>
 
 #include <EventSystem/Event_fwd.h>
 

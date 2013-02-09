@@ -32,13 +32,13 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <EventSystem/Emitter.h>
 
-#include <Model/Loader/Types.h>
-#include <Model/Loader/FileHandleFactory.h>
+#include <Model/Data/Types.h>
+#include <Model/Data/FileHandleFactory.h>
 
-#include <Model/Loader/ConceptFactory.h> 
-#include <Model/Loader/AdapterFactory.h>
-#include <Model/Loader/ObjectXmlFileHandler.h>
-#include <Model/Loader/ValueFactory.h>
+#include <Model/Data/ConceptXml.h> 
+#include <Model/Data/AdapterXml.h>
+#include <Model/Data/ObjectXml.h>
+#include <Model/Data/ValueXml.h>
 
 #include <Model/Property/Plugin.h>
 
@@ -89,15 +89,15 @@ private:
 
 	boost::shared_ptr<Environment> mEnvironment;
 
-	typedef FileHandleFactory<AdapterFactory> AdapterAgentT;
-	typedef FileHandleFactory<ObjectXmlFileHandler> ModuleAgentT;
-	typedef FileHandleFactory<ConceptFactory> ConceptAgentT;
-	typedef FileHandleFactory<ValueFactory> ValueAgentT;
+	typedef FileHandleFactory<AdapterXml> AdapterXmlHandleT;
+	typedef FileHandleFactory<ObjectXml> ModuleXmlHandleT;
+	typedef FileHandleFactory<ConceptXml> ConceptXmlHandleT;
+	typedef FileHandleFactory<ValueXml> ValueXmlHandleT;
 	 
-	AdapterAgentT mAdapterParameters;
-	ModuleAgentT mModuleParameters;
-	ConceptAgentT mConceptParameters;
-	ValueAgentT mValueParameters;
+	AdapterXmlHandleT mAdapterParameters;
+	ModuleXmlHandleT mModuleParameters;
+	ConceptXmlHandleT mConceptParameters;
+	ValueXmlHandleT mValueParameters;
 
 	GameHandle mStateHandle;
 };

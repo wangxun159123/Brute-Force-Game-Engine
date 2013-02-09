@@ -33,7 +33,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <EventSystem/Emitter.h>
 
 #include <Core/XmlFileHandleFactory.h>
-#include <Model/Loader/Types.h>
+#include <Model/Data/Types.h>
 #include <Model/Property/Plugin.h>
 
 namespace BFG {

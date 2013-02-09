@@ -24,44 +24,40 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ADAPTER_CONFIG_PARAMETERS_H_
-#define ADAPTER_CONFIG_PARAMETERS_H_
+#ifndef CONCEPT_CONFIG_PARAMETERS_H_
+#define CONCEPT_CONFIG_PARAMETERS_H_
 
-#include <boost/lexical_cast.hpp>
 #include <Core/XmlTree.h>
+#include <Model/Data/ConceptParameters.h>
 
-#include <Model/Data/AdapterParameters.h>
 
 namespace BFG
 {
 
-struct AdapterConfigParameters
+struct ConceptConfig
 {
-	AdapterConfigParameters(XmlTreeT tree)
+	ConceptConfig(const XmlTreeListT& treeList)
 	{
-		load(tree);
+		load(treeList);
 	}
-	
-	std::string mName;
-	typedef std::vector<AdapterParametersT> AdapterParameterListT;
-	AdapterParameterListT mAdapters;
-	
-protected:
 
-	void load(XmlTreeT tree)
+	typedef std::vector<ConceptParametersT> ConceptParameterListT;
+	ConceptParameterListT mConceptParameters;
+
+protected:
+	
+	void load(const XmlTreeListT& treeList)
 	{
-		mName = tree->attribute("name");
-		XmlTreeListT childList = tree->childList("Adapter");
-		
-		XmlTreeListT::iterator it = childList.begin();
-		for (;it != childList.end();++it)
+		XmlTreeListT::const_iterator it = treeList.begin();
+
+		for(; it != treeList.end(); ++it)
 		{
-			mAdapters.push_back(AdapterParametersT(new AdapterParameters(*it)));
+			mConceptParameters.push_back(ConceptParametersT(new ConceptParameters(*it)));
 		}
 	}
 };
 
-typedef boost::shared_ptr<AdapterConfigParameters> AdapterConfigParametersT;
+typedef boost::shared_ptr<ConceptConfig> ConceptConfigT;
 
 }
 

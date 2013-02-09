@@ -24,67 +24,42 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BFG_DATA_VALUE_XML_H_
-#define BFG_DATA_VALUE_XML_H_
+#ifndef ADAPTER_CONFIG_H_
+#define ADAPTER_CONFIG_H_
 
-#include <map>
-#include <Core/XmlFileHandle.h>
-#include <Model/Data/PropertyConfig.h>
-
+#include <Core/XmlTree.h>
+#include <Model/Data/AdapterParameters.h>
 
 namespace BFG
 {
 
-class ValueXml
+struct AdapterConfig
 {
-
-public:
+	AdapterConfig(XmlTreeT tree)
+	{
+		load(tree);
+	}
 	
-	// This typedef will be used for abstraction in FileHandleFactory.h.
-	typedef PropertyConfigT ReturnT;
-
-	ValueXml(XmlFileHandleT valueConfig) : mValueConfigFile(valueConfig)
-	{
-		load();
-	}
-
-	~ValueXml() {}
-
-	ReturnT create(const std::string& valueName)
-	{
-		ValueMapT::iterator it = mValues.find(valueName);
-
-		if (it == mValues.end())
-		{
-			// return a NULL pointer with boost::shared_ptr type.
-			PropertyConfigT t;
-			t.reset();
-			
-			return t;
-		}
-
-		return it->second;
-	}
-
+	std::string mName;
+	typedef std::vector<AdapterParametersT> AdapterParameterListT;
+	AdapterParameterListT mAdapters;
+	
 protected:
 
-	void load()
+	void load(XmlTreeT tree)
 	{
-		XmlTreeListT valueConfigs = mValueConfigFile->root()->child("ValueConfigs")->childList("ValueConfig");
-		XmlTreeListT::iterator it = valueConfigs.begin();
-	
-		for (;it < valueConfigs.end(); ++it)
+		mName = tree->attribute("name");
+		XmlTreeListT childList = tree->childList("Adapter");
+		
+		XmlTreeListT::iterator it = childList.begin();
+		for (;it != childList.end();++it)
 		{
-			mValues[(*it)->attribute("name")] = PropertyConfigT(new PropertyConfig((*it)->childList("PV")));
+			mAdapters.push_back(AdapterParametersT(new AdapterParameters(*it)));
 		}
 	}
-
-	XmlFileHandleT mValueConfigFile;
-	typedef std::map<std::string, PropertyConfigT> ValueMapT;
-	ValueMapT mValues;
 };
 
-typedef boost::shared_ptr<ValueXml> ValueXmlT;
+typedef boost::shared_ptr<AdapterConfig> AdapterConfigT;
 
 }
 

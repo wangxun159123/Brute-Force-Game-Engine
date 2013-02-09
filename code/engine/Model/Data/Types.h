@@ -36,7 +36,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Core/Location.h>
 #include <Core/Types.h>
 #include <Model/Adapter.h>
-#include <Model/Loader/Connection.h>
+#include <Model/Data/Connection.h>
 #include <Model/Property/Value.h>
 #include <Model/Property/ValueId.h>
 #include <Model/Property/ConceptId.h>
@@ -111,7 +111,7 @@ struct AdapterParameter
 	Location mLocation;
 };
 
-typedef std::pair<std::string, std::vector<Adapter> > AdapterConfigT;
+//typedef std::pair<std::string, std::vector<Adapter> > AdapterConfigT;
 
 struct ModuleParameter
 {

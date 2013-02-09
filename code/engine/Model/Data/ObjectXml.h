@@ -24,130 +24,41 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OBJECT_XML_FILE_HANDLER_H_
-#define OBJECT_XML_FILE_HANDLER_H_
+#ifndef BFG_OBJECT_XML_H_
+#define BFG_OBJECT_XML_H_
 
 #include <map>
-#include <boost/weak_ptr.hpp>
 
-#include <EventSystem/Emitter.h>
-
-#include <Model/Loader/Types.h>
-#include <Model/Loader/Connection.h>
-#include <Model/Loader/Interpreter.h>
+#include <Model/Data/Types.h>
+#include <Model/Data/Connection.h>
+#include <Model/Data/Interpreter.h>
 #include <Model/Property/Plugin.h>
+
+#include <Model/Data/ModuleConfig.h>
 
 namespace BFG {
 
-struct ModuleParameters
-{
-	ModuleParameters(XmlTreeT tree)
-	{
-		load(tree);
-	}
-
-	std::string mName;
-	
-	std::string mMesh;
-	std::string mAdapter;
-	std::string mConcept;
-	ID::CollisionMode mCollision;
-	bool mVisible;
-	f32 mDensity;
-    Loader::Connection mConnection;	
-
-protected:
-
-	void load(XmlTreeT tree)
-	{
-		try
-		{
-			mName = tree->attribute("name");
-
-			mMesh = tree->child("Mesh")->elementData();
-			mAdapter = tree->child("Adapters")->elementData();
-			mConcept = tree->child("Concepts")->elementData();
-			
-			std::string collisionMode = tree->child("Collision")->elementData();
-			
-			if (collisionMode != "")
-				mCollision = ID::asCollisionMode(collisionMode);
-		
-			std::string visibleStr = tree->child("Visible")->elementData();
-			
-			if (visibleStr != "")
-				Loader::strToBool(visibleStr, mVisible);
-
-			std::string density = tree->child("Density")->elementData();
-			
-			if (density != "")
-				mDensity = boost::lexical_cast<f32>(density);
-			
-			Loader::parseConnection(tree->child("Connection")->elementData(), mConnection);
-		}
-		catch (std::exception& e)
-		{
-			throw std::logic_error(e.what()+std::string(" At ModuleParameters::load(...)"));
-		}
-	}
-};
-
-typedef boost::shared_ptr<ModuleParameters> ModuleParametersT;
-
-struct ObjectConfigParameters
-{
-	ObjectConfigParameters(XmlTreeT tree)
-	{
-		load(tree);
-	}
-
-	std::string mName;
-	typedef std::vector<ModuleParametersT> ModulesT;
-	ModulesT mModules;
-
-protected:
-
-	void load(XmlTreeT tree)
-	{
-		mName = tree->attribute("name");
-		XmlTreeListT childList = tree->childList("Module");
-
-		XmlTreeListT::iterator it = childList.begin();
-		for (;it != childList.end();++it)
-		{
-			XmlTreeT tree = *it;
-			mModules.push_back(ModuleParametersT(new ModuleParameters(tree)));
-		}
-	
-		if (mModules.empty())
-			throw std::runtime_error("ObjectConfigParameters::load(): GameObjects must have at least one Module!");
-	}
-};
-
-
-typedef boost::shared_ptr<ObjectConfigParameters> ObjectConfigParametersT;
-
 //! This class is according to the object.xml.
-class ObjectXmlFileHandler
+class ObjectXml
 {
 public:
 
 	// This typedef will be used for abstraction in FileHandleFactory.h.
-	typedef ObjectConfigParametersT ReturnT;
+	typedef ModuleConfigT ReturnT;
 
-	ObjectXmlFileHandler(XmlFileHandleT objectConfig) : mObjectConfigFile(objectConfig)
+	ObjectXml(XmlFileHandleT objectConfig) : mObjectConfigFile(objectConfig)
 	{
 		load();
 	}
 
-	ObjectConfigParametersT create(const std::string& objectConfigName)
+	ReturnT create(const std::string& objectConfigName)
 	{
-		ObjectConfigsT::iterator it = mObjectConfigs.find(objectConfigName);
+		ModuleConfigsT::iterator it = mObjectConfigs.find(objectConfigName);
 
 		if (it == mObjectConfigs.end())
 		{
 			// return a NULL pointer with boost::shared_ptr type.
-			ObjectConfigParametersT t;
+			ModuleConfigT t;
 			t.reset();
 			
 			return t;
@@ -166,19 +77,19 @@ protected:
 		for (;it != objectConfigs.end(); ++it)
 		{
 			XmlTreeT tree = *it;
-			mObjectConfigs[tree->attribute("name")] = ObjectConfigParametersT(new ObjectConfigParameters(tree));
+			mObjectConfigs[tree->attribute("name")] = ModuleConfigT(new ModuleConfig(tree));
 		}
 	}
 
 private:
 
-	typedef std::map<std::string, ObjectConfigParametersT> ObjectConfigsT;
+	typedef std::map<std::string, ModuleConfigT> ModuleConfigsT;
 
 	XmlFileHandleT mObjectConfigFile;
-	ObjectConfigsT mObjectConfigs;
+	ModuleConfigsT mObjectConfigs;
 };
 
-typedef boost::shared_ptr<ObjectXmlFileHandler> ObjectXmlFileHandlerT;
+typedef boost::shared_ptr<ObjectXml> ObjectXmlT;
 
 } // namespace BFG
 

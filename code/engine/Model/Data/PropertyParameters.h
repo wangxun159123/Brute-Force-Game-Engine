@@ -24,67 +24,55 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BFG_DATA_VALUE_XML_H_
-#define BFG_DATA_VALUE_XML_H_
+#ifndef BFG_PROPERTY_PARAMETERS_H_
+#define BFG_PROPERTY_PARAMETERS_H_
 
-#include <map>
-#include <Core/XmlFileHandle.h>
-#include <Model/Data/PropertyConfig.h>
+#include <Core/XmlTree.h>
+
+#include <Core/v3.h>
+#include <Core/qv4.h>
+
+#include <Model/Data/Interpreter.h>
 
 
 namespace BFG
 {
 
-class ValueXml
+struct PropertyParameters
 {
-
-public:
+	PropertyParameters(XmlTreeT tree)
+	{
+		load(tree);
+	}
 	
-	// This typedef will be used for abstraction in FileHandleFactory.h.
-	typedef PropertyConfigT ReturnT;
-
-	ValueXml(XmlFileHandleT valueConfig) : mValueConfigFile(valueConfig)
-	{
-		load();
-	}
-
-	~ValueXml() {}
-
-	ReturnT create(const std::string& valueName)
-	{
-		ValueMapT::iterator it = mValues.find(valueName);
-
-		if (it == mValues.end())
-		{
-			// return a NULL pointer with boost::shared_ptr type.
-			PropertyConfigT t;
-			t.reset();
-			
-			return t;
-		}
-
-		return it->second;
-	}
+	std::string mName;
+	Property::Value mValue;
 
 protected:
-
-	void load()
-	{
-		XmlTreeListT valueConfigs = mValueConfigFile->root()->child("ValueConfigs")->childList("ValueConfig");
-		XmlTreeListT::iterator it = valueConfigs.begin();
 	
-		for (;it < valueConfigs.end(); ++it)
+	void load(XmlTreeT tree)
+	{
+		
+		mName = tree->attribute("name");
+		std::string type = tree->attribute("type");
+		
+		if (type == "v3")
 		{
-			mValues[(*it)->attribute("name")] = PropertyConfigT(new PropertyConfig((*it)->childList("PV")));
+			mValue = loadVector3(tree);
+		}
+		else 
+		if (type == "qv4")
+		{
+			mValue = loadQuaternion(tree);
+		}
+		else
+		{
+			mValue = Loader::StringToPropertyValue(tree->elementData());
 		}
 	}
-
-	XmlFileHandleT mValueConfigFile;
-	typedef std::map<std::string, PropertyConfigT> ValueMapT;
-	ValueMapT mValues;
 };
 
-typedef boost::shared_ptr<ValueXml> ValueXmlT;
+typedef boost::shared_ptr<PropertyParameters> PropertyParametersT;
 
 }
 

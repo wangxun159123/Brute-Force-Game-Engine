@@ -24,73 +24,19 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CONCEPT_FACTORY_H_
-#define CONCEPT_FACTORY_H_
-
-#include <boost/lexical_cast.hpp>
+#ifndef CONCEPT_XML_H_
+#define CONCEPT_XML_H_
 
 #include <map>
 
-#include <Core/XmlTree.h>
 #include <Core/XmlFileHandle.h>
-
-#include <Core/v3.h>
-#include <Core/qv4.h>
-
-#include <Model/Property/ConceptId.h>
+#include <Model/Data/ConceptConfig.h>
 
 
 namespace BFG
 {
 
-struct ConceptParameter
-{
-	ConceptParameter(XmlTreeT tree)
-	{
-		load(tree);
-	}
-
-	Property::ConceptId mName;
-	std::string mProperties;	
-
-protected:
-	
-	void load(XmlTreeT tree)
-	{
-		mName = tree->attribute("name");
-		mProperties = tree->elementData();
-	}
-};
-typedef boost::shared_ptr<ConceptParameter> ConceptParameterT;
-
-
-struct ConceptConfig
-{
-	ConceptConfig(const XmlTreeListT& treeList)
-	{
-		load(treeList);
-	}
-
-	typedef std::vector<ConceptParameterT> ConceptParameterListT;
-	ConceptParameterListT mConceptParameters;
-
-protected:
-	
-	void load(const XmlTreeListT& treeList)
-	{
-		XmlTreeListT::const_iterator it = treeList.begin();
-
-		for(; it != treeList.end(); ++it)
-		{
-			mConceptParameters.push_back(ConceptParameterT(new ConceptParameter(*it)));
-		}
-	}
-};
-
-typedef boost::shared_ptr<ConceptConfig> ConceptConfigT;
-
-
-class ConceptFactory
+class ConceptXml
 {
 
 public:
@@ -98,7 +44,7 @@ public:
 	// This typedef will be used for abstraction in FileHandleFactory.h.
 	typedef ConceptConfigT ReturnT;
 
-	ConceptFactory(XmlFileHandleT conceptConfig) : mConceptConfigFile(conceptConfig)
+	ConceptXml(XmlFileHandleT conceptConfig) : mConceptConfigFile(conceptConfig)
 	{
 		load();
 	}
@@ -137,7 +83,7 @@ protected:
 	ConceptConfigMapT mConcepts;
 };
 
-typedef boost::shared_ptr<ConceptFactory> ConfigFileHandlerT;
+typedef boost::shared_ptr<ConceptXml> ConfigFileHandlerT;
 
 }
 

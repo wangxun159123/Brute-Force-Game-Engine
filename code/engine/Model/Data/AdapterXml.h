@@ -24,93 +24,26 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ADAPTER_FACTORY_H_
-#define ADAPTER_FACTORY_H_
+#ifndef ADAPTER_XML_H_
+#define ADAPTER_XML_H_
 
-#include <boost/lexical_cast.hpp>
-
-#include <Core/XmlTree.h>
 #include <Core/XmlFileHandle.h>
-
-#include <Core/v3.h>
-#include <Core/qv4.h>
-
+#include <Model/Data/AdapterConfig.h>
 
 namespace BFG
 {
 
-struct AdapterParameters
-{
-	AdapterParameters(XmlTreeT tree)
-	{
-		load(tree);
-	}
-	
-	u32 mId;
-	std::string mName;
-	v3 mPosition;
-	qv4 mOrientation;
-
-protected:
-	
-	void load(XmlTreeT tree)
-	{
-		try
-		{
-			mId = boost::lexical_cast<u32>(tree->attribute("id"));
-			mName = tree->attribute("name");
-
-			mPosition = loadVector3(tree->child("position"));
-			mOrientation = loadQuaternion(tree->child("orientation"));
-		}
-		catch (std::exception& e)
-		{
-			throw std::logic_error(e.what()+std::string(" At AdapterParameters::load(...)"));
-		}
-	}
-};
-
-typedef boost::shared_ptr<AdapterParameters> AdapterParametersT;
-
-struct AdapterConfigParameters
-{
-	AdapterConfigParameters(XmlTreeT tree)
-	{
-		load(tree);
-	}
-	
-	std::string mName;
-	typedef std::vector<AdapterParametersT> AdapterParameterListT;
-	AdapterParameterListT mAdapters;
-	
-protected:
-
-	void load(XmlTreeT tree)
-	{
-		mName = tree->attribute("name");
-		XmlTreeListT childList = tree->childList("Adapter");
-		
-		XmlTreeListT::iterator it = childList.begin();
-		for (;it != childList.end();++it)
-		{
-			mAdapters.push_back(AdapterParametersT(new AdapterParameters(*it)));
-		}
-	}
-};
-
-typedef boost::shared_ptr<AdapterConfigParameters> AdapterConfigParametersT;
-
-class AdapterFactory
+class AdapterXml
 {
 public:
 	
-	AdapterFactory(XmlFileHandleT adapterConfig) : mAdapterConfigFile(adapterConfig)
+	AdapterXml(XmlFileHandleT adapterConfig) : mAdapterConfigFile(adapterConfig)
 	{
 		load();
 	}
 
 	// This typedef will be used for abstraction in FileHandleFactory.h.
-	typedef AdapterConfigParametersT ReturnT;
+	typedef AdapterConfigT ReturnT;
 	
 	ReturnT create(const std::string& adapterConfigName)
 	{
@@ -119,7 +52,7 @@ public:
 		if (it == mAdapterConfigs.end())
 		{
 			// return a NULL pointer with boost::shared_ptr type.
-			AdapterConfigParametersT t;
+			AdapterConfigT t;
 			t.reset();
 			
 			return t;
@@ -137,19 +70,19 @@ protected:
 		
 		for (;it != adapterConfigs.end(); ++it)
 		{
-			mAdapterConfigs[(*it)->attribute("name")] = AdapterConfigParametersT(new AdapterConfigParameters(*it));
+			mAdapterConfigs[(*it)->attribute("name")] = AdapterConfigT(new AdapterConfig(*it));
 		}
 	}
 
 private:
 	
-	typedef std::map<std::string, AdapterConfigParametersT> AdapterConfigsT;
+	typedef std::map<std::string, AdapterConfigT> AdapterConfigsT;
 
 	XmlFileHandleT mAdapterConfigFile;
 	AdapterConfigsT mAdapterConfigs;
 };
 
-typedef boost::shared_ptr<AdapterFactory> AdapterFileHandlerT;
+typedef boost::shared_ptr<AdapterXml> AdapterXmlT;
 
 }
 

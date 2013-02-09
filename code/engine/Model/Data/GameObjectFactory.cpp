@@ -24,13 +24,13 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Model/Loader/GameObjectFactory.h>
+#include <Model/Data/GameObjectFactory.h>
 
 #include <boost/foreach.hpp>
 
 #include <Core/Utils.h> // generateHandle()
 
-#include <Model/Loader/Interpreter.h>
+#include <Model/Data/Interpreter.h>
 #include <Model/Adapter.h>
 #include <Model/Environment.h>
 #include <Model/GameObject.h>
@@ -89,13 +89,13 @@ GameObjectFactory::createGameObject(const ObjectParameter& parameter)
 	// previously created modules.
 	std::map<std::string, GameHandle> moduleNameHandleMap;
 
-	ObjectConfigParametersT modules = mModuleParameters.requestConfig(parameter.mType);
+	ModuleConfigT modules = mModuleParameters.requestConfig(parameter.mType);
 
 	if (!modules)
 		throw std::runtime_error("GameObjectFactory::createGameObject(): "
 			"Type \"" + parameter.mType + "\" not found!");
 
-	ObjectConfigParameters::ModulesT::iterator moduleIt = modules->mModules.begin();
+	ModuleConfig::ModulesT::iterator moduleIt = modules->mModules.begin();
 	
 	for (; moduleIt != modules->mModules.end(); ++moduleIt)
 	{
@@ -163,14 +163,14 @@ GameObjectFactory::createGameObject(const ObjectParameter& parameter)
 
 		for (; conceptIt != conceptParameter->mConceptParameters.end(); ++conceptIt)
 		{
-			ConceptParameterT conceptParameter = *conceptIt;
+			ConceptParametersT conceptParameter = *conceptIt;
 			
-			ValueConfigT valueConfig = mValueParameters.requestConfig(conceptParameter->mProperties);
-			ValueConfig::ValueParameterListT::iterator valueIt = valueConfig->mValueParameters.begin();
+			PropertyConfigT valueConfig = mValueParameters.requestConfig(conceptParameter->mProperties);
+			PropertyConfig::PropertyParametersListT::iterator valueIt = valueConfig->mValueParameters.begin();
 
 			for (; valueIt != valueConfig->mValueParameters.end(); ++valueIt)
 			{
-				ValueParameterT valueParameter = *valueIt;
+				PropertyParametersT valueParameter = *valueIt;
 				ValueId vId = Property::symbolToValueId(valueParameter->mName, mPropertyPlugins);
 				module->mValues[vId] = valueParameter->mValue;
 			}
@@ -223,8 +223,8 @@ GameObjectFactory::createGameObject(const ObjectParameter& parameter)
 
 			if (!moduleParameter->mAdapter.empty())
 			{
-				AdapterConfigParametersT adapterParameter = mAdapterParameters.requestConfig(moduleParameter->mAdapter);
-				AdapterConfigParameters::AdapterParameterListT::iterator adapterIt = adapterParameter->mAdapters.begin();
+				AdapterConfigT adapterParameter = mAdapterParameters.requestConfig(moduleParameter->mAdapter);
+				AdapterConfig::AdapterParameterListT::iterator adapterIt = adapterParameter->mAdapters.begin();
 
 				for (; adapterIt != adapterParameter->mAdapters.end(); ++adapterIt)
 				{

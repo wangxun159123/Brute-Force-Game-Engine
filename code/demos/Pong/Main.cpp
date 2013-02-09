@@ -50,10 +50,10 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Core/Utils.h>
 #include <Model/Environment.h>
 #include <Model/GameObject.h>
-#include <Model/Loader/GameObjectFactory.h>
-#include <Model/Loader/Interpreter.h>
+#include <Model/Data/GameObjectFactory.h>
+#include <Model/Data/Interpreter.h>
 #include <Model/Sector.h>
-#include <Model/Loader/Types.h>
+#include <Model/Data/Types.h>
 #include <Model/Interface.h>
 #include <Model/Property/Concept.h>
 #include <Model/Property/Plugin.h>

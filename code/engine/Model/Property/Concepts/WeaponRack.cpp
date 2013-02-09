@@ -33,7 +33,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Model/Events/SectorEvent.h>
 #include <Model/Events/GameObjectEvent.h>
 
-#include <Model/Loader/Types.h>
+#include <Model/Data/Types.h>
 #include <Model/Environment.h>
 
 namespace BFG {

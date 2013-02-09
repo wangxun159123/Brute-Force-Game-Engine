@@ -38,7 +38,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Base/Interpolate.h>
 #include <Model/Waypoint.h>
 #include <Model/Property/Concept.h>
-#include <Model/Loader/Interpreter.h>
+#include <Model/Data/Interpreter.h>
 #include <Core/XmlTree.h>
 
 namespace BFG {

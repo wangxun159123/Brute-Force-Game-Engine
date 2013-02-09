@@ -8,9 +8,9 @@
 #define BOOST_TEST_MODULE LoaderTest
 #include <boost/test/unit_test.hpp>
 
-#include <Model/Loader/AdapterFactory.h>
-#include <Model/Loader/ValueFactory.h>
-#include <Model/Loader/ConceptFactory.h>
+#include <Model/Data/AdapterXml.h>
+#include <Model/Data/ValueXml.h>
+#include <Model/Data/ConceptXml.h>
 
 namespace BFG {
 namespace Test {
@@ -173,8 +173,8 @@ BOOST_AUTO_TEST_CASE (defaultAdapter)
 	XmlFileHandleT fileHandle = XmlFileHandleFactory::createWithPugiXml(xml_test_file_path);
 	BOOST_REQUIRE_NO_THROW
 	(
-		AdapterFactory factory = AdapterFactory(fileHandle);
-		AdapterConfigParametersT acp = factory.create("CubeAllAdapters")
+		AdapterXml factory = AdapterXml(fileHandle);
+		AdapterConfigT acp = factory.create("CubeAllAdapters")
 	);
 }
 
@@ -187,8 +187,8 @@ BOOST_AUTO_TEST_CASE (defaultValuesTest)
 	XmlFileHandleT fileHandle = XmlFileHandleFactory::createWithPugiXml(xml_test_file_path);
 	BOOST_REQUIRE_NO_THROW
 	(
-		ValueFactory factory = ValueFactory(fileHandle);
-		ValueConfigT vcp = factory.create("ExplodeOnContact")
+		ValueXml factory = ValueXml(fileHandle);
+		PropertyConfigT vcp = factory.create("ExplodeOnContact")
 	);
 }
 
@@ -202,7 +202,7 @@ BOOST_AUTO_TEST_CASE (defaultConceptsTest)
 	XmlFileHandleT fileHandle = XmlFileHandleFactory::createWithPugiXml(xml_test_file_path);
 	BOOST_REQUIRE_NO_THROW
 	(
-		ConceptFactory factory = ConceptFactory(fileHandle);
+		ConceptXml factory = ConceptXml(fileHandle);
 		ConceptConfigT vcp = factory.create("CubeConcept")
 	);
 }

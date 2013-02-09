@@ -30,7 +30,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Model/Events/SectorEvent.h>
 #include <Model/GameObject.h>
-#include <Model/Loader/GameObjectFactory.h>
+#include <Model/Data/GameObjectFactory.h>
 
 #include <Physics/Event.h>
 #include <View/Event.h>
