@@ -6,8 +6,8 @@ FILE(GLOB Model_Root_HEADERS *.h *.hh)
 FILE(GLOB Model_Root_SOURCES *.cpp)
 FILE(GLOB Model_Events_HEADERS Events/*.h)
 FILE(GLOB Model_Events_SOURCES Events/*.cpp)
-FILE(GLOB Model_Loader_HEADERS Loader/*.h)
-FILE(GLOB Model_Loader_SOURCES Loader/*.cpp)
+FILE(GLOB Model_Data_HEADERS Data/*.h)
+FILE(GLOB Model_Data_SOURCES Data/*.cpp)
 FILE(GLOB Model_Property_HEADERS Property/*.h)
 FILE(GLOB Model_Property_SOURCES Property/*.cpp)
 FILE(GLOB Model_Concepts_HEADERS Property/Concepts/*.h)
@@ -16,7 +16,7 @@ FILE(GLOB Model_Concepts_SOURCES Property/Concepts/*.cpp)
 FILE(GLOB Model_SOURCES
 	${Model_Root_SOURCES}
 	${Model_Events_SOURCES}
-	${Model_Loader_SOURCES}
+	${Model_Data_SOURCES}
 	${Model_Property_SOURCES}
 	${Model_Concepts_SOURCES}
 	*.xml
@@ -25,14 +25,14 @@ FILE(GLOB Model_SOURCES
 FILE(GLOB Model_HEADERS
 	${Model_Root_HEADERS}
 	${Model_Events_HEADERS}
-	${Model_Loader_HEADERS}
+	${Model_Data_HEADERS}
 	${Model_Property_HEADERS}
 	${Model_Concepts_HEADERS}
 )
 
 SOURCE_GROUP("." FILES ${Model_Root_HEADERS} ${Model_Root_SOURCES})
 SOURCE_GROUP("Events" FILES ${Model_Events_HEADERS} ${Model_Events_SOURCES})
-SOURCE_GROUP("Loader" FILES ${Model_Loader_HEADERS} ${Model_Loader_SOURCES})
+SOURCE_GROUP("Data" FILES ${Model_Data_HEADERS} ${Model_Data_SOURCES})
 SOURCE_GROUP("Model" FILES ${Model_Model_HEADERS} ${Model_Model_SOURCES})
 SOURCE_GROUP("Property" FILES ${Model_Property_HEADERS} ${Model_Property_SOURCES})
 SOURCE_GROUP("Property\\Concepts" FILES ${Model_Concepts_HEADERS} ${Model_Concepts_SOURCES})
@@ -95,8 +95,8 @@ INSTALL(FILES ${Model_Events_HEADERS}
 	COMPONENT devel
 )
 
-INSTALL(FILES ${Model_Loader_HEADERS}
-	DESTINATION "${BFG_PACKAGE_INCLUDE_DIR}/Loader"
+INSTALL(FILES ${Model_Data_HEADERS}
+	DESTINATION "${BFG_PACKAGE_INCLUDE_DIR}/Data"
 	COMPONENT devel
 )
 
