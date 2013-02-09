@@ -32,6 +32,30 @@ BOOST_AUTO_TEST_CASE (loadFile)
 }
 
 
+BOOST_AUTO_TEST_CASE (EditAndSaveFile)
+{
+    BOOST_TEST_MESSAGE("Function XmlTree::elementList(..) and XmlTree::child(...) .");
+
+    Path path;
+    std::string xml_test_file_path = "";
+    xml_test_file_path = path.Expand("LoaderTest.xml");
+
+    XmlFileHandleT fileHandle = XmlFileHandleFactory::createWithPugiXml(xml_test_file_path);
+
+    XmlTreeT root;
+    root = fileHandle->root()->child("root");
+    XmlTreeListT elements;
+
+	XmlTreeT newElement;
+    BOOST_REQUIRE_NO_THROW(newElement = root->addElement("AddedElement", "A new element was born!"));
+	BOOST_REQUIRE(newElement);
+	BOOST_REQUIRE_NO_THROW(fileHandle->save());
+
+	BOOST_REQUIRE_NO_THROW(root->removeElement("AddedElement"));
+	BOOST_REQUIRE_NO_THROW(fileHandle->save());
+}
+
+
 BOOST_AUTO_TEST_CASE (elementList)
 {
     BOOST_TEST_MESSAGE("Function XmlTree::elementList(..) and XmlTree::child(...) .");
@@ -135,6 +159,10 @@ BOOST_AUTO_TEST_CASE (defaultConceptsTest)
 		ConceptConfigT vcp = factory.create("CubeConcept")
 	);
 }
+
+
+
+
 
 } // BFG
 } // Test
