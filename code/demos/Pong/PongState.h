@@ -38,7 +38,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Controller/ControllerEvents.h>
 #include <Controller/Interface.h>
 
-#include <Model/Data/Types.h>
 #include <Model/Data/GameObjectFactory.h>
 
 #include <Model/Environment.h>

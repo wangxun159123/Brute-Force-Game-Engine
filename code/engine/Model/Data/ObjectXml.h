@@ -29,7 +29,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <map>
 
-#include <Model/Data/Types.h>
 #include <Model/Data/Connection.h>
 #include <Model/Property/Plugin.h>
 
