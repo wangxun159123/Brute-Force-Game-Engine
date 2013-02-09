@@ -29,14 +29,14 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 namespace BFG {
 
-	XmlTreeT PugiXmlTree::child(const std::string& name)
+	XmlTreeT PugiXmlTree::child(const std::string& name) const
 	{
 		pugi::xml_node node = mXmlNode.child(name.c_str());
 		return XmlTreeT(new PugiXmlTree(node));
 	}
 
 
-	XmlTreeListT PugiXmlTree::childList(const std::string& name)
+	XmlTreeListT PugiXmlTree::childList(const std::string& name) const
 	{
 		XmlTreeListT treeList;
 
@@ -49,13 +49,13 @@ namespace BFG {
 	}
 
 
-	std::string PugiXmlTree::attribute(const std::string& name)
+	std::string PugiXmlTree::attribute(const std::string& name) const
 	{
 		return mXmlNode.attribute(name.c_str()).value();
 	}
 
 
-    std::string PugiXmlTree::elementData()
+    std::string PugiXmlTree::elementData() const
     {
         return mXmlNode.text().get();
     }

@@ -44,11 +44,11 @@ class BFG_CORE_API XmlTree
 
 public:
 
-	virtual XmlTreeT child(const std::string& name) = 0;
-    virtual XmlTreeListT childList(const std::string& name) = 0;
-	virtual std::string attribute(const std::string& name) = 0;
+	virtual XmlTreeT child(const std::string& name) const = 0;
+    virtual XmlTreeListT childList(const std::string& name) const = 0;
+	virtual std::string attribute(const std::string& name) const = 0;
     
-	virtual std::string elementData() = 0;
+	virtual std::string elementData() const = 0;
 	virtual void editElementData(const std::string& value) = 0;
 	virtual void editAttributeData(const std::string& name, const std::string& value) = 0;
 

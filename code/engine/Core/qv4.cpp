@@ -85,4 +85,19 @@ qv4 loadQuaternion(XmlTreeT tree)
 	}
 }
 
+BFG_CORE_API void saveQuaternion(const qv4& in, XmlTreeT parentNode)
+{
+	try
+	{
+		parentNode->addElement("w", boost::lexical_cast<std::string>(in.w));
+		parentNode->addElement("x", boost::lexical_cast<std::string>(in.x));
+		parentNode->addElement("y", boost::lexical_cast<std::string>(in.y));
+		parentNode->addElement("z", boost::lexical_cast<std::string>(in.z));
+	}
+	catch(std::exception e)
+	{
+		throw std::logic_error(e.what()+std::string(" At saveQuaternion(...)"));
+	}
+}
+
 } // namespace BFG

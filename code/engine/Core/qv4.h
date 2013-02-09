@@ -282,6 +282,7 @@ std::ostream& operator << (std::ostream& o, const quaternion4<T>& q)
 BFG_CORE_API void stringToQuaternion4(const std::string& input, qv4& output);
 
 BFG_CORE_API qv4 loadQuaternion(XmlTreeT tree);
+BFG_CORE_API void saveQuaternion(const qv4& in, XmlTreeT parentNode);
 
 } // namespace BFG
 
