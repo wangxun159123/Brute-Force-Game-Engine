@@ -19,7 +19,10 @@ INCLUDE_DIRECTORIES(.)	# For subdirectories
 
 ADD_EXECUTABLE(bfgLoaderTest ${SOURCES} ${HEADERS})
 
-ADD_TEST(NAME LoaderTest COMMAND bfgLoaderTest)
+ADD_TEST(NAME LoaderTest
+	WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/bin/Testing"
+	COMMAND bfgLoaderTest
+)
 
 SET_TARGET_PROPERTIES(bfgLoaderTest PROPERTIES OUTPUT_NAME_DEBUG "bfgLoaderTest_d")
 
