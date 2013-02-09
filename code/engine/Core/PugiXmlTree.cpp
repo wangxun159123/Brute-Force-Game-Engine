@@ -67,20 +67,33 @@ namespace BFG {
 	}
 
 
-    XmlTreeT PugiXmlTree::addElement(const std::string& name, const std::string& value)
+    void PugiXmlTree::editAttributeData(const std::string& name, const std::string& value)
+	{
+		pugi::xml_attribute attribute = mXmlNode.attribute(name.c_str());
+		
+		if (attribute)
+			attribute.set_value(value.c_str());
+		else
+			throw std::logic_error("No attribute found with name: "+name);
+	}
+	
+	
+	XmlTreeT PugiXmlTree::addElement(const std::string& name, const std::string& value)
+	{
+		XmlTreeT node = addElement(name);
+		node->editElementData(value);
+		
+		return node;
+	}
+
+
+	XmlTreeT PugiXmlTree::addElement(const std::string& name)
 	{
 		pugi::xml_node node = mXmlNode.append_child();
 		
 		if (!node.set_name(name.c_str()))
 		{
 			throw std::logic_error("Could not set name for new XML Node. At PugiXmlTree::addElement(...)");
-		}
-		
-		pugi::xml_node data = node.append_child(pugi::node_pcdata);
-
-		if (!data.set_value(value.c_str()))
-		{
-			throw std::logic_error("Could not set element value for new XML Node. At PugiXmlTree::addElement(...)");
 		}
 
 		return XmlTreeT(new PugiXmlTree(node));

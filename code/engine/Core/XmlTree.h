@@ -50,8 +50,10 @@ public:
     
 	virtual std::string elementData() = 0;
 	virtual void editElementData(const std::string& value) = 0;
+	virtual void editAttributeData(const std::string& name, const std::string& value) = 0;
 
-    virtual XmlTreeT addElement(const std::string& name, const std::string& value) = 0;
+    virtual XmlTreeT addElement(const std::string& name) = 0;
+	virtual XmlTreeT addElement(const std::string& name, const std::string& value) = 0;
 	virtual void addAttribute(const std::string& name, const std::string& value) = 0;
 
 	virtual void removeElement(const std::string& name) = 0;

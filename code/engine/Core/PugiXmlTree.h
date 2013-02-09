@@ -47,7 +47,9 @@ public:
     //! \return Returns an empty string if element has no data.
     std::string elementData();
 	void editElementData(const std::string& value);
+	void editAttributeData(const std::string& name, const std::string& value);
 
+	XmlTreeT addElement(const std::string& name);
 	XmlTreeT addElement(const std::string& name, const std::string& value);
 	void addAttribute(const std::string& name, const std::string& value);
 
