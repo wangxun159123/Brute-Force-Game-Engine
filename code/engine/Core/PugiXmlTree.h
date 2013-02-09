@@ -44,7 +44,7 @@ public:
 	XmlTreeListT childList(const std::string& name);
 	std::string attribute(const std::string& name);
 
-    //! \return An empty string if element has no data.
+    //! \return Returns an empty string if element has no data.
     std::string elementData();
 
 	XmlTreeT addElement(const std::string& name, const std::string& value);
