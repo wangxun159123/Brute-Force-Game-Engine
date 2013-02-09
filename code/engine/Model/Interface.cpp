@@ -42,9 +42,6 @@ Base::IEntryPoint* ModelInterface::getEntryPoint()
 void* ModelInterface::startModel(void* ptr)
 {
 	assert(ptr && "ModelInterface: EventLoop pointer invalid!");
-
-	EventLoop* loop = reinterpret_cast<EventLoop*>(ptr);
-
 	return 0;
 }
 

@@ -230,8 +230,8 @@ void CameraControl::resize()
 
 	for (size_t i = 0; i < 4; ++i)
 	{
-		int x = i%2 ? panelSize.width : 0;
-		int y = i>1 ? panelSize.height : 0;
+		int x = (i%2) ? panelSize.width : 0;
+		int y = (i>1) ? panelSize.height : 0;
 
 		mViews[i]->setSize(panelSize);
 		mViews[i]->setPosition(x, y);

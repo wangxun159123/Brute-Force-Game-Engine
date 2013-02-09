@@ -65,13 +65,13 @@ v3 loadVector3(XmlTreeT tree)
 		std::string y = tree->child("y")->elementData();
 		std::string z = tree->child("z")->elementData();
 
-		return v3(boost::lexical_cast<f32>(x), 
-				  boost::lexical_cast<f32>(y),
-				  boost::lexical_cast<f32>(z));
+		return v3(boost::lexical_cast<f32>(x),
+		          boost::lexical_cast<f32>(y),
+		          boost::lexical_cast<f32>(z));
 	}
-	catch (std::exception e)
+	catch (std::exception& e)
 	{
-		throw std::logic_error(e.what()+std::string(" At loadVector3(...)"));
+		throw std::logic_error(e.what() + std::string(" At loadVector3(...)"));
 	}
 }
 

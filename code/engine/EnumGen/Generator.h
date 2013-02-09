@@ -566,8 +566,6 @@ namespace Generator
 
 		for (; it != Everything.end(); ++it)
 		{
-			std::string LastNamespace;
-
 			if (! it->mMeta.Namespace.empty())
 			{
 				Gen::Namespace(resultHeader, it->mMeta.Namespace, Gen::BEGIN);

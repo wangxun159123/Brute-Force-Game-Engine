@@ -42,11 +42,10 @@ Triggers::~Triggers()
 
 void Triggers::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 {
+	assert(! "TODO: Send new event");
+#if 0
 	const Location& go = getGoValue<Location>(ID::PV_Location, pluginId());
 
-	assert(! "TODO: Send new event");
-
-#if 0
 	emit<Trigger::Event>
 	(
 		ID::TE_CHECK_LOCATION,
@@ -54,7 +53,6 @@ void Triggers::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 		go.position
 	);
 #endif
-
 }
 
 } // namespace BFG

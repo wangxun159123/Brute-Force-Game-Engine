@@ -75,13 +75,13 @@ qv4 loadQuaternion(XmlTreeT tree)
 		std::string z = tree->child("z")->elementData();
 
 		return qv4(boost::lexical_cast<f32>(w),
-				   boost::lexical_cast<f32>(x),
-				   boost::lexical_cast<f32>(y),
-				   boost::lexical_cast<f32>(z));
+		           boost::lexical_cast<f32>(x),
+		           boost::lexical_cast<f32>(y),
+		           boost::lexical_cast<f32>(z));
 	}
-	catch (std::exception e)
+	catch (std::exception& e)
 	{
-		throw std::logic_error(e.what()+std::string(" At loadQuaternion(...)"));
+		throw std::logic_error(e.what() + std::string(" At loadQuaternion(...)"));
 	}
 }
 
