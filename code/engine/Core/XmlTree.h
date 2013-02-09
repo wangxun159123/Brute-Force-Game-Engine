@@ -53,6 +53,7 @@ public:
 	virtual void addAttribute(const std::string& name, const std::string& value) = 0;
 
 	virtual void removeElement(const std::string& name) = 0;
+	virtual void removeAttribute(const std::string& name) = 0;
 };
 
 } // namespace BFG

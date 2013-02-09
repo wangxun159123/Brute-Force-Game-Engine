@@ -51,6 +51,7 @@ public:
 	void addAttribute(const std::string& name, const std::string& value);
 
 	void removeElement(const std::string& name);
+	void removeAttribute(const std::string& name);
 
 private:
 

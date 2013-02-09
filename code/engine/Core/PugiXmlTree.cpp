@@ -35,6 +35,7 @@ namespace BFG {
 		return XmlTreeT(new PugiXmlTree(node));
 	}
 
+
 	XmlTreeListT PugiXmlTree::childList(const std::string& name)
 	{
 		XmlTreeListT treeList;
@@ -47,15 +48,18 @@ namespace BFG {
 		return treeList;
 	}
 
+
 	std::string PugiXmlTree::attribute(const std::string& name)
 	{
 		return mXmlNode.attribute(name.c_str()).value();
 	}
 
+
     std::string PugiXmlTree::elementData()
     {
         return mXmlNode.text().get();
     }
+
 
     XmlTreeT PugiXmlTree::addElement(const std::string& name, const std::string& value)
 	{
@@ -76,16 +80,27 @@ namespace BFG {
 		return XmlTreeT(new PugiXmlTree(node));
 	}
 
+
 	void PugiXmlTree::addAttribute(const std::string& name, const std::string& value)
 	{
 		mXmlNode.append_attribute(name.c_str()).set_value(value.c_str());
 	}
+
 
 	void PugiXmlTree::removeElement(const std::string& name)
 	{
 		if (!mXmlNode.remove_child(name.c_str()))
 		{
 			throw std::logic_error("No such element \'"+name+"\' found. At PugiXmlTree::removeElement.");
+		}
+	}
+
+
+	void PugiXmlTree::removeAttribute(const std::string& name)
+	{
+		if (!mXmlNode.remove_attribute(name.c_str()))
+		{
+			throw std::logic_error("No such attribute \'"+name+"\' found. At PugiXmlTree::removeAttribute.");
 		}
 	}
 
