@@ -348,7 +348,7 @@ struct ServerState: public SynchronizationTestState
 			onDisconnected(peerId);
 			break;
 		}
-		}
+	}
 
 	}
 
