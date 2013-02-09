@@ -229,6 +229,8 @@ std::ostream& operator << (std::ostream& lhs, const vector3<T>& rhs)
 BFG_CORE_API void stringToVector3(const std::string& input, v3& output);
 
 BFG_CORE_API v3 loadVector3(XmlTreeT tree);
+BFG_CORE_API void saveVector3(const v3& in, XmlTreeT parentNode);
+
 
 } // namespace BFG
 

@@ -75,4 +75,11 @@ v3 loadVector3(XmlTreeT tree)
 	}
 }
 
+BFG_CORE_API void saveVector3(const v3& in, XmlTreeT parentNode)
+{
+	parentNode->addElement("x", boost::lexical_cast<std::string>(in.x));
+	parentNode->addElement("y", boost::lexical_cast<std::string>(in.y));
+	parentNode->addElement("z", boost::lexical_cast<std::string>(in.z));
+}
+
 } // namespace BFG

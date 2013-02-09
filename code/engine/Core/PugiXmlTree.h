@@ -39,13 +39,13 @@ class BFG_CORE_API PugiXmlTree : public XmlTree
 
 public:
 
-	XmlTreeT child(const std::string& name);
+	XmlTreeT child(const std::string& name) const;
 
-	XmlTreeListT childList(const std::string& name);
-	std::string attribute(const std::string& name);
+	XmlTreeListT childList(const std::string& name) const;
+	std::string attribute(const std::string& name) const;
 
     //! \return Returns an empty string if element has no data.
-    std::string elementData();
+    std::string elementData() const;
 	void editElementData(const std::string& value);
 	void editAttributeData(const std::string& name, const std::string& value);
 
