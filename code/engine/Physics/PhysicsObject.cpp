@@ -28,9 +28,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/foreach.hpp>
 
-#include <ode/../../ode/src/objects.h>   // for debugOutput()
-#include <ode/../../ode/src/collision_kernel.h>   // for debugOutput()
-
 #include <Base/Interpolate.h>
 #include <Base/Logger.h>
 
@@ -440,7 +437,7 @@ void PhysicsObject::debugOutput(std::string& output) const
 	ss << "AngularDamp: " << dBodyGetAngularDamping(mOdeBody) << "\n";
 	ss << "NumJoints: " << dBodyGetNumJoints(mOdeBody) << "\n";
 	ss << "WorldID: " << dBodyGetWorld(mOdeBody) << "\n";
-	ss << "Flags: " << mOdeBody->flags << "\n";
+	//ss << "Flags: " << mOdeBody->flags << "\n";
 
 	ss << "\n";
 	ss << "Geoms:\n";
@@ -470,7 +467,7 @@ void PhysicsObject::debugOutput(std::string& output) const
 		ss << "OffsetPos: " << odeVectorOut(dGeomGetOffsetPosition (gIt)) << "\n";
 		dGeomGetOffsetQuaternion (gIt, quat);
 		ss << "OffsetOri: " << odeVectorOut(quat) << "\n";
-		ss << "Flags: " << gIt->gflags << "\n";
+		//ss << "Flags: " << gIt->gflags << "\n";
 		dGeomGetAABB(gIt, aabb);
 		ss << "AABB (minx, maxx, miny, maxy, minz, maxz):\n";
 		ss << "(" 

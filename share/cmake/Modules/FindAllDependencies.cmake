@@ -42,6 +42,19 @@ MACRO(FIND_ALL_DEPENDENCIES)
 		LOG_FATAL("Unknown error or a not supported OS")
 	ENDIF(WIN32)
 
+	# ----#
+	# ODE #
+	# ----#
+
+	IF(WIN32)
+	ELSEIF(UNIX)
+		FIND_PACKAGE(ODE REQUIRED)
+	ELSEIF (APPLE)
+		LOG_FATAL("Apple support is not implemented yet")
+	ELSE (WIN32)
+		LOG_FATAL("Unknown error or a not supported OS")
+	ENDIF(WIN32)
+
 	# ---------- #
 	# libSndFile #
 	# ---------- #

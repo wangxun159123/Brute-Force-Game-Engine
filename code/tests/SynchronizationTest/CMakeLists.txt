@@ -26,6 +26,13 @@ ADD_EXECUTABLE(bfgSynchronizationTest ${SOURCES} ${HEADERS})
 SET_TARGET_PROPERTIES(bfgSynchronizationTest PROPERTIES OUTPUT_NAME_DEBUG "bfgSynchronizationTest_d")
 
 TARGET_LINK_LIBRARIES(bfgSynchronizationTest
+	${BoostLog_LIBRARIES}
+	${Boost_LIBRARIES}
+	${MYGUI_LIBRARIES}
+	${MYGUI_OGRE_LIBRARIES}
+	${ODE_LIBRARY}
+	${OGRE_LIBRARIES}
+	${OIS_LIBRARIES}
 	bfgBase
 	bfgController
 	bfgCore
@@ -34,13 +41,6 @@ TARGET_LINK_LIBRARIES(bfgSynchronizationTest
 	bfgNetwork
 	bfgPhysics
 	bfgView
-	${BoostLog_LIBRARIES}
-	${Boost_LIBRARIES}
-	${OIS_LIBRARIES}
-	${OGRE_LIBRARIES}
-	${MYGUI_LIBRARIES}
-	${MYGUI_OGRE_LIBRARIES}
-	ode
 )
 
 INSTALL(TARGETS bfgSynchronizationTest

@@ -67,7 +67,9 @@ function prelude
 		libfreetype6-dev \
 		libglu-dev       \
 		libxaw7-dev      \
-		libzzip-dev
+		libzzip-dev      \
+		libtool          \
+		automake
 
 	/bin/mkdir -p $PREFIX
 
@@ -266,13 +268,13 @@ Description: Developer package (dependencies) for the Brute Force Game Engine" >
 # Do it
 ########
 
-prelude
-buildBoost
-buildBoostLog
+#prelude
+#buildBoost
+#buildBoostLog
 #buildOpenAL  (unnecessary: debian package is fine)
-buildOgre
-buildMyGUI
-buildPugiXml
+#buildOgre
+#buildMyGUI
+#buildPugiXml
 buildOde
 makePackage
 postlude

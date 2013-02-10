@@ -39,12 +39,12 @@ ADD_LIBRARY(bfgPhysics SHARED ${PHYSICS_FILES})
 SET_TARGET_PROPERTIES(bfgPhysics PROPERTIES OUTPUT_NAME_DEBUG "bfgPhysics_d")
 
 TARGET_LINK_LIBRARIES(bfgPhysics
-	${Boost_LIBRARIES}
 	${BoostLog_LIBRARIES}
-	ode
+	${Boost_LIBRARIES}
+	${ODE_LIBRARY}
 	bfgBase
-	bfgEventCore
 	bfgCore
+	bfgEventCore
 	bfgView              # View::loadMesh()
 )
 
