@@ -48,7 +48,7 @@ mOutPacketPosition(0)
 {
 	// Check case of accidental integer overflow for when mOutPacketPosition
 	// might become smaller than one of the packet buffers.
-	BOOST_STATIC_ASSERT(( PACKET_MTU <= std::numeric_limits<BOOST_TYPEOF(mOutPacketPosition)>::max() ));
+	assert(PACKET_MTU <= std::numeric_limits<BOOST_TYPEOF(mOutPacketPosition)>::max());
 	
 	mSocket.reset(new SocketT(service));
 	mTimer.reset(new boost::asio::deadline_timer(service));
