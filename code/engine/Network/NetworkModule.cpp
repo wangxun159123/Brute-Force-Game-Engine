@@ -26,6 +26,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Network/NetworkModule.h>
 
+#include <boost/typeof/typeof.hpp>
 #include <Network/Enums.hh>
 #include <Network/Event.h>
 
@@ -45,6 +46,10 @@ mLocalTime(localTime),
 mRoundTripTimer(Clock::milliSecond),
 mOutPacketPosition(0)
 {
+	// Check case of accidental integer overflow for when mOutPacketPosition
+	// might become smaller than one of the packet buffers.
+	BOOST_STATIC_ASSERT(( PACKET_MTU <= std::numeric_limits<BOOST_TYPEOF(mOutPacketPosition)>::max() ));
+	
 	mSocket.reset(new SocketT(service));
 	mTimer.reset(new boost::asio::deadline_timer(service));
 }
@@ -294,7 +299,8 @@ void NetworkModule::onSend(DataPayload& payload)
 
 	size_t requiredSize = s.dataSize + sizeof(Segment);
 	size_t sizeLeft = mBackPacket.size() - mOutPacketPosition;
-	if (requiredSize < sizeLeft)
+
+	if (requiredSize <= sizeLeft)
 	{
 		boost::mutex::scoped_lock scoped_lock(mPacketMutex);
 		memcpy(&mBackPacket[mOutPacketPosition], &s, sizeof(Segment));
