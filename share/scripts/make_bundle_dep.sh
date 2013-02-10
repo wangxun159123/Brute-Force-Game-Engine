@@ -22,10 +22,10 @@ PREFIX=$PACKAGE/usr
 CPUS=`grep -c processor /proc/cpuinfo`
 JOBS=`echo $CPUS + 1 | $BC`
 VERSION="0.3.0"
-DEBIAN_ARCH="i386"
-#DEBIAN_ARCH="amd64"
+DEBIAN_ARCH="`dpkg --print-architecture`"
 
 USER_AGENT='Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.1.16) Gecko/20120421 Firefox/11.0'
+
 BOOST_URL='http://garr.dl.sourceforge.net/project/boost/boost/1.47.0/boost_1_47_0.tar.bz2'
 OGRE_URL="http://garr.dl.sourceforge.net/project/ogre/ogre/1.7/ogre_src_v1-7-3.tar.bz2"
 PUGIXML_URL="https://pugixml.googlecode.com/files/pugixml-1.2.tar.gz"
@@ -40,6 +40,7 @@ PUGIXML_DIR='pugixml-1.2'
 BOOST_LOG_REV='607'
 BOOST_GEOMETRY_EXTENSIONS_REV='77829'
 MYGUI_REV='4431'
+ODE_REV='1727'
 
 # Make sure only root can run our script
 if [ "$(id -u)" != "0" ]; then
@@ -60,7 +61,6 @@ function prelude
 		libois-dev       \
 		libzip-dev       \
 		libbz2-dev       \
-#		libcg            \
 		libgl1-mesa-dev  \
 		libxrandr-dev    \
 		libfreeimage-dev \
@@ -79,12 +79,16 @@ function prelude
 	$SVN export -r $BOOST_LOG_REV https://boost-log.svn.sourceforge.net/svnroot/boost-log/trunk/boost-log boost-log
 	$SVN export -r $MYGUI_REV https://my-gui.svn.sourceforge.net/svnroot/my-gui/trunk my-gui
 	#$SVN export svn://connect.creativelabs.com/OpenAL/trunk OpenAL
+	$SVN export -r $ODE_REV svn://svn.code.sf.net/p/opende/code/trunk ode
 
 	echo "Unpacking $BOOST_FILENAME ..."
 	$TAR -xjf $BOOST_FILENAME
 
 	echo "Adding Boost.Geometry arithmetic extension ..."
 	$SVN export -r $BOOST_GEOMETRY_EXTENSIONS_REV http://svn.boost.org/svn/boost/trunk/boost/geometry/extensions $BOOST_DIR/boost/geometry/extensions
+
+	echo "Applying local-transform.patch to ODE"
+	(cd ode && exec patch -p0 < ../../../../thirdparty/local-transform.patch)
 
 	echo "Unpacking $OGRE_FILENAME ..."
 	$TAR -xjf $OGRE_FILENAME
@@ -94,11 +98,6 @@ function prelude
 	/bin/tar -C $PUGIXML_DIR -xzf $PUGIXML_FILENAME
 
 	/bin/cp -r boost-log/* $BOOST_DIR
-
-	# Bjam
-	cd $BOOST_DIR
-	./bootstrap.sh
-	cd ..
 }
 
 function postlude
@@ -113,6 +112,9 @@ function postlude
 function buildBoost
 {
 	cd $BOOST_DIR
+
+	./bootstrap.sh
+
 	./b2                               \
 		--with-date_time           \
 		--with-filesystem          \
@@ -216,6 +218,20 @@ function buildPugiXml
 	cd ..
 }
 
+# Build ODE
+############
+
+function buildOde
+{
+	# Out-of-source build is not possible
+	cd ode
+	./autogen.sh
+	./configure --prefix="`pwd`/../$PREFIX"
+	make -j$JOBS install
+	cd ..
+}
+
+
 # MD5SUMS
 ##########
 
@@ -237,7 +253,7 @@ Priority: optional
 Architecture: $DEBIAN_ARCH
 Depends: libsndfile-dev, libopenal-dev, libasound-dev, libois-dev, uuid-dev, libbz2-dev, libzip-dev, libbz2-dev, libfreeimage-dev, libzzip-dev
 Suggests: doxygen, cmake
-Conflicts: libboost-dev, libogre-dev
+Conflicts: libboost-dev, libogre-dev, libode-dev, libode-sp-dev
 Installed-Size: `du -s $PREFIX | perl -pe 's#[\t]+.+##g'` 
 Maintainer: Sascha Wittkowski <w177us@gmail.com>
 Description: Developer package (dependencies) for the Brute Force Game Engine" > $PACKAGE/DEBIAN/control
@@ -257,6 +273,6 @@ buildBoostLog
 buildOgre
 buildMyGUI
 buildPugiXml
+buildOde
 makePackage
 postlude
-
