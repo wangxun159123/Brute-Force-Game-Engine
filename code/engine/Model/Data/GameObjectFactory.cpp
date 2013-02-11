@@ -40,7 +40,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <View/Event.h>
 
 namespace BFG {
-namespace Loader {
 
 GameObjectFactory::GameObjectFactory(EventLoop* loop,
                                      const LevelConfig& files,
@@ -363,5 +362,4 @@ void GameObjectFactory::applyConnection(const ObjectParameter& parameters)
 	);
 }
 
-} // namespace Loader
 } // namespace BFG

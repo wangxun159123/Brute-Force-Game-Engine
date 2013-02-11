@@ -46,9 +46,9 @@ using namespace boost::units;
 
 namespace BFG {
 
-namespace Loader {
-	class GameObjectFactory;
-}
+
+class GameObjectFactory;
+
 
 class GameObject;
 
@@ -62,7 +62,7 @@ public:
 	Sector(EventLoop* loop,
 	       GameHandle handle,
 	       const std::string& name,
-	       boost::shared_ptr<Loader::GameObjectFactory> gof);
+	       boost::shared_ptr<GameObjectFactory> gof);
 	       
 	~Sector();
 
@@ -85,7 +85,7 @@ private:
 
 	ObjectMapT                                   mObjectMap;
 	std::vector<GameHandle>                      mToRemove;
-	boost::shared_ptr<Loader::GameObjectFactory> mGameObjectFactory;
+	boost::shared_ptr<GameObjectFactory> mGameObjectFactory;
 };
 
 } // namespace BFG

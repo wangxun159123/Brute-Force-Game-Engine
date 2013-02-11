@@ -69,8 +69,8 @@ mHumanGeneral(loop, mEnvironment)
 	mPluginMap.insert(sp);
 	mPluginMap.insert(sip);
 
-	boost::shared_ptr<Loader::GameObjectFactory> gof;
-	gof.reset(new Loader::GameObjectFactory(loop, lc, mPluginMap, mEnvironment, handle));
+	boost::shared_ptr<GameObjectFactory> gof;
+	gof.reset(new GameObjectFactory(loop, lc, mPluginMap, mEnvironment, handle));
 
 	mSector.reset(new Sector(loop, 1, "Blah", gof));
 

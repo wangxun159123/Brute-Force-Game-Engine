@@ -24,8 +24,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LOADER_CONNECTION_H_
-#define LOADER_CONNECTION_H_
+#ifndef BFG_MODEL_CONNECTION_H_
+#define BFG_MODEL_CONNECTION_H_
 
 #include <string>
 
@@ -33,7 +33,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Model/Defs.h>
 
 namespace BFG {
-namespace Loader {
 
 struct Connection
 {
@@ -56,7 +55,6 @@ struct Connection
 void MODEL_API parseConnection(const std::string& input,
                                Connection& connection);
 
-} // namespace Loader
 } // namespace BFG
 
 #endif

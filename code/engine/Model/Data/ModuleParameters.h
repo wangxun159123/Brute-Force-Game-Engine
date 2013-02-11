@@ -52,7 +52,7 @@ struct ModuleParameters
 	ID::CollisionMode mCollision;
 	bool mVisible;
 	f32 mDensity;
-    Loader::Connection mConnection;	
+    Connection mConnection;	
 
 protected:
 
@@ -81,7 +81,7 @@ protected:
 			if (!density.empty())
 				mDensity = boost::lexical_cast<f32>(density);
 			
-			Loader::parseConnection(tree->child("Connection")->elementData(), mConnection);
+			parseConnection(tree->child("Connection")->elementData(), mConnection);
 		}
 		catch (std::exception& e)
 		{

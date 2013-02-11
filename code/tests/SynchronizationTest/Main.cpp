@@ -116,7 +116,7 @@ struct SynchronizationTestState: BFG::State
 		boost::shared_ptr<BFG::SpacePlugin> sp(new BFG::SpacePlugin(spId));
 		mPluginMap.insert(sp);
 
-		mGof.reset(new BFG::Loader::GameObjectFactory(this->loop(), lc, mPluginMap, mEnvironment, mStateHandle));
+		mGof.reset(new BFG::GameObjectFactory(this->loop(), lc, mPluginMap, mEnvironment, mStateHandle));
 
 		mSector.reset(new BFG::Sector(this->loop(), 1, "Blah", mGof));
 	}
@@ -153,7 +153,7 @@ protected:
 private:
 	BFG::Property::PluginMapT mPluginMap;
 	boost::shared_ptr<BFG::Sector> mSector;
-	boost::shared_ptr<BFG::Loader::GameObjectFactory> mGof;
+	boost::shared_ptr<BFG::GameObjectFactory> mGof;
 
 };
 

@@ -40,7 +40,7 @@ namespace BFG {
 Sector::Sector(EventLoop* loop,
                GameHandle handle,
                const std::string& name,
-               boost::shared_ptr<Loader::GameObjectFactory> gof) :
+               boost::shared_ptr<GameObjectFactory> gof) :
 Managed(handle, name, ID::OT_Sector),
 Emitter(loop),
 mGameObjectFactory(gof)

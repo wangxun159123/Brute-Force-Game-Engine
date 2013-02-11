@@ -35,7 +35,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/lexical_cast.hpp>
 
 namespace BFG {
-namespace Loader {
 
 bool Connection::good() const
 {
@@ -101,5 +100,4 @@ void parseConnection(const std::string& input,
 	throw std::runtime_error(err.str());
 }
 
-} // namespace Loader
 } // namespace BFG

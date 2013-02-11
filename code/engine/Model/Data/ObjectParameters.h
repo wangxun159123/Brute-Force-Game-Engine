@@ -67,7 +67,7 @@ struct ObjectParameter
 	Location mLocation;
 	v3 mLinearVelocity;
 	v3 mAngularVelocity;
-	Loader::Connection mConnection;
+	Connection mConnection;
 
 	protected:
 	

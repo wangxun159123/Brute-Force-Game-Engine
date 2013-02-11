@@ -54,8 +54,6 @@ class Environment;
 class GameObject;
 struct CameraParameter;
 
-namespace Loader {
-
 class MODEL_API GameObjectFactory : Emitter
 {
 public:
@@ -101,7 +99,6 @@ private:
 	GameHandle mStateHandle;
 };
 
-} // namespace Loader
 } // namespace BFG
 
 #endif
