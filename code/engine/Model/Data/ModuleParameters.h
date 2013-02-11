@@ -68,17 +68,17 @@ protected:
 			
 			std::string collisionMode = tree->child("Collision")->elementData();
 			
-			if (collisionMode != "")
+			if (!collisionMode.empty())
 				mCollision = ID::asCollisionMode(collisionMode);
 		
 			std::string visibleStr = tree->child("Visible")->elementData();
 			
-			if (visibleStr != "")
+			if (!visibleStr.empty())
 				strToBool(visibleStr, mVisible);
 
 			std::string density = tree->child("Density")->elementData();
 			
-			if (density != "")
+			if (!density.empty())
 				mDensity = boost::lexical_cast<f32>(density);
 			
 			Loader::parseConnection(tree->child("Connection")->elementData(), mConnection);
