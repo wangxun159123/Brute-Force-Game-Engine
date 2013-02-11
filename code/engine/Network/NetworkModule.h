@@ -198,7 +198,7 @@ private:
 
 	PeerIdT mPeerId;
 	boost::shared_ptr<Clock::StopWatch> mLocalTime;
-	size_t mOutPacketPosition;
+	u16 mOutPacketPosition;
 };
 
 } // namespace Network
