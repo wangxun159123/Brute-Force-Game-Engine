@@ -37,6 +37,9 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
+
+#include <MyGUI.h>
+
 #include <Core/CharArray.h>
 #include <EventSystem/Emitter.h>
 #include <EventSystem/Event_fwd.h>
@@ -51,18 +54,9 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Controller/Action.h>
 #include <Controller/Interface.h>
 #include <Controller/StateInsertion.h>
-#include <MyGUI.h>
+#include <MpInit.h>
 
 using namespace BFG;
-
-template <class T>
-bool from_string(T& t, 
-                 const std::string& s, 
-                 std::ios_base& (*f)(std::ios_base&))
-{
-	std::istringstream iss(s);
-	return !(iss >> f >> t).fail();
-}
 
 #define CHAT_MESSAGE 10000
 
@@ -90,9 +84,8 @@ struct Server : Emitter
 	{
 		dbglog << "Chat::Server::netControlHandler: " << ID::asStr(static_cast<ID::NetworkAction>(e->getId()));
 		
-		switch (e->getId())
+		switch (e->id())
 		{
-
 		case ID::NE_CONNECTED:
 		{
 			Network::PeerIdT peerId = boost::get<Network::PeerIdT>(e->getData());
@@ -109,8 +102,7 @@ struct Server : Emitter
 				peers.erase(it);
 
 		}
-		
-		}
+		} // switch
 	}
 	
 	void netPacketHandler(Network::DataPacketEvent* e)
@@ -151,7 +143,7 @@ public:
 	View::HudElement("ChatWindow.layout", "ChatWindow"),
 	mControllerAdapter(generateHandle(), loop)
 	{
-				BFG::Controller_::ActionMapT actions;
+		BFG::Controller_::ActionMapT actions;
 		BFG::Controller_::fillWithDefaultActions(actions);
 		BFG::Controller_::sendActionsToController(loop, actions);
 	
@@ -171,23 +163,11 @@ public:
 			si
 		);
 	}
-	~ChatWindow()
-	{
 
-	}
 private:
-	void viewEventHandler(View::Event* ve)
-	{
-
-	}
-	void chatEventHandler(ChatEvent* ce)
-	{
-
-	}
 	virtual void internalUpdate(f32 time)
-	{
+	{}
 
-	}
 	View::ControllerMyGuiAdapter mControllerAdapter;
 };
 
@@ -217,7 +197,7 @@ struct Client : Emitter
 	{
 		dbglog << "Chat::Client::netControlHandler: " << ID::asStr(static_cast<ID::NetworkAction>(e->getId()));
 		
-		switch(e->getId())
+		switch(e->id())
 		{
 		case ID::NE_CONNECTED:
 		{
@@ -268,93 +248,45 @@ struct Client : Emitter
 	MyGUI::EditBox* mChatInput;
 };
 
-int main( int argc, const char* argv[] ) try
+void serverInitHandler(EventLoop& loop)
 {
-	bool server = false;
+	Server s(&loop);
+	boost::this_thread::sleep(boost::posix_time::milliseconds(500));
+	Base::pause();
+	loop.stop();
+}
+
+void clientInitHandler(EventLoop& loop)
+{
+	Client c(&loop);
+	Base::pause();
+	loop.stop();
+}
+
+int main(int argc, const char* argv[]) try
+{
 	if  (argc == 2)
-		server = true;
+	{
+		std::string port = argv[1];
+		BFG::mpInit(boost::bind(&serverInitHandler, _1), "ChatServer.log", port);
+	}
 	else if (argc == 3)
-		server = false;
+	{
+		std::string ip = argv[1];
+		std::string port = argv[2];
+		BFG::mpInit(boost::bind(&clientInitHandler, _1), "ChatClient.log", ip, port);
+	}
 	else
 	{
-		std::cerr << "For Server use: bfgChat <Port>\nFor Client use: bfgChat <IP> <Port>\n";
+		std::cerr << "For Server use: bfgChat <Port>\n"
+			"For Client use: bfgChat <IP> <Port>\n";
 		BFG::Base::pause();
 		return 0;
 	}
-
-	EventLoop loop1
-	(
-		true,
-		new EventSystem::BoostThread<>("Loop1"),
-		new EventSystem::InterThreadCommunication()
-	);
-
-	if (server)
-	{
-		u16 port = 0;
-
-		if (!from_string(port, argv[1], std::dec))
-		{
-			std::cerr << "Port not a number: " << argv[1] << std::endl;
-			BFG::Base::pause();
-			return 0;
-		}
-
-		Path p;
-		Base::Logger::Init(Base::Logger::SL_DEBUG, p.Get(ID::P_LOGS) + "/ChatServer.log");
-
-		dbglog << "Starting as Server";
-
-		loop1.addEntryPoint(Network::Interface::getEntryPoint(BFG_SERVER));
-		loop1.run();
-
-		Server s(&loop1);
-		
-		boost::this_thread::sleep(boost::posix_time::milliseconds(500));
-
-		Emitter e(&loop1);
-		e.emit<Network::ControlEvent>(ID::NE_LISTEN, port);
-		
-		Base::pause();
-
-		dbglog << "Good bye";
-	}
-
-	else
-	{
-		std::string ip(argv[1]);
-		std::string port(argv[2]);
-
-		Path p;
-		Base::Logger::Init(Base::Logger::SL_DEBUG, p.Get(ID::P_LOGS) + "/ChatClient.log");
-
-		dbglog << "Starting as Client";
-
-		size_t controllerFrequency = 1000;
-		loop1.addEntryPoint(Network::Interface::getEntryPoint(BFG_CLIENT));
-		loop1.addEntryPoint(ControllerInterface::getEntryPoint(controllerFrequency));
-		loop1.addEntryPoint(View::Interface::getEntryPoint("Chat"));
-		loop1.run();
-
-		boost::this_thread::sleep(boost::posix_time::milliseconds(5000));
-
-		Network::EndpointT payload = boost::make_tuple(stringToArray<128>(ip), stringToArray<128>(port));
-
-		Client c(&loop1);
-		
-		Emitter e(&loop1);
-		e.emit<Network::ControlEvent>(ID::NE_CONNECT, payload);
-		
-		Base::pause();
-		
-		dbglog << "Good bye";
-	}
-
-	loop1.stop();
-
+	
 	// Give EventSystem some time to stop all loops
 	boost::this_thread::sleep(boost::posix_time::milliseconds(500));
-
+	dbglog << "Good bye!";
 }
 catch (std::exception& ex)
 {
