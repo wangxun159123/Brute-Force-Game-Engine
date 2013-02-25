@@ -24,23 +24,20 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <MyGUI.h>
+
 #include <Base/EntryPoint.h>
 #include <Base/Logger.h>
 #include <Base/ResolveDns.h>
 #include <Base/Pause.h>
+#include <Controller/Action.h>
+#include <Controller/StateInsertion.h>
+#include <Core/CharArray.h>
 #include <Core/Path.h>
 #include <Core/ShowException.h>
 #include <Core/Types.h>
 #include <Core/Utils.h>
 #include <EventSystem/Core/EventLoop.h>
-#include <Network/Interface.h>
-
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-
-#include <MyGUI.h>
-
-#include <Core/CharArray.h>
 #include <EventSystem/Emitter.h>
 #include <EventSystem/Event_fwd.h>
 #include <Network/Enums.hh>
@@ -48,13 +45,13 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <View/ControllerMyGuiAdapter.h>
 #include <View/Event_fwd.h>
 #include <View/HudElement.h>
-#include <View/Interface.h>
 #include <View/State.h>
 #include <View/WindowAttributes.h>
-#include <Controller/Action.h>
-#include <Controller/Interface.h>
-#include <Controller/StateInsertion.h>
-#include <MpInit.h>
+
+#define BFG_USE_CONTROLLER
+#define BFG_USE_NETWORK
+#define BFG_USE_VIEW
+#include <EngineInit.h>
 
 using namespace BFG;
 
@@ -265,16 +262,17 @@ void clientInitHandler(EventLoop& loop)
 
 int main(int argc, const char* argv[]) try
 {
+	BFG::Configuration cfg("bfgChat");
 	if  (argc == 2)
 	{
-		std::string port = argv[1];
-		BFG::mpInit(boost::bind(&serverInitHandler, _1), "ChatServer.log", port);
+		cfg.handler = boost::bind(&serverInitHandler, _1);
+		cfg.port = argv[1];
 	}
 	else if (argc == 3)
 	{
-		std::string ip = argv[1];
-		std::string port = argv[2];
-		BFG::mpInit(boost::bind(&clientInitHandler, _1), "ChatClient.log", ip, port);
+		cfg.handler = boost::bind(&clientInitHandler, _1);
+		cfg.ip = argv[1];
+		cfg.port = argv[2];
 	}
 	else
 	{
@@ -284,6 +282,8 @@ int main(int argc, const char* argv[]) try
 		return 0;
 	}
 	
+	BFG::engineInit(cfg);
+
 	// Give EventSystem some time to stop all loops
 	boost::this_thread::sleep(boost::posix_time::milliseconds(500));
 	dbglog << "Good bye!";
