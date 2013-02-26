@@ -24,8 +24,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BFG_BASE_NETWORK_H
-#define BFG_BASE_NETWORK_H
+#ifndef BFG_BASE_RESOLVEDNS_H
+#define BFG_BASE_RESOLVEDNS_H
 
 #include <boost/asio.hpp>
 
@@ -33,7 +33,7 @@ namespace BFG {
 namespace Base {
 
 //! FQDN to IP (e.g. boost.org to 129.79.245.252)
-void resolveDns(const std::string& fqdn, std::string& ip)
+inline void resolveDns(const std::string& fqdn, std::string& ip)
 {
 	using namespace boost::asio;
 	io_service ioService;

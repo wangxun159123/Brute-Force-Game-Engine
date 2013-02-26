@@ -3,14 +3,14 @@
 <ObjectConfigs>
 	<ObjectConfig name="PongBall">
 		<Module name="Root">
-			<mesh>Cube.mesh</mesh>
-			<concepts>PongBallConcept</concepts>
-			<collision>CM_Standard</collision>
-			<visible>yes</visible>
-			<density>0.01</density>
-		</Module>
+			<Mesh>Cube.mesh</Mesh>
+			<Concepts>PongBallConcept</Concepts>
+			<Collision>CM_Standard</Collision>
+			<Visible>yes</Visible>
+			<Density>0.01</Density>
+	</Module>
 	</ObjectConfig>
-  	<ObjectConfig name="PongLowerBar">
+	<ObjectConfig name="PongLowerBar">
 		<Module name="Root">
 			<Mesh>Packer.mesh</Mesh>
 			<Adapters>CubeAllAdapters</Adapters>

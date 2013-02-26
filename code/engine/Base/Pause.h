@@ -32,7 +32,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 namespace BFG {
 namespace Base {
 
-void pause()
+inline void pause()
 {
 #ifdef WIN32
 	system("PAUSE");

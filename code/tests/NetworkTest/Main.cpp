@@ -26,8 +26,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Base/EntryPoint.h>
 #include <Base/Logger.h>
-#include <Base/Network.h>
 #include <Base/Pause.h>
+#include <Base/ResolveDns.h>
 #include <Core/Path.h>
 #include <Core/ShowException.h>
 #include <Core/Types.h>
