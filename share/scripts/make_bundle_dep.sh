@@ -268,13 +268,13 @@ Description: Developer package (dependencies) for the Brute Force Game Engine" >
 # Do it
 ########
 
-#prelude
-#buildBoost
-#buildBoostLog
+prelude
+buildBoost
+buildBoostLog
 #buildOpenAL  (unnecessary: debian package is fine)
-#buildOgre
-#buildMyGUI
-#buildPugiXml
+buildOgre
+buildMyGUI
+buildPugiXml
 buildOde
 makePackage
 postlude
