@@ -80,7 +80,6 @@ FIND_ALL_DEPENDENCIES()
 # ------------------------------------- #
 
 SET(TINYXML_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/thirdparty/tinyxml")
-SET(ODE_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/thirdparty/ODE_r1727/include")
 
 # ------- #
 # Testing #

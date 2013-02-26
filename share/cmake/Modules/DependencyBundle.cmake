@@ -70,5 +70,12 @@ MACRO(SETUP_BUNDLE_PATHS _BUNDLE_PATH)
 	SET(PUGIXML_INCLUDE_DIR "${_BUNDLE_PATH}/pugixml-1.2/include")
 	SET(PUGIXML_LIBRARY_DIR "${_BUNDLE_PATH}/pugixml-1.2/lib/")
 	
+	# --------#
+	#   ODE   #
+	# --------#
+
+	SET(ODE_INCLUDE_DIR "${_BUNDLE_PATH}/ode/include")
+	SET(ODE_LIBRARY_DIR "${_BUNDLE_PATH}/ode/lib/")
+	
 	
 ENDMACRO(SETUP_BUNDLE_PATHS)
