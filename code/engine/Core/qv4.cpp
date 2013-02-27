@@ -69,10 +69,10 @@ qv4 loadQuaternion(XmlTreeT tree)
 {
 	try
 	{
-		std::string w = tree->child("w")->elementData();
-		std::string x = tree->child("x")->elementData();
-		std::string y = tree->child("y")->elementData();
-		std::string z = tree->child("z")->elementData();
+		std::string w = tree->child("W")->elementData();
+		std::string x = tree->child("X")->elementData();
+		std::string y = tree->child("Y")->elementData();
+		std::string z = tree->child("Z")->elementData();
 
 		return qv4(boost::lexical_cast<f32>(w),
 		           boost::lexical_cast<f32>(x),
@@ -89,10 +89,10 @@ BFG_CORE_API void saveQuaternion(const qv4& in, XmlTreeT parentNode)
 {
 	try
 	{
-		parentNode->addElement("w", boost::lexical_cast<std::string>(in.w));
-		parentNode->addElement("x", boost::lexical_cast<std::string>(in.x));
-		parentNode->addElement("y", boost::lexical_cast<std::string>(in.y));
-		parentNode->addElement("z", boost::lexical_cast<std::string>(in.z));
+		parentNode->addElement("W", boost::lexical_cast<std::string>(in.w));
+		parentNode->addElement("X", boost::lexical_cast<std::string>(in.x));
+		parentNode->addElement("Y", boost::lexical_cast<std::string>(in.y));
+		parentNode->addElement("Z", boost::lexical_cast<std::string>(in.z));
 	}
 	catch(std::exception& e)
 	{
