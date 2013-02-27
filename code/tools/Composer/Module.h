@@ -31,9 +31,9 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <MyGUI.h>
 #include <boost/filesystem.hpp>
-#include <tinyxml.h>
 
 #include <Core/Path.h>
+#include <Core/XmlTree.h>
 
 namespace Tool
 {
@@ -95,18 +95,22 @@ public:
 		}
 	}
 
-	void toXml(TiXmlElement* xmlElement) const
+	BFG::XmlTreeT toXml(BFG::XmlTreeT parentNode) const
 	{
-		xmlElement->SetAttribute("name", mName->getCaption());
-		xmlElement->SetAttribute("mesh", mMesh->getCaption());
-		xmlElement->SetAttribute("adapters", mAdapter->getCaption());
+		BFG::XmlTreeT module = parentNode->addElement("Module");
+		module->addAttribute("name", mName->getCaption());
+		module->addElement("Mesh", mMesh->getCaption());
+		module->addElement("Adapters", mAdapter->getCaption());
+		return module;
 	}
 
-	void fromXml(TiXmlElement* xmlElement)
+	void fromXml(BFG::XmlTreeT moduleNode)
 	{
-		std::string name(xmlElement->Attribute("name"));
-		std::string mesh(xmlElement->Attribute("mesh"));
-		std::string adapter(xmlElement->Attribute("adapters"));
+		std::string name(moduleNode->attribute("name"));
+		BFG::XmlTreeT meshNode = moduleNode->child("Mesh");
+		std::string mesh(meshNode->elementData());
+		BFG::XmlTreeT adapterNode = moduleNode->child("Adapters");
+		std::string adapter(adapterNode->elementData());
 
 		mName->setCaption(name);
 		onNameSet(mName);

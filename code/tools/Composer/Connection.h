@@ -30,8 +30,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <MyGUI.h>
 #include <map>
 #include <vector>
-#include <tinyxml.h>
 
+#include <Core/XmlTree.h>
 #include <Model/Adapter.h>
 
 #include <Module.h>
@@ -108,23 +108,30 @@ public:
 		}
 	}
 
-	void toXml(TiXmlElement* xmlElement) const
+	void toXml(BFG::XmlTreeT parentNode) const
 	{
-		xmlElement->SetAttribute
-		(
-			"connection",
-			std::string
+		try
+		{
+			parentNode->addElement
 			(
-				mFromAdapter->getCaption() + "@" + 
-				mTo->getCaption() + ":" +
-				mToAdapter->getCaption()
-			)
-		);
+				"Connection", 
+				std::string
+				(
+					mFromAdapter->getCaption() + "@" + 
+					mTo->getCaption() + ":" +
+					mToAdapter->getCaption()
+				)
+			);
+		}
+		catch (std::exception& e)
+		{
+			throw std::logic_error(e.what()+std::string(" At Connection::toXml(...)"));
+		}
 	}
 
-	void fromXml(TiXmlElement* xmlElement)
+	void fromXml(BFG::XmlTreeT parentNode)
 	{
-		std::string name(xmlElement->Attribute("name"));
+		std::string name(parentNode->attribute("name"));
 
 		size_t index = mFrom->findItemIndexWith(name);
 		if (index == MyGUI::ITEM_NONE)
@@ -132,7 +139,9 @@ public:
 		mFrom->setIndexSelected(index);
 		onFromChanged(mFrom, index);
 
-		std::string connection(xmlElement->Attribute("connection"));
+		BFG::XmlTreeT connectionNode = parentNode->child("Connection");
+		std::string connection(connectionNode->elementData());
+
 		if (connection == "")
 			throw std::runtime_error("Connection string empty!");
 		

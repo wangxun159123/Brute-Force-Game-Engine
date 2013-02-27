@@ -568,7 +568,7 @@ void AdapterControl::onLoadOk(MyGUI::Widget*)
 	configs = fileHandle->root()->child("AdapterConfigs");
 
 	XmlTreeListT configList = configs->childList("AdapterConfig");
-	BOOST_FOREACH(XmlTreeT& config, configList)
+	BOOST_FOREACH(XmlTreeT config, configList)
 	{
 		BFG::AdapterConfig configPara(config);
  		std::vector<BFG::Adapter> adapterVector;
