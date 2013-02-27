@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE (EditAndSaveFile)
 	XmlFileHandleT fileHandle = XmlFileHandleFactory::createWithPugiXml(xml_test_file_path);
 
 	XmlTreeT root;
-	root = fileHandle->root()->child("root");
+	root = fileHandle->root()->child("Root");
 	XmlTreeListT elements;
 
 	XmlTreeT newElement;
@@ -55,13 +55,13 @@ BOOST_AUTO_TEST_CASE (EditAndSaveFile)
 	BOOST_REQUIRE_NO_THROW(newElement->editElementData("A new element was born! Edited"));
 	BOOST_REQUIRE_NO_THROW(fileHandle->save());
 
-	BOOST_REQUIRE_NO_THROW(newElement->addAttribute("AtrName", "AtrValue"));
+	BOOST_REQUIRE_NO_THROW(newElement->addAttribute("atrName", "AtrValue"));
 	BOOST_REQUIRE_NO_THROW(fileHandle->save());
 
-	BOOST_REQUIRE_NO_THROW(newElement->editAttributeData("AtrName", "AtrValueEdited"));
+	BOOST_REQUIRE_NO_THROW(newElement->editAttributeData("atrName", "AtrValueEdited"));
 	BOOST_REQUIRE_NO_THROW(fileHandle->save());
 	
-	BOOST_REQUIRE_NO_THROW(newElement->removeAttribute("AtrName"));
+	BOOST_REQUIRE_NO_THROW(newElement->removeAttribute("atrName"));
 	BOOST_REQUIRE_NO_THROW(fileHandle->save());
 
 	BOOST_REQUIRE_NO_THROW(root->removeElement("AddedElement"));
@@ -80,26 +80,26 @@ BOOST_AUTO_TEST_CASE (SaveVector)
 	XmlFileHandleT fileHandle = XmlFileHandleFactory::createWithPugiXml(xml_test_file_path);
 
 	XmlTreeT root;
-	root = fileHandle->root()->child("root");
+	root = fileHandle->root()->child("Root");
 	XmlTreeListT elements;
 
-	elements = root->childList("element");
+	elements = root->childList("Element");
 
-	XmlTreeT vectorElement = elements[0]->addElement("vector");
+	XmlTreeT vectorElement = elements[0]->addElement("Vector");
 	v3 vec(5,4,3);
 	BOOST_REQUIRE_NO_THROW(saveVector3(vec, vectorElement));
 	BOOST_REQUIRE_NO_THROW(fileHandle->save());
 
 	fileHandle = XmlFileHandleFactory::createWithPugiXml(xml_test_file_path);
-	root = fileHandle->root()->child("root");
-	elements = root->childList("element");
+	root = fileHandle->root()->child("Root");
+	elements = root->childList("Element");
 
-	XmlTreeT vectorElementOut = elements[0]->child("vector");
+	XmlTreeT vectorElementOut = elements[0]->child("Vector");
 	v3 vecOut = loadVector3(vectorElementOut);
 
 	BOOST_REQUIRE(nearEnough(vecOut, vec, EPSILON_F));
 
-	elements[0]->removeElement("vector");
+	elements[0]->removeElement("Vector");
 	BOOST_REQUIRE_NO_THROW(fileHandle->save());
 }
 
@@ -115,10 +115,10 @@ BOOST_AUTO_TEST_CASE (elementList)
 	XmlFileHandleT fileHandle = XmlFileHandleFactory::createWithPugiXml(xml_test_file_path);
 
 	XmlTreeT searchHandle;
-	BOOST_REQUIRE_NO_THROW(searchHandle = fileHandle->root()->child("root"));
+	BOOST_REQUIRE_NO_THROW(searchHandle = fileHandle->root()->child("Root"));
 	XmlTreeListT elements;
 
-	BOOST_REQUIRE_NO_THROW(elements = searchHandle->childList("element"));
+	BOOST_REQUIRE_NO_THROW(elements = searchHandle->childList("Element"));
 	BOOST_REQUIRE_EQUAL(elements.size(), 3);
 }
 
@@ -134,9 +134,9 @@ BOOST_AUTO_TEST_CASE (attribute)
 	XmlFileHandleT fileHandle = XmlFileHandleFactory::createWithPugiXml(xml_test_file_path);
 
 	XmlTreeT searchHandle;
-	searchHandle = fileHandle->root()->child("root");
+	searchHandle = fileHandle->root()->child("Root");
 	XmlTreeListT elements;
-	elements = searchHandle->childList("element");
+	elements = searchHandle->childList("Element");
 
 	BOOST_REQUIRE_NO_THROW
 	(
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE (attribute)
 	BOOST_REQUIRE (searchHandle);
 	BOOST_REQUIRE_EQUAL(searchHandle->attribute("name"), "Element2");
 
-	XmlTreeListT subElements = searchHandle->childList("subelement");
+	XmlTreeListT subElements = searchHandle->childList("Subelement");
 
 	BOOST_REQUIRE_EQUAL(subElements[0]->attribute("name"), "Subelement1");
 

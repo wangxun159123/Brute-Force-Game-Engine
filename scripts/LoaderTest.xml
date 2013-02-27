@@ -1,46 +1,46 @@
 <?xml version="1.0"?>
-<root>
-	<element id="1" name="Element1">
-		<subelement id="1.1" name="Subelement1">
+<Root>
+	<Element id="1" name="Element1">
+		<Subelement id="1.1" name="Subelement1">
 			<Data>This is a data block!</Data>
-		</subelement>
-		<subelement id="1.2" name="Subelement2">
+		</Subelement>
+		<Subelement id="1.2" name="Subelement2">
 			<Data>This is a data block!</Data>
-		</subelement>
-		<subelement id="1.3" name="Subelement3">
+		</Subelement>
+		<Subelement id="1.3" name="Subelement3">
 			<Data>This is a data block!</Data>
-		</subelement>
-		<subelement id="1.4" name="Subelement4">
+		</Subelement>
+		<Subelement id="1.4" name="Subelement4">
 			<Data>This is a data block!</Data>
-		</subelement>
-	</element>
-	<element id="2" name="Element2">
-		<subelement id="2.1" name="Subelement1">
+		</Subelement>
+	</Element>
+	<Element id="2" name="Element2">
+		<Subelement id="2.1" name="Subelement1">
 			<Data>This is a data block!</Data>
-		</subelement>
-		<subelement id="2.2" name="Subelement2">
+		</Subelement>
+		<Subelement id="2.2" name="Subelement2">
 			<Data>This is a data block!</Data>
-		</subelement>
-		<subelement id="2.3" name="Subelement3">
+		</Subelement>
+		<Subelement id="2.3" name="Subelement3">
 			<Data>This is a data block!</Data>
-		</subelement>
-		<subelement id="2.4" name="Subelement4">
+		</Subelement>
+		<Subelement id="2.4" name="Subelement4">
 			<Data>This is a data block!</Data>
-		</subelement>
-	</element>
-	<element id="3" name="Element3">
-		<subelement>
-			<subsubelement>
-				<text />
-				<text>""</text>
-				<number>13</number>
-				<text>It is just a text.</text>
-				<vector3>
-					<x>3</x>
-					<y>7</y>
-					<z>1</z>
-				</vector3>
-			</subsubelement>
-		</subelement>
-	</element>
-</root>
+		</Subelement>
+	</Element>
+	<Element id="3" name="Element3">
+		<Subelement>
+			<Subsubelement>
+				<Text />
+				<Text>""</Text>
+				<Number>13</Number>
+				<Text>It is just a text.</Text>
+				<Vector3>
+					<X>3</X>
+					<Y>7</Y>
+					<Z>1</Z>
+				</Vector3>
+			</Subsubelement>
+		</Subelement>
+	</Element>
+</Root>
