@@ -1,10 +1,10 @@
 #!/bin/bash
 
-CMAKE='/usr/bin/cmake'
-WGET='/usr/bin/wget'
-TAR='/bin/tar'
-SVN='/usr/bin/svn'
-BC='/usr/bin/bc'
+CMAKE=`which cmake`
+WGET=`which wget`
+TAR=`which tar`
+SVN=`which svn`
+BC=`which bc`
 
 if [ ! -x $CMAKE ]; then echo "Please install CMake" && exit; fi
 if [ ! -x $WGET ]; then echo "Please install wget" && exit; fi
