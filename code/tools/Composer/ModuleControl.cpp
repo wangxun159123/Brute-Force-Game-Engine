@@ -26,7 +26,10 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <ModuleControl.h>
 
+#include <boost/foreach.hpp>
+
 #include <Core/Utils.h>
+#include <Core/XmlFileHandleFactory.h>
 #include <Model/Property/SpacePlugin.h>
 #include <View/Event.h>
 
@@ -233,19 +236,16 @@ namespace Tool
 		onClearClicked(NULL);
 
 		std::string filename(mDialog.getFileName());
-		TiXmlDocument doc(filename);
+		BFG::XmlFileHandleT fileHandle = BFG::XmlFileHandleFactory::createWithPugiXml(filename);
 
-		if (!doc.LoadFile())
-		{
-			throw std::runtime_error("Could not load " + filename);
-		}
+		BFG::XmlTreeT configs = fileHandle->root()->child("ObjectConfigs");
 
-		TiXmlElement* objectConfigs = doc.FirstChildElement(OBJECTS);
-		TiXmlElement* objectConfig = objectConfigs->FirstChildElement(OBJECT);
-		for (; objectConfig != NULL; objectConfig = objectConfig->NextSiblingElement(OBJECT))
+		BFG::XmlTreeListT configList = configs->childList("ObjectConfig");
+
+		BOOST_FOREACH(BFG::XmlTreeListT::value_type config, configList)
 		{
-			TiXmlElement* module = objectConfig->FirstChildElement(MODULE);
-			for (; module != NULL; module = module->NextSiblingElement(MODULE))
+			BFG::XmlTreeListT moduleList = config->childList("Module");
+			BOOST_FOREACH(BFG::XmlTreeT module, moduleList)
 			{
 				Module* mod = new Module
 				(
@@ -258,11 +258,11 @@ namespace Tool
 				mod->fromXml(module);
 			}
 
-			module = objectConfig->FirstChildElement(MODULE);
-			for (; module != NULL; module = module->NextSiblingElement(MODULE))
+			BOOST_FOREACH(BFG::XmlTreeT module, moduleList)
 			{
-				std::string connection(*module->Attribute(CONNECTION));
-				if (connection != "")
+				BFG::XmlTreeT connectionNode = module->child("Connection");
+				std::string connection(connectionNode->elementData());
+				if (!connection.empty())
 				{
 					Connection* con = new Connection
 					(
@@ -274,6 +274,7 @@ namespace Tool
 					mData->mConnections.push_back(con);
 
 					con->fromXml(module);
+
 				}
 			}
 		}
@@ -303,25 +304,24 @@ namespace Tool
 
 	void ModuleControl::onSaveOk(MyGUI::Widget*)
 	{
-		TiXmlDocument document;
-		TiXmlDeclaration* declaration = new TiXmlDeclaration("1.0", "utf-8", "" );
-		document.LinkEndChild(declaration);
+		XmlFileHandleT fileHandle = XmlFileHandleFactory::createWithPugiXml(mDialog.getFileName(), true);
 
-		TiXmlElement* objectConfigs = new TiXmlElement(OBJECTS);
-		document.LinkEndChild(objectConfigs);
+		XmlTreeT configs;
+		configs = fileHandle->root()->addElement("ObjectConfigs");
 
-		TiXmlElement* objectConfig = new TiXmlElement(OBJECT);
-		objectConfigs->LinkEndChild(objectConfig);
+		XmlTreeT config;
+		config = configs->addElement("ObjectConfig");
+		
 		// \Todo add an editBox to set the name of the whole GameObject
-		objectConfig->SetAttribute("name", "ToBeImplemented");
+		config->addAttribute("name", "ToBeImplemented");
 
 		std::string rootName(findRootModule());
 		
-		addXmlModule(objectConfig, findModule(rootName), NULL);
+		addXmlModule(config, findModule(rootName), NULL);
 
-		addXmlConnectedModules(objectConfig, rootName);
+		addXmlConnectedModules(config, rootName);
 
-		document.SaveFile(mDialog.getFileName());
+		fileHandle->save();
 		mDialog.setVisible(false);
 	}
 
@@ -494,31 +494,28 @@ namespace Tool
 		return (*modIt);
 	}
 
-	void ModuleControl::addXmlModule(TiXmlElement* xmlElement,
+	void ModuleControl::addXmlModule(BFG::XmlTreeT parentNode,
 	                                 const Module* module,
 	                                 const Connection* connection)
 	{
-		TiXmlElement* xmlMod = new TiXmlElement(MODULE);
-		xmlElement->LinkEndChild(xmlMod);
+		BFG::XmlTreeT moduleNode = module->toXml(parentNode);
 
-		module->toXml(xmlMod);
-		
 		if (connection)
 		{
-			connection->toXml(xmlMod);
+			connection->toXml(moduleNode);
 		}
 		else
 		{
-			xmlMod->SetAttribute(CONNECTION, "");
+			moduleNode->addElement("Connection");
 		}
 
-		xmlMod->SetAttribute("concepts", "");
-		xmlMod->SetAttribute("collision", "CM_Standard");
-		xmlMod->SetAttribute("visible", "yes");
-		xmlMod->SetAttribute("density", "50.0");
+		moduleNode->addElement("Concepts");
+		moduleNode->addElement("Collision", "CM_Standard");
+		moduleNode->addElement("Visible", "yes");
+		moduleNode->addElement("Density", "50");
 	}
 
-	void ModuleControl::addXmlConnectedModules(TiXmlElement* xmlElement,
+	void ModuleControl::addXmlConnectedModules(BFG::XmlTreeT parentNode,
 	                                           const std::string& rootName)
 	{
 		SharedData::ConnectionsT::iterator conIt = mData->mConnections.begin();
@@ -533,9 +530,9 @@ namespace Tool
 
 				Module* childModule = findModule(fromName);
 
-				addXmlModule(xmlElement, childModule, conn);
+				addXmlModule(parentNode, childModule, conn);
 
-				addXmlConnectedModules(xmlElement, childModule->mName->getCaption());
+				addXmlConnectedModules(parentNode, childModule->mName->getCaption());
 			}
 		}
 	}

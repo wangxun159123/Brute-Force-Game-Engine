@@ -38,8 +38,8 @@ class BFG_CORE_API PugiXmlFileHandle : public XmlFileHandle
 
 public:
 
-	PugiXmlFileHandle(const std::string& path);
-	void save(const std::string& path);
+	PugiXmlFileHandle(const std::string& path, bool createFile = false);
+	void save(const std::string& path = "");
 
 private:
 

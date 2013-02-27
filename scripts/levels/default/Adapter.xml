@@ -1,84 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <AdapterConfigs>
-  <AdapterConfig name="CubeAllAdapters">
-    <Adapter id="1" name="up"> <!--up front)-->
-		<position>
-			<x>0.0</x>
-			<y>0.51</y>
-			<z>0.0</z>
-		</position>
-		<orientation>
-			<w>1.0</w>
-			<x>0.0</x>
-			<y>0.0</y>
-			<z>0.0</z>
-		</orientation>
-	</Adapter>
-    <Adapter id="2" name="down"> <!--down (front)-->
-		<position>
-			<x>0.0</x>
-			<y>-0.51</y>
-			<z>0.0</z>
-		</position>
-		<orientation>
-			<w>0.0</w>
-			<x>0.0</x>
-			<y>0.0</y>
-			<z>1.0</z>
-		</orientation>
-	</Adapter>
-    <Adapter id="3" name="left"> <!--left (front)-->
-		<position>
-			<x>0.51</x>
-			<y>0.0</y>
-			<z>0.0</z>
-		</position>
-		<orientation>
-			<w>-0.5</w>
-			<x>0.5</x>
-			<y>0.5</y>
-			<z>0.5</z>
-		</orientation>
-	</Adapter>
-    <Adapter id="4" name="right"> <!--right (front)-->
-		<position>
-			<x>-0.51</x>
-			<y>0.0</y>
-			<z>0.0</z>
-		</position>
-		<orientation>
-			<w>-0.5</w>
-			<x>0.5</x>
-			<y>-0.5</y>
-			<z>-0.5</z>
-		</orientation>
-	</Adapter>
-	<Adapter id="5" name="front"> <!--front (up)-->
-		<position>
-			<x>0.0</x>
-			<y>0.0</y>
-			<z>0.51</z>
-		</position>
-		<orientation>
-			<w>0.0</w>
-			<x>0.0</x>
-			<y>0.707107</y>
-			<z>0.707107</z>
-		</orientation>
-	</Adapter>
-    <Adapter id="6" name="back"> <!--back (up)-->
-		<position>
-			<x>0.0</x>
-			<y>0.0</y>
-			<z>-0.51</z>
-		</position>
-		<orientation>
-			<w>0.707107</w>
-			<x>-0.707107</x>
-			<y>0.0</y>
-			<z>0.0</z>
-		</orientation>
-	</Adapter>
-  </AdapterConfig>
+	<AdapterConfig name="CubeAllAdapters">
+		<Adapter id="1" name="up">
+			<!--up front)-->
+			<Position>
+				<X>0.0</X>
+				<Y>0.51</Y>
+				<Z>0.0</Z>
+			</Position>
+			<Orientation>
+				<W>1.0</W>
+				<X>0.0</X>
+				<Y>0.0</Y>
+				<Z>0.0</Z>
+			</Orientation>
+		</Adapter>
+		<Adapter id="2" name="down">
+			<!--down (front)-->
+			<Position>
+				<X>0.0</X>
+				<Y>-0.51</Y>
+				<Z>0.0</Z>
+			</Position>
+			<Orientation>
+				<W>0.0</W>
+				<X>0.0</X>
+				<Y>0.0</Y>
+				<Z>1.0</Z>
+			</Orientation>
+		</Adapter>
+		<Adapter id="3" name="left">
+			<!--left (front)-->
+			<Position>
+				<X>0.51</X>
+				<Y>0.0</Y>
+				<Z>0.0</Z>
+			</Position>
+			<Orientation>
+				<W>-0.5</W>
+				<X>0.5</X>
+				<Y>0.5</Y>
+				<Z>0.5</Z>
+			</Orientation>
+		</Adapter>
+		<Adapter id="4" name="right">
+			<!--right (front)-->
+			<Position>
+				<X>-0.51</X>
+				<Y>0.0</Y>
+				<Z>0.0</Z>
+			</Position>
+			<Orientation>
+				<W>-0.5</W>
+				<X>0.5</X>
+				<Y>-0.5</Y>
+				<Z>-0.5</Z>
+			</Orientation>
+		</Adapter>
+		<Adapter id="5" name="front">
+			<!--front (up)-->
+			<Position>
+				<X>0.0</X>
+				<Y>0.0</Y>
+				<Z>0.51</Z>
+			</Position>
+			<Orientation>
+				<W>0.0</W>
+				<X>0.0</X>
+				<Y>0.707107</Y>
+				<Z>0.707107</Z>
+			</Orientation>
+		</Adapter>
+		<Adapter id="6" name="back">
+			<!--back (up)-->
+			<Position>
+				<X>0.0</X>
+				<Y>0.0</Y>
+				<Z>-0.51</Z>
+			</Position>
+			<Orientation>
+				<W>0.707107</W>
+				<X>-0.707107</X>
+				<Y>0.0</Y>
+				<Z>0.0</Z>
+			</Orientation>
+		</Adapter>
+	</AdapterConfig>
 </AdapterConfigs>

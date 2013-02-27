@@ -31,8 +31,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <MyGUI.h>
 
-#include <tinyxml.h>
-
 #include <EventSystem/Emitter.h>
 
 #include <Actions.h>
@@ -99,8 +97,8 @@ private:
 	void addModuleTo(const std::string& parentName);
 	Module* findModule(const std::string& name);
 
-	void addXmlModule(TiXmlElement* xmlElement, const Module* module, const Connection* connection);
-	void addXmlConnectedModules(TiXmlElement* xmlElement, const std::string& rootName);
+	void addXmlModule(BFG::XmlTreeT parentNode, const Module* module, const Connection* connection);
+	void addXmlConnectedModules(BFG::XmlTreeT parentNode, const std::string& rootName);
 
 	void reAttach();
 	void clearFields();

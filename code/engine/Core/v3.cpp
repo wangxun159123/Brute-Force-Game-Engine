@@ -61,9 +61,9 @@ v3 loadVector3(XmlTreeT tree)
 {
 	try
 	{
-		std::string x = tree->child("x")->elementData();
-		std::string y = tree->child("y")->elementData();
-		std::string z = tree->child("z")->elementData();
+		std::string x = tree->child("X")->elementData();
+		std::string y = tree->child("Y")->elementData();
+		std::string z = tree->child("Z")->elementData();
 
 		return v3(boost::lexical_cast<f32>(x),
 		          boost::lexical_cast<f32>(y),
@@ -79,9 +79,9 @@ void saveVector3(const v3& in, XmlTreeT parentNode)
 {
 	try
 	{
-		parentNode->addElement("x", boost::lexical_cast<std::string>(in.x));
-		parentNode->addElement("y", boost::lexical_cast<std::string>(in.y));
-		parentNode->addElement("z", boost::lexical_cast<std::string>(in.z));
+		parentNode->addElement("X", boost::lexical_cast<std::string>(in.x));
+		parentNode->addElement("Y", boost::lexical_cast<std::string>(in.y));
+		parentNode->addElement("Z", boost::lexical_cast<std::string>(in.z));
 	}
 	catch(std::exception& e)
 	{

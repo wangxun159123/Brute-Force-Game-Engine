@@ -30,9 +30,9 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 namespace BFG {
 
-boost::shared_ptr<XmlFileHandle> XmlFileHandleFactory::createWithPugiXml(const std::string& path)
+boost::shared_ptr<XmlFileHandle> XmlFileHandleFactory::createWithPugiXml(const std::string& path, bool createFile)
 {
-	boost::shared_ptr<XmlFileHandle> tree(new PugiXmlFileHandle(path));
+	boost::shared_ptr<XmlFileHandle> tree(new PugiXmlFileHandle(path, createFile));
 	return tree;
 }
 

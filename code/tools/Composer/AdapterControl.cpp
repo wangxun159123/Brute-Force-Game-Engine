@@ -26,17 +26,21 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <AdapterControl.h>
 
+#include <boost/foreach.hpp>
+#include <boost/lexical_cast.hpp>
+
 #include <limits>
 
 #include <OgreEntity.h>
 #include <OgreRoot.h>
 #include <OgreSceneManager.h>
 
-#include <tinyxml.h>
-
+#include <Core/XmlFileHandleFactory.h>
 #include <Core/Mesh.h>
 #include <Core/Types.h>
 #include <Core/Utils.h>
+#include <Model/Data/AdapterConfig.h>
+#include <Model/Data/AdapterParameters.h>
 #include <View/Convert.h>
 #include <View/LoadMesh.h>
 
@@ -558,30 +562,25 @@ void AdapterControl::onAppendClicked(MyGUI::Widget*)
 void AdapterControl::onLoadOk(MyGUI::Widget*)
 {
 	std::string filename(mDialog.getFileName());
-	TiXmlDocument doc(filename);
 
-	if (!doc.LoadFile())
+	XmlFileHandleT fileHandle = XmlFileHandleFactory::createWithPugiXml(filename);
+	XmlTreeT configs;
+	configs = fileHandle->root()->child("AdapterConfigs");
+
+	XmlTreeListT configList = configs->childList("AdapterConfig");
+	BOOST_FOREACH(XmlTreeT config, configList)
 	{
-		throw std::runtime_error("Could not load " + filename);
-	}
-
-	TiXmlElement* adapterConfigs = doc.FirstChildElement("AdapterConfigs");
-	TiXmlElement* adapterConfig = adapterConfigs->FirstChildElement("AdapterConfig");
-	for (; adapterConfig != NULL; adapterConfig = adapterConfig->NextSiblingElement("AdapterConfig"))
-	{
-		std::string name(adapterConfig->Attribute("name"));
-		std::vector<BFG::Adapter> adapterVector;
-
-		TiXmlElement* adapter = adapterConfig->FirstChildElement("Adapter");
-		for (; adapter != NULL; adapter = adapter->NextSiblingElement("Adapter"))
+		BFG::AdapterConfig configPara(config);
+ 		std::vector<BFG::Adapter> adapterVector;
+		BOOST_FOREACH(AdapterParametersT& adapter, configPara.mAdapters)
 		{
 			BFG::Adapter a;
-			a.mIdentifier = MyGUI::utility::parseUInt(adapter->Attribute("id"));
-			BFG::stringToVector3(adapter->Attribute("position"), a.mParentPosition);
-			BFG::stringToQuaternion4(adapter->Attribute("orientation"), a.mParentOrientation);
+			a.mIdentifier = adapter->mId;
+			a.mParentPosition = adapter->mPosition;
+			a.mParentOrientation = adapter->mOrientation;
 			adapterVector.push_back(a);
 		}
-		mData->mAdapters[name] = adapterVector;
+		mData->mAdapters[configPara.mName] = adapterVector;
 	}
 	mDialog.setVisible(false);
 	fillGroupBox();
@@ -602,167 +601,90 @@ void AdapterControl::fillGroupBox()
 
 void AdapterControl::onSaveOk(MyGUI::Widget*)
 {
-	TiXmlDocument document;
-	TiXmlDeclaration* declaration = new TiXmlDeclaration("1.0", "utf-8", "" );
-	document.LinkEndChild(declaration);
+	XmlFileHandleT fileHandle = XmlFileHandleFactory::createWithPugiXml(mDialog.getFileName(), true);
 
-	TiXmlElement* adapterConfigs = new TiXmlElement("AdapterConfigs");
-	document.LinkEndChild(adapterConfigs);
-
-	SharedData::AdapterMapT::iterator mapIt = mData->mAdapters.begin();
-	for (; mapIt != mData->mAdapters.end(); ++mapIt)
+	XmlTreeT configs;
+	configs = fileHandle->root()->addElement("AdapterConfigs");
+	
+	typedef std::pair<std::string, std::vector<BFG::Adapter> > AdapterMapType;
+	BOOST_FOREACH(AdapterMapType mapEntry, mData->mAdapters)
 	{
-		using BFG::v3;
-		using BFG::qv4;
-		using BFG::Adapter;
+		XmlTreeT config;
+		config = configs->addElement("AdapterConfig");
+		config->addAttribute("name", mapEntry.first);
 
-		if (mapIt->first == "")
-			continue;
-
-		TiXmlElement* adapters = new TiXmlElement("AdapterConfig");
-		adapters->SetAttribute("name", mapIt->first);
-		adapterConfigs->LinkEndChild(adapters);
-
-		std::vector<Adapter>& adapterVec = mapIt->second;
-		std::vector<Adapter>::iterator it = adapterVec.begin();
-		for (; it != adapterVec.end(); ++it)
+		BOOST_FOREACH(Adapter adapterEntry, mapEntry.second)
 		{
-			v3 pos = (*it).mParentPosition;
-			TiXmlElement* adapter = new TiXmlElement("Adapter");
-			adapter->SetAttribute
-			(
-				"id",
-				(*it).mIdentifier
-			);
-
-			adapter->SetAttribute
-			(
-				"position",
-				MyGUI::utility::toString
-				(
-					pos.x, ", ",
-					pos.y, ", ",
-					pos.z
-				)
-			);
-
-			qv4 ori = (*it).mParentOrientation;
-			adapter->SetAttribute
-			(
-				"orientation",
-				MyGUI::utility::toString
-				(
-					ori.w, ", ",
-					ori.x, ", ",
-					ori.y, ", ",
-					ori.z
-				)
-			);
-
-			adapters->LinkEndChild(adapter);
+			XmlTreeT adapter;
+			adapter = config->addElement("Adapter");
+			adapter->addAttribute("id", boost::lexical_cast<std::string>(adapterEntry.mIdentifier));
+			XmlTreeT position;
+			position = adapter->addElement("Position");
+			saveVector3(adapterEntry.mParentPosition, position);
+			XmlTreeT orientation;
+			orientation = adapter->addElement("Orientation");
+			saveQuaternion(adapterEntry.mParentOrientation, orientation);
 		}
-
 	}
 
-	document.SaveFile(mDialog.getFileName());
+	fileHandle->save();
 	mDialog.setVisible(false);
 }
 
 void AdapterControl::onAppendOk(MyGUI::Widget*)
 {
-	std::string filename(mDialog.getFileName());
-	TiXmlDocument doc(filename);
+	XmlFileHandleT fileHandle = XmlFileHandleFactory::createWithPugiXml(mDialog.getFileName());
 
-	if (!doc.LoadFile())
+	XmlTreeT configs;
+	configs = fileHandle->root()->child("AdapterConfigs");
+
+	typedef std::pair<std::string, std::vector<BFG::Adapter> > AdapterMapType;
+	BOOST_FOREACH(AdapterMapType mapEntry, mData->mAdapters)
 	{
-		throw std::runtime_error("Could not open " + filename);
-	}
-
-	TiXmlElement* adapterConfigs = doc.FirstChildElement("AdapterConfigs");
-
-	if (!adapterConfigs)
-	{
-		throw std::runtime_error("This is not an adapter file!");
-	}
-
-	SharedData::AdapterMapT::iterator mapIt = mData->mAdapters.begin();
-	for (; mapIt != mData->mAdapters.end(); ++mapIt)
-	{
-		if (mapIt->first == "")
-			continue;
-
 		bool nameFound = false;
-		int lastId = 0;
+		u32 lastId = 0;
+		XmlTreeT config;
 
-		TiXmlElement* adapterConfig = adapterConfigs->FirstChildElement("AdapterConfig");
-		for (; adapterConfig != NULL; adapterConfig = adapterConfig->NextSiblingElement("AdapterConfig"))
+		XmlTreeListT configList = configs->childList("AdapterConfig");
+		BOOST_FOREACH(XmlTreeT& configEntry, configList)
 		{
-			std::string name(adapterConfig->Attribute("name"));
-			if (name == mapIt->first)
+			std::string name = configEntry->attribute("name");
+			if (name == mapEntry.first)
 			{
 				nameFound = true;
-				TiXmlElement* adapter = adapterConfig->FirstChildElement("Adapter");
-				do 
+				config = configEntry;
+				XmlTreeListT adapterList = config->childList("Adapter");
+				BOOST_FOREACH(XmlTreeT adapter, adapterList)
 				{
-					adapter->Attribute("id", &lastId);
-					adapter = adapter->NextSiblingElement("Adapter");
-				} while (adapter);
-				break;
+					std::string idAttr = adapter->attribute("id");
+					u32 id = boost::lexical_cast<u32>(idAttr);
+					if (id > lastId)
+						lastId = id;
+				}
 			}
 		}
 
 		if (!nameFound)
 		{
-			adapterConfig = new TiXmlElement("AdapterConfig");
-			adapterConfig->SetAttribute("name", mapIt->first);
-			adapterConfigs->LinkEndChild(adapterConfig);
+			config = configs->addElement("AdapterConfig");
+			config->addAttribute("name", mapEntry.first);
 		}
 
-		using BFG::Adapter;
-
-		std::vector<Adapter>& adapterVec = mapIt->second;
-		std::vector<Adapter>::iterator it = adapterVec.begin();
-		for (; it != adapterVec.end(); ++it)
+		BOOST_FOREACH(Adapter vecEntry, mapEntry.second)
 		{
-			using BFG::v3;
-			using BFG::qv4;
-
-			v3 pos = (*it).mParentPosition;
-			TiXmlElement* adapter = new TiXmlElement("Adapter");
-			adapter->SetAttribute
-			(
-				"id",
-				(*it).mIdentifier + lastId
-			);
-			
-			adapter->SetAttribute
-			(
-				"position",
-				MyGUI::utility::toString
-				(
-					pos.x, ", ",
-					pos.y, ", ",
-					pos.z
-				)
-			);
-			
-			qv4 ori = (*it).mParentOrientation;
-			adapter->SetAttribute
-			(
-				"orientation",
-				MyGUI::utility::toString
-				(
-					ori.w, ", ",
-					ori.x, ", ",
-					ori.y, ", ",
-					ori.z
-				)
-			);
-
-			adapterConfig->LinkEndChild(adapter);
+			XmlTreeT adapter = config->addElement("Adapter");
+			adapter->addAttribute("id", boost::lexical_cast<std::string>(vecEntry.mIdentifier + lastId));
+			XmlTreeT position;
+			position = adapter->addElement("Position");
+			saveVector3(vecEntry.mParentPosition, position);
+			XmlTreeT orientation;
+			orientation = adapter->addElement("Orientation");
+			saveQuaternion(vecEntry.mParentOrientation, orientation);
 		}
+
 	}
-	doc.SaveFile(filename);
+
+	fileHandle->save();
 	mDialog.setVisible(false);
 }
 
