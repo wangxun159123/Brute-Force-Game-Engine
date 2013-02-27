@@ -36,7 +36,7 @@ namespace BFG {
 class BFG_CORE_API XmlFileHandleFactory
 {
 public:
-	static XmlFileHandleT createWithPugiXml(const std::string& path);
+	static XmlFileHandleT createWithPugiXml(const std::string& path, bool createFile = false);
 };
 
 } // namespace BFG

@@ -30,20 +30,27 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 namespace BFG {
 
-PugiXmlFileHandle::PugiXmlFileHandle(const std::string& path): XmlFileHandle(path)
+PugiXmlFileHandle::PugiXmlFileHandle(const std::string& path, bool createFile): XmlFileHandle(path)
 {
 	try
 	{
-		pugi::xml_parse_result result = mDocument.load_file(mPath.c_str());
-		
-		if (result.status != pugi::status_ok)
+		if (createFile)
 		{
-			switch (result)
+			save();
+		}
+		else
+		{
+			pugi::xml_parse_result result = mDocument.load_file(mPath.c_str());
+		
+			if (result.status != pugi::status_ok)
 			{
-			case pugi::status_file_not_found:
-					throw std::logic_error("Error during xml file parsing. File not found: "+path);
-			default:
-				throw std::logic_error("Error during xml file parsing: "+path+" "+result.description());
+				switch (result)
+				{
+				case pugi::status_file_not_found:
+						throw std::logic_error("Error during xml file parsing. File not found: "+path);
+				default:
+					throw std::logic_error("Error during xml file parsing: "+path+" "+result.description());
+				}
 			}
 		}
 
@@ -59,7 +66,7 @@ PugiXmlFileHandle::PugiXmlFileHandle(const std::string& path): XmlFileHandle(pat
 }
 
 
-void PugiXmlFileHandle::save(const std::string& path = "")
+void PugiXmlFileHandle::save(const std::string& path)
 {
 	std::string errorInformationPath = "";
 
