@@ -224,7 +224,7 @@ struct ServerState: public SynchronizationTestState
 		op = BFG::ObjectParameter();
 		op.mHandle = BFG::generateNetworkHandle();
 		op.mName = "LowerBar";
-		op.mType = "PongLowerBar";
+		op.mType = "PongBar";
 		op.mLocation = v3(0.0f, -BAR_Y_POSITION, OBJECT_Z_POSITION + SPECIAL_PACKER_MESH_OFFSET);
 		handles << op.mHandle << " ";
 		mPlayer = op.mHandle;
@@ -235,7 +235,7 @@ struct ServerState: public SynchronizationTestState
 		op = BFG::ObjectParameter();
 		op.mHandle = BFG::generateNetworkHandle();
 		op.mName = "UpperBar";
-		op.mType = "PongUpperBar";
+		op.mType = "PongBar";
 		op.mLocation.position = v3(0.0f, BAR_Y_POSITION, OBJECT_Z_POSITION + SPECIAL_PACKER_MESH_OFFSET);
 		op.mLocation.orientation = BFG::qv4::IDENTITY;
 		BFG::fromAngleAxis(op.mLocation.orientation, 180 * DEG2RAD, BFG::v3::UNIT_Z);
@@ -400,7 +400,7 @@ struct ClientState : public SynchronizationTestState
 		op = BFG::ObjectParameter();
 		oss >> op.mHandle;
 		op.mName = "LowerBar";
-		op.mType = "PongLowerBarRemote";
+		op.mType = "PongBarRemote";
 		op.mLocation = v3(0.0f, -BAR_Y_POSITION, OBJECT_Z_POSITION + SPECIAL_PACKER_MESH_OFFSET);
 
 		createObject(op);
@@ -409,7 +409,7 @@ struct ClientState : public SynchronizationTestState
 		op = BFG::ObjectParameter();
 		oss >> op.mHandle;
 		op.mName = "UpperBar";
-		op.mType = "PongUpperBarRemote";
+		op.mType = "PongBarRemote";
 		op.mLocation.position = v3(0.0f, BAR_Y_POSITION, OBJECT_Z_POSITION + SPECIAL_PACKER_MESH_OFFSET);
 		op.mLocation.orientation = BFG::qv4::IDENTITY;
 		BFG::fromAngleAxis(op.mLocation.orientation, 180 * DEG2RAD, BFG::v3::UNIT_Z);

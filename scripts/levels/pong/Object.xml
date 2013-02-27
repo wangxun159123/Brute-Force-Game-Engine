@@ -10,17 +10,7 @@
 			<Density>0.01</Density>
 	</Module>
 	</ObjectConfig>
-	<ObjectConfig name="PongLowerBar">
-		<Module name="Root">
-			<Mesh>Packer.mesh</Mesh>
-			<Adapters>CubeAllAdapters</Adapters>
-			<Concepts>PongBarConcept</Concepts>
-			<Collision>CM_Standard</Collision>
-			<Visible>yes</Visible>
-			<Density>10000.0</Density>
-		</Module>
-	</ObjectConfig>
-	<ObjectConfig name="PongUpperBar">
+	<ObjectConfig name="PongBar">
 		<Module name="Root">
 			<Mesh>Packer.mesh</Mesh>
 			<Adapters>CubeAllAdapters</Adapters>
@@ -39,17 +29,7 @@
 			<Density>0.01</Density>
 		</Module>
 	</ObjectConfig>
-  	<ObjectConfig name="PongLowerBarRemote">
-		<Module name="Root">
-			<Mesh>Packer.mesh</Mesh>
-			<Adapters>CubeAllAdapters</Adapters>
-			<Concepts>PongBarRemoteConcept</Concepts>
-			<Collision>CM_Disabled</Collision>
-			<Visible>yes</Visible>
-			<Density>10000.0</Density>
-		</Module>
-	</ObjectConfig>
-	<ObjectConfig name="PongUpperBarRemote">
+  	<ObjectConfig name="PongBarRemote">
 		<Module name="Root">
 			<Mesh>Packer.mesh</Mesh>
 			<Adapters>CubeAllAdapters</Adapters>
