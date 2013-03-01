@@ -13,15 +13,14 @@ if [ ! -x $SVN ]; then echo "Please install Subversion" && exit; fi
 if [ ! -x $BC ]; then echo "Please install bc" && exit; fi
 
 # pbuilder:
-# 1. apt-get install git wget bc subversion vim cmake ssh
-# 2. check architecture in this script
-# 3. check compile flags
+# 1. apt-get install git wget bc subversion vim cmake ssh automake libtool
+# 2. check compile flags (use -mtune=generic)
 
 PACKAGE=package
 PREFIX=$PACKAGE/usr
 CPUS=`grep -c processor /proc/cpuinfo`
 JOBS=`echo $CPUS + 1 | $BC`
-VERSION="0.3.0"
+VERSION="0.4.0"
 DEBIAN_ARCH="`dpkg --print-architecture`"
 
 USER_AGENT='Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.1.16) Gecko/20120421 Firefox/11.0'
@@ -57,16 +56,17 @@ function prelude
 	mkdir MAKE_BUNDLE_DEP
 	cd MAKE_BUNDLE_DEP
 
+	# Libs
 	/usr/bin/apt-get install --ignore-missing \
-		libois-dev       \
-		libzip-dev       \
 		libbz2-dev       \
-		libgl1-mesa-dev  \
-		libxrandr-dev    \
 		libfreeimage-dev \
 		libfreetype6-dev \
+		libgl1-mesa-dev  \
 		libglu-dev       \
+		libois-dev       \
 		libxaw7-dev      \
+		libxrandr-dev    \
+		libzip-dev       \
 		libzzip-dev
 
 	/bin/mkdir -p $PREFIX
