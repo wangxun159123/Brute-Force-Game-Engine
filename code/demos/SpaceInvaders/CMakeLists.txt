@@ -29,22 +29,22 @@ ADD_EXECUTABLE(bfgSpaceInvaders ${SpaceInvaders_SOURCES} ${SpaceInvaders_HEADERS
 SET_TARGET_PROPERTIES(bfgSpaceInvaders PROPERTIES OUTPUT_NAME_DEBUG "bfgSpaceInvaders_d")
 
 TARGET_LINK_LIBRARIES(bfgSpaceInvaders
-	bfgAudio
-	bfgBase
-	bfgController
-	bfgEventCore
-	bfgModel
-	bfgCore
-	bfgView
 	${BoostLog_LIBRARIES}
 	${Boost_LIBRARIES}
+	${MYGUI_LIBRARIES}
+	${ODE_LIBRARY}
 	${OGRE_LIBRARIES}
 	${OIS_LIBRARIES}
-	${MYGUI_LIBRARIES}
 	${OPENAL_LIBRARY}
 	${VORBIS_LIBRARIES}
 	TinyXML
-	ode
+	bfgAudio
+	bfgBase
+	bfgController
+	bfgCore
+	bfgEventCore
+	bfgModel
+	bfgView
 )
 
 INSTALL(TARGETS bfgSpaceInvaders

@@ -42,6 +42,22 @@ MACRO(FIND_ALL_DEPENDENCIES)
 		LOG_FATAL("Unknown error or a not supported OS")
 	ENDIF(WIN32)
 
+	# ----#
+	# ODE #
+	# ----#
+
+	IF(WIN32)
+		CHECK_PACKAGE(ODE_DEBUG "ode/lib/Debug/ode.lib" "ode.h")
+		CHECK_PACKAGE(ODE_RELEASE "ode/lib/Release/ode.lib" "ode.h")
+		SET(ODE_LIBRARY debug ${ODE_DEBUG_LIBRARIES} optimized ${ODE_RELEASE_LIBRARIES})
+	ELSEIF(UNIX)
+		FIND_PACKAGE(ODE REQUIRED)
+	ELSEIF (APPLE)
+		LOG_FATAL("Apple support is not implemented yet")
+	ELSE (WIN32)
+		LOG_FATAL("Unknown error or a not supported OS")
+	ENDIF(WIN32)
+
 	# ---------- #
 	# libSndFile #
 	# ---------- #
