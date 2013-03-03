@@ -12,32 +12,32 @@ INCLUDE(FindPackageHandleStandardArgs)
 # worst case ever
 MACRO(LOG_FATAL _ERROR_MESSAGE)
 	MESSAGE(FATAL_ERROR "[E] ${_ERROR_MESSAGE}")
-ENDMACRO(LOG_FATAL _ERROR_MESSAGE)
+ENDMACRO()
 
 # Just display a warning about it
 MACRO(LOG_WARNING _text)
 	MESSAGE(STATUS "[w] ${_text}")
-ENDMACRO(LOG_WARNING _text)
+ENDMACRO()
 
 # Something has been configured, changed, done
 MACRO(LOG_ACTION _text)
 	MESSAGE(STATUS "[a] ${_text}")
-ENDMACRO(LOG_ACTION _text)
+ENDMACRO()
 
 # Marks the begin of a section
 MACRO(LOG_SECTION _text)
 	MESSAGE(STATUS "[s] ${_text}")
-ENDMACRO(LOG_SECTION _text)
+ENDMACRO()
 
 # Marks the begin of a section
 MACRO(LOG_STATUS _text)
 	MESSAGE(STATUS "${_text}")
-ENDMACRO(LOG_STATUS _text)
+ENDMACRO()
 
 # Generic message
 MACRO(LOG _text)
 	MESSAGE("    ${_text}")
-ENDMACRO(LOG _text)
+ENDMACRO()
 
 # Just for your personal testing purposes
 MACRO(DUMP_LOG_MESSAGE_TYPES)
@@ -47,7 +47,7 @@ MACRO(DUMP_LOG_MESSAGE_TYPES)
 	LOG_STATUS("Generic status message")
 	LOG ("Simple log message")
 	LOG_FATAL("This is a fatal error")
-ENDMACRO(DUMP_LOG_MESSAGE_TYPES)
+ENDMACRO()
 
 # ------------------------------------------------------------------------------
 # find package wrapper
@@ -80,7 +80,7 @@ MACRO(CHECK_PACKAGE _name _libName _incName)
 	# let cmake provided function do the rest
 	FIND_PACKAGE_HANDLE_STANDARD_ARGS(${_name} DEFAULT_MSG ${_NAME}_LIBRARIES ${_NAME}_INCLUDE_DIR)
 	SET(${_NAME})
-ENDMACRO(CHECK_PACKAGE _name _libName _includeName)
+ENDMACRO()
 
 # ------------------------------------------------------------------------------
 
@@ -95,9 +95,9 @@ MACRO(BFG_INIT_PROJECT _PROJECT_NAME _PROJECT_PREFIX)
 	OPTION(RELEASE "Enable release build" OFF)
 	IF(RELEASE)
 		SET(CMAKE_BUILD_TYPE Release CACHE INTERNAL "Build type" FORCE)
-	ELSE(RELEASE)
+	ELSE()
 		SET(CMAKE_BUILD_TYPE Debug CACHE INTERNAL "Build type" FORCE)
-	ENDIF(RELEASE)
+	ENDIF()
 
 	MARK_AS_ADVANCED(CMAKE_BUILD_TYPE)
 
@@ -106,7 +106,7 @@ MACRO(BFG_INIT_PROJECT _PROJECT_NAME _PROJECT_PREFIX)
 	IF(WIN32)
 		# This Regex avoids problems in paths, mainly under windows
 		STRING(REGEX REPLACE "\\\\" "/" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
-	ENDIF(WIN32)
+	ENDIF()
 
 	SET(BFG_PROJECT_PREFIX ${_PROJECT_PREFIX})
 
@@ -117,7 +117,7 @@ MACRO(BFG_INIT_PROJECT _PROJECT_NAME _PROJECT_PREFIX)
 
 		SET(BFG_PROJECT_BUNDLE TRUE)
 
-	ELSE(WIN32)
+	ELSE()
 
 		SET(BFG_PROJECT_BUNDLE FALSE)
 
@@ -125,29 +125,16 @@ MACRO(BFG_INIT_PROJECT _PROJECT_NAME _PROJECT_PREFIX)
 		LIST(APPEND BFG_SEARCH_INCDIRS "/usr/local/include/" "/usr/include/")
 		LIST(APPEND BFG_SEARCH_LIBDIRS "/usr/local/lib/" "/usr/lib")
 
-	ENDIF(WIN32)
+	ENDIF()
 
-ENDMACRO(BFG_INIT_PROJECT _PROJECT_NAME)
+ENDMACRO()
 
 # ------------------------------------------------------------------------------
 
-MACRO(BFG_INIT_PACKAGE _PACKAGE_NAME _PACKAGE_VERSION)
+MACRO(BFG_INIT_PACKAGE _PACKAGE_NAME)
 
 	SET(BFG_PACKAGE_NAME "${BFG_PROJECT_PREFIX}${_PACKAGE_NAME}")
-
-	# Version extraction
-	STRING(REGEX REPLACE "[\\.\\-\\_]" ";" _tmp_components ${_PACKAGE_VERSION})
-	LIST(GET _tmp_components 0 PACKAGE_VERSION_MAJOR)
-	LIST(GET _tmp_components 1 PACKAGE_VERSION_MINOR)
-	LIST(GET _tmp_components 2 PACKAGE_VERSION_PATCH)
-
-	SET(_tmp_components)
-	MARK_AS_ADVANCED(PACKAGE_VERSION_MAJOR)
-	MARK_AS_ADVANCED(PACKAGE_VERSION_MINOR)
-	MARK_AS_ADVANCED(PACKAGE_VERSION_PATCH)
   
-	#LOG("Version: ${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}")
-
 	# ------------------------------------
 	# COMPILE_<PACKAGE> is set as a compile define, so that sources may check if built
 	STRING(TOUPPER "COMPILE_${_PACKAGE_NAME}" COMPILE_PACKAGE)
@@ -195,5 +182,5 @@ MACRO(BFG_INIT_PACKAGE _PACKAGE_NAME _PACKAGE_VERSION)
 #	LOG_STATUS(" include : ${BFG_PACKAGE_INCLUDE_DIR}")
 #	LOG_STATUS("     doc : ${BFG_PACKAGE_DOC_DIR}")
 
-ENDMACRO(BFG_INIT_PACKAGE _PACKAGE_NAME _PACKAGE_VERSION)
+ENDMACRO()
 

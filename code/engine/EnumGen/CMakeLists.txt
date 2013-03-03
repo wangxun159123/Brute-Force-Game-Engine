@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-BFG_INIT_PACKAGE(EnumGen "1.0.0")
+BFG_INIT_PACKAGE(EnumGen)
 
 FILE(GLOB EnumGen_SOURCES *.cpp)
 FILE(GLOB EnumGen_HEADERS *.h)

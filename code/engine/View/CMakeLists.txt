@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-BFG_INIT_PACKAGE(View "0.5.0")
+BFG_INIT_PACKAGE(View)
 
 FILE(GLOB View_SOURCES *.cpp)
 FILE(GLOB View_HEADERS *.h *.hh)

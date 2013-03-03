@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-BFG_INIT_PACKAGE(Audio "0.1.0")
+BFG_INIT_PACKAGE(Audio)
 
 FILE(GLOB Audio_SOURCES *.cpp)
 FILE(GLOB Audio_HEADERS *.h *.xml *.hh)

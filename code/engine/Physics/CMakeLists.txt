@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-BFG_INIT_PACKAGE(Physics "0.3.3")
+BFG_INIT_PACKAGE(Physics)
 
 FILE(GLOB Physics_SOURCES *.cpp)
 FILE(GLOB Physics_HEADERS *.h *.hh)

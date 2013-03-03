@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-BFG_INIT_PACKAGE(Model "0.3.3")
+BFG_INIT_PACKAGE(Model)
 
 FILE(GLOB Model_Root_HEADERS *.h *.hh)
 FILE(GLOB Model_Root_SOURCES *.cpp)

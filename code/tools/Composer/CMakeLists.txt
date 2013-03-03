@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-BFG_INIT_PACKAGE(Composer "0.3.0")
+BFG_INIT_PACKAGE(Composer)
 
 FILE(GLOB COMPOSER_SOURCES
 	*.cpp

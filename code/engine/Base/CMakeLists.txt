@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-BFG_INIT_PACKAGE(Base "1.0.0")
+BFG_INIT_PACKAGE(Base)
 
 FILE(GLOB Base_SOURCES *.cpp)
 FILE(GLOB Base_HEADERS *.h)

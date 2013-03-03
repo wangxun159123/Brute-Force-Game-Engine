@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-BFG_INIT_PACKAGE(Chat "0.3.0")
+BFG_INIT_PACKAGE(Chat)
 
 FILE(GLOB CHAT_SOURCES
 	*.cpp

@@ -1,6 +1,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-BFG_INIT_PACKAGE(EventSystem "1.0.0")
+BFG_INIT_PACKAGE(EventSystem)
 
 FILE(GLOB Event_SOURCES         *.cpp)
 FILE(GLOB EventCore_SOURCES     Core/*.cpp)

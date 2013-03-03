@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-BFG_INIT_PACKAGE(Controller "1.0.0")
+BFG_INIT_PACKAGE(Controller)
 
 FILE(GLOB Controller_SOURCES *.cpp)
 FILE(GLOB Controller_HEADERS *.h *.hh)

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-BFG_INIT_PACKAGE(Network "0.1.0")
+BFG_INIT_PACKAGE(Network)
 
 FILE(GLOB Network_SOURCES *.cpp)
 FILE(GLOB Network_HEADERS *.h *.hh)
