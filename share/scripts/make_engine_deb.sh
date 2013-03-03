@@ -1,14 +1,15 @@
 #!/bin/bash
 
+CMAKE=`which cmake`
+
+if [ ! -x $CMAKE ]; then echo "Please install CMake" && exit; fi
+
 PACKAGE=package
 PREFIX=$PACKAGE/usr
 CPUS=`grep -c processor /proc/cpuinfo`
-JOBS=`echo $CPUS + 1 | bc`
-VERSION="0.3.0"
-DEBIAN_ARCH="i386"
-#DEBIAN_ARCH="amd64"
-
-CMAKE='/usr/bin/cmake'
+JOBS=`echo print $CPUS + 1 | perl`
+VERSION="0.4.0"
+DEBIAN_ARCH="`dpkg --print-architecture`"
 
 # Relative to the temporary build directory
 RELATIVE_BFG_ROOT_PATH="../../.."
@@ -87,4 +88,3 @@ prelude
 buildBfg
 makePackage
 postlude
-

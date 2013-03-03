@@ -1,25 +1,23 @@
 #!/bin/bash
 
 CMAKE=`which cmake`
-WGET=`which wget`
-TAR=`which tar`
 SVN=`which svn`
-BC=`which bc`
+TAR=`which tar`
+WGET=`which wget`
 
 if [ ! -x $CMAKE ]; then echo "Please install CMake" && exit; fi
-if [ ! -x $WGET ]; then echo "Please install wget" && exit; fi
-if [ ! -x $TAR ]; then echo "Please install tar" && exit; fi
 if [ ! -x $SVN ]; then echo "Please install Subversion" && exit; fi
-if [ ! -x $BC ]; then echo "Please install bc" && exit; fi
+if [ ! -x $TAR ]; then echo "Please install tar" && exit; fi
+if [ ! -x $WGET ]; then echo "Please install wget" && exit; fi
 
 # pbuilder:
-# 1. apt-get install git wget bc subversion vim cmake ssh automake libtool
+# 1. apt-get install git wget subversion vim cmake ssh automake libtool
 # 2. check compile flags (use -mtune=generic)
 
 PACKAGE=package
 PREFIX=$PACKAGE/usr
 CPUS=`grep -c processor /proc/cpuinfo`
-JOBS=`echo $CPUS + 1 | $BC`
+JOBS=`echo print $CPUS + 1 | perl`
 VERSION="0.4.0"
 DEBIAN_ARCH="`dpkg --print-architecture`"
 
@@ -230,7 +228,6 @@ function buildOde
 	make -j$JOBS install
 	cd ..
 }
-
 
 # MD5SUMS
 ##########
