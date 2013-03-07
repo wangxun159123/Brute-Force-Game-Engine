@@ -24,3 +24,8 @@ libfreeimage-dev  : 3.13.1 (Support library for graphics image formats)
 libzip-dev        : 0.9.3 (library for reading, creating, and modifying zip archives)
 libzzip-dev       : 0.13.56 (library providing read access on ZIP-archives)
 uuid-dev          : 2.19.1 (Universally unique id library)
+
+Other Dependencies
+------------------
+
+NSIS : 2.46 (Windows, Nullsoft Installer for the `package' target)
