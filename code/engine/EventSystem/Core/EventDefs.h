@@ -103,7 +103,10 @@ public:
 		return sizeof(TBaseEvent<DataType, Header>);
 	}
 
-	TBaseEvent(const TBaseEvent& event) : mData(event.mData) {} 
+	TBaseEvent(const TBaseEvent& event) :
+	Header(),
+	mData(event.mData)
+	{} 
 
 
 private:
