@@ -80,6 +80,7 @@ struct ObjectParameter
 		{
 			mLocation.position = loadVector3(tree->child("Position"));
 			mLocation.orientation = loadQuaternion(tree->child("Orientation"));
+			parseConnection(tree->child("Connection")->elementData(), mConnection);
 		}
 		catch (std::exception& e)
 		{
