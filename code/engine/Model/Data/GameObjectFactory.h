@@ -50,6 +50,7 @@ namespace Property
 	class ConceptFactory;
 }
 
+struct Adapter;
 class Environment;
 class GameObject;
 struct CameraParameter;
@@ -84,6 +85,9 @@ public:
 private:
 	void createEmptyGameObject(const BFG::ObjectParameter& parameter, boost::shared_ptr< BFG::GameObject >& gameObject, GameHandle goHandle);
 	void createModule(const BFG::ObjectParameter& parameter, BFG::ModuleParametersT& moduleParameter, bool isRoot, GameHandle goHandle, boost::shared_ptr<BFG::GameObject>& gameObject, std::map<std::string, BFG::GameHandle>& moduleNameHandleMap);
+	
+	std::vector<Adapter>
+	createAdapters(ModuleParametersT& moduleParameter) const;
 	
 	GoModuleMapT mGoModules;
 	GoMapT mGameObjects;

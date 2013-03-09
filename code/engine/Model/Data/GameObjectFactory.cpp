@@ -110,6 +110,7 @@ GameObjectFactory::createGameObject(const ObjectParameter& parameter)
 boost::shared_ptr<GameObject>
 GameObjectFactory::createRemoteGameObject(const ObjectParameter& parameter)
 {
+	return boost::shared_ptr<GameObject>();
 }
 
 void GameObjectFactory::createEmptyGameObject(const BFG::ObjectParameter& parameter, boost::shared_ptr<BFG::GameObject>& gameObject, GameHandle goHandle)
@@ -139,8 +140,6 @@ void GameObjectFactory::createModule(const BFG::ObjectParameter& parameter, BFG:
 		moduleHandle = goHandle;
 	else
 		moduleHandle = generateHandle();
-
-	boost::shared_ptr<Module> module(new Module(moduleHandle));
 
 	bool isVirtual = moduleParameter->mMesh.empty();
 
@@ -190,6 +189,8 @@ void GameObjectFactory::createModule(const BFG::ObjectParameter& parameter, BFG:
 		}
 	}
 
+	boost::shared_ptr<Module> module(new Module(moduleHandle));
+	
 	ConceptConfig::ConceptParameterListT::iterator conceptIt = conceptParameter->mConceptParameters.begin();
 
 	for (; conceptIt != conceptParameter->mConceptParameters.end(); ++conceptIt)
@@ -236,36 +237,45 @@ void GameObjectFactory::createModule(const BFG::ObjectParameter& parameter, BFG:
 	}
 	else
 	{
-		std::vector<Adapter> adapterVector;
-
-		if (!moduleParameter->mAdapter.empty())
-		{
-			AdapterConfigT adapterParameter = mAdapterParameters.requestConfig(moduleParameter->mAdapter);
-			AdapterConfig::AdapterParameterListT::iterator adapterIt = adapterParameter->mAdapters.begin();
-
-			for (; adapterIt != adapterParameter->mAdapters.end(); ++adapterIt)
-			{
-				AdapterParametersT adapterParameter = *adapterIt;
-
-				Adapter adapter;
-				adapter.mParentPosition = adapterParameter->mPosition;
-				adapter.mParentOrientation = adapterParameter->mOrientation;
-				adapter.mIdentifier = adapterParameter->mId;
-
-				adapterVector.push_back(adapter);
-			}
-		}
+		std::vector<Adapter> adapters = createAdapters(moduleParameter);
 
 		gameObject->attachModule
 		(
 			module,
-			adapterVector,
+			adapters,
 			moduleParameter->mConnection.mConnectedLocalAt,
 			parentHandle,
 			moduleParameter->mConnection.mConnectedExternAt
 		);
 	}
 }
+
+std::vector<Adapter>
+GameObjectFactory::createAdapters(ModuleParametersT& moduleParameter) const
+{
+	std::vector<Adapter> adapters;
+
+	if (!moduleParameter->mAdapter.empty())
+	{
+		const AdapterConfigT adapterParameter = mAdapterParameters.requestConfig(moduleParameter->mAdapter);
+		AdapterConfig::AdapterParameterListT::const_iterator adapterIt = adapterParameter->mAdapters.begin();
+
+		for (; adapterIt != adapterParameter->mAdapters.end(); ++adapterIt)
+		{
+			AdapterParametersT adapterParameter = *adapterIt;
+
+			Adapter adapter;
+			adapter.mParentPosition = adapterParameter->mPosition;
+			adapter.mParentOrientation = adapterParameter->mOrientation;
+			adapter.mIdentifier = adapterParameter->mId;
+
+			adapters.push_back(adapter);
+		}
+	}
+	
+	return adapters;
+}
+
 
 boost::shared_ptr<GameObject>
 GameObjectFactory::createCamera(const CameraParameter& cameraParameter,
