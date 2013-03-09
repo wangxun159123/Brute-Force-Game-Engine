@@ -131,7 +131,7 @@ void GameObjectFactory::createEmptyGameObject(const BFG::ObjectParameter& parame
 	mEnvironment->addGameObject(gameObject);
 }
 
-void GameObjectFactory::createModule(const BFG::ObjectParameter& parameter, BFG::ModuleParametersT& moduleParameter, bool isRoot, GameHandle goHandle, boost::shared_ptr< BFG::GameObject >& gameObject, std::map< std::string, BFG::GameHandle >& moduleNameHandleMap)
+void GameObjectFactory::createModule(const BFG::ObjectParameter& parameter, BFG::ModuleParametersT moduleParameter, bool isRoot, GameHandle goHandle, boost::shared_ptr< BFG::GameObject >& gameObject, std::map< std::string, BFG::GameHandle >& moduleNameHandleMap)
 {
 	GameHandle moduleHandle;
 
@@ -190,25 +190,7 @@ void GameObjectFactory::createModule(const BFG::ObjectParameter& parameter, BFG:
 	}
 
 	boost::shared_ptr<Module> module(new Module(moduleHandle));
-	
-	ConceptConfig::ConceptParameterListT::iterator conceptIt = conceptParameter->mConceptParameters.begin();
-
-	for (; conceptIt != conceptParameter->mConceptParameters.end(); ++conceptIt)
-	{
-		ConceptParametersT conceptParameter = *conceptIt;
-		
-		PropertyConfigT valueConfig = mValueParameters.requestConfig(conceptParameter->mProperties);
-		PropertyConfig::PropertyParametersListT::iterator valueIt = valueConfig->mValueParameters.begin();
-
-		for (; valueIt != valueConfig->mValueParameters.end(); ++valueIt)
-		{
-			PropertyParametersT valueParameter = *valueIt;
-			ValueId vId = Property::symbolToValueId(valueParameter->mName, mPropertyPlugins);
-			module->mValues[vId] = valueParameter->mValue;
-		}
-
-		module->mPropertyConcepts.push_back(conceptParameter->mName);
-	}
+	addConceptsTo(module, conceptParameter);
 
 	// Store GameHandle for later use
 	moduleNameHandleMap[moduleParameter->mName] = moduleHandle;
@@ -251,7 +233,7 @@ void GameObjectFactory::createModule(const BFG::ObjectParameter& parameter, BFG:
 }
 
 std::vector<Adapter>
-GameObjectFactory::createAdapters(ModuleParametersT& moduleParameter) const
+GameObjectFactory::createAdapters(ModuleParametersT moduleParameter) const
 {
 	std::vector<Adapter> adapters;
 
@@ -276,6 +258,27 @@ GameObjectFactory::createAdapters(ModuleParametersT& moduleParameter) const
 	return adapters;
 }
 
+void GameObjectFactory::addConceptsTo(boost::shared_ptr<Module> module, const ConceptConfigT conceptParameter) const
+{
+	ConceptConfig::ConceptParameterListT::const_iterator conceptIt = conceptParameter->mConceptParameters.begin();
+
+	for (; conceptIt != conceptParameter->mConceptParameters.end(); ++conceptIt)
+	{
+		ConceptParametersT conceptParameter = *conceptIt;
+		
+		PropertyConfigT valueConfig = mValueParameters.requestConfig(conceptParameter->mProperties);
+		PropertyConfig::PropertyParametersListT::const_iterator valueIt = valueConfig->mValueParameters.begin();
+
+		for (; valueIt != valueConfig->mValueParameters.end(); ++valueIt)
+		{
+			PropertyParametersT valueParameter = *valueIt;
+			ValueId vId = Property::symbolToValueId(valueParameter->mName, mPropertyPlugins);
+			module->mValues[vId] = valueParameter->mValue;
+		}
+
+		module->mPropertyConcepts.push_back(conceptParameter->mName);
+	}
+}
 
 boost::shared_ptr<GameObject>
 GameObjectFactory::createCamera(const CameraParameter& cameraParameter,

@@ -51,9 +51,10 @@ namespace Property
 }
 
 struct Adapter;
+struct CameraParameter;
 class Environment;
 class GameObject;
-struct CameraParameter;
+struct Module;
 
 class MODEL_API GameObjectFactory : Emitter
 {
@@ -84,10 +85,12 @@ public:
 
 private:
 	void createEmptyGameObject(const BFG::ObjectParameter& parameter, boost::shared_ptr< BFG::GameObject >& gameObject, GameHandle goHandle);
-	void createModule(const BFG::ObjectParameter& parameter, BFG::ModuleParametersT& moduleParameter, bool isRoot, GameHandle goHandle, boost::shared_ptr<BFG::GameObject>& gameObject, std::map<std::string, BFG::GameHandle>& moduleNameHandleMap);
+	void createModule(const BFG::ObjectParameter& parameter, BFG::ModuleParametersT moduleParameter, bool isRoot, GameHandle goHandle, boost::shared_ptr<BFG::GameObject>& gameObject, std::map<std::string, BFG::GameHandle>& moduleNameHandleMap);
 	
 	std::vector<Adapter>
-	createAdapters(ModuleParametersT& moduleParameter) const;
+	createAdapters(ModuleParametersT moduleParameter) const;
+	
+	void addConceptsTo(boost::shared_ptr<Module> module, const ConceptConfigT conceptParameter) const;
 	
 	GoModuleMapT mGoModules;
 	GoMapT mGameObjects;
