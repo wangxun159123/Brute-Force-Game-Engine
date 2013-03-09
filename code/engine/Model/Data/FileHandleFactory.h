@@ -59,10 +59,10 @@ FileHandleFactory(const std::vector<std::string>& files)
 	}
 }
 
-ConfigT requestConfig(const std::string& configName)
+ConfigT requestConfig(const std::string& configName) const
 {
 	ConfigT result;
-	typename FileHandlerListT::iterator it = mFileHandlerList.begin();
+	typename FileHandlerListT::const_iterator it = mFileHandlerList.begin();
 	
 	for (; it != mFileHandlerList.end(); ++it)
 	{
@@ -74,7 +74,7 @@ ConfigT requestConfig(const std::string& configName)
 	}
 
 	// construct error message.
-	std::vector<std::string>::iterator fileIt = mFileList.begin();
+	std::vector<std::string>::const_iterator fileIt = mFileList.begin();
 	std::string files = "FileList ";
 	
 	for(;fileIt != mFileList.end(); ++fileIt)
