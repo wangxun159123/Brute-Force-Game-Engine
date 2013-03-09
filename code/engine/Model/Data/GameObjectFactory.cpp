@@ -97,163 +97,174 @@ GameObjectFactory::createGameObject(const ObjectParameter& parameter)
 	
 	for (; moduleIt != modules->mModules.end(); ++moduleIt)
 	{
-		ModuleParametersT moduleParameter = *moduleIt;
-
-		GameHandle moduleHandle;
-
-		// The root module and its owner GameObject must share the same GameHandle.
-		if (isRoot)
-			moduleHandle = goHandle;
-		else
-			moduleHandle = generateHandle();
-
-		boost::shared_ptr<Module> module(new Module(moduleHandle));
-
-		bool isVirtual = moduleParameter->mMesh.empty();
-
-		if (! isVirtual)		
-		{
-			// Physical representation			
-			Physics::ModuleCreationParams mcp
-			(
-				goHandle,
-				moduleHandle,
-				moduleParameter->mMesh,
-				moduleParameter->mCollision,
-				v3::ZERO,
-				qv4::IDENTITY,
-				moduleParameter->mDensity
-			);
-
-			emit<Physics::Event>(ID::PE_ATTACH_MODULE, mcp);
-
-			// Visual representation
-			View::ObjectCreation oc
-			(
-				NULL_HANDLE,
-				moduleHandle,
-				moduleParameter->mMesh,
-				v3::ZERO,
-				qv4::IDENTITY
-			);
-
-			emit<View::Event>(ID::VE_CREATE_OBJECT, oc, mStateHandle);
-
-			if (!isRoot)
-			{
-				emit<View::Event>(ID::VE_ATTACH_OBJECT, moduleHandle, goHandle);
-			}
-		}
-
-		ConceptConfigT conceptParameter = mConceptParameters.requestConfig(moduleParameter->mConcept);
-		
-		// Load "Concepts" and their "Values"
-		if (!conceptParameter)
-		{
-			if (moduleParameter->mConcept.empty())
-			{
-				throw std::runtime_error
-					("GameObjectFactory::createGameObject(): Missing concept specification for object type \"" + parameter.mType + "\".");
-			}
-		}
-
-		ConceptConfig::ConceptParameterListT::iterator conceptIt = conceptParameter->mConceptParameters.begin();
-
-		for (; conceptIt != conceptParameter->mConceptParameters.end(); ++conceptIt)
-		{
-			ConceptParametersT conceptParameter = *conceptIt;
-			
-			PropertyConfigT valueConfig = mValueParameters.requestConfig(conceptParameter->mProperties);
-			PropertyConfig::PropertyParametersListT::iterator valueIt = valueConfig->mValueParameters.begin();
-
-			for (; valueIt != valueConfig->mValueParameters.end(); ++valueIt)
-			{
-				PropertyParametersT valueParameter = *valueIt;
-				ValueId vId = Property::symbolToValueId(valueParameter->mName, mPropertyPlugins);
-				module->mValues[vId] = valueParameter->mValue;
-			}
-
-			module->mPropertyConcepts.push_back(conceptParameter->mName);
-		}
-
-		// Store GameHandle for later use
-		moduleNameHandleMap[moduleParameter->mName] = moduleHandle;
-
-		if (isRoot)
-		{
-			if (! isVirtual)
-			{
-				emit<Physics::Event>(ID::PE_UPDATE_VELOCITY, parameter.mLinearVelocity, goHandle);
-				emit<Physics::Event>(ID::PE_UPDATE_ROTATION_VELOCITY, parameter.mAngularVelocity, goHandle);
-			}
-
-			// Create GameObject
-			gameObject.reset
-			(
-				new GameObject
-				(
-					loop(),
-					goHandle,
-					parameter.mName,
-					mPropertyPlugins,
-					mEnvironment
-				)
-			);
-
-			// Register it in the environment
-			mEnvironment->addGameObject(gameObject);
-		}
-
-		GameHandle parentHandle;
-
-		if (moduleParameter->mConnection.mConnectedExternToModule.empty())
-			parentHandle = NULL_HANDLE;
-		else
-			parentHandle = moduleNameHandleMap[moduleParameter->mConnection.mConnectedExternToModule];
-
-		if (isVirtual)
-		{
-			gameObject->attachModule(module);
-		}
-		else
-		{
-			std::vector<Adapter> adapterVector;
-
-			if (!moduleParameter->mAdapter.empty())
-			{
-				AdapterConfigT adapterParameter = mAdapterParameters.requestConfig(moduleParameter->mAdapter);
-				AdapterConfig::AdapterParameterListT::iterator adapterIt = adapterParameter->mAdapters.begin();
-
-				for (; adapterIt != adapterParameter->mAdapters.end(); ++adapterIt)
-				{
-					AdapterParametersT adapterParameter = *adapterIt;
-
-					Adapter adapter;
-					adapter.mParentPosition = adapterParameter->mPosition;
-					adapter.mParentOrientation = adapterParameter->mOrientation;
-					adapter.mIdentifier = adapterParameter->mId;
-
-					adapterVector.push_back(adapter);
-				}
-			}
-
-			gameObject->attachModule
-			(
-				module,
-				adapterVector,
-				moduleParameter->mConnection.mConnectedLocalAt,
-				parentHandle,
-				moduleParameter->mConnection.mConnectedExternAt
-			);
-		}
-
-		isRoot = false;	
+		createModule(parameter, *moduleIt, isRoot, goHandle, gameObject, moduleNameHandleMap);
+		isRoot = false;
 	}
 
 	mGoModules[parameter.mName] = moduleNameHandleMap;
 	mGameObjects[parameter.mName] = gameObject;
 
 	return gameObject;
+}
+
+boost::shared_ptr<GameObject>
+GameObjectFactory::createRemoteGameObject(const ObjectParameter& parameter)
+{
+}
+
+void GameObjectFactory::createEmptyGameObject(const BFG::ObjectParameter& parameter, boost::shared_ptr<BFG::GameObject>& gameObject, GameHandle goHandle)
+{
+	gameObject.reset
+	(
+		new GameObject
+		(
+			loop(),
+			goHandle,
+			parameter.mName,
+			mPropertyPlugins,
+			mEnvironment
+		)
+	);
+
+	// Register it in the environment
+	mEnvironment->addGameObject(gameObject);
+}
+
+void GameObjectFactory::createModule(const BFG::ObjectParameter& parameter, BFG::ModuleParametersT& moduleParameter, bool isRoot, GameHandle goHandle, boost::shared_ptr< BFG::GameObject >& gameObject, std::map< std::string, BFG::GameHandle >& moduleNameHandleMap)
+{
+	GameHandle moduleHandle;
+
+	// The root module and its owner GameObject must share the same GameHandle.
+	if (isRoot)
+		moduleHandle = goHandle;
+	else
+		moduleHandle = generateHandle();
+
+	boost::shared_ptr<Module> module(new Module(moduleHandle));
+
+	bool isVirtual = moduleParameter->mMesh.empty();
+
+	if (! isVirtual)
+	{
+		// Physical representation			
+		Physics::ModuleCreationParams mcp
+		(
+			goHandle,
+			moduleHandle,
+			moduleParameter->mMesh,
+			moduleParameter->mCollision,
+			v3::ZERO,
+			qv4::IDENTITY,
+			moduleParameter->mDensity
+		);
+
+		emit<Physics::Event>(ID::PE_ATTACH_MODULE, mcp);
+
+		// Visual representation
+		View::ObjectCreation oc
+		(
+			NULL_HANDLE,
+			moduleHandle,
+			moduleParameter->mMesh,
+			v3::ZERO,
+			qv4::IDENTITY
+		);
+
+		emit<View::Event>(ID::VE_CREATE_OBJECT, oc, mStateHandle);
+
+		if (!isRoot)
+		{
+			emit<View::Event>(ID::VE_ATTACH_OBJECT, moduleHandle, goHandle);
+		}
+	}
+
+	ConceptConfigT conceptParameter = mConceptParameters.requestConfig(moduleParameter->mConcept);
+	
+	// Load "Concepts" and their "Values"
+	if (!conceptParameter)
+	{
+		if (moduleParameter->mConcept.empty())
+		{
+			throw std::runtime_error
+				("GameObjectFactory::createGameObject(): Missing concept specification for object type \"" + parameter.mType + "\".");
+		}
+	}
+
+	ConceptConfig::ConceptParameterListT::iterator conceptIt = conceptParameter->mConceptParameters.begin();
+
+	for (; conceptIt != conceptParameter->mConceptParameters.end(); ++conceptIt)
+	{
+		ConceptParametersT conceptParameter = *conceptIt;
+		
+		PropertyConfigT valueConfig = mValueParameters.requestConfig(conceptParameter->mProperties);
+		PropertyConfig::PropertyParametersListT::iterator valueIt = valueConfig->mValueParameters.begin();
+
+		for (; valueIt != valueConfig->mValueParameters.end(); ++valueIt)
+		{
+			PropertyParametersT valueParameter = *valueIt;
+			ValueId vId = Property::symbolToValueId(valueParameter->mName, mPropertyPlugins);
+			module->mValues[vId] = valueParameter->mValue;
+		}
+
+		module->mPropertyConcepts.push_back(conceptParameter->mName);
+	}
+
+	// Store GameHandle for later use
+	moduleNameHandleMap[moduleParameter->mName] = moduleHandle;
+
+	if (isRoot)
+	{
+		if (! isVirtual)
+		{
+			emit<Physics::Event>(ID::PE_UPDATE_VELOCITY, parameter.mLinearVelocity, goHandle);
+			emit<Physics::Event>(ID::PE_UPDATE_ROTATION_VELOCITY, parameter.mAngularVelocity, goHandle);
+		}
+
+		createEmptyGameObject(parameter, gameObject, goHandle);
+	}
+
+	GameHandle parentHandle;
+
+	if (moduleParameter->mConnection.mConnectedExternToModule.empty())
+		parentHandle = NULL_HANDLE;
+	else
+		parentHandle = moduleNameHandleMap[moduleParameter->mConnection.mConnectedExternToModule];
+
+	if (isVirtual)
+	{
+		gameObject->attachModule(module);
+	}
+	else
+	{
+		std::vector<Adapter> adapterVector;
+
+		if (!moduleParameter->mAdapter.empty())
+		{
+			AdapterConfigT adapterParameter = mAdapterParameters.requestConfig(moduleParameter->mAdapter);
+			AdapterConfig::AdapterParameterListT::iterator adapterIt = adapterParameter->mAdapters.begin();
+
+			for (; adapterIt != adapterParameter->mAdapters.end(); ++adapterIt)
+			{
+				AdapterParametersT adapterParameter = *adapterIt;
+
+				Adapter adapter;
+				adapter.mParentPosition = adapterParameter->mPosition;
+				adapter.mParentOrientation = adapterParameter->mOrientation;
+				adapter.mIdentifier = adapterParameter->mId;
+
+				adapterVector.push_back(adapter);
+			}
+		}
+
+		gameObject->attachModule
+		(
+			module,
+			adapterVector,
+			moduleParameter->mConnection.mConnectedLocalAt,
+			parentHandle,
+			moduleParameter->mConnection.mConnectedExternAt
+		);
+	}
 }
 
 boost::shared_ptr<GameObject>

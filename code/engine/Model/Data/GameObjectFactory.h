@@ -70,6 +70,9 @@ public:
 	createGameObject(const ObjectParameter& parameters);
 
 	boost::shared_ptr<GameObject>
+	createRemoteGameObject(const ObjectParameter& parameters);
+
+	boost::shared_ptr<GameObject>
 	createCamera(const CameraParameter& cameraParameter,
                  const std::string& parentObject);
 
@@ -79,6 +82,9 @@ public:
 	const GoMapT& names() const { return mGameObjects; }
 
 private:
+	void createEmptyGameObject(const BFG::ObjectParameter& parameter, boost::shared_ptr< BFG::GameObject >& gameObject, GameHandle goHandle);
+	void createModule(const BFG::ObjectParameter& parameter, BFG::ModuleParametersT& moduleParameter, bool isRoot, GameHandle goHandle, boost::shared_ptr<BFG::GameObject>& gameObject, std::map<std::string, BFG::GameHandle>& moduleNameHandleMap);
+	
 	GoModuleMapT mGoModules;
 	GoMapT mGameObjects;
 
