@@ -87,7 +87,11 @@ private:
 	boost::shared_ptr<GameObject>
 	createEmptyGameObject(const BFG::ObjectParameter& parameter, GameHandle goHandle);
 
-	void createModule(const BFG::ObjectParameter& parameter, BFG::ModuleParametersT moduleParameter, bool isRoot, boost::shared_ptr<BFG::GameObject> gameObject, std::map<std::string, BFG::GameHandle>& moduleNameHandleMap);
+	boost::shared_ptr<Module>
+	createModule(const BFG::ObjectParameter& parameter, BFG::ModuleParametersT moduleParameter, bool isRoot, GameHandle goHandle);
+	
+	void
+	attachModuleTo(boost::shared_ptr<BFG::GameObject> gameObject, boost::shared_ptr<Module> module, BFG::ModuleParametersT moduleParameter,  std::map<std::string, BFG::GameHandle>& moduleNameHandleMap);
 	
 	std::vector<Adapter>
 	createAdapters(ModuleParametersT moduleParameter) const;

@@ -93,10 +93,17 @@ GameObjectFactory::createGameObject(const ObjectParameter& parameter)
 	// previously created modules.
 	std::map<std::string, GameHandle> moduleNameHandleMap;
 
-	ModuleConfig::ModulesT::iterator moduleIt = modules->mModules.begin();
+	ModuleConfig::ModulesT::const_iterator moduleIt = modules->mModules.begin();
 	for (; moduleIt != modules->mModules.end(); ++moduleIt)
 	{
-		createModule(parameter, *moduleIt, isRoot, gameObject, moduleNameHandleMap);
+		boost::shared_ptr<Module> module =
+			createModule(parameter, *moduleIt, isRoot, goHandle);
+		
+		// Store GameHandle for later use
+		moduleNameHandleMap[(*moduleIt)->mName] = module->getHandle();
+		
+		attachModuleTo(gameObject, module, *moduleIt, moduleNameHandleMap);
+		
 		isRoot = false;
 	}
 
@@ -130,13 +137,14 @@ GameObjectFactory::createEmptyGameObject(const BFG::ObjectParameter& parameter, 
 	return go;
 }
 
-void GameObjectFactory::createModule(const BFG::ObjectParameter& parameter, BFG::ModuleParametersT moduleParameter, bool isRoot, boost::shared_ptr<BFG::GameObject> gameObject, std::map< std::string, BFG::GameHandle >& moduleNameHandleMap)
+boost::shared_ptr<Module>
+GameObjectFactory::createModule(const BFG::ObjectParameter& parameter, BFG::ModuleParametersT moduleParameter, bool isRoot, GameHandle goHandle)
 {
 	GameHandle moduleHandle;
 
 	// The root module and its owner GameObject must share the same GameHandle.
 	if (isRoot)
-		moduleHandle = gameObject->getHandle();
+		moduleHandle = goHandle;
 	else
 		moduleHandle = generateHandle();
 
@@ -147,7 +155,7 @@ void GameObjectFactory::createModule(const BFG::ObjectParameter& parameter, BFG:
 		// Physical representation			
 		Physics::ModuleCreationParams mcp
 		(
-			gameObject->getHandle(),
+			goHandle,
 			moduleHandle,
 			moduleParameter->mMesh,
 			moduleParameter->mCollision,
@@ -172,7 +180,7 @@ void GameObjectFactory::createModule(const BFG::ObjectParameter& parameter, BFG:
 
 		if (!isRoot)
 		{
-			emit<View::Event>(ID::VE_ATTACH_OBJECT, moduleHandle, gameObject->getHandle());
+			emit<View::Event>(ID::VE_ATTACH_OBJECT, moduleHandle, goHandle);
 		}
 	}
 
@@ -191,31 +199,32 @@ void GameObjectFactory::createModule(const BFG::ObjectParameter& parameter, BFG:
 	boost::shared_ptr<Module> module(new Module(moduleHandle));
 	addConceptsTo(module, conceptParameter);
 
-	// Store GameHandle for later use
-	moduleNameHandleMap[moduleParameter->mName] = moduleHandle;
-
 	if (isRoot)
 	{
 		if (! isVirtual)
 		{
-			emit<Physics::Event>(ID::PE_UPDATE_VELOCITY, parameter.mLinearVelocity, gameObject->getHandle());
-			emit<Physics::Event>(ID::PE_UPDATE_ROTATION_VELOCITY, parameter.mAngularVelocity, gameObject->getHandle());
+			emit<Physics::Event>(ID::PE_UPDATE_VELOCITY, parameter.mLinearVelocity, goHandle);
+			emit<Physics::Event>(ID::PE_UPDATE_ROTATION_VELOCITY, parameter.mAngularVelocity, goHandle);
 		}
 	}
+	return module;
+}
 
-	GameHandle parentHandle;
-
-	if (moduleParameter->mConnection.mConnectedExternToModule.empty())
-		parentHandle = NULL_HANDLE;
-	else
-		parentHandle = moduleNameHandleMap[moduleParameter->mConnection.mConnectedExternToModule];
-
+void GameObjectFactory::attachModuleTo(boost::shared_ptr<BFG::GameObject> gameObject, boost::shared_ptr<Module> module, BFG::ModuleParametersT moduleParameter,  std::map<std::string, BFG::GameHandle>& moduleNameHandleMap)
+{
+	bool isVirtual = moduleParameter->mMesh.empty();
 	if (isVirtual)
 	{
 		gameObject->attachModule(module);
 	}
 	else
 	{
+		GameHandle parentHandle;
+		if (moduleParameter->mConnection.mConnectedExternToModule.empty())
+			parentHandle = NULL_HANDLE;
+		else
+			parentHandle = moduleNameHandleMap[moduleParameter->mConnection.mConnectedExternToModule];
+		
 		std::vector<Adapter> adapters = createAdapters(moduleParameter);
 
 		gameObject->attachModule
@@ -226,7 +235,7 @@ void GameObjectFactory::createModule(const BFG::ObjectParameter& parameter, BFG:
 			parentHandle,
 			moduleParameter->mConnection.mConnectedExternAt
 		);
-	}
+	}	
 }
 
 std::vector<Adapter>
