@@ -81,14 +81,14 @@ GameObjectFactory::createGameObject(const ObjectParameter& parameter)
 	// First Module is always root
 	bool isRoot = true;
 
-	boost::shared_ptr<GameObject> gameObject;
+	boost::shared_ptr<GameObject> gameObject =
+		createEmptyGameObject(parameter, goHandle);
 
 	// In order to connect Modules together, we need the GameHandles of
 	// previously created modules.
 	std::map<std::string, GameHandle> moduleNameHandleMap;
 
 	ModuleConfigT modules = mModuleParameters.requestConfig(parameter.mType);
-
 	if (!modules)
 		throw std::runtime_error("GameObjectFactory::createGameObject(): "
 			"Type \"" + parameter.mType + "\" not found!");
@@ -97,7 +97,7 @@ GameObjectFactory::createGameObject(const ObjectParameter& parameter)
 	
 	for (; moduleIt != modules->mModules.end(); ++moduleIt)
 	{
-		createModule(parameter, *moduleIt, isRoot, goHandle, gameObject, moduleNameHandleMap);
+		createModule(parameter, *moduleIt, isRoot, gameObject, moduleNameHandleMap);
 		isRoot = false;
 	}
 
@@ -113,10 +113,10 @@ GameObjectFactory::createRemoteGameObject(const ObjectParameter& parameter)
 	return boost::shared_ptr<GameObject>();
 }
 
-void GameObjectFactory::createEmptyGameObject(const BFG::ObjectParameter& parameter, boost::shared_ptr<BFG::GameObject>& gameObject, GameHandle goHandle)
+boost::shared_ptr<GameObject>
+GameObjectFactory::createEmptyGameObject(const BFG::ObjectParameter& parameter, GameHandle goHandle)
 {
-	gameObject.reset
-	(
+	boost::shared_ptr<BFG::GameObject> go(
 		new GameObject
 		(
 			loop(),
@@ -127,17 +127,17 @@ void GameObjectFactory::createEmptyGameObject(const BFG::ObjectParameter& parame
 		)
 	);
 
-	// Register it in the environment
-	mEnvironment->addGameObject(gameObject);
+	mEnvironment->addGameObject(go);
+	return go;
 }
 
-void GameObjectFactory::createModule(const BFG::ObjectParameter& parameter, BFG::ModuleParametersT moduleParameter, bool isRoot, GameHandle goHandle, boost::shared_ptr< BFG::GameObject >& gameObject, std::map< std::string, BFG::GameHandle >& moduleNameHandleMap)
+void GameObjectFactory::createModule(const BFG::ObjectParameter& parameter, BFG::ModuleParametersT moduleParameter, bool isRoot, boost::shared_ptr<BFG::GameObject> gameObject, std::map< std::string, BFG::GameHandle >& moduleNameHandleMap)
 {
 	GameHandle moduleHandle;
 
 	// The root module and its owner GameObject must share the same GameHandle.
 	if (isRoot)
-		moduleHandle = goHandle;
+		moduleHandle = gameObject->getHandle();
 	else
 		moduleHandle = generateHandle();
 
@@ -148,7 +148,7 @@ void GameObjectFactory::createModule(const BFG::ObjectParameter& parameter, BFG:
 		// Physical representation			
 		Physics::ModuleCreationParams mcp
 		(
-			goHandle,
+			gameObject->getHandle(),
 			moduleHandle,
 			moduleParameter->mMesh,
 			moduleParameter->mCollision,
@@ -173,7 +173,7 @@ void GameObjectFactory::createModule(const BFG::ObjectParameter& parameter, BFG:
 
 		if (!isRoot)
 		{
-			emit<View::Event>(ID::VE_ATTACH_OBJECT, moduleHandle, goHandle);
+			emit<View::Event>(ID::VE_ATTACH_OBJECT, moduleHandle, gameObject->getHandle());
 		}
 	}
 
@@ -199,11 +199,9 @@ void GameObjectFactory::createModule(const BFG::ObjectParameter& parameter, BFG:
 	{
 		if (! isVirtual)
 		{
-			emit<Physics::Event>(ID::PE_UPDATE_VELOCITY, parameter.mLinearVelocity, goHandle);
-			emit<Physics::Event>(ID::PE_UPDATE_ROTATION_VELOCITY, parameter.mAngularVelocity, goHandle);
+			emit<Physics::Event>(ID::PE_UPDATE_VELOCITY, parameter.mLinearVelocity, gameObject->getHandle());
+			emit<Physics::Event>(ID::PE_UPDATE_ROTATION_VELOCITY, parameter.mAngularVelocity, gameObject->getHandle());
 		}
-
-		createEmptyGameObject(parameter, gameObject, goHandle);
 	}
 
 	GameHandle parentHandle;
