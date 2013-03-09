@@ -84,17 +84,16 @@ GameObjectFactory::createGameObject(const ObjectParameter& parameter)
 	boost::shared_ptr<GameObject> gameObject =
 		createEmptyGameObject(parameter, goHandle);
 
-	// In order to connect Modules together, we need the GameHandles of
-	// previously created modules.
-	std::map<std::string, GameHandle> moduleNameHandleMap;
-
 	ModuleConfigT modules = mModuleParameters.requestConfig(parameter.mType);
 	if (!modules)
 		throw std::runtime_error("GameObjectFactory::createGameObject(): "
 			"Type \"" + parameter.mType + "\" not found!");
 
+	// In order to connect Modules together, we need the GameHandles of
+	// previously created modules.
+	std::map<std::string, GameHandle> moduleNameHandleMap;
+
 	ModuleConfig::ModulesT::iterator moduleIt = modules->mModules.begin();
-	
 	for (; moduleIt != modules->mModules.end(); ++moduleIt)
 	{
 		createModule(parameter, *moduleIt, isRoot, gameObject, moduleNameHandleMap);
