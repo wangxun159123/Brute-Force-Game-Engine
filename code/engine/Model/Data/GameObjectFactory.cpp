@@ -150,7 +150,7 @@ GameObjectFactory::createModule(const BFG::ObjectParameter& parameter, BFG::Modu
 
 	bool isVirtual = moduleParameter->mMesh.empty();
 
-	if (! isVirtual)
+	if (!isVirtual)
 	{
 		// Physical representation			
 		Physics::ModuleCreationParams mcp
@@ -177,6 +177,12 @@ GameObjectFactory::createModule(const BFG::ObjectParameter& parameter, BFG::Modu
 		);
 
 		emit<View::Event>(ID::VE_CREATE_OBJECT, oc, mStateHandle);
+		
+		if (isRoot)
+		{
+			emit<Physics::Event>(ID::PE_UPDATE_VELOCITY, parameter.mLinearVelocity, goHandle);
+			emit<Physics::Event>(ID::PE_UPDATE_ROTATION_VELOCITY, parameter.mAngularVelocity, goHandle);
+		}
 
 		if (!isRoot)
 		{
@@ -186,27 +192,13 @@ GameObjectFactory::createModule(const BFG::ObjectParameter& parameter, BFG::Modu
 
 	ConceptConfigT conceptParameter = mConceptParameters.requestConfig(moduleParameter->mConcept);
 	
-	// Load "Concepts" and their "Values"
-	if (!conceptParameter)
-	{
-		if (moduleParameter->mConcept.empty())
-		{
-			throw std::runtime_error
-				("GameObjectFactory::createGameObject(): Missing concept specification for object type \"" + parameter.mType + "\".");
-		}
-	}
+	if (!conceptParameter && moduleParameter->mConcept.empty())
+		throw std::runtime_error
+			("GameObjectFactory::createGameObject(): Missing concept specification for object type \"" + parameter.mType + "\".");
 
 	boost::shared_ptr<Module> module(new Module(moduleHandle));
 	addConceptsTo(module, conceptParameter);
 
-	if (isRoot)
-	{
-		if (! isVirtual)
-		{
-			emit<Physics::Event>(ID::PE_UPDATE_VELOCITY, parameter.mLinearVelocity, goHandle);
-			emit<Physics::Event>(ID::PE_UPDATE_ROTATION_VELOCITY, parameter.mAngularVelocity, goHandle);
-		}
-	}
 	return module;
 }
 
