@@ -14,6 +14,7 @@
 	<ConceptConfig name="ShipConcept" >
 		<PC name="Physical">NoProperties</PC>
 		<PC name="ThrustControl">DefaultEngine</PC>
+		<PC name="Networked">NoProperties</PC>
 	</ConceptConfig>
 
 </ConceptConfigs>

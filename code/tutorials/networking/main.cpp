@@ -195,9 +195,9 @@ struct ClientState : CommonState
 	// state, since we told him so (in `initController').
 	void ControllerEventHandler(BFG::Controller_::VipEvent* e)
 	{
+		infolog << "Got Event:" << e->id();
 		switch(e->getId())
 		{
-			infolog << "Got Event:" << e->id();
 			case SHIP_AXIS_X:
 				emit<BFG::GameObjectEvent>(BFG::ID::GOE_CONTROL_PITCH, boost::get<f32>(e->getData()), mPlayer);
 				break;
