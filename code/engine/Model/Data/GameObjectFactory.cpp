@@ -82,7 +82,7 @@ GameObjectFactory::createGameObject(const ObjectParameter& parameter)
 	bool isRoot = true;
 
 	boost::shared_ptr<GameObject> gameObject =
-		createEmptyGameObject(parameter, goHandle);
+		createEmptyGameObject(parameter.mName, goHandle);
 
 	ModuleConfigT modules = mModuleParameters.requestConfig(parameter.mType);
 	if (!modules)
@@ -114,14 +114,14 @@ GameObjectFactory::createGameObject(const ObjectParameter& parameter)
 }
 
 boost::shared_ptr<GameObject>
-GameObjectFactory::createEmptyGameObject(const BFG::ObjectParameter& parameter, GameHandle goHandle)
+GameObjectFactory::createEmptyGameObject(const std::string& name, GameHandle goHandle)
 {
 	boost::shared_ptr<BFG::GameObject> go(
 		new GameObject
 		(
 			loop(),
 			goHandle,
-			parameter.mName,
+			name,
 			mPropertyPlugins,
 			mEnvironment
 		)
@@ -289,7 +289,6 @@ GameObjectFactory::createCamera(const CameraParameter& cameraParameter,
 	}
 
 	GameHandle parentHandle = it->second.lock()->getHandle();
-
 	GameHandle camHandle = generateHandle();
 
 	Physics::ObjectCreationParams ocp(camHandle, Location());
@@ -308,18 +307,10 @@ GameObjectFactory::createCamera(const CameraParameter& cameraParameter,
 
 	emit<Physics::Event>(ID::PE_ATTACH_MODULE, mcp);
 
-	boost::shared_ptr<GameObject> camera
-	(
-		new GameObject
-		(
-			loop(),
-			camHandle,
-			"Camera",
-			mPropertyPlugins,
-			mEnvironment
-		)
-	);
+	boost::shared_ptr<GameObject> camera =
+		createEmptyGameObject("Camera", camHandle);
 
+	// Create Root Module
 	boost::shared_ptr<Module> camModule(new Module(camHandle));
 	camModule->mPropertyConcepts.push_back("Physical");
 	camModule->mPropertyConcepts.push_back("Camera");
@@ -332,8 +323,6 @@ GameObjectFactory::createCamera(const CameraParameter& cameraParameter,
 	View::CameraCreation cc(camHandle, NULL_HANDLE, cameraParameter.mFullscreen, 0, 0);
 	emit<View::Event>(ID::VE_CREATE_CAMERA, cc, mStateHandle);
 	emit<GameObjectEvent>(ID::GOE_SET_CAMERA_TARGET, parentHandle, camHandle);
-
-	mEnvironment->addGameObject(camera);
 
 	return camera;
 }

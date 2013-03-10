@@ -45,8 +45,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 namespace BFG {
 
-namespace Property
-{
+namespace Property {
 	class ConceptFactory;
 }
 
@@ -73,7 +72,7 @@ public:
 
 	boost::shared_ptr<GameObject>
 	createCamera(const CameraParameter& cameraParameter,
-                 const std::string& parentObject);
+                     const std::string& parentObject);
 
 	//! Applies Connection logic of already created objects 
 	void applyConnection(const ObjectParameter& parameters);
@@ -82,18 +81,25 @@ public:
 
 private:
 	boost::shared_ptr<GameObject>
-	createEmptyGameObject(const BFG::ObjectParameter& parameter, GameHandle goHandle);
+	createEmptyGameObject(const std::string& name, GameHandle goHandle);
 
 	boost::shared_ptr<Module>
-	createModule(const BFG::ObjectParameter& parameter, BFG::ModuleParametersT moduleParameter, bool isRoot, GameHandle goHandle);
+	createModule(const ObjectParameter& parameter,
+	             ModuleParametersT moduleParameter,
+	             bool isRoot,
+	             GameHandle goHandle);
 	
 	void
-	attachModuleTo(boost::shared_ptr<BFG::GameObject> gameObject, boost::shared_ptr<Module> module, BFG::ModuleParametersT moduleParameter,  std::map<std::string, BFG::GameHandle>& moduleNameHandleMap);
+	attachModuleTo(boost::shared_ptr<GameObject> gameObject,
+	               boost::shared_ptr<Module> module,
+	               BFG::ModuleParametersT moduleParameter,
+	               std::map<std::string, BFG::GameHandle>& moduleNameHandleMap);
 	
 	std::vector<Adapter>
 	createAdapters(ModuleParametersT moduleParameter) const;
 	
-	void addConceptsTo(boost::shared_ptr<Module> module, const ConceptConfigT conceptParameter) const;
+	void addConceptsTo(boost::shared_ptr<Module> module,
+	                   const ConceptConfigT conceptParameter) const;
 	
 	GoModuleMapT mGoModules;
 	GoMapT mGameObjects;
