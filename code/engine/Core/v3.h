@@ -42,14 +42,20 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include <ostream>
 
+#include <boost/version.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
-#include <boost/geometry/util/write_dsv.hpp>
+
+// This include file was relocated at Boost r75073
+#if (BOOST_VERSION/100000) == 1 && (BOOST_VERSION / 100 % 1000) >= 49
+	#include <boost/geometry/io/dsv/write.hpp>
+#else
+	#include <boost/geometry/util/write_dsv.hpp>
+#endif
 
 #include <Core/Defs.h>
 #include <Core/Types.h>
 #include <Core/XmlTree.h>
-
 
 namespace BFG {
 

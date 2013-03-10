@@ -23,19 +23,22 @@ DEBIAN_ARCH="`dpkg --print-architecture`"
 
 USER_AGENT='Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.1.16) Gecko/20120421 Firefox/11.0'
 
-BOOST_URL='http://garr.dl.sourceforge.net/project/boost/boost/1.47.0/boost_1_47_0.tar.bz2'
-OGRE_URL="http://garr.dl.sourceforge.net/project/ogre/ogre/1.7/ogre_src_v1-7-3.tar.bz2"
+BOOST_VERSION_DOTS='1.49.0'
+BOOST_VERSION_SCORES=`echo $BOOST_VERSION_DOTS | tr . _`
+
+BOOST_URL="http://netcologne.dl.sourceforge.net/project/boost/boost/$BOOST_VERSION_DOTS/boost_$BOOST_VERSION_SCORES.tar.bz2"
+OGRE_URL="http://netcologne.dl.sourceforge.net/project/ogre/ogre/1.7/ogre_src_v1-7-3.tar.bz2"
 PUGIXML_URL="https://pugixml.googlecode.com/files/pugixml-1.2.tar.gz"
 
-BOOST_FILENAME='boost_1_47_0.tar.bz2'
+BOOST_FILENAME="boost_$BOOST_VERSION_SCORES.tar.bz2"
 OGRE_FILENAME='ogre_src_v1-7-3.tar.bz2'
 PUGIXML_FILENAME="pugixml-1.2.tar.gz"
 
-BOOST_DIR='boost_1_47_0'
+BOOST_DIR="boost_$BOOST_VERSION_SCORES"
 PUGIXML_DIR='pugixml-1.2'
 
 BOOST_LOG_REV='607'
-BOOST_GEOMETRY_EXTENSIONS_REV='77829'
+BOOST_GEOMETRY_EXTENSIONS_REV='77008'
 MYGUI_REV='4431'
 ODE_REV='1727'
 
@@ -172,9 +175,11 @@ function buildOgre
 	cd ogre-build
 
 	$CMAKE ../ogre_src_v1-7-3 \
-	       -DBOOST_INCLUDEDIR=../$PREFIX/include \
-	       -DBOOST_LIBRARYDIR=../$PREFIX/lib \
-	       -DCMAKE_INSTALL_PREFIX=../$PREFIX
+		-DOGRE_BUILD_SAMPLES=0 \
+		-DOGRE_BUILD_TOOLS=0 \
+		-DBOOST_INCLUDEDIR=../$PREFIX/include \
+		-DBOOST_LIBRARYDIR=../$PREFIX/lib \
+		-DCMAKE_INSTALL_PREFIX=../$PREFIX
 
 	make -j$JOBS install
 	cd ..
@@ -192,9 +197,11 @@ function buildMyGUI
 	cd mygui-build
 
 	$CMAKE ../my-gui \
-	       -DCMAKE_INSTALL_PREFIX=../$PREFIX \
-	       -DOGRE_INCLUDE_DIR=../$PREFIX/include/OGRE \
-	       -DOGRE_LIBRARIES=../$PREFIX/lib
+		-DMYGUI_BUILD_DEMOS=0 \
+		-DMYGUI_BUILD_TOOLS=0 \
+		-DCMAKE_INSTALL_PREFIX=../$PREFIX \
+		-DOGRE_INCLUDE_DIR=../$PREFIX/include/OGRE \
+		-DOGRE_LIBRARIES=../$PREFIX/lib
 
 	make -ik -j$JOBS install        # Skip some strange linker errors, which may hinder the installation process
 	cd ..
