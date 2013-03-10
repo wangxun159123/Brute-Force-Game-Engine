@@ -89,6 +89,8 @@ struct CommonState : BFG::State
 	CommonState(GameHandle handle, EventLoop* loop) :
 	State(loop),
 	mStateHandle(handle),
+	mPlayer(NULL_HANDLE),
+	mPlayer2(NULL_HANDLE),
 	mEnvironment(new BFG::Environment)
 	{
 		BFG::Path p;
@@ -138,7 +140,8 @@ struct CommonState : BFG::State
 
 protected:
 	GameHandle mStateHandle;
-
+	GameHandle mPlayer;
+	GameHandle mPlayer2;
 	boost::shared_ptr<BFG::Environment> mEnvironment;
 	
 private:
@@ -194,6 +197,8 @@ struct ClientState : CommonState
 	
 	void onCreateScene(const BFG::Network::DataPayload& payload)
 	{
+		infolog << "Client: Creating scene";
+		
 		std::stringstream oss(payload.mAppData.data());
 
 /*
@@ -249,6 +254,8 @@ struct ClientState : CommonState
 
 struct ServerState : CommonState
 {
+	typedef std::map<BFG::Network::PeerIdT, BFG::GameHandle> ClientListT;
+	
 	ServerState(EventLoop* loop) :
 	CommonState(SERVER_STATE_HANDLE, loop),
 	mSceneCreated(false)
@@ -295,6 +302,8 @@ struct ServerState : CommonState
 	
 	void createScene()
 	{
+		infolog << "Server: Creating scene";
+
 		std::stringstream handles;
 
 /*
@@ -353,10 +362,61 @@ struct ServerState : CommonState
 	
 	void onConnected(BFG::Network::PeerIdT peerId)
 	{
+		infolog << "Client (" << peerId << ") connected.";
+		ClientListT::iterator it = mClientList.find(peerId);
+		
+		// TODO: NetworkModule should prevent this from happening.
+		if (it != mClientList.end())
+		{
+			warnlog << "Client with the same PeerID (" << peerId << ") already connected!";
+			return;
+		}
+		
+		if (!mSceneCreated)
+		{
+			createScene();
+		}
+		
+		CharArray512T ca512 = stringToArray<512>(mCreatedHandles);
+
+		BFG::Network::DataPayload payload
+		(
+			CREATE_SCENE, 
+			CLIENT_STATE_HANDLE, 
+			SERVER_STATE_HANDLE,
+			mCreatedHandles.length(),
+			ca512
+		);
+		
+		emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload, peerId);
+
+		if (mClientList.size() < 1)
+		{
+			mClientList.insert(std::make_pair(peerId, mPlayer));
+		}
+		else if (mClientList.size() == 1)
+		{
+			mClientList.insert(std::make_pair(peerId, mPlayer2));
+		}
 	}
 	
 	void onDisconnected(BFG::Network::PeerIdT peerId)
 	{
+		ClientListT::iterator it = mClientList.find(peerId);
+
+		// TODO: NetworkModule: Is this possible?
+		if (it == mClientList.end())
+		{
+			warnlog << "Client (" << peerId << ") was not connected!";
+			return;
+		}
+
+		mClientList.erase(it);
+
+		if (mClientList.empty())
+		{
+			destroyScene();
+		}
 	}
 
 	void networkControlEventHandler(BFG::Network::ControlEvent* e)
@@ -379,6 +439,8 @@ struct ServerState : CommonState
 	}
 
 private:
+	ClientListT mClientList;
+	
 	std::string mCreatedHandles;
 	bool mSceneCreated;
 };
@@ -568,10 +630,7 @@ int main( int argc, const char* argv[] ) try
 		BFG::Emitter e(&loop);
 		e.emit<BFG::Network::ControlEvent>(BFG::ID::NE_LISTEN, port);
 
-		while(!loop.shouldExit())
-		{
-			boost::this_thread::sleep(boost::posix_time::milliseconds(100));
-		}
+		BFG::Base::pause();
 	}
 
 	// The loop does not run anymore. Destroy the states now.
