@@ -74,6 +74,11 @@ const s32 A_EXIT = 10000;
 // now.
 const s32 CREATE_SCENE = 15000;
 
+const s32 SHIP_AXIS_X = 15001;
+const s32 SHIP_AXIS_Y = 15002;
+const s32 SHIP_AXIS_Z = 15003;
+
+
 // We need to define a fix handle identifier for the server and client states.
 const GameHandle SERVER_STATE_HANDLE = 42;
 const GameHandle CLIENT_STATE_HANDLE = 43;
@@ -164,6 +169,9 @@ struct ClientState : CommonState
 		// This part is quite important. You must connect your event callbacks.
 		// If not, the event system doesn't know you're waiting for them.
 		loop->connect(A_EXIT, this, &ClientState::ControllerEventHandler);
+		loop->connect(SHIP_AXIS_X, this, &ClientState::ControllerEventHandler);
+		loop->connect(SHIP_AXIS_Y, this, &ClientState::ControllerEventHandler);
+		loop->connect(SHIP_AXIS_Z, this, &ClientState::ControllerEventHandler);
 		loop->connect(BFG::ID::NE_RECEIVED, this, &ClientState::networkEventHandler, CLIENT_STATE_HANDLE);
 	}
 	
@@ -171,6 +179,9 @@ struct ClientState : CommonState
 	{
 		infolog << "Tutorial: Destroying ClientState.";
 		loop()->disconnect(A_EXIT, this);
+		loop()->disconnect(SHIP_AXIS_X, this);
+		loop()->disconnect(SHIP_AXIS_Y, this);
+		loop()->disconnect(SHIP_AXIS_Z, this);
 	}
 
 	void onExit()
@@ -186,6 +197,18 @@ struct ClientState : CommonState
 	{
 		switch(e->getId())
 		{
+			infolog << "Got Event:" << e->id();
+			case SHIP_AXIS_X:
+				emit<BFG::GameObjectEvent>(BFG::ID::GOE_CONTROL_PITCH, boost::get<f32>(e->getData()), mPlayer);
+				break;
+
+			case SHIP_AXIS_Y:
+				emit<BFG::GameObjectEvent>(BFG::ID::GOE_CONTROL_YAW, boost::get<f32>(e->getData()), mPlayer);
+				break;
+
+			case SHIP_AXIS_Z:
+				emit<BFG::GameObjectEvent>(BFG::ID::GOE_CONTROL_ROLL, boost::get<f32>(e->getData()), mPlayer);
+				break;
 			// This is the event ID we specified at the top
 			case A_EXIT:
 			{
@@ -215,32 +238,12 @@ struct ClientState : CommonState
 		op.mName = "Ship";
 		op.mType = "Ship";
 		op.mLocation = v3(5.0f, 0.0f, 15.0f);
-
-		createObject(op);
-		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_READ, op.mHandle);
-
 		
-/*
-		op = BFG::ObjectParameter();
-		oss >> op.mHandle;
-		op.mName = "LowerBar";
-		op.mType = "PongBar";
-		op.mLocation = v3(0.0f, -BAR_Y_POSITION, OBJECT_Z_POSITION + SPECIAL_PACKER_MESH_OFFSET);
+		// TODO
+		mPlayer = op.mHandle;
 
 		createObject(op);
 		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_READ, op.mHandle);
-
-		op = BFG::ObjectParameter();
-		oss >> op.mHandle;
-		op.mName = "UpperBar";
-		op.mType = "PongBar";
-		op.mLocation.position = v3(0.0f, BAR_Y_POSITION, OBJECT_Z_POSITION + SPECIAL_PACKER_MESH_OFFSET);
-		op.mLocation.orientation = BFG::qv4::IDENTITY;
-		BFG::fromAngleAxis(op.mLocation.orientation, 180 * DEG2RAD, BFG::v3::UNIT_Z);
-
-		createObject(op);
-		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_READ, op.mHandle);
-*/
 	}
 
 	void networkEventHandler(BFG::Network::DataPacketEvent* e)
@@ -335,32 +338,6 @@ struct ServerState : CommonState
 
 		createObject(op);
 		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
-
-/*
-		op = BFG::ObjectParameter();
-		op.mHandle = BFG::generateNetworkHandle();
-		op.mName = "LowerBar";
-		op.mType = "PongBar";
-		op.mLocation = v3(0.0f, -BAR_Y_POSITION, OBJECT_Z_POSITION + SPECIAL_PACKER_MESH_OFFSET);
-		handles << op.mHandle << " ";
-		mPlayer = op.mHandle;
-
-		createObject(op);
-		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
-
-		op = BFG::ObjectParameter();
-		op.mHandle = BFG::generateNetworkHandle();
-		op.mName = "UpperBar";
-		op.mType = "PongBar";
-		op.mLocation.position = v3(0.0f, BAR_Y_POSITION, OBJECT_Z_POSITION + SPECIAL_PACKER_MESH_OFFSET);
-		op.mLocation.orientation = BFG::qv4::IDENTITY;
-		BFG::fromAngleAxis(op.mLocation.orientation, 180 * DEG2RAD, BFG::v3::UNIT_Z);
-		handles << op.mHandle;
-		mPlayer2 = op.mHandle;
-
-		createObject(op);
-		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
-*/
 
 		mCreatedHandles = handles.str();
 		mSceneCreated = true;
@@ -508,6 +485,9 @@ void initController(BFG::GameHandle stateHandle, EventLoop* loop)
 	// This part here is necessary for Action deserialization.
 	BFG::Controller_::ActionMapT actions;
 	actions[A_EXIT] = "A_EXIT";
+	actions[SHIP_AXIS_X] = "SHIP_AXIS_X";
+	actions[SHIP_AXIS_Y] = "SHIP_AXIS_Y";
+	actions[SHIP_AXIS_Z] = "SHIP_AXIS_Z";
 	BFG::Controller_::fillWithDefaultActions(actions);
 	BFG::Controller_::sendActionsToController(emitter.loop(), actions);
 

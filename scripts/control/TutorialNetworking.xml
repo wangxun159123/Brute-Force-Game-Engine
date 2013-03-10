@@ -8,6 +8,39 @@ version = "1">
 
   <include>MyGUI.xml</include>
 
+  <action id = "SHIP_AXIS_X">
+    <vip type = "VIP_LINEAR_AXIS" axismode = "AM_Absolute">
+      <special frequency = "100" raise = "KB_w" lower = "KB_s" step = "0.2" swing = "0.25" />
+    </vip>
+    <vip type = "VIP_STEER" device = "DT_Mouse" axismode = "AM_Relative">
+      <special frequency = "100" axis = "1" sensitivity = "0.05" flip = "0" swing = "0.05" />
+    </vip>
+    <vip type = "VIP_STEER" device = "DT_Joystick" axismode = "AM_Absolute">
+      <special axis = "0" sensitivity = "0.05" flip = "1" range = "32767" />
+    </vip>
+  </action>
+
+  <action id = "SHIP_AXIS_Y">
+    <vip type = "VIP_LINEAR_AXIS" axismode = "AM_Absolute">
+      <special frequency = "100" raise = "KB_a" lower = "KB_d" step = "0.2" swing = "0.25" />
+    </vip>
+    <vip type = "VIP_STEER" device = "DT_Mouse" axismode = "AM_Relative">
+      <special frequency = "100" axis = "0" sensitivity = "0.05" flip = "1" swing = "0.05" />
+    </vip>
+    <vip type = "VIP_STEER" device = "DT_Joystick" axismode = "AM_Absolute">
+      <special axis = "1" sensitivity = "0.01" flip = "1" range = "32767" />
+    </vip>
+  </action>
+
+  <action id = "SHIP_AXIS_Z">
+    <vip type = "VIP_LINEAR_AXIS" axismode = "AM_Absolute">
+      <special frequency = "100" raise = "KB_e" lower = "KB_q" step = "0.2" swing = "0.25" />
+    </vip>
+    <vip type = "VIP_STEER" device = "DT_Joystick" axismode = "AM_Absolute">
+      <special frequency = "100" axis = "3" sensitivity = "0.05" flip = "0" range = "32767" />
+    </vip>
+  </action>
+  
   <action id = "A_EXIT">
     <vip type = "VIP_CLICK">
       <special button = "KB_ESCAPE" />
