@@ -47,7 +47,10 @@ public:
 	void internalUpdate(quantity<si::time, BFG::f32> timeSinceLastFrame)
 	{
 		using namespace BFG;
-	
+
+		if (getGoValue<bool>(ID::PV_Remote, ValueId::ENGINE_PLUGIN_ID))
+			return;
+
 		Location go = getGoValue<Location>(ID::PV_Location, ValueId::ENGINE_PLUGIN_ID);
 		v3 newVelocity = getGoValue<v3>(ID::PV_Velocity, ValueId::ENGINE_PLUGIN_ID);
 

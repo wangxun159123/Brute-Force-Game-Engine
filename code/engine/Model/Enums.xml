@@ -125,6 +125,9 @@
             <value>PV_Effect</value>
             <value>PV_SoundEffect</value>
 
+	    <!-- PC_Networked -->
+	    <value>PV_Remote</value>
+	    
             <!-- PC_Physical -->
             <value>PV_Location</value>
 

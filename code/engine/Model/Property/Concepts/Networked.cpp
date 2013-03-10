@@ -371,6 +371,17 @@ void Networked::onSynchronizationMode(ID::SynchronizationMode mode)
 {
 	mSynchronizationMode = mode;
 
+	// Set Remote flag for whole GameObject
+	setGoValue(ID::PV_Remote, pluginId(), receivesData());
+	
+	// Disable Collision for Remote Objects on all modules
+	if (receivesData())
+	{
+		ModuleMapT::iterator it = mModules.begin();
+		for (; it != mModules.end(); ++it)
+			emit<Physics::Event>(ID::PE_UPDATE_COLLISION_MODE, (s32) ID::CM_Disabled, it->first);
+	}
+	
 	dbglog << "Networked: setting synchronization mode to " << mode;
 }
 

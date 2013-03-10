@@ -13,17 +13,6 @@
 		<PC name="BarControl">NoProperties</PC>
 		<PC name="Networked">NoProperties</PC>
 	</ConceptConfig>
-
-
-	<ConceptConfig name="PongBallRemoteConcept">
-		<PC name="Physical">NoProperties</PC>
-		<PC name="Networked">NoProperties</PC>
-	</ConceptConfig>
-
-	<ConceptConfig name="PongBarRemoteConcept">
-		<PC name="Physical">NoProperties</PC>
-		<PC name="Networked">NoProperties</PC>
-	</ConceptConfig>
-
+	
 </ConceptConfigs>
 

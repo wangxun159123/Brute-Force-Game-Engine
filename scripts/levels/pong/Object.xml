@@ -20,23 +20,4 @@
 			<Density>10000.0</Density>
 		</Module>
 	</ObjectConfig>
-	<ObjectConfig name="PongBallRemote">
-		<Module name="Root">
-			<Mesh>Cube.mesh</Mesh>
-			<Concepts>PongBallRemoteConcept</Concepts>
-			<Collision>CM_Disabled</Collision>
-			<Visible>yes</Visible>
-			<Density>0.01</Density>
-		</Module>
-	</ObjectConfig>
-  	<ObjectConfig name="PongBarRemote">
-		<Module name="Root">
-			<Mesh>Packer.mesh</Mesh>
-			<Adapters>CubeAllAdapters</Adapters>
-			<Concepts>PongBarRemoteConcept</Concepts>
-			<Collision>CM_Disabled</Collision>
-			<Visible>yes</Visible>
-			<Density>10000.0</Density>
-		</Module>
-	</ObjectConfig>
 </ObjectConfigs>

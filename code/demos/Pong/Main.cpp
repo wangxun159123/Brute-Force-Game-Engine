@@ -391,7 +391,7 @@ struct ClientState : public SynchronizationTestState
 		BFG::ObjectParameter op;
 		oss >> op.mHandle;
 		op.mName = "Ball";
-		op.mType = "PongBallRemote";
+		op.mType = "PongBall";
 		op.mLocation = v3(0.0f, 0.0f, OBJECT_Z_POSITION);
 
 		createObject(op);
@@ -400,7 +400,7 @@ struct ClientState : public SynchronizationTestState
 		op = BFG::ObjectParameter();
 		oss >> op.mHandle;
 		op.mName = "LowerBar";
-		op.mType = "PongBarRemote";
+		op.mType = "PongBar";
 		op.mLocation = v3(0.0f, -BAR_Y_POSITION, OBJECT_Z_POSITION + SPECIAL_PACKER_MESH_OFFSET);
 
 		createObject(op);
@@ -409,7 +409,7 @@ struct ClientState : public SynchronizationTestState
 		op = BFG::ObjectParameter();
 		oss >> op.mHandle;
 		op.mName = "UpperBar";
-		op.mType = "PongBarRemote";
+		op.mType = "PongBar";
 		op.mLocation.position = v3(0.0f, BAR_Y_POSITION, OBJECT_Z_POSITION + SPECIAL_PACKER_MESH_OFFSET);
 		op.mLocation.orientation = BFG::qv4::IDENTITY;
 		BFG::fromAngleAxis(op.mLocation.orientation, 180 * DEG2RAD, BFG::v3::UNIT_Z);

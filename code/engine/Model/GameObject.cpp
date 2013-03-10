@@ -87,6 +87,14 @@ mActivated(false)
 
 	GameObject::ChildT dummy = boost::shared_ptr<Module>();
 	mDummy = boost::add_vertex(dummy, mModules);
+	
+	// Hack: Settings this in case Property::Concept::Networked is not used.
+	//       Other Property Concepts may depend on this flag and crash if it
+	//       isn't set yet.
+	//
+	//       Also, it should be possible to do such initializations when
+	//       creating a GameObject (and not by an "event-setter" later).
+	setValue(ID::PV_Remote, ValueId::ENGINE_PLUGIN_ID, false);
 }
 
 GameObject::~GameObject()

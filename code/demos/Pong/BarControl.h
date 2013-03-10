@@ -50,6 +50,9 @@ public:
 	{
 		using namespace BFG;
 
+		if (getGoValue<bool>(ID::PV_Remote, ValueId::ENGINE_PLUGIN_ID))
+			return;
+
 		Location go = getGoValue<Location>(ID::PV_Location, ValueId::ENGINE_PLUGIN_ID);
 		if (!mInitialized)
 		{
@@ -83,6 +86,9 @@ public:
 	                     BFG::GameHandle sender)
 	{
 		using namespace BFG;
+
+		if (getGoValue<bool>(ID::PV_Remote, ValueId::ENGINE_PLUGIN_ID))
+			return;
 	
 		switch(action)
 		{
