@@ -42,6 +42,9 @@ VIEW_API void queryWindowAttributes(WindowAttributes& wa)
 			("View::windowAttributes: Ogre hasn't been initialized yet.");
 	
 	Ogre::RenderWindow* win = root->getAutoCreatedWindow();
+	if (! win)
+		throw std::logic_error
+			("View::windowAttributes: Ogre hasn't created the window yet.");
 
 	win->getCustomAttribute("WINDOW", &wa.mHandle);
 	wa.mHeight = win->getHeight();
