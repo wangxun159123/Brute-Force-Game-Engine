@@ -24,15 +24,25 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <boost/foreach.hpp>
 // BFG libraries
 #include <Controller/Action.h>
 #include <Controller/ControllerEvents.h>
 #include <Core/Path.h>
 #include <Core/ShowException.h>
 #include <Core/Utils.h>
+#include <Model/Data/GameObjectFactory.h>
+#include <Model/Data/LevelConfig.h>
+#include <Model/Data/ObjectParameters.h>
+#include <Model/Environment.h>
+#include <Model/Property/Concepts/Camera.h>
+#include <Model/Property/SpacePlugin.h>
+#include <Model/Sector.h>
+#include <Model/State.h>
 #include <View/ControllerMyGuiAdapter.h>
 #include <View/Event.h>
 #include <View/Interface.h>
+#include <View/State.h>
 
 #define BFG_USE_CONTROLLER
 #define BFG_USE_PHYSICS
@@ -72,15 +82,12 @@ void waitingForWindow(View::WindowAttributes& wa)
 	} while (waiting);
 }
 
-struct WeaponTest : Emitter
+struct WeaponTest : State
 {
-	WeaponTest(EventLoop* loop) :
-	Emitter(loop),
-	mControllerAdapter(generateHandle(), loop)
+	WeaponTest(EventLoop* loop, GameHandle handle) :
+	State(loop),
+	mHandle(handle)
 	{
-		loop->connect(A_EXIT, this, &WeaponTest::controllerEventHandler);
-		loop->connect(A_CONSOLE, this, &WeaponTest::controllerEventHandler);
-
 		Controller_::ActionMapT actions;
 		actions[A_EXIT] = "A_EXIT";
 		actions[A_CONSOLE] = "A_CONSOLE";
@@ -103,12 +110,95 @@ struct WeaponTest : Emitter
 			ID::CE_LOAD_STATE,
 			si
 		);
+
+		registerEventHandler();
+		createScene();
 	}
 
 	~WeaponTest()
 	{
+		unregisterEventHandler();
+	}
+
+	void registerEventHandler()
+	{
+		loop()->connect(A_EXIT, this, &WeaponTest::controllerEventHandler);
+		loop()->connect(A_CONSOLE, this, &WeaponTest::controllerEventHandler);
+	}
+
+	void unregisterEventHandler()
+	{
 		loop()->disconnect(A_EXIT, this);
 		loop()->disconnect(A_CONSOLE, this);
+	}
+
+	void createScene()
+	{
+		Path p;
+
+		std::string level = p.Get(ID::P_SCRIPTS_LEVELS) + "WeaponTest/";
+		std::string def = p.Get(ID::P_SCRIPTS_LEVELS) + "default/";
+
+		LevelConfig lc;
+
+		lc.mModules.push_back(def + "Object.xml");
+		lc.mAdapters.push_back(def + "Adapter.xml");
+		lc.mConcepts.push_back(def + "Concept.xml");
+		lc.mProperties.push_back(def + "Value.xml");
+
+		lc.mModules.push_back(level + "Object.xml");
+		lc.mAdapters.push_back(level + "Adapter.xml");
+		lc.mConcepts.push_back(level + "Concept.xml");
+		lc.mProperties.push_back(level + "Value.xml");
+
+		mEnvironment.reset(new Environment);
+
+		using Property::ValueId;
+		PluginId spId = ValueId::ENGINE_PLUGIN_ID;
+		PluginId rpId = Property::generatePluginId<PluginId>();
+
+		boost::shared_ptr<SpacePlugin> sp(new SpacePlugin(spId));
+
+		mPluginMap.insert(sp);
+
+		mGameObjectFactory.reset(new GameObjectFactory(loop(), lc, mPluginMap, mEnvironment, mHandle));
+		mSector.reset(new Sector(loop(), mHandle, "WeaponTest", mGameObjectFactory));
+		
+		View::SkyCreation sc("sky02");
+		emit<View::Event>(ID::VE_SET_SKY, sc, mHandle);
+
+		View::LightParameters lightParameters;
+		lightParameters.mName = "MainLight";
+		lightParameters.mDiffuseColor = cv4::White;
+		lightParameters.mType = ID::LT_Directional;
+		lightParameters.mDirection = v3(24.594410f, -123.637207f, 745.162537f);
+		lightParameters.mHandle = generateHandle();
+
+		emit<View::Event>(ID::VE_CREATE_LIGHT, lightParameters, mHandle);
+		emit<View::Event>(ID::VE_SET_AMBIENT, cv4(0.1f, 0.1f, 0.1f), mHandle);
+
+		ObjectParameter op;
+		op.mType = "Weapon Single";
+		op.mHandle = BFG::generateNetworkHandle();
+		op.mName = "TestWeapon";
+		op.mLocation.position = v3(0.0f, 0.0f, 0.0f);
+		op.mLocation.orientation = qv4::IDENTITY;
+
+		mSector->addObject
+		(
+			mGameObjectFactory->createGameObject(op)
+		);
+
+		CameraParameter cameraParameter;
+		cameraParameter.mMode = ID::CM_Fixed;
+		cameraParameter.mParentObject = op.mName;
+		cameraParameter.mOffset = v3(2.0f, 2.0f, -7.0f);
+		cameraParameter.mFullscreen = true;
+
+		mSector->addObject
+		(
+			mGameObjectFactory->createCamera(cameraParameter, cameraParameter.mParentObject)
+		);
 	}
 
 	void controllerEventHandler(BFG::Controller_::VipEvent* e)
@@ -131,14 +221,51 @@ struct WeaponTest : Emitter
 		loop()->stop();
 	}
 
-private:
-	View::ControllerMyGuiAdapter mControllerAdapter;
+	void onTick(const boost::units::quantity<boost::units::si::time, f32> TSLF)
+	{
+		mSector->update(TSLF);
+	}
 
+private:
+	GameHandle mHandle;
+	boost::shared_ptr<Environment> mEnvironment;
+	boost::shared_ptr<GameObjectFactory> mGameObjectFactory;
+	boost::shared_ptr<Sector> mSector;
+	Property::PluginMapT mPluginMap;
+
+};
+
+struct ViewState : public View::State
+{
+public:
+	ViewState(GameHandle handle, EventLoop* loop) :
+	State(handle, loop),
+	mControllerMyGuiAdapter(handle, loop)
+	{
+		emit<BFG::View::Event>(BFG::ID::VE_SET_AMBIENT, BFG::cv4(1.0f, 1.0f, 1.0f), handle);
+	}
+
+	~ViewState()
+	{
+		infolog << "SynchronizationTest: Destroying ViewState.";
+		emit<BFG::View::Event>(BFG::ID::VE_SHUTDOWN, 0);
+	}
+
+	virtual void pause()
+	{}
+
+	virtual void resume()
+	{}
+
+private:
+	BFG::View::ControllerMyGuiAdapter mControllerMyGuiAdapter;
 };
 
 void WeaponTestInitHandler(EventLoop& loop)
 {
-	WeaponTest wt(&loop);
+	GameHandle handle = generateHandle();
+	WeaponTest wt(&loop, handle);
+	ViewState vs(handle, &loop);
 	boost::this_thread::sleep(boost::posix_time::milliseconds(500));
 	while(!loop.shouldExit())
 	{
