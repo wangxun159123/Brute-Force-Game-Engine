@@ -5,6 +5,17 @@
 	<ValueConfig name = "NoProperties">
 	</ValueConfig>
 
+	<ValueConfig name="DefaultEngine">
+		<PV name="EngineForce" type="stdVal">200.0</PV>
+		<PV name="ManeuverForce" type="stdVal">30.0</PV>
+		<PV name="MaxRotationSpeed" type="v3">
+			<X>1.22173</X>
+			<Y>1.570796</Y>
+			<Z>3.141593</Z>
+		</PV>
+		<PV name="MaxSpeed" type="stdVal">750.0</PV>
+	</ValueConfig>
+
 	<ValueConfig name="StandardNavigator">
 		<PV name="TriggerRadius" type="stdVal">5.0</PV>
 	</ValueConfig>

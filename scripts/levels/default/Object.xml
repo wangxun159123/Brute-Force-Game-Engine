@@ -21,4 +21,13 @@
 			<Density>1000.0</Density>
 		</Module>
 	</ObjectConfig>
+	<ObjectConfig name="Ship">
+		<Module name="Root">
+			<Mesh>Arrow.mesh</Mesh>
+			<Concepts>ShipConcept</Concepts>
+			<Collision>CM_Standard</Collision>
+			<Visible>yes</Visible>
+			<Density>10000.0</Density>
+		</Module>
+	</ObjectConfig>
 </ObjectConfigs>

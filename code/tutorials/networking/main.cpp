@@ -137,7 +137,7 @@ struct CommonState : BFG::State
 	{
 		mSector->removeObject(handle);
 	}
-
+	
 protected:
 	GameHandle mStateHandle;
 	GameHandle mPlayer;
@@ -201,16 +201,26 @@ struct ClientState : CommonState
 		
 		std::stringstream oss(payload.mAppData.data());
 
-/*
 		BFG::ObjectParameter op;
 		oss >> op.mHandle;
-		op.mName = "Ball";
-		op.mType = "PongBall";
-		op.mLocation = v3(0.0f, 0.0f, OBJECT_Z_POSITION);
+		op.mName = "Cube";
+		op.mType = "Cube";
+		op.mLocation = v3(0.0f, 0.0f, 10.0f);
 
 		createObject(op);
 		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_READ, op.mHandle);
 
+		op = BFG::ObjectParameter();
+		oss >> op.mHandle;
+		op.mName = "Ship";
+		op.mType = "Ship";
+		op.mLocation = v3(5.0f, 0.0f, 15.0f);
+
+		createObject(op);
+		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_READ, op.mHandle);
+
+		
+/*
 		op = BFG::ObjectParameter();
 		oss >> op.mHandle;
 		op.mName = "LowerBar";
@@ -306,18 +316,27 @@ struct ServerState : CommonState
 
 		std::stringstream handles;
 
-/*
 		BFG::ObjectParameter op;
 		op.mHandle = BFG::generateNetworkHandle();
-		op.mName = "Ball";
-		op.mType = "PongBall";
-		op.mLocation = v3(0.0f, 0.0f, OBJECT_Z_POSITION);
-		op.mLinearVelocity = v3(0.0f, -15.0f, 0.0f);
+		op.mName = "Cube";
+		op.mType = "Cube";
+		op.mLocation = v3(0.0f, 0.0f, 10.0);
 		handles << op.mHandle << " ";
 
 		createObject(op);
 		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
 
+		op = BFG::ObjectParameter();
+		op.mHandle = BFG::generateNetworkHandle();
+		op.mName = "Ship";
+		op.mType = "Ship";
+		op.mLocation = v3(5.0f, 0.0f, 15.0f);
+		handles << op.mHandle << " ";
+
+		createObject(op);
+		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
+
+/*
 		op = BFG::ObjectParameter();
 		op.mHandle = BFG::generateNetworkHandle();
 		op.mName = "LowerBar";
@@ -341,10 +360,10 @@ struct ServerState : CommonState
 
 		createObject(op);
 		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
+*/
 
 		mCreatedHandles = handles.str();
 		mSceneCreated = true;
-*/
 	}
 
 	void destroyScene()

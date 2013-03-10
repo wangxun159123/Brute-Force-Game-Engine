@@ -2,13 +2,18 @@
 
 <ConceptConfigs>
 
-  <ConceptConfig name="CubeConcept" >
-    <PC name="Physical">NoProperties</PC>
-    <PC name="Networked">NoProperties</PC>
-  </ConceptConfig>
+	<ConceptConfig name="CubeConcept" >
+		<PC name="Physical">NoProperties</PC>
+		<PC name="Networked">NoProperties</PC>
+	</ConceptConfig>
 
-  <ConceptConfig name="CubeGhostConcept" >
-    <PC name="Triggers">NoProperties</PC>
-  </ConceptConfig>
+	<ConceptConfig name="CubeGhostConcept" >
+		<PC name="Triggers">NoProperties</PC>
+	</ConceptConfig>
+
+	<ConceptConfig name="ShipConcept" >
+		<PC name="Physical">NoProperties</PC>
+		<PC name="ThrustControl">DefaultEngine</PC>
+	</ConceptConfig>
 
 </ConceptConfigs>
