@@ -1,7 +1,7 @@
 Dependencies
 ============
 
-Boost      : 1.47.0 (+ Geometry Extensions from Boost r77829)
+Boost      : 1.49.0 (+ Geometry Extensions from Boost r77008)
 Boost.Log  : r607 (Linux)
 Boost.Log  : r616 (Windows)
 libogg     : 1.2.2
