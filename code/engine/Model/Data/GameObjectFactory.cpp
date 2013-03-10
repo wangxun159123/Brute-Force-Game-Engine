@@ -49,11 +49,11 @@ GameObjectFactory::GameObjectFactory(EventLoop* loop,
 Emitter(loop),
 mPropertyPlugins(propertyPlugins),
 mEnvironment(environment),
-mStateHandle(stateHandle),
-mModuleParameters(files.mModules),
 mAdapterParameters(files.mAdapters),
 mConceptParameters(files.mConcepts),
-mValueParameters(files.mProperties)
+mModuleParameters(files.mModules),
+mValueParameters(files.mProperties),
+mStateHandle(stateHandle)
 {
 	assert(environment && "GameObjectFactory: You must preserve a constructed Environment object");
 }
@@ -111,12 +111,6 @@ GameObjectFactory::createGameObject(const ObjectParameter& parameter)
 	mGameObjects[parameter.mName] = gameObject;
 
 	return gameObject;
-}
-
-boost::shared_ptr<GameObject>
-GameObjectFactory::createRemoteGameObject(const ObjectParameter& parameter)
-{
-	return boost::shared_ptr<GameObject>();
 }
 
 boost::shared_ptr<GameObject>

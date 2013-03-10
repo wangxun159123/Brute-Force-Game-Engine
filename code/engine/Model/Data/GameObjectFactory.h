@@ -72,9 +72,6 @@ public:
 	createGameObject(const ObjectParameter& parameters);
 
 	boost::shared_ptr<GameObject>
-	createRemoteGameObject(const ObjectParameter& parameters);
-
-	boost::shared_ptr<GameObject>
 	createCamera(const CameraParameter& cameraParameter,
                  const std::string& parentObject);
 
@@ -106,13 +103,13 @@ private:
 	boost::shared_ptr<Environment> mEnvironment;
 
 	typedef FileHandleFactory<AdapterXml> AdapterXmlHandleT;
-	typedef FileHandleFactory<ObjectXml> ModuleXmlHandleT;
 	typedef FileHandleFactory<ConceptXml> ConceptXmlHandleT;
+	typedef FileHandleFactory<ObjectXml> ModuleXmlHandleT;
 	typedef FileHandleFactory<ValueXml> ValueXmlHandleT;
 	 
 	AdapterXmlHandleT mAdapterParameters;
-	ModuleXmlHandleT mModuleParameters;
 	ConceptXmlHandleT mConceptParameters;
+	ModuleXmlHandleT mModuleParameters;
 	ValueXmlHandleT mValueParameters;
 
 	GameHandle mStateHandle;
