@@ -27,8 +27,8 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 /**
 	@file
 
-	This example application demonstrates how to create a very simple
-	render window which reacts on input from Keyboard and Mouse.
+	This example application demonstrates how to create a networked
+	3D environment with two players controlling each an object.
 */
 
 // OGRE
@@ -37,14 +37,22 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 // BFG libraries
 #include <Base/EntryPoint.h>
 #include <Base/Logger.h>
+#include <Base/Pause.h>
 #include <Controller/Action.h>
 #include <Controller/ControllerEvents.h>
 #include <Controller/Interface.h>
 #include <Core/Path.h>
 #include <Core/ShowException.h>
 #include <Core/Utils.h>
+#include <Model/Environment.h>
+#include <Model/Sector.h>
 #include <Model/State.h>
+#include <Model/Data/GameObjectFactory.h>
+#include <Model/Property/SpacePlugin.h>
+#include <Network/Event.h>
 #include <Network/Interface.h>
+#include <Physics/Event_fwd.h>
+#include <Physics/Interface.h>
 #include <View/ControllerMyGuiAdapter.h>
 #include <View/Event.h>
 #include <View/Interface.h>
@@ -62,32 +70,106 @@ using BFG::f32;
 // collisions with events used within the engine.
 const s32 A_EXIT = 10000;
 
-// Here comes our first state. Most of the time we use it as Owner of objects
-// or as forwarder of input (Controller) events. I.e. a state could be the
-// "Main Menu", a "Movie Sequence" or the 3D part of the application.
-struct GameState : BFG::State
+// Use by the Server to notify the Client that it shall create the whole scene
+// now.
+const s32 CREATE_SCENE = 15000;
+
+// We need to define a fix handle identifier for the server and client states.
+const GameHandle SERVER_STATE_HANDLE = 42;
+const GameHandle CLIENT_STATE_HANDLE = 43;
+
+bool alwaysTrue(boost::shared_ptr<BFG::GameObject>)
 {
-	GameState(GameHandle handle, EventLoop* loop) :
-	State(loop)
+	return true;
+}
+
+// This is the base for both versions of our program: Server and Client.
+struct CommonState : BFG::State
+{
+	CommonState(GameHandle handle, EventLoop* loop) :
+	State(loop),
+	mStateHandle(handle),
+	mEnvironment(new BFG::Environment)
 	{
-		// This part is quite important. You must connect your event callbacks.
-		// If not, the event system doesn't know you're waiting for them.
-		loop->connect(A_EXIT, this, &GameState::ControllerEventHandler);
+		BFG::Path p;
+		
+		// Load the default object definitions
+		BFG::LevelConfig lc;
+		std::string def = p.Get(BFG::ID::P_SCRIPTS_LEVELS) + "default/";
+		lc.mModules.push_back(def + "Object.xml");
+		lc.mAdapters.push_back(def + "Adapter.xml");
+		lc.mConcepts.push_back(def + "Concept.xml");
+		lc.mProperties.push_back(def + "Value.xml");
+
+		// Load the default engine plugin. Such a plugin usually contains
+		// new properties and concepts for game objects.
+		using BFG::Property::ValueId;
+		BFG::PluginId spId = BFG::ValueId::ENGINE_PLUGIN_ID;
+		boost::shared_ptr<BFG::SpacePlugin> sp(new BFG::SpacePlugin(spId));
+
+		mPluginMap.insert(sp);
+
+		// Create a GameObjectFactory which we can use to create new
+		// game objects from the XML definition.
+		mGof.reset(new BFG::GameObjectFactory(this->loop(), lc, mPluginMap, mEnvironment, mStateHandle));
+		
+		// Create a sector. By sending events it will create objects
+		// automatically for us.
+		mSector.reset(new BFG::Sector(this->loop(), 1, "Blah", mGof));
 	}
 	
-	virtual ~GameState()
-	{
-		infolog << "Tutorial: Destroying GameState.";
-		loop()->disconnect(A_EXIT, this);
-	}
-
 	// You may update objects and other things here.
 	virtual void onTick(const quantity<si::time, f32> TSLF)
 	{
-		// Well there's nothing to update yet. :)
-		infolog << "Time since last frame: " << TSLF.value() << "ms";
+		mSector->update(TSLF);
+		emit<BFG::Physics::Event>(BFG::ID::PE_STEP, TSLF.value());
 	}
 	
+	virtual void createObject(const BFG::ObjectParameter& param)
+	{
+		boost::shared_ptr<BFG::GameObject> go = mGof->createGameObject(param);
+		mSector->addObject(go);
+	}
+	
+	virtual void destroyObject(GameHandle handle)
+	{
+		mSector->removeObject(handle);
+	}
+
+protected:
+	GameHandle mStateHandle;
+
+	boost::shared_ptr<BFG::Environment> mEnvironment;
+	
+private:
+	BFG::Property::PluginMapT mPluginMap;
+	boost::shared_ptr<BFG::Sector> mSector;
+	boost::shared_ptr<BFG::GameObjectFactory> mGof;
+};
+
+// Here comes the Client state. It performs the following tasks:
+//
+//  * Receive network updates
+//  * Receive control updates
+//  * Create the scene when connecting
+//
+struct ClientState : CommonState
+{
+	ClientState(EventLoop* loop) :
+	CommonState(CLIENT_STATE_HANDLE, loop)
+	{
+		// This part is quite important. You must connect your event callbacks.
+		// If not, the event system doesn't know you're waiting for them.
+		loop->connect(A_EXIT, this, &ClientState::ControllerEventHandler);
+		loop->connect(BFG::ID::NE_RECEIVED, this, &ClientState::networkEventHandler, CLIENT_STATE_HANDLE);
+	}
+	
+	virtual ~ClientState()
+	{
+		infolog << "Tutorial: Destroying ClientState.";
+		loop()->disconnect(A_EXIT, this);
+	}
+
 	void onExit()
 	{
 		// Calling this will hold the update process of this State.
@@ -109,6 +191,196 @@ struct GameState : BFG::State
 			}
 		}
 	}
+	
+	void onCreateScene(const BFG::Network::DataPayload& payload)
+	{
+		std::stringstream oss(payload.mAppData.data());
+
+/*
+		BFG::ObjectParameter op;
+		oss >> op.mHandle;
+		op.mName = "Ball";
+		op.mType = "PongBall";
+		op.mLocation = v3(0.0f, 0.0f, OBJECT_Z_POSITION);
+
+		createObject(op);
+		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_READ, op.mHandle);
+
+		op = BFG::ObjectParameter();
+		oss >> op.mHandle;
+		op.mName = "LowerBar";
+		op.mType = "PongBar";
+		op.mLocation = v3(0.0f, -BAR_Y_POSITION, OBJECT_Z_POSITION + SPECIAL_PACKER_MESH_OFFSET);
+
+		createObject(op);
+		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_READ, op.mHandle);
+
+		op = BFG::ObjectParameter();
+		oss >> op.mHandle;
+		op.mName = "UpperBar";
+		op.mType = "PongBar";
+		op.mLocation.position = v3(0.0f, BAR_Y_POSITION, OBJECT_Z_POSITION + SPECIAL_PACKER_MESH_OFFSET);
+		op.mLocation.orientation = BFG::qv4::IDENTITY;
+		BFG::fromAngleAxis(op.mLocation.orientation, 180 * DEG2RAD, BFG::v3::UNIT_Z);
+
+		createObject(op);
+		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_READ, op.mHandle);
+*/
+	}
+
+	void networkEventHandler(BFG::Network::DataPacketEvent* e)
+	{
+		switch(e->getId())
+		{
+		case BFG::ID::NE_RECEIVED:
+		{
+			const BFG::Network::DataPayload& payload = e->getData();
+
+			switch(payload.mAppEventId)
+			{
+			case CREATE_SCENE:
+				onCreateScene(payload);
+				break;
+			}
+		}
+		}
+	}
+};
+
+struct ServerState : CommonState
+{
+	ServerState(EventLoop* loop) :
+	CommonState(SERVER_STATE_HANDLE, loop),
+	mSceneCreated(false)
+	{
+		loop->connect(BFG::ID::NE_RECEIVED, this, &ServerState::networkPacketEventHandler, SERVER_STATE_HANDLE);
+		loop->connect(BFG::ID::NE_CONNECTED, this, &ServerState::networkControlEventHandler);
+		loop->connect(BFG::ID::NE_DISCONNECTED, this, &ServerState::networkControlEventHandler);
+	}
+	
+	virtual ~ServerState()
+	{
+		loop()->disconnect(BFG::ID::NE_RECEIVED, this);
+		loop()->disconnect(BFG::ID::NE_CONNECTED, this);
+		loop()->disconnect(BFG::ID::NE_DISCONNECTED, this);
+	}
+
+	void networkPacketEventHandler(BFG::Network::DataPacketEvent* e)
+	{
+/*
+		switch(e->getId())
+		{
+		case BFG::ID::NE_RECEIVED:
+		{
+			const BFG::Network::DataPayload& payload = e->getData();
+
+			switch(payload.mAppEventId)
+			{
+			case A_SHIP_AXIS_Y:
+			{
+				GameHandle playerHandle = getPlayerHandle(e->sender());
+				if (playerHandle == NULL_HANDLE)
+					return;
+				f32 data;
+				arrayToValue(data, payload.mAppData, 0);
+				dbglog << "Server received A_SHIP_AXIS_Y (" << data << ")";
+				emit<BFG::GameObjectEvent>(BFG::ID::GOE_CONTROL_YAW, data, playerHandle);
+				break;
+			}
+			}
+		}
+		}
+*/
+	}
+	
+	void createScene()
+	{
+		std::stringstream handles;
+
+/*
+		BFG::ObjectParameter op;
+		op.mHandle = BFG::generateNetworkHandle();
+		op.mName = "Ball";
+		op.mType = "PongBall";
+		op.mLocation = v3(0.0f, 0.0f, OBJECT_Z_POSITION);
+		op.mLinearVelocity = v3(0.0f, -15.0f, 0.0f);
+		handles << op.mHandle << " ";
+
+		createObject(op);
+		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
+
+		op = BFG::ObjectParameter();
+		op.mHandle = BFG::generateNetworkHandle();
+		op.mName = "LowerBar";
+		op.mType = "PongBar";
+		op.mLocation = v3(0.0f, -BAR_Y_POSITION, OBJECT_Z_POSITION + SPECIAL_PACKER_MESH_OFFSET);
+		handles << op.mHandle << " ";
+		mPlayer = op.mHandle;
+
+		createObject(op);
+		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
+
+		op = BFG::ObjectParameter();
+		op.mHandle = BFG::generateNetworkHandle();
+		op.mName = "UpperBar";
+		op.mType = "PongBar";
+		op.mLocation.position = v3(0.0f, BAR_Y_POSITION, OBJECT_Z_POSITION + SPECIAL_PACKER_MESH_OFFSET);
+		op.mLocation.orientation = BFG::qv4::IDENTITY;
+		BFG::fromAngleAxis(op.mLocation.orientation, 180 * DEG2RAD, BFG::v3::UNIT_Z);
+		handles << op.mHandle;
+		mPlayer2 = op.mHandle;
+
+		createObject(op);
+		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
+
+		mCreatedHandles = handles.str();
+		mSceneCreated = true;
+*/
+	}
+
+	void destroyScene()
+	{
+		std::vector<GameHandle> all = mEnvironment->find_all(&alwaysTrue);
+		std::vector<GameHandle>::const_iterator it = all.begin();
+		for (; it != all.end(); ++it)
+		{
+			destroyObject(*it);
+		}
+		
+		mCreatedHandles = "";
+		mSceneCreated = false;
+	}
+	
+	void onConnected(BFG::Network::PeerIdT peerId)
+	{
+	}
+	
+	void onDisconnected(BFG::Network::PeerIdT peerId)
+	{
+	}
+
+	void networkControlEventHandler(BFG::Network::ControlEvent* e)
+	{
+		switch(e->getId())
+		{
+		case BFG::ID::NE_CONNECTED:
+		{
+			const BFG::Network::PeerIdT peerId = boost::get<BFG::Network::PeerIdT>(e->getData());
+			onConnected(peerId);
+			break;
+		}
+		case BFG::ID::NE_DISCONNECTED:
+		{
+			const BFG::Network::PeerIdT peerId = boost::get<BFG::Network::PeerIdT>(e->getData());
+			onDisconnected(peerId);
+			break;
+		}
+		} // switch
+	}
+
+private:
+	std::string mCreatedHandles;
+	bool mSceneCreated;
 };
 
 // We won't display anything, so this class remains more or less empty. In this
@@ -117,10 +389,12 @@ struct GameState : BFG::State
 struct ViewState : public BFG::View::State
 {
 public:
-	ViewState(GameHandle handle, EventLoop* loop) :
-	State(handle, loop),
-	mControllerMyGuiAdapter(handle, loop)
-	{}
+	ViewState(EventLoop* loop) :
+	State(CLIENT_STATE_HANDLE, loop),
+	mControllerMyGuiAdapter(CLIENT_STATE_HANDLE, loop)
+	{
+		infolog << "Tutorial: Creating ViewState.";
+	}
 
 	~ViewState()
 	{
@@ -174,56 +448,136 @@ void initController(BFG::GameHandle stateHandle, EventLoop* loop)
 	);
 }
 
-GameHandle stateHandle = BFG::generateHandle();
-
 boost::scoped_ptr<ViewState> gViewState;
-boost::scoped_ptr<GameState> gGameState;
+boost::scoped_ptr<ClientState> gClientState;
+boost::scoped_ptr<ServerState> gServerState;
 
-void* createStates(void* p)
+// Our ClientState needs everything.
+void* createClientStates(void* p)
 {
 	EventLoop* loop = static_cast<EventLoop*>(p);
 	
-	// The different states might be seen as different viewing points of
-	// one state of an application or game. Thus they always share the same
-	// handle since they work closely together.
-	gViewState.reset(new ViewState(stateHandle, loop));
-	gGameState.reset(new GameState(stateHandle, loop));
+	gViewState.reset(new ViewState(loop));
+	gClientState.reset(new ClientState(loop));
 
-	initController(stateHandle, loop);
+	initController(CLIENT_STATE_HANDLE, loop);
 	return 0;
+}
+
+// Our ServerState doesn't need more than our GameState and the Network module
+void* createServerStates(void* p)
+{
+	EventLoop* loop = static_cast<EventLoop*>(p);
+
+	gServerState.reset(new ServerState(loop));
+
+	return 0;
+}
+
+template <class T>
+bool from_string(T& t, 
+                 const std::string& s, 
+                 std::ios_base& (*f)(std::ios_base&))
+{
+	std::istringstream iss(s);
+	return !(iss >> f >> t).fail();
 }
 
 int main( int argc, const char* argv[] ) try
 {
+	bool isClient = true;
+	if  (argc == 2)
+		isClient = false;
+	else if (argc == 3)
+		isClient = true;
+	else
+	{
+		std::cerr << "For Server use: bfgTutorialNetworking <Port>\n"
+			"For Client use: bfgTutorialNetworking <IP> <Port>\n";
+		BFG::Base::pause();
+		return 0;
+	}	
+	
 	// Our logger. Not used here, works like cout, but without the need for
 	// endl and with multiple severities: dbglog, infolog, warnlog, errlog.
 	BFG::Base::Logger::Init(BFG::Base::Logger::SL_DEBUG, "Logs/TutorialNetworking.log");
 	infolog << "This is our logger!";
 
-	EventLoop loop(true);
+	EventLoop loop(true, new EventSystem::BoostThread<>("Loop"));
 
-	const std::string caption = "Tutorial 01: Networking";
+	const std::string caption = "Tutorial 02: Networking";
 	size_t controllerFrequency = 1000;
-	
+
 	// Setting up callbacks for module initialization
 	// This is still very inconsistent but a proof for flexibility ;)
-	boost::scoped_ptr<BFG::Base::IEntryPoint> epView(BFG::View::Interface::getEntryPoint(caption));
-	boost::scoped_ptr<BFG::Base::IEntryPoint> epController(BFG::ControllerInterface::getEntryPoint(controllerFrequency));
-	boost::scoped_ptr<BFG::Base::IEntryPoint> epGame(new BFG::Base::CEntryPoint(&createStates));
+	if (isClient)
+	{
+		boost::scoped_ptr<BFG::Base::IEntryPoint> epView(BFG::View::Interface::getEntryPoint(caption));
+		boost::scoped_ptr<BFG::Base::IEntryPoint> epController(BFG::ControllerInterface::getEntryPoint(controllerFrequency));
+		boost::scoped_ptr<BFG::Base::IEntryPoint> epNetwork(BFG::Network::Interface::getEntryPoint(BFG_CLIENT));
+		boost::scoped_ptr<BFG::Base::IEntryPoint> epPhysics(BFG::Physics::Interface::getEntryPoint());
+		boost::scoped_ptr<BFG::Base::IEntryPoint> epGame(new BFG::Base::CEntryPoint(&createClientStates));
+		
+		// The order is important.
+		loop.addEntryPoint(epView.get());
+		loop.addEntryPoint(epController.get());
+		loop.addEntryPoint(epNetwork.get());
+		loop.addEntryPoint(epPhysics.get());
+		loop.addEntryPoint(epGame.get());
+		
+		loop.run();
+		
+		std::string ip(argv[1]);
+		std::string port(argv[2]);
 
-	// The order is important.
-	loop.addEntryPoint(epView.get());
-	loop.addEntryPoint(epController.get());
-	loop.addEntryPoint(epGame.get());
+		BFG::Network::EndpointT payload = make_tuple
+		(
+			stringToArray<128>(ip),
+			stringToArray<128>(port)
+		);
 
-	// Now the following line will call all entry points and run the
-	// application. The only way to get past this line is to call
-	// loop.stop() somewhere. We do this in our GameState.
-	loop.run();
+		BFG::Emitter e(&loop);
+		e.emit<BFG::Network::ControlEvent>(BFG::ID::NE_CONNECT, payload);
+
+		while(!loop.shouldExit())
+		{
+			boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+		}
+	}
+	else
+	{
+		BFG::u16 port = 0;
+		if (!from_string(port, argv[1], std::dec))
+		{
+			std::cerr << "Port not a number: " << argv[1] << std::endl;
+			BFG::Base::pause();
+			return 0;
+		}
+		
+		boost::scoped_ptr<BFG::Base::IEntryPoint> epNetwork(BFG::Network::Interface::getEntryPoint(BFG_SERVER));
+		boost::scoped_ptr<BFG::Base::IEntryPoint> epPhysics(BFG::Physics::Interface::getEntryPoint());
+		boost::scoped_ptr<BFG::Base::IEntryPoint> epGame(new BFG::Base::CEntryPoint(&createServerStates));
+
+		// The order is important.
+		loop.addEntryPoint(epNetwork.get());
+		loop.addEntryPoint(epPhysics.get());
+		loop.addEntryPoint(epGame.get());
+		
+		loop.run();
+
+		BFG::Emitter e(&loop);
+		e.emit<BFG::Network::ControlEvent>(BFG::ID::NE_LISTEN, port);
+
+		while(!loop.shouldExit())
+		{
+			boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+		}
+	}
 
 	// The loop does not run anymore. Destroy the states now.
 	gViewState.reset();
-	gGameState.reset();
+	gClientState.reset();
+	gServerState.reset();
 }
 catch (Ogre::Exception& e)
 {
