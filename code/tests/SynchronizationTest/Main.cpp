@@ -266,7 +266,6 @@ struct ServerState: public SynchronizationTestState
 				emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
 			}
 		}
-
 		mCreatedHandles = handles.str();
 		mSceneCreated = true;
 	}
@@ -458,10 +457,11 @@ struct ClientState : public SynchronizationTestState
 	void onCreateTestObject(const BFG::Network::DataPayload& payload)
 	{
 		std::stringstream oss(payload.mAppData.data());
-		
+
+		// First cube
 		BFG::ObjectParameter op;
-		op.mType = "Cube_Remote";
-		
+		op.mType = "Cube";
+
 		f32 width = 1.0f;
 		f32 height = 1.0f;
 		f32 offset = 0.5f;
@@ -484,8 +484,7 @@ struct ClientState : public SynchronizationTestState
 				createObject(op);
 				emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_READ, op.mHandle);
 			}
-		}		
-		
+		}
 	}
 	
 	void controllerEventHandler(BFG::Controller_::VipEvent* e)
