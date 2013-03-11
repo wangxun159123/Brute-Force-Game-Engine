@@ -46,6 +46,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Core/ShowException.h>
 #include <Core/Utils.h>
 #include <Model/Environment.h>
+#include <Model/Property/Concepts/Camera.h>
 #include <Model/Sector.h>
 #include <Model/State.h>
 #include <Model/Data/GameObjectFactory.h>
@@ -155,6 +156,12 @@ struct CommonState : BFG::State
 	virtual void createObject(const BFG::ObjectParameter& param)
 	{
 		boost::shared_ptr<BFG::GameObject> go = mGof->createGameObject(param);
+		mSector->addObject(go);
+	}
+
+	virtual void createCamera(const BFG::CameraParameter& param)
+	{
+		boost::shared_ptr<BFG::GameObject> go = mGof->createCamera(param, param.mParentObject);
 		mSector->addObject(go);
 	}
 	
@@ -270,17 +277,39 @@ struct ClientState : CommonState
 		createObject(op);
 		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_READ, op.mHandle);
 
-		op = BFG::ObjectParameter();
-		oss >> op.mHandle;
-		op.mName = "Ship";
-		op.mType = "Ship";
-		op.mLocation = v3(5.0f, 0.0f, 15.0f);
+		BFG::ObjectParameter op1;
+		oss >> op1.mHandle;
+		op1.mName = "Ship";
+		op1.mType = "Ship";
+		op1.mLocation = v3(5.0f, 0.0f, 15.0f);
 		
-		// TODO
-		mPlayer = op.mHandle;
+		createObject(op1);
+		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_READ, op1.mHandle);
 
-		createObject(op);
-		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_READ, op.mHandle);
+		BFG::ObjectParameter op2;
+		oss >> op2.mHandle;
+		op2.mName = "Ship2";
+		op2.mType = "Ship2";
+		op2.mLocation = v3(-5.0f, 0.0f, 15.0f);
+
+		createObject(op2);
+		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_READ, op2.mHandle);
+
+		BFG::CameraParameter cp = BFG::CameraParameter();
+		GameHandle parentHandle;
+		oss >> parentHandle;
+		if (op1.mHandle == parentHandle)
+		{
+			cp.mOffset = v3(0.0f, 3.0f, -7.0f);
+			cp.mParentObject = op1.mName;
+		}
+		if (op2.mHandle == parentHandle)
+		{
+			cp.mOffset = v3(0.0f, 5.0f, -10.0f);
+			cp.mParentObject = op2.mName;
+		}
+
+		createCamera(cp);
 	}
 
 	void networkEventHandler(BFG::Network::DataPacketEvent* e)
@@ -410,6 +439,17 @@ struct ServerState : CommonState
 		createObject(op);
 		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
 
+		op = BFG::ObjectParameter();
+		op.mHandle = BFG::generateNetworkHandle();
+		op.mName = "Ship2";
+		op.mType = "Ship2";
+		op.mLocation = v3(-5.0f, 0.0f, 15.0f);
+		handles << op.mHandle << " ";
+		mPlayer2 = op.mHandle;
+
+		createObject(op);
+		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
+
 		mCreatedHandles = handles.str();
 		mSceneCreated = true;
 	}
@@ -443,28 +483,32 @@ struct ServerState : CommonState
 		{
 			createScene();
 		}
-		
-		CharArray512T ca512 = stringToArray<512>(mCreatedHandles);
+
+		std::string handles = mCreatedHandles;
+
+		if (mClientList.size() < 1)
+		{
+			mClientList.insert(std::make_pair(peerId, mPlayer));
+			handles += BFG::stringify(mPlayer);
+		}
+		else if (mClientList.size() == 1)
+		{
+			mClientList.insert(std::make_pair(peerId, mPlayer2));
+			handles += BFG::stringify(mPlayer2);
+		}
+
+		CharArray512T ca512 = stringToArray<512>(handles);
 
 		BFG::Network::DataPayload payload
 		(
 			CREATE_SCENE, 
 			CLIENT_STATE_HANDLE, 
 			SERVER_STATE_HANDLE,
-			mCreatedHandles.length(),
+			handles.length(),
 			ca512
 		);
 		
 		emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload, peerId);
-
-		if (mClientList.size() < 1)
-		{
-			mClientList.insert(std::make_pair(peerId, mPlayer));
-		}
-		else if (mClientList.size() == 1)
-		{
-			mClientList.insert(std::make_pair(peerId, mPlayer2));
-		}
 	}
 	
 	void onDisconnected(BFG::Network::PeerIdT peerId)
