@@ -41,6 +41,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Controller/Action.h>
 #include <Controller/ControllerEvents.h>
 #include <Controller/Interface.h>
+#include <Core/Math.h>
 #include <Core/Path.h>
 #include <Core/ShowException.h>
 #include <Core/Utils.h>
@@ -96,7 +97,8 @@ struct CommonState : BFG::State
 	mStateHandle(handle),
 	mPlayer(NULL_HANDLE),
 	mPlayer2(NULL_HANDLE),
-	mEnvironment(new BFG::Environment)
+	mEnvironment(new BFG::Environment),
+	mTimeSinceLastUpdate(0.0f)
 	{
 		BFG::Path p;
 		
@@ -125,11 +127,29 @@ struct CommonState : BFG::State
 		mSector.reset(new BFG::Sector(this->loop(), 1, "Blah", mGof));
 	}
 	
+	virtual ~CommonState()
+	{
+		mSector.reset();
+		mGof.reset();
+	}
+
 	// You may update objects and other things here.
 	virtual void onTick(const quantity<si::time, f32> TSLF)
 	{
-		mSector->update(TSLF);
-		emit<BFG::Physics::Event>(BFG::ID::PE_STEP, TSLF.value());
+		if (TSLF.value() < BFG::EPSILON_F)
+		{
+			mTimeSinceLastUpdate += TSLF.value();
+			return;
+		}
+		else
+		{
+			mTimeSinceLastUpdate = TSLF.value();
+		}
+		if (mSector)
+		{
+			mSector->update(mTimeSinceLastUpdate * si::seconds);
+			emit<BFG::Physics::Event>(BFG::ID::PE_STEP, mTimeSinceLastUpdate);
+		}
 	}
 	
 	virtual void createObject(const BFG::ObjectParameter& param)
@@ -153,6 +173,7 @@ private:
 	BFG::Property::PluginMapT mPluginMap;
 	boost::shared_ptr<BFG::Sector> mSector;
 	boost::shared_ptr<BFG::GameObjectFactory> mGof;
+	f32 mTimeSinceLastUpdate;
 };
 
 // Here comes the Client state. It performs the following tasks:
@@ -199,15 +220,15 @@ struct ClientState : CommonState
 		switch(e->getId())
 		{
 			case SHIP_AXIS_X:
-				emit<BFG::GameObjectEvent>(BFG::ID::GOE_CONTROL_PITCH, boost::get<f32>(e->getData()), mPlayer);
+				onShipAxisEvent(e->getId(), boost::get<f32>(e->getData()));
 				break;
 
 			case SHIP_AXIS_Y:
-				emit<BFG::GameObjectEvent>(BFG::ID::GOE_CONTROL_YAW, boost::get<f32>(e->getData()), mPlayer);
+				onShipAxisEvent(e->getId(), boost::get<f32>(e->getData()));
 				break;
 
 			case SHIP_AXIS_Z:
-				emit<BFG::GameObjectEvent>(BFG::ID::GOE_CONTROL_ROLL, boost::get<f32>(e->getData()), mPlayer);
+				onShipAxisEvent(e->getId(), boost::get<f32>(e->getData()));
 				break;
 			// This is the event ID we specified at the top
 			case A_EXIT:
@@ -218,6 +239,22 @@ struct ClientState : CommonState
 		}
 	}
 	
+	void onShipAxisEvent(const BFG::s32 id, const BFG::f32 axisValue)
+	{
+		dbglog << "AxisValue:" << axisValue;
+		CharArray512T ca512 = CharArray512T();
+		valueToArray(BFG::clamp(axisValue, -1.0f, 1.0f), ca512, 0);
+		BFG::Network::DataPayload payload
+		(
+			id, 
+			SERVER_STATE_HANDLE, 
+			CLIENT_STATE_HANDLE,
+			sizeof(f32),
+			ca512
+		);
+		emit<BFG::Network::DataPacketEvent>(BFG::ID::NE_SEND, payload);
+	}
+
 	void onCreateScene(const BFG::Network::DataPayload& payload)
 	{
 		infolog << "Client: Creating scene";
@@ -287,7 +324,7 @@ struct ServerState : CommonState
 
 	void networkPacketEventHandler(BFG::Network::DataPacketEvent* e)
 	{
-/*
+
 		switch(e->getId())
 		{
 		case BFG::ID::NE_RECEIVED:
@@ -296,23 +333,56 @@ struct ServerState : CommonState
 
 			switch(payload.mAppEventId)
 			{
-			case A_SHIP_AXIS_Y:
+			case SHIP_AXIS_X:
 			{
 				GameHandle playerHandle = getPlayerHandle(e->sender());
 				if (playerHandle == NULL_HANDLE)
 					return;
 				f32 data;
 				arrayToValue(data, payload.mAppData, 0);
-				dbglog << "Server received A_SHIP_AXIS_Y (" << data << ")";
+				dbglog << "Server received SHIP_AXIS_X (" << data << ")";
+				emit<BFG::GameObjectEvent>(BFG::ID::GOE_CONTROL_PITCH, data, playerHandle);
+				break;
+			}
+			case SHIP_AXIS_Y:
+			{
+				GameHandle playerHandle = getPlayerHandle(e->sender());
+				if (playerHandle == NULL_HANDLE)
+					return;
+				f32 data;
+				arrayToValue(data, payload.mAppData, 0);
+				dbglog << "Server received SHIP_AXIS_Y (" << data << ")";
 				emit<BFG::GameObjectEvent>(BFG::ID::GOE_CONTROL_YAW, data, playerHandle);
 				break;
 			}
+			case SHIP_AXIS_Z:
+			{
+				GameHandle playerHandle = getPlayerHandle(e->sender());
+				if (playerHandle == NULL_HANDLE)
+					return;
+				f32 data;
+				arrayToValue(data, payload.mAppData, 0);
+				dbglog << "Server received SHIP_AXIS_Z (" << data << ")";
+				emit<BFG::GameObjectEvent>(BFG::ID::GOE_CONTROL_ROLL, data, playerHandle);
+				break;
+			}
+
 			}
 		}
 		}
-*/
+
 	}
 	
+	GameHandle getPlayerHandle(BFG::Network::PeerIdT peerId)
+	{
+		ClientListT::iterator it = mClientList.find(peerId);
+
+		if (it == mClientList.end())
+			return NULL_HANDLE;
+
+		return it->second;
+	}
+
 	void createScene()
 	{
 		infolog << "Server: Creating scene";
@@ -335,6 +405,7 @@ struct ServerState : CommonState
 		op.mType = "Ship";
 		op.mLocation = v3(5.0f, 0.0f, 15.0f);
 		handles << op.mHandle << " ";
+		mPlayer = op.mHandle;
 
 		createObject(op);
 		emit<BFG::GameObjectEvent>(BFG::ID::GOE_SYNCHRONIZATION_MODE, (s32)BFG::ID::SYNC_MODE_NETWORK_WRITE, op.mHandle);
@@ -561,7 +632,7 @@ int main( int argc, const char* argv[] ) try
 	
 	// Our logger. Not used here, works like cout, but without the need for
 	// endl and with multiple severities: dbglog, infolog, warnlog, errlog.
-	BFG::Base::Logger::Init(BFG::Base::Logger::SL_DEBUG, "Logs/TutorialNetworking.log");
+	BFG::Base::Logger::Init(BFG::Base::Logger::SL_ERROR, "Logs/TutorialNetworking.log");
 	infolog << "This is our logger!";
 
 	EventLoop loop(true, new EventSystem::BoostThread<>("Loop"));
