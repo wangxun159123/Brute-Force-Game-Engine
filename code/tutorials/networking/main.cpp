@@ -719,6 +719,7 @@ int main( int argc, const char* argv[] ) try
 		{
 			boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 		}
+		gViewState.reset();
 	}
 	else
 	{
@@ -748,7 +749,6 @@ int main( int argc, const char* argv[] ) try
 	}
 
 	// The loop does not run anymore. Destroy the states now.
-	gViewState.reset();
 	gClientState.reset();
 	gServerState.reset();
 }
