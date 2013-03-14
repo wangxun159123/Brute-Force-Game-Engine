@@ -40,8 +40,17 @@ version = "1">
       <special frequency = "100" axis = "3" sensitivity = "0.05" flip = "0" range = "32767" />
     </vip>
   </action>
-  
-  <action id = "A_EXIT">
+
+	<action id = "SHIP_THRUST">
+		<vip type = "VIP_THRUST_AXIS" axismode = "AM_Absolute">
+			<special frequency = "100" raise = "KB_i" lower = "KB_k" step = "0.005" stopatzero = "1" />
+		</vip>
+		<vip type = "VIP_THRUST_AXIS" device = "DT_Joystick" axismode = "AM_Absolute">
+			<special frequency = "100" raise = "JB_Button1" lower = "JB_Button2" step = "0.01" />
+		</vip>
+	</action>
+
+	<action id = "A_EXIT">
     <vip type = "VIP_CLICK">
       <special button = "KB_ESCAPE" />
     </vip>

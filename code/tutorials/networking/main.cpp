@@ -79,6 +79,7 @@ const s32 CREATE_SCENE = 15000;
 const s32 SHIP_AXIS_X = 15001;
 const s32 SHIP_AXIS_Y = 15002;
 const s32 SHIP_AXIS_Z = 15003;
+const s32 SHIP_THRUST = 15004;
 
 
 // We need to define a fix handle identifier for the server and client states.
@@ -200,6 +201,7 @@ struct ClientState : CommonState
 		loop->connect(SHIP_AXIS_X, this, &ClientState::ControllerEventHandler);
 		loop->connect(SHIP_AXIS_Y, this, &ClientState::ControllerEventHandler);
 		loop->connect(SHIP_AXIS_Z, this, &ClientState::ControllerEventHandler);
+		loop->connect(SHIP_THRUST, this, &ClientState::ControllerEventHandler);
 		loop->connect(BFG::ID::NE_RECEIVED, this, &ClientState::networkEventHandler, CLIENT_STATE_HANDLE);
 	}
 	
@@ -210,6 +212,7 @@ struct ClientState : CommonState
 		loop()->disconnect(SHIP_AXIS_X, this);
 		loop()->disconnect(SHIP_AXIS_Y, this);
 		loop()->disconnect(SHIP_AXIS_Z, this);
+		loop()->disconnect(SHIP_THRUST, this);
 	}
 
 	void onExit()
@@ -227,15 +230,18 @@ struct ClientState : CommonState
 		switch(e->getId())
 		{
 			case SHIP_AXIS_X:
-				onShipAxisEvent(e->getId(), boost::get<f32>(e->getData()));
+				onShipControlEvent(e->getId(), boost::get<f32>(e->getData()));
 				break;
 
 			case SHIP_AXIS_Y:
-				onShipAxisEvent(e->getId(), boost::get<f32>(e->getData()));
+				onShipControlEvent(e->getId(), boost::get<f32>(e->getData()));
 				break;
 
 			case SHIP_AXIS_Z:
-				onShipAxisEvent(e->getId(), boost::get<f32>(e->getData()));
+				onShipControlEvent(e->getId(), boost::get<f32>(e->getData()));
+				break;
+			case SHIP_THRUST:
+				onShipControlEvent(e->getId(), boost::get<f32>(e->getData()));
 				break;
 			// This is the event ID we specified at the top
 			case A_EXIT:
@@ -246,11 +252,11 @@ struct ClientState : CommonState
 		}
 	}
 	
-	void onShipAxisEvent(const BFG::s32 id, const BFG::f32 axisValue)
+	void onShipControlEvent(const BFG::s32 id, const BFG::f32 controlValue)
 	{
-		dbglog << "AxisValue:" << axisValue;
+		dbglog << "ControlValue:" << controlValue;
 		CharArray512T ca512 = CharArray512T();
-		valueToArray(BFG::clamp(axisValue, -1.0f, 1.0f), ca512, 0);
+		valueToArray(BFG::clamp(controlValue, -1.0f, 1.0f), ca512, 0);
 		BFG::Network::DataPayload payload
 		(
 			id, 
@@ -289,7 +295,7 @@ struct ClientState : CommonState
 		BFG::ObjectParameter op2;
 		oss >> op2.mHandle;
 		op2.mName = "Ship2";
-		op2.mType = "Ship2";
+		op2.mType = "Ship";
 		op2.mLocation = v3(-5.0f, 0.0f, 15.0f);
 
 		createObject(op2);
@@ -300,12 +306,12 @@ struct ClientState : CommonState
 		oss >> parentHandle;
 		if (op1.mHandle == parentHandle)
 		{
-			cp.mOffset = v3(0.0f, 3.0f, -7.0f);
+			cp.mOffset = v3(0.0f, 3.0f, -10.0f);
 			cp.mParentObject = op1.mName;
 		}
 		if (op2.mHandle == parentHandle)
 		{
-			cp.mOffset = v3(0.0f, 5.0f, -10.0f);
+			cp.mOffset = v3(0.0f, 3.0f, -10.0f);
 			cp.mParentObject = op2.mName;
 		}
 
@@ -395,6 +401,17 @@ struct ServerState : CommonState
 				emit<BFG::GameObjectEvent>(BFG::ID::GOE_CONTROL_ROLL, data, playerHandle);
 				break;
 			}
+			case SHIP_THRUST:
+			{
+				GameHandle playerHandle = getPlayerHandle(e->sender());
+				if (playerHandle == NULL_HANDLE)
+					return;
+				f32 data;
+				arrayToValue(data, payload.mAppData, 0);
+				dbglog << "Server received SHIP_THRUST (" << data << ")";
+				emit<BFG::GameObjectEvent>(BFG::ID::GOE_CONTROL_THRUST, data, playerHandle);
+				break;
+			}
 
 			}
 		}
@@ -442,7 +459,7 @@ struct ServerState : CommonState
 		op = BFG::ObjectParameter();
 		op.mHandle = BFG::generateNetworkHandle();
 		op.mName = "Ship2";
-		op.mType = "Ship2";
+		op.mType = "Ship";
 		op.mLocation = v3(-5.0f, 0.0f, 15.0f);
 		handles << op.mHandle << " ";
 		mPlayer2 = op.mHandle;
@@ -603,6 +620,7 @@ void initController(BFG::GameHandle stateHandle, EventLoop* loop)
 	actions[SHIP_AXIS_X] = "SHIP_AXIS_X";
 	actions[SHIP_AXIS_Y] = "SHIP_AXIS_Y";
 	actions[SHIP_AXIS_Z] = "SHIP_AXIS_Z";
+	actions[SHIP_THRUST] = "SHIP_THRUST";
 	BFG::Controller_::fillWithDefaultActions(actions);
 	BFG::Controller_::sendActionsToController(emitter.loop(), actions);
 
