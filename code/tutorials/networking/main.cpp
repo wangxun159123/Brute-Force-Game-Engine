@@ -584,6 +584,8 @@ public:
 	mControllerMyGuiAdapter(CLIENT_STATE_HANDLE, loop)
 	{
 		infolog << "Tutorial: Creating ViewState.";
+		BFG::View::SkyCreation sc("sky02");
+		emit<BFG::View::Event>(BFG::ID::VE_SET_SKY, sc, handle());
 	}
 
 	~ViewState()
