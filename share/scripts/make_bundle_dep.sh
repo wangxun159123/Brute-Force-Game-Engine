@@ -71,34 +71,6 @@ function prelude
 		libzzip-dev
 
 	/bin/mkdir -p $PREFIX
-
-
-	$WGET -U "$USER_AGENT" -c $BOOST_URL -O $BOOST_FILENAME
-	$WGET -U "$USER_AGENT" -c $OGRE_URL -O $OGRE_FILENAME
-	$WGET -U "$USER_AGENT" -c $PUGIXML_URL -O $PUGIXML_FILENAME
-
-	$SVN export -r $BOOST_LOG_REV https://boost-log.svn.sourceforge.net/svnroot/boost-log/trunk/boost-log boost-log
-	$SVN export -r $MYGUI_REV https://my-gui.svn.sourceforge.net/svnroot/my-gui/trunk my-gui
-	#$SVN export svn://connect.creativelabs.com/OpenAL/trunk OpenAL
-	$SVN export -r $ODE_REV svn://svn.code.sf.net/p/opende/code/trunk ode
-
-	echo "Unpacking $BOOST_FILENAME ..."
-	$TAR -xjf $BOOST_FILENAME
-
-	echo "Adding Boost.Geometry arithmetic extension ..."
-	$SVN export -r $BOOST_GEOMETRY_EXTENSIONS_REV http://svn.boost.org/svn/boost/trunk/boost/geometry/extensions $BOOST_DIR/boost/geometry/extensions
-
-	echo "Applying local-transform.patch to ODE"
-	(cd ode && exec patch -p0 < ../../../../thirdparty/local-transform.patch)
-
-	echo "Unpacking $OGRE_FILENAME ..."
-	$TAR -xjf $OGRE_FILENAME
-
-	echo "Unpacking $PUGIXML_FILENAME ..."
-	/bin/mkdir $PUGIXML_DIR
-	/bin/tar -C $PUGIXML_DIR -xzf $PUGIXML_FILENAME
-
-	/bin/cp -r boost-log/* $BOOST_DIR
 }
 
 function postlude
@@ -112,6 +84,14 @@ function postlude
 
 function buildBoost
 {
+	$WGET -U "$USER_AGENT" -c $BOOST_URL -O $BOOST_FILENAME
+
+	echo "Unpacking $BOOST_FILENAME ..."
+	$TAR -xjf $BOOST_FILENAME
+
+	echo "Adding Boost.Geometry arithmetic extension ..."
+	$SVN export -r $BOOST_GEOMETRY_EXTENSIONS_REV http://svn.boost.org/svn/boost/trunk/boost/geometry/extensions $BOOST_DIR/boost/geometry/extensions
+
 	cd $BOOST_DIR
 
 	./bootstrap.sh
@@ -141,6 +121,10 @@ function buildBoost
 
 function buildBoostLog
 {
+	$SVN export -r $BOOST_LOG_REV https://boost-log.svn.sourceforge.net/svnroot/boost-log/trunk/boost-log boost-log
+
+	/bin/cp -r boost-log/* $BOOST_DIR
+
 	cd $BOOST_DIR
 	./b2                               \
 		--with-log                 \
@@ -159,6 +143,8 @@ function buildBoostLog
 
 function buildOpenAL
 {
+	$SVN export svn://connect.creativelabs.com/OpenAL/trunk OpenAL
+
 	mkdir openal-build
 	cd openal-build
 	$CMAKE ../OpenAL/OpenAL-Soft -DCMAKE_INSTALL_PREFIX=../$PREFIX
@@ -171,6 +157,11 @@ function buildOpenAL
 
 function buildOgre
 {
+	$WGET -U "$USER_AGENT" -c $OGRE_URL -O $OGRE_FILENAME
+
+	echo "Unpacking $OGRE_FILENAME ..."
+	$TAR -xjf $OGRE_FILENAME
+
 	mkdir ogre-build
 	cd ogre-build
 
@@ -190,6 +181,8 @@ function buildOgre
 
 function buildMyGUI
 {
+	$SVN export -r $MYGUI_REV https://my-gui.svn.sourceforge.net/svnroot/my-gui/trunk my-gui
+
 	# HACK: Fool MyGUI! It's too stupid to find Boost.
 	ln -s ../../../../../$BOOST_DIR/boost my-gui/Platforms/Ogre/OgrePlatform/include
 
@@ -216,6 +209,12 @@ function buildMyGUI
 
 function buildPugiXml
 {
+	$WGET -U "$USER_AGENT" -c $PUGIXML_URL -O $PUGIXML_FILENAME
+
+	echo "Unpacking $PUGIXML_FILENAME ..."
+	/bin/mkdir $PUGIXML_DIR
+	$TAR -C $PUGIXML_DIR -xzf $PUGIXML_FILENAME
+
 	mkdir pugixml-build
 	cd pugixml-build
 	$CMAKE ../$PUGIXML_DIR/scripts -DCMAKE_INSTALL_PREFIX=../$PREFIX
@@ -228,6 +227,11 @@ function buildPugiXml
 
 function buildOde
 {
+	$SVN export -r $ODE_REV svn://svn.code.sf.net/p/opende/code/trunk ode
+
+	echo "Applying local-transform.patch to ODE"
+	(cd ode && exec patch -p0 < ../../../../thirdparty/local-transform.patch)
+
 	# Out-of-source build is not possible
 	cd ode
 	./autogen.sh
