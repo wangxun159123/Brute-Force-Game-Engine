@@ -32,6 +32,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/crc.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/pool/pool.hpp>
 
 #include <Core/ClockUtils.h>
 #include <Core/Types.h>
@@ -86,9 +87,12 @@ private:
 	void setTcpDelay(bool on);
 	
 	//! \brief Perform an asynchronous write of data to the connected network module
-	//! \param[in] data Data set to write over the net
-	//! \param[in] size Size of the data set
-	void write(const char* data, size_t size);
+	//! \param[in] headerData Header data set to write over the net
+	//! \param[in] headerSize Size of the header data set
+	//! \param[in] packetData Packet data set to write over the net
+	//! \param[in] packetSize Size of the packet data set
+	void write(const char* headerData, size_t headerSize,
+	           const char* packetData, size_t packetSize);
 
 	//! \brief Start asynchronous reading from the connected network module
 	void read();
@@ -111,7 +115,7 @@ private:
 	//! \brief Handler for the writing of data
 	//! \param[in] ec Error code of boost::asio
 	//! \param[in] bytesTransferred size of the data written
-	void writeHandler(const error_code &ec, std::size_t bytesTransferred);
+	void writeHandler(const error_code &ec, std::size_t bytesTransferred, char* buffer);
 
 	//! \brief Send time criticle data to the connected network module
 	//! Use this function to send packets as fast as possible.
@@ -179,6 +183,8 @@ private:
 	//! \param[in] ec Error code to log
 	//! \param[in] method Name of the method that received the error
 	void printErrorCode(const error_code &ec, const std::string& method);
+
+	boost::pool<> mPool;
 
 	boost::array<char, PACKET_MTU> mBackPacket;
 	boost::array<char, PACKET_MTU> mFrontPacket;
