@@ -44,7 +44,8 @@ BFG::Emitter(loop_),
 mPeerId(peerId),
 mLocalTime(localTime),
 mRoundTripTimer(Clock::milliSecond),
-mOutPacketPosition(0)
+mOutPacketPosition(0),
+mPool(PACKET_MTU)
 {
 	// Check case of accidental integer overflow for when mOutPacketPosition
 	// might become smaller than one of the packet buffers.
@@ -115,16 +116,22 @@ void NetworkModule::setTcpDelay(bool on)
 	       << " to " << newOption.value();
 }
 
-void NetworkModule::write(const char* data, size_t size)
+void NetworkModule::write(const char* headerData, size_t headerSize, const char* packetData, size_t packetSize)
 {
-	// TODO: we probably need to lock a mutex here and unlock it in the writeHandler
-	dbglog << "NetworkModule::write: " << size << " Bytes";
-	memcpy(mWriteBuffer.c_array(), data, size);
+	dbglog << "NetworkModule::write: " << headerSize << " Bytes";
+
+	size_t totalSize = headerSize+packetSize;
+	assert(totalSize < mWriteBuffer.size());
+
+	char* buffer = static_cast<char*>(mPool.malloc());
+	memcpy(buffer, headerData, headerSize);
+	memcpy(buffer+headerSize, packetData, packetSize);
+
 	boost::asio::async_write
 	(
 		*mSocket,
-		boost::asio::buffer(mWriteBuffer, size),
-		boost::bind(&NetworkModule::writeHandler, shared_from_this(), _1, _2)
+		boost::asio::buffer(buffer, totalSize),
+		boost::bind(&NetworkModule::writeHandler, shared_from_this(), _1, _2, buffer)
 	);
 }
 
@@ -252,13 +259,14 @@ void NetworkModule::readDataHandler(const error_code &ec, std::size_t bytesTrans
 	}
 }
 
-void NetworkModule::writeHandler(const error_code &ec, std::size_t bytesTransferred)
+void NetworkModule::writeHandler(const error_code &ec, std::size_t bytesTransferred, char* buffer)
 {
 	dbglog << "NetworkModule::writeHandler: " << bytesTransferred << " Bytes written";
 	if (ec)
 	{
 		printErrorCode(ec, "writeHandler");
 	}
+	mPool.free(static_cast<void*>(buffer));
 } 
 
 void NetworkModule::queueTimeCriticalPacket(DataPayload& payload)
@@ -386,8 +394,14 @@ void NetworkModule::flush()
 	neh.serialize(mWriteHeaderBuffer);
 	
 	dbglog << "NetworkModule::flush -> Flushing: " << mOutPacketPosition;
-	write(mWriteHeaderBuffer.data(), NetworkEventHeader::SerializationT::size());
-	write(mFrontPacket.data(), mOutPacketPosition);
+
+	write
+	(
+		mWriteHeaderBuffer.data(),
+		NetworkEventHeader::SerializationT::size(),
+		mFrontPacket.data(),
+		mOutPacketPosition
+	);
 
 	// Cleanup
 	memset(mFrontPacket.c_array(), 0, mFrontPacket.size());

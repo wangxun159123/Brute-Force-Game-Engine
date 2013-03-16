@@ -53,6 +53,10 @@ Compiling
 	mkdir build && cd build
 	cmake .. && make
 
+Note:
+	* You might need the gcc compile flags `-m64' and `-fPIC' when
+	  compiling for AMD64.
+
 -> Windows
    -------
 
@@ -70,6 +74,10 @@ currently chosen configuration.
 
 On Windows, note that only one package may be installed at a time since the
 registry entries get overwritten.
+
+On Linux when generating a Debian package for the 'amd64'-architecture you must
+append `-DAMD64=1' when invoking CMake. Depending on whether you use
+`-DRELEASE=1' or not you'll get libbfe-dev or libbfe-dbg.
 
 Resources
 =========
