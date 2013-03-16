@@ -191,7 +191,7 @@ function buildOgre
 function buildMyGUI
 {
 	# HACK: Fool MyGUI! It's too stupid to find Boost.
-	ln -s ../../../../../boost_1_47_0/boost my-gui/Platforms/Ogre/OgrePlatform/include
+	ln -s ../../../../../$BOOST_DIR/boost my-gui/Platforms/Ogre/OgrePlatform/include
 
 	/bin/mkdir mygui-build
 	cd mygui-build
