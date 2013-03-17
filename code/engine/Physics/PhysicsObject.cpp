@@ -312,7 +312,6 @@ void PhysicsObject::sendDeltas() const
 	}
 
 	// RotationVelocity
-	bool rotVelSent = false;
 	const VelocityComposite rotVelocity = boost::make_tuple(getRotationVelocity(), getRotationVelocityRelative());
 	if (!nearEnough(rotVelocity.get<0>(), mDeltaStorage.get<4>(), epsilon) || !nearEnough(rotVelocity.get<1>(), mDeltaStorage.get<5>(), epsilon))
 	{
