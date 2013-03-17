@@ -45,7 +45,7 @@ mPeerId(peerId),
 mLocalTime(localTime),
 mRoundTripTimer(Clock::milliSecond),
 mOutPacketPosition(0),
-mPool(PACKET_MTU)
+mPool(PACKET_MTU*2)
 {
 	// Check case of accidental integer overflow for when mOutPacketPosition
 	// might become smaller than one of the packet buffers.
@@ -121,7 +121,7 @@ void NetworkModule::write(const char* headerData, size_t headerSize, const char*
 	dbglog << "NetworkModule::write: " << headerSize << " Bytes";
 
 	size_t totalSize = headerSize+packetSize;
-	assert(totalSize < mWriteBuffer.size());
+	assert(totalSize < mPool.get_requested_size());
 
 	char* buffer = static_cast<char*>(mPool.malloc());
 	memcpy(buffer, headerData, headerSize);
