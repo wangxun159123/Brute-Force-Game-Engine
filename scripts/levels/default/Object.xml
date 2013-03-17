@@ -27,7 +27,7 @@
 			<Concepts>ShipConcept</Concepts>
 			<Collision>CM_Standard</Collision>
 			<Visible>yes</Visible>
-			<Density>50.0</Density>
+			<Density>34.0</Density>
 		</Module>
 	</ObjectConfig>
 	<ObjectConfig name="Ship2">
@@ -36,7 +36,7 @@
 			<Concepts>ShipConcept</Concepts>
 			<Collision>CM_Standard</Collision>
 			<Visible>yes</Visible>
-			<Density>50.0</Density>
+			<Density>34.0</Density>
 		</Module>
 	</ObjectConfig>
 </ObjectConfigs>

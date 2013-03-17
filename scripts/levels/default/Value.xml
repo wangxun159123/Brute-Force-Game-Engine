@@ -6,7 +6,7 @@
 	</ValueConfig>
 
 	<ValueConfig name="DefaultEngine">
-		<PV name="EngineForce" type="stdVal">200.0</PV>
+		<PV name="EngineForce" type="stdVal">13500.0</PV>
 		<PV name="ManeuverForce" type="stdVal">300.0</PV>
 		<PV name="MaxRotationSpeed" type="v3">
 			<X>1.22173</X>
