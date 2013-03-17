@@ -694,10 +694,6 @@ int main( int argc, const char* argv[] ) try
 		return 0;
 	}	
 	
-	// Our logger. Not used here, works like cout, but without the need for
-	// endl and with multiple severities: dbglog, infolog, warnlog, errlog.
-	BFG::Base::Logger::Init(BFG::Base::Logger::SL_ERROR, "Logs/TutorialNetworking.log");
-	infolog << "This is our logger!";
 
 	EventLoop loop(true, new EventSystem::BoostThread<>("Loop"));
 
@@ -708,6 +704,11 @@ int main( int argc, const char* argv[] ) try
 	// This is still very inconsistent but a proof for flexibility ;)
 	if (isClient)
 	{
+		// Our logger. Not used here, works like cout, but without the need for
+		// endl and with multiple severities: dbglog, infolog, warnlog, errlog.
+		BFG::Base::Logger::Init(BFG::Base::Logger::SL_ERROR, "Logs/TutorialNetworkingClient.log");
+		infolog << "This is our client!";
+
 		boost::scoped_ptr<BFG::Base::IEntryPoint> epView(BFG::View::Interface::getEntryPoint(caption));
 		boost::scoped_ptr<BFG::Base::IEntryPoint> epController(BFG::ControllerInterface::getEntryPoint(controllerFrequency));
 		boost::scoped_ptr<BFG::Base::IEntryPoint> epNetwork(BFG::Network::Interface::getEntryPoint(BFG_CLIENT));
@@ -743,6 +744,10 @@ int main( int argc, const char* argv[] ) try
 	}
 	else
 	{
+		// Our logger. Not used here, works like cout, but without the need for
+		// endl and with multiple severities: dbglog, infolog, warnlog, errlog.
+		BFG::Base::Logger::Init(BFG::Base::Logger::SL_ERROR, "Logs/TutorialNetworkingServer.log");
+		infolog << "This is our server!";
 		BFG::u16 port = 0;
 		if (!from_string(port, argv[1], std::dec))
 		{
