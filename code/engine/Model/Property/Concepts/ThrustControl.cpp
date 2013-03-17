@@ -84,6 +84,9 @@ void ThrustControl::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 	assert(mModules.begin()->first == rootModule() &&
 		"ThrustControl: Must be in charge of the root module!");
 
+	if (getGoValue<bool>(ID::PV_Remote, ValueId::ENGINE_PLUGIN_ID))
+		return;
+
 	mForce = v3::ZERO;
 	mTorque = v3::ZERO;
 
@@ -109,11 +112,13 @@ void ThrustControl::internalUpdate(quantity<si::time, f32> timeSinceLastFrame)
 		mTotalManeuverForce,
 		timeSinceLastFrame
 	);
-	
 }
 
 void ThrustControl::internalSynchronize()
 {
+	if (getGoValue<bool>(ID::PV_Remote, ValueId::ENGINE_PLUGIN_ID))
+		return;
+
 	const v3& currentSpeed = getGoValue<v3>(ID::PV_RelativeVelocity, pluginId());
 	emit<GameObjectEvent>(ID::GOE_VELOCITY, currentSpeed, 0, ownerHandle());
 
@@ -126,6 +131,9 @@ void ThrustControl::internalOnEvent(EventIdT action,
                                     GameHandle module,
                                     GameHandle sender)
 {
+	if (getGoValue<bool>(ID::PV_Remote, ValueId::ENGINE_PLUGIN_ID))
+		return;
+
 	switch(action)
 	{
 	case ID::GOE_CONTROL_PITCH:
