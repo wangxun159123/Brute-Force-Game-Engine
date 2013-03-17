@@ -30,6 +30,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Network/NetworkModule.h>
 #include <Network/Event.h>
+#include <Network/UdpModule.h>
 
 namespace BFG {
 namespace Network{
@@ -161,6 +162,9 @@ void Server::onListen(const u16 port)
 		dbglog << "Server started to listen to port " << port;
 		startAccepting();
 		mThread = boost::thread(boost::bind(&boost::asio::io_service::run, &mService));
+		
+		// UDP
+		mUdp.reset(new UdpModule(mLoop, mService, port));
 	}
 	else
 	{

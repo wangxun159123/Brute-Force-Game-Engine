@@ -47,6 +47,7 @@ using namespace boost::asio::ip;
 using namespace boost::system;
 
 class NetworkModule;
+class UdpModule;
 
 //! This class represents a network server. It starts accepting connections from clients 
 //! using several NetworkModules
@@ -117,6 +118,8 @@ private:
 	Handshake::SerializationT mHandshakeBuffer;
 
 	ModulesMap mNetworkModules;
+	
+	boost::shared_ptr<UdpModule> mUdp;
 };
 
 } // namespace Network

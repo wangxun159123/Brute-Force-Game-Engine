@@ -29,6 +29,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/typeof/typeof.hpp>
 #include <Network/Enums.hh>
 #include <Network/Event.h>
+#include <Network/Packet.h>
 
 namespace BFG {
 namespace Network{
@@ -326,37 +327,20 @@ void NetworkModule::onSend(DataPayload& payload)
 void NetworkModule::onReceive(const char* data, size_t size)
 {
 	dbglog << "NetworkModule::onReceive";
-	size_t packetPosition = 0;
 
-	do 
+	PayloadFactory payloadFactory(mTimestampOffset, mLocalTime, mRtt);
+	OPacket<Tcp> packet(data, size);
+	
+	while (packet.hasNextPayload())
 	{
-		Segment s;
-		arrayToValue(s, data, packetPosition);
-		packetPosition += sizeof(Segment);
+		DataPayload payload = packet.nextPayload(payloadFactory);
 
-		CharArray512T ca;
-		memcpy(ca.data(), &data[packetPosition], s.dataSize);
-		packetPosition += s.dataSize;
-
-		u32 currentServerTimestamp = mTimestampOffset + mLocalTime->stop();
-
-		DataPayload payload
-		(
-			s.appEventId,
-			s.destinationId,
-			s.senderId,
-			s.dataSize,
-			ca,
-			currentServerTimestamp,
-			mRtt.mean() / 2
-		);
-
-		if (s.appEventId == ID::NE_TIMESYNC_REQUEST)
+		if (payload.mAppEventId == ID::NE_TIMESYNC_REQUEST)
 		{
 			onTimeSyncRequest();
 			return;
 		}
-		else if (s.appEventId == ID::NE_TIMESYNC_RESPONSE)
+		else if (payload.mAppEventId == ID::NE_TIMESYNC_RESPONSE)
 		{
 			TimestampT serverTimestamp;
 			memcpy(&serverTimestamp, payload.mAppData.data(), payload.mAppDataLen);
@@ -365,15 +349,14 @@ void NetworkModule::onReceive(const char* data, size_t size)
 		
 		try 
 		{
-			dbglog << "NetworkModule::onReceive: Emitting NE_RECEIVED to: " << s.destinationId << " from: " << mPeerId;
-			emit<DataPacketEvent>(ID::NE_RECEIVED, payload, s.destinationId, mPeerId);
+			dbglog << "NetworkModule::onReceive: Emitting NE_RECEIVED to: " << payload.mAppDestination << " from: " << mPeerId;
+			emit<DataPacketEvent>(ID::NE_RECEIVED, payload, payload.mAppDestination, mPeerId);
 		}
 		catch (std::exception& ex)
 		{
 			warnlog << ex.what();
 		}
 	}
-	while ((packetPosition + sizeof(Segment)) < size);
 }
 
 void NetworkModule::flush()
