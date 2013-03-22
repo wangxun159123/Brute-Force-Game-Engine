@@ -34,6 +34,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Core/ClockUtils.h>
 #include <Network/Defs.h>
 #include <Network/Event_fwd.h>
+#include <Network/Handshake.h>
 
 class EventLoop;
 

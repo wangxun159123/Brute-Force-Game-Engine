@@ -24,13 +24,13 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Network/Defs.h>
-#include <Network/Packet.h>
 #include <Network/UdpModule.h>
-#include <Network/UnreliableHeader.h>
-
 #include <boost/asio.hpp>
 #include <Base/Logger.h>
+#include <Network/Defs.h>
+#include <Network/Packet.h>
+#include <Network/Udp.h>
+#include <Network/UnreliableHeader.h>
 
 namespace BFG {
 namespace Network {
@@ -79,7 +79,7 @@ void UdpModule::readHandler(const boost::system::error_code& ec, std::size_t byt
 
 	// TEST PACKET
 	char* sendBuffer = static_cast<char*>(mPool.malloc());
-	UdpHeaderFactory uhf;
+	Udp::HeaderFactoryT uhf;
 	IPacket<Udp> p(sendBuffer, uhf);
 	
 	// TEST DATA
@@ -93,9 +93,9 @@ void UdpModule::readHandler(const boost::system::error_code& ec, std::size_t byt
 	// onSend()
 	p.add(segment, data);
 	
-	write(p.buffer(), p.size());
+	write(p.full(), p.size());
 	
-	OPacket<Udp> p2(p.buffer(), p.size());
+	OPacket<Udp> p2(p.full(), p.size());
 }
 
 void UdpModule::write(char* buf, std::size_t bytesTransferred)

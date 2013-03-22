@@ -45,8 +45,8 @@ BFG::Emitter(loop_),
 mPeerId(peerId),
 mLocalTime(localTime),
 mRoundTripTimer(Clock::milliSecond),
-mOutPacketPosition(0),
-mPool(PACKET_MTU*2)
+mPool(PACKET_MTU*2),
+mSendPacket(static_cast<char*>(mPool.malloc()), mHeaderFactory)
 {
 	// Check case of accidental integer overflow for when mOutPacketPosition
 	// might become smaller than one of the packet buffers.
@@ -62,15 +62,6 @@ NetworkModule::~NetworkModule()
 
 	dbglog << "NetworkModule::~NetworkModule (" << this << ")";
 	loop()->disconnect(ID::NE_SEND, this);
-
-	mBackPacket.empty();
-	mFrontPacket.empty();
-	mWriteBuffer.empty();
-	mReadBuffer.empty();
-	mReadHeaderBuffer.empty();
-	mWriteHeaderBuffer.empty();
-
-	mOutPacketPosition = 0;
 
 	mSocket.reset();
 }
@@ -117,16 +108,15 @@ void NetworkModule::setTcpDelay(bool on)
 	       << " to " << newOption.value();
 }
 
-void NetworkModule::write(const char* headerData, size_t headerSize, const char* packetData, size_t packetSize)
+void NetworkModule::write(const char* packet, std::size_t size)
 {
-	dbglog << "NetworkModule::write: " << headerSize << " Bytes";
+	dbglog << "NetworkModule::write: " << size << " Bytes";
 
-	size_t totalSize = headerSize+packetSize;
+	size_t totalSize = size;
 	assert(totalSize < mPool.get_requested_size());
 
 	char* buffer = static_cast<char*>(mPool.malloc());
-	memcpy(buffer, headerData, headerSize);
-	memcpy(buffer+headerSize, packetData, packetSize);
+	memcpy(buffer, packet, size);
 
 	boost::asio::async_write
 	(
@@ -229,7 +219,7 @@ void NetworkModule::readDataHandler(const error_code &ec, std::size_t bytesTrans
 	dbglog << "NetworkModule::readDataHandler (" << bytesTransferred << ")";
 	if (!ec) 
 	{
-		u32 ownPacketChecksum = calculatePacketChecksum(mReadBuffer, bytesTransferred);
+		u32 ownPacketChecksum = calculateChecksum(mReadBuffer.data(), bytesTransferred);
 
 		if (ownPacketChecksum != packetChecksum)
 		{
@@ -281,14 +271,14 @@ void NetworkModule::queueTimeCriticalPacket(DataPayload& payload)
 
 void NetworkModule::dataPacketEventHandler(DataPacketEvent* e)
 {
-	switch(e->getId())
+	switch(e->id())
 	{
 	case ID::NE_SEND:
 		onSend(e->getData());
 		break;
 	default:
 		warnlog << "NetworkModule: Can't handle event with ID: "
-		        << e->getId();
+		        << e->id();
 		break;
 	}
 }
@@ -300,24 +290,7 @@ void NetworkModule::onSend(DataPayload& payload)
 
 	dbglog << "NetworkModule:Current Time: " << mLocalTime->stop();
 
-	Segment s;
-	s.appEventId = payload.mAppEventId;
-	s.destinationId = payload.mAppDestination;
-	s.senderId = payload.mAppSender;
-	s.dataSize = payload.mAppDataLen;
-
-	size_t requiredSize = s.dataSize + sizeof(Segment);
-	size_t sizeLeft = mBackPacket.size() - mOutPacketPosition;
-
-	if (requiredSize <= sizeLeft)
-	{
-		boost::mutex::scoped_lock scoped_lock(mPacketMutex);
-		memcpy(&mBackPacket[mOutPacketPosition], &s, sizeof(Segment));
-		mOutPacketPosition += sizeof(Segment);
-		memcpy(&mBackPacket[mOutPacketPosition], payload.mAppData.c_array(), s.dataSize);
-		mOutPacketPosition += s.dataSize;
-	}
-	else
+	if (!mSendPacket.add(payload))
 	{
 		flush();
 		onSend(payload);
@@ -364,31 +337,19 @@ void NetworkModule::flush()
 	boost::mutex::scoped_lock scoped_lock(mPacketMutex);
 
 	// Nothing to write?
-	if (mOutPacketPosition == 0)
+	if (!mSendPacket.containsData())
 		return;
 
-	std::swap(mFrontPacket, mBackPacket);
-
-	// Create Header with Checksums
-	u32 packetChecksum = calculatePacketChecksum(mFrontPacket, mOutPacketPosition);
-	NetworkEventHeader neh = {0.0f, packetChecksum, 0, mOutPacketPosition};
-	neh.mHeaderChecksum = calculateHeaderChecksum(neh);
-
-	neh.serialize(mWriteHeaderBuffer);
-	
-	dbglog << "NetworkModule::flush -> Flushing: " << mOutPacketPosition;
+	dbglog << "NetworkModule -> Flushing: " << mSendPacket.size() << " bytes";
 
 	write
 	(
-		mWriteHeaderBuffer.data(),
-		NetworkEventHeader::SerializationT::size(),
-		mFrontPacket.data(),
-		mOutPacketPosition
+		mSendPacket.full(),
+		mSendPacket.size()
 	);
 
 	// Cleanup
-	memset(mFrontPacket.c_array(), 0, mFrontPacket.size());
-	mOutPacketPosition = 0;
+	mSendPacket.clear(static_cast<char*>(mPool.malloc()));
 }
 
 void NetworkModule::onTimeSyncRequest()
@@ -426,16 +387,6 @@ void NetworkModule::setTimestampOffset(const s32 offset, const s32 rtt)
 
 	dbglog << "New avg rtt: " << mRtt.mean();
 }
-
-u16 NetworkModule::calculateHeaderChecksum(const NetworkEventHeader& neh)
-{
-	boost::crc_16_type result;
-	result.process_bytes(&(neh.mPacketSize), sizeof(neh.mPacketSize));
-	result.process_bytes(&(neh.mTimestamp), sizeof(neh.mTimestamp));
-	result.process_bytes(&(neh.mPacketChecksum), sizeof(neh.mPacketChecksum));
-	return result.checksum();
-}
-
 
 void NetworkModule::calculateServerTimestampOffset(u32 serverTimestamp, s32& offset, s32& rtt)
 {

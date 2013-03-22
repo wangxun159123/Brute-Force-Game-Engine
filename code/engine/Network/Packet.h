@@ -28,101 +28,56 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #define BFG_NETWORK_PACKET_H
 
 #include <cstring>
-#include <boost/array.hpp>
-#include <Core/ClockUtils.h>
+#include <Network/DataPayload.h>
 #include <Network/Defs.h>
 #include <Network/Event.h>
-#include <Network/UnreliableHeader.h>
-#include <Network/Rtt.h>
+#include <Network/Segment.h>
 
 namespace BFG {
 namespace Network {
 
-class PayloadFactory
-{
-public:
-	PayloadFactory(s32 timestampOffset,
-	               boost::shared_ptr<Clock::StopWatch> localtime,
-	               Rtt<s32, 10> rtt) :
-	mTimestampOffset(timestampOffset),
-	mLocalTime(localtime),
-	mRtt(rtt)
-	{}
-	
-	DataPayload create(const Segment& segment, const CharArray512T& data) const
-	{
-		u32 currentServerTimestamp = mTimestampOffset + mLocalTime->stop();
-		
-		DataPayload payload
-		(
-			segment.appEventId,
-			segment.destinationId,
-			segment.senderId,
-			segment.dataSize,
-			data,
-			currentServerTimestamp,
-			mRtt.mean() / 2
-		);
-		return payload;
-	};
-	
-	s32 mTimestampOffset;
-	boost::shared_ptr<Clock::StopWatch> mLocalTime;
-	Rtt<s32, 10> mRtt;
-};
-
-class UdpHeaderFactory
-{
-public:
-	typedef UnreliableHeader HeaderT;
-	
-	UnreliableHeader create() const
-	{
-		UnreliableHeader header;
-		header.mSequenceNumber = 5;
-		header.mTimestamp = 0.9f;
-		return header;
-	};
-};
-
-struct Udp
-{
-	typedef UnreliableHeader HeaderT;
-	typedef UdpHeaderFactory HeaderFactoryT;
-};
-
-struct Todo{};
-
-struct Tcp
-{
-	typedef NetworkEventHeader HeaderT;
-	typedef Todo HeaderFactoryT;
-};
-	
 template <typename ProtocolT>
 class IPacket
 {
 	typedef typename ProtocolT::HeaderFactoryT HeaderFactoryT;
+	typedef typename ProtocolT::HeaderT        HeaderT;
 	
 public:
 	//! Constructing before write()
 	IPacket(char* buffer, const HeaderFactoryT& factory) :
 	mBuffer(buffer),
-	mOffset(0)
-	{
-		makeHeader(factory);
-	}
+	mOffset(headerSize()),
+	mHeaderFactory(factory)
+	{}
 	
-	void add(Segment& segment, const char* data)
+	bool add(Segment& segment, const char* data)
 	{
+		if (!maySwallowSegmentAndData(segment))
+			return false;
+
 		memcpy(&mBuffer[mOffset], &segment, sizeof(Segment));
 		mOffset += sizeof(Segment);
+		
 		memcpy(&mBuffer[mOffset], data, segment.dataSize);
 		mOffset += segment.dataSize;
+		return true;
 	}
 	
-	char* buffer() const
+	bool add(const DataPayload& payload)
 	{
+		Segment s;
+		s.appEventId = payload.mAppEventId;
+		s.destinationId = payload.mAppDestination;
+		s.senderId = payload.mAppSender;
+		s.dataSize = payload.mAppDataLen;
+		return add(s, payload.mAppData.data());
+	}
+
+	//! Returns a raw byte pointer to the packet's content.
+	//! The packet header get's added at this point.
+	char* full() const
+	{
+		mHeaderFactory.create(mBuffer, mOffset);
 		return mBuffer;
 	}
 	
@@ -130,26 +85,51 @@ public:
 	{
 		return mOffset;
 	}
-	
-	//void add(PayloadT&);
-private:
-	void makeHeader(const HeaderFactoryT& factory)
+
+	//! Makes the packet reusable. A new buffer must be provided, though.
+	void clear(char* buffer)
 	{
-		typedef typename ProtocolT::HeaderT HeaderT;
-		typedef typename HeaderT::SerializationT SerializationT;
-		const u16 headerSize = SerializationT::size();
-
-		HeaderT header = factory.create();
-
-		SerializationT output;
-		header.serialize(output);
-		
-		memcpy(mBuffer, output.data(), headerSize);
-		mOffset += headerSize;
+		mBuffer = buffer;
+		mOffset = headerSize();
 	}
 	
+	//! Checks if the packet contains at least one segment
+	bool containsData() const
+	{
+		const std::size_t minimumAmount = headerSize() + sizeof(Segment);
+
+		return this->size() >= minimumAmount;
+	}
+	
+private:
+	static u16 headerSize()
+	{
+		return ProtocolT::headerSize();
+	}
+	
+	void makeHeader()
+	{
+		HeaderT header = mHeaderFactory.create(mBuffer, mOffset);
+		
+		// Integrate header into packet
+		typename HeaderT::SerializationT output;
+		header.serialize(output);
+		memcpy(mBuffer, output.data(), headerSize());
+	}
+	
+	bool maySwallowSegmentAndData(const Segment& segment) const
+	{
+		std::size_t requiredSize = segment.dataSize + sizeof(Segment);
+		std::size_t sizeLeft = ProtocolT::MAX_PACKET_SIZE_BYTES - mOffset;
+
+		bool hasEnoughSpace = requiredSize <= sizeLeft;
+		return hasEnoughSpace;
+	}
+
 	char* mBuffer;
-	u16 mOffset;
+	u16   mOffset;
+	
+	const HeaderFactoryT& mHeaderFactory;
 };
 
 template <typename ProtocolT>

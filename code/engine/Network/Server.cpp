@@ -184,13 +184,6 @@ void Server::onDisconnect(const PeerIdT& peerId)
 	}
 }
 
-u16 Server::calculateHandshakeChecksum(const Handshake& hs)
-{
-	boost::crc_16_type result;
-	result.process_bytes(&(hs.mPeerId), sizeof(PeerIdT));
-	return result.checksum();
-}
-
 void Server::printErrorCode(const error_code &ec, const std::string& method)
 {
 	warnlog << "[" << method << "] Error Code: " << ec.value() << ", message: " << ec.message();

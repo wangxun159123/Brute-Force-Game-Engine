@@ -37,6 +37,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Core/Types.h>
 #include <Network/Defs.h>
 #include <Network/Event_fwd.h>
+#include <Network/Handshake.h>
 
 class EventLoop;
 
@@ -94,11 +95,6 @@ private:
 	//! \param[in] peerId ID of the NetworkModule to stop communicating
 	void onDisconnect(const PeerIdT& peerId);
 	
-	//! \brief Calculates the checksum of a Handshake
-	//! \param[in] hs The Handshake to calculate the checksum for
-	//! \return Calculated checksum
-	u16 calculateHandshakeChecksum(const Handshake& hs);
-
 	//! \brief Logs an error_code
 	//! \param[in] ec Error code to log
 	//! \param[in] method Name of the method that received the error

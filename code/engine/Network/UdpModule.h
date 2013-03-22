@@ -34,6 +34,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Core/Types.h>
 #include <EventSystem/Emitter.h>
+#include <Network/Event_fwd.h>
 
 namespace BFG {
 namespace Network {

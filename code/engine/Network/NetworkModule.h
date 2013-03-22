@@ -29,7 +29,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/array.hpp>
 #include <boost/asio.hpp>
-#include <boost/crc.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/pool/pool.hpp>
@@ -39,7 +38,9 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <EventSystem/Emitter.h>
 #include <Network/Defs.h>
 #include <Network/Event_fwd.h>
+#include <Network/Packet.h>
 #include <Network/Rtt.h>
+#include <Network/Tcp.h>
 
 class EventLoop;
 
@@ -87,12 +88,9 @@ private:
 	void setTcpDelay(bool on);
 	
 	//! \brief Perform an asynchronous write of data to the connected network module
-	//! \param[in] headerData Header data set to write over the net
-	//! \param[in] headerSize Size of the header data set
-	//! \param[in] packetData Packet data set to write over the net
-	//! \param[in] packetSize Size of the packet data set
-	void write(const char* headerData, size_t headerSize,
-	           const char* packetData, size_t packetSize);
+	//! \param[in] packet data to write over the net
+	//! \param[in] size Size of the data set
+	void write(const char* packet, size_t size);
 
 	//! \brief Start asynchronous reading from the connected network module
 	void read();
@@ -156,23 +154,6 @@ private:
 	//! \param[in] rtt Round-Trip-Time of the data packet
 	void setTimestampOffset(const s32 offset, const s32 rtt);
 	
-	//! \brief Calculates the checksum of a NetworkEventHeader
-	//! \param[in] neh The NetworkEventHeader to calculate the checksum for
-	//! \return Calculated checksum
-	u16 calculateHeaderChecksum(const NetworkEventHeader& neh);
-
-	//! \brief Calculates the checksum of a data packet
-	//! \param[in] packet The packet to calculate the checksum for
-	//! \param[in] packetSize The size of the data packet
-	//! \return Calculated checksum
-	template <typename PacketT>
-	u32 calculatePacketChecksum(const PacketT& packet, size_t packetSize)
-	{
-		boost::crc_32_type result;
-		result.process_bytes(packet.data(), packetSize);
-		return result.checksum();
-	}
-
 	//! \brief Calculates the offset between server and client time
 	//! \param[in] serverTimestamp Timestamp of the server
 	//! \param[out] offset Calculated offset
@@ -186,8 +167,9 @@ private:
 
 	boost::pool<> mPool;
 
-	boost::array<char, PACKET_MTU> mBackPacket;
-	boost::array<char, PACKET_MTU> mFrontPacket;
+	Tcp::HeaderFactoryT mHeaderFactory;
+	IPacket<Tcp> mSendPacket;
+
 	boost::array<char, PACKET_MTU> mWriteBuffer;
 	boost::array<char, PACKET_MTU> mReadBuffer;
 
@@ -204,7 +186,6 @@ private:
 
 	PeerIdT mPeerId;
 	boost::shared_ptr<Clock::StopWatch> mLocalTime;
-	u16 mOutPacketPosition;
 };
 
 } // namespace Network

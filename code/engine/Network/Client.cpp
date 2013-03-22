@@ -26,6 +26,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <Network/Client.h>
 
+#include <boost/crc.hpp>
 #include <Base/Logger.h>
 #include <Network/Event.h>
 #include <Network/NetworkModule.h>
