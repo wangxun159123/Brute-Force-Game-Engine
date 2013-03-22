@@ -27,9 +27,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <EventSystem/Core/EventLoop.h>
 #include <EventSystem/Emitter.h>
 
-#include <Network/Interface.h>
-#include <Network/Enums.hh>
-#include <Network/Event.h>
+#include <Network/Network.h>
 
 #define BOOST_TEST_MODULE NetworkTest2
 #include <boost/test/unit_test.hpp>
