@@ -27,6 +27,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Network/NetworkModule.h>
 
 #include <boost/typeof/typeof.hpp>
+#include <Network/CreateBuffer.h>
 #include <Network/Enums.hh>
 #include <Network/Event.h>
 #include <Network/Packet.h>
@@ -46,7 +47,7 @@ mPeerId(peerId),
 mLocalTime(localTime),
 mRoundTripTimer(Clock::milliSecond),
 mPool(PACKET_MTU*2),
-mSendPacket(static_cast<char*>(mPool.malloc()), mHeaderFactory)
+mSendPacket(createBuffer(mPool), mHeaderFactory)
 {
 	// Check case of accidental integer overflow for when mOutPacketPosition
 	// might become smaller than one of the packet buffers.
@@ -108,21 +109,15 @@ void NetworkModule::setTcpDelay(bool on)
 	       << " to " << newOption.value();
 }
 
-void NetworkModule::write(const char* packet, std::size_t size)
+void NetworkModule::write(boost::asio::const_buffer packet, std::size_t size)
 {
 	dbglog << "NetworkModule::write: " << size << " Bytes";
-
-	size_t totalSize = size;
-	assert(totalSize < mPool.get_requested_size());
-
-	char* buffer = static_cast<char*>(mPool.malloc());
-	memcpy(buffer, packet, size);
 
 	boost::asio::async_write
 	(
 		*mSocket,
-		boost::asio::buffer(buffer, totalSize),
-		boost::bind(&NetworkModule::writeHandler, shared_from_this(), _1, _2, buffer)
+		boost::asio::buffer(packet, size),
+		boost::bind(&NetworkModule::writeHandler, shared_from_this(), _1, _2, packet)
 	);
 }
 
@@ -250,14 +245,16 @@ void NetworkModule::readDataHandler(const error_code &ec, std::size_t bytesTrans
 	}
 }
 
-void NetworkModule::writeHandler(const error_code &ec, std::size_t bytesTransferred, char* buffer)
+void NetworkModule::writeHandler(const error_code &ec,
+                                 std::size_t bytesTransferred,
+                                 boost::asio::const_buffer buffer)
 {
 	dbglog << "NetworkModule::writeHandler: " << bytesTransferred << " Bytes written";
 	if (ec)
 	{
 		printErrorCode(ec, "writeHandler");
 	}
-	mPool.free(static_cast<void*>(buffer));
+	mPool.free(const_cast<char*>(boost::asio::buffer_cast<const char*>(buffer)));
 } 
 
 void NetworkModule::queueTimeCriticalPacket(DataPayload& payload)
@@ -302,7 +299,7 @@ void NetworkModule::onReceive(const char* data, size_t size)
 	dbglog << "NetworkModule::onReceive";
 
 	PayloadFactory payloadFactory(mTimestampOffset, mLocalTime, mRtt);
-	OPacket<Tcp> packet(data, size);
+	OPacket<Tcp> packet(boost::asio::buffer(data, size));
 	
 	while (packet.hasNextPayload())
 	{
@@ -349,7 +346,7 @@ void NetworkModule::flush()
 	);
 
 	// Cleanup
-	mSendPacket.clear(static_cast<char*>(mPool.malloc()));
+	mSendPacket.clear(createBuffer(mPool));
 }
 
 void NetworkModule::onTimeSyncRequest()
@@ -408,7 +405,6 @@ void NetworkModule::printErrorCode(const error_code &ec, const std::string& meth
 {
 	warnlog << "This (" << this << ") " << "[" << method << "] Error Code: " << ec.value() << ", message: " << ec.message();
 }
-
 
 } // namespace Network
 } // namespace BFG

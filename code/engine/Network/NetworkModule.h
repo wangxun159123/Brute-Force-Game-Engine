@@ -90,7 +90,7 @@ private:
 	//! \brief Perform an asynchronous write of data to the connected network module
 	//! \param[in] packet data to write over the net
 	//! \param[in] size Size of the data set
-	void write(const char* packet, size_t size);
+	void write(boost::asio::const_buffer packet, std::size_t size);
 
 	//! \brief Start asynchronous reading from the connected network module
 	void read();
@@ -113,7 +113,7 @@ private:
 	//! \brief Handler for the writing of data
 	//! \param[in] ec Error code of boost::asio
 	//! \param[in] bytesTransferred size of the data written
-	void writeHandler(const error_code &ec, std::size_t bytesTransferred, char* buffer);
+	void writeHandler(const error_code &ec, std::size_t bytesTransferred, boost::asio::const_buffer buffer);
 
 	//! \brief Send time criticle data to the connected network module
 	//! Use this function to send packets as fast as possible.

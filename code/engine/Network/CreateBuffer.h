@@ -24,43 +24,24 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BFG_NETWORK_UDP_H
-#define BFG_NETWORK_UDP_H
+#ifndef BFG_NETWORK_CREATEBUFFER_H
+#define BFG_NETWORK_CREATEBUFFER_H
 
-#include <Network/UnreliableHeader.h>
+#include <boost/asio/buffer.hpp>
+#include <boost/pool/pool.hpp>
 
 namespace BFG {
-namespace Network {
+namespace Network { 
 
-class UdpHeaderFactory
+//! \brief Creates a new char* buffer in a safe way
+inline boost::asio::mutable_buffer createBuffer(boost::pool<>& pool)
 {
-	typedef UnreliableHeader HeaderT;
-
-public:
-	//! Creates an UnreliableHeader in a provided buffer.
-	//! \param[in] buffer The buffer to write the header data in
-	static UnreliableHeader create(boost::asio::const_buffer buffer, std::size_t)
-	{
-		// Make header
-		UnreliableHeader header;
-		header.mSequenceNumber = 5;
-		header.mTimestamp = 0.9f;
-		return header;
-	}
-};
-
-struct Udp
-{
-	static const std::size_t MAX_PACKET_SIZE_BYTES = 1400;
-
-	typedef UnreliableHeader HeaderT;
-	typedef UdpHeaderFactory HeaderFactoryT;
-	
-	static std::size_t headerSize()
-	{
-		return HeaderT::SerializationT::size();
-	}
-};
+	return boost::asio::mutable_buffer
+	(
+		static_cast<char*>(pool.malloc()),
+		pool.get_requested_size()
+	);
+}
 
 } // namespace Network
 } // namespace BFG

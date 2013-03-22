@@ -41,10 +41,10 @@ class IPacket
 {
 	typedef typename ProtocolT::HeaderFactoryT HeaderFactoryT;
 	typedef typename ProtocolT::HeaderT        HeaderT;
-	
+
 public:
 	//! Constructing before write()
-	IPacket(char* buffer, const HeaderFactoryT& factory) :
+	IPacket(boost::asio::mutable_buffer buffer, const HeaderFactoryT& factory) :
 	mBuffer(buffer),
 	mOffset(headerSize()),
 	mHeaderFactory(factory)
@@ -55,11 +55,20 @@ public:
 		if (!maySwallowSegmentAndData(segment))
 			return false;
 
-		memcpy(&mBuffer[mOffset], &segment, sizeof(Segment));
+		boost::asio::buffer_copy
+		(
+			mBuffer,
+			boost::asio::buffer(&segment, sizeof(Segment))
+		);
 		mOffset += sizeof(Segment);
-		
-		memcpy(&mBuffer[mOffset], data, segment.dataSize);
+
+		boost::asio::buffer_copy
+		(
+			mBuffer,
+			boost::asio::buffer(data, segment.dataSize)
+		);
 		mOffset += segment.dataSize;
+
 		return true;
 	}
 	
@@ -75,7 +84,7 @@ public:
 
 	//! Returns a raw byte pointer to the packet's content.
 	//! The packet header get's added at this point.
-	char* full() const
+	boost::asio::const_buffer full() const
 	{
 		mHeaderFactory.create(mBuffer, mOffset);
 		return mBuffer;
@@ -87,7 +96,7 @@ public:
 	}
 
 	//! Makes the packet reusable. A new buffer must be provided, though.
-	void clear(char* buffer)
+	void clear(boost::asio::mutable_buffer buffer)
 	{
 		mBuffer = buffer;
 		mOffset = headerSize();
@@ -125,9 +134,9 @@ private:
 		bool hasEnoughSpace = requiredSize <= sizeLeft;
 		return hasEnoughSpace;
 	}
-
-	char* mBuffer;
-	u16   mOffset;
+	
+	boost::asio::mutable_buffer mBuffer;
+	u16 mOffset;
 	
 	const HeaderFactoryT& mHeaderFactory;
 };
@@ -137,9 +146,8 @@ class OPacket
 {
 public:
 	//! Constructing after read()
-	OPacket(const char* buffer, std::size_t len) :
+	OPacket(boost::asio::const_buffer buffer) :
 	mBuffer(buffer),
-	mSize(len),
 	mOffset(0)
 	{
 		parseHeader();
@@ -147,17 +155,26 @@ public:
 	
 	bool hasNextPayload() const
 	{
-		return mOffset + sizeof(Segment) <= mSize;
+		return mOffset + sizeof(Segment) <= boost::asio::buffer_size(mBuffer);
 	}
 	
 	DataPayload nextPayload(PayloadFactory& payloadFactory)
 	{
 		Segment s;
-		arrayToValue(s, mBuffer, mOffset);
+		boost::asio::buffer_copy
+		(
+			boost::asio::buffer(&s, sizeof(Segment)),
+			mBuffer + mOffset
+		);
 		mOffset += sizeof(Segment);
 
 		CharArray512T ca;
-		memcpy(ca.data(), &mBuffer[mOffset], s.dataSize);
+		boost::asio::buffer_copy
+		(
+			boost::asio::buffer(ca),
+			mBuffer + mOffset,
+			s.dataSize
+		);
 		mOffset += s.dataSize;
 
 		DataPayload payload = payloadFactory.create(s, ca);
@@ -175,8 +192,7 @@ public:
 	}
 	
 private:
-	const char* mBuffer;
-	const std::size_t mSize;
+	boost::asio::const_buffer mBuffer;
 	
 	std::size_t mOffset;
 };

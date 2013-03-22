@@ -27,6 +27,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #include <Network/UdpModule.h>
 #include <boost/asio.hpp>
 #include <Base/Logger.h>
+#include <Network/CreateBuffer.h>
 #include <Network/Defs.h>
 #include <Network/Packet.h>
 #include <Network/Udp.h>
@@ -80,7 +81,7 @@ void UdpModule::readHandler(const boost::system::error_code& ec, std::size_t byt
 	// TEST PACKET
 	char* sendBuffer = static_cast<char*>(mPool.malloc());
 	Udp::HeaderFactoryT uhf;
-	IPacket<Udp> p(sendBuffer, uhf);
+	IPacket<Udp> p(createBuffer(mPool), uhf);
 	
 	// TEST DATA
 	const char* data = "Hallo?";
@@ -95,10 +96,10 @@ void UdpModule::readHandler(const boost::system::error_code& ec, std::size_t byt
 	
 	write(p.full(), p.size());
 	
-	OPacket<Udp> p2(p.full(), p.size());
+	OPacket<Udp> p2(boost::asio::buffer(p.full(), p.size()));
 }
 
-void UdpModule::write(char* buf, std::size_t bytesTransferred)
+void UdpModule::write(boost::asio::const_buffer buf, std::size_t bytesTransferred)
 {
 	errlog << "UDP: read()";
 //	char* buf = static_cast<char*>(mPool.malloc());
@@ -122,11 +123,11 @@ void UdpModule::write(char* buf, std::size_t bytesTransferred)
 	);
 }
 
-void UdpModule::writeHandler(const boost::system::error_code &ec, std::size_t bytesTransferred, char* buffer)
+void UdpModule::writeHandler(const boost::system::error_code &ec, std::size_t bytesTransferred, boost::asio::const_buffer buffer)
 {
 	errlog << "UDP: writeHandler() ec: " << ec;
 	errlog << "UDP: writeHandler() sent " << bytesTransferred;
-	mPool.free(buffer);
+	mPool.free(const_cast<char*>(boost::asio::buffer_cast<const char*>(buffer)));
 	read();
 }
 

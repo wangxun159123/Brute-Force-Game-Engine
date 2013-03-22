@@ -49,8 +49,8 @@ private:
 	void read();
 	void readHandler(const boost::system::error_code &ec, std::size_t bytesTransferred, char* buffer);
 	
-	void write(char* buffer, std::size_t bytesTransferred);
-	void writeHandler(const boost::system::error_code &ec, std::size_t bytesTransferred, char* buffer);
+	void write(boost::asio::const_buffer buffer, std::size_t bytesTransferred);
+	void writeHandler(const boost::system::error_code& ec, std::size_t bytesTransferred, boost::asio::const_buffer buffer);
 	
 	boost::asio::ip::udp::socket mSocket;
 	boost::asio::ip::udp::endpoint mRemoteEndpoint;

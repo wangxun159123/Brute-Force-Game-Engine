@@ -29,6 +29,7 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cstring>
 #include <boost/array.hpp>
+#include <boost/asio/buffer.hpp>
 #include <Network/Checksum.h>
 
 namespace BFG {
@@ -92,11 +93,13 @@ public:
 	//! to-transmitted data must've already been written into the buffer.
 	//! \param[in] buffer The buffer to write the header data in
 	//! \param[in] length The length of the content within the buffer
-	static NetworkEventHeader create(const char* buffer, std::size_t length)
+	static NetworkEventHeader create(boost::asio::const_buffer buffer, std::size_t length)
 	{
+		using namespace boost::asio;
+
 		// Checksum of data
-		const char* data = buffer + Tcp::headerSize();
-		u32 packetChecksum = calculateChecksum(data, length);
+		const_buffer data = buffer + Tcp::headerSize();
+		u32 packetChecksum = calculateChecksum(buffer_cast<const char*>(data), length);
 
 		// Construct header (without header checksum)
 		NetworkEventHeader neh = {0.0f, packetChecksum, 0, length};
