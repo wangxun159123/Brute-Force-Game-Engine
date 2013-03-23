@@ -28,6 +28,9 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 #define BFG_NETWORK_PACKET_H
 
 #include <cstring>
+
+#include <boost/asio/buffer.hpp>
+
 #include <Network/DataPayload.h>
 #include <Network/Defs.h>
 #include <Network/Event.h>
@@ -48,7 +51,9 @@ public:
 	mBuffer(buffer),
 	mOffset(headerSize()),
 	mHeaderFactory(factory)
-	{}
+	{
+		throwIfBufferTooSmall();
+	}
 	
 	bool add(Segment& segment, const char* data)
 	{
@@ -57,14 +62,14 @@ public:
 
 		boost::asio::buffer_copy
 		(
-			mBuffer,
+			mBuffer + mOffset,
 			boost::asio::buffer(&segment, sizeof(Segment))
 		);
 		mOffset += sizeof(Segment);
 
 		boost::asio::buffer_copy
 		(
-			mBuffer,
+			mBuffer + mOffset,
 			boost::asio::buffer(data, segment.dataSize)
 		);
 		mOffset += segment.dataSize;
@@ -84,13 +89,13 @@ public:
 
 	//! Returns a raw byte pointer to the packet's content.
 	//! The packet header get's added at this point.
-	boost::asio::const_buffer full() const
+	boost::asio::const_buffer full()
 	{
-		mHeaderFactory.create(mBuffer, mOffset);
-		return mBuffer;
+		makeHeader();
+		return boost::asio::buffer(mBuffer, size());
 	}
 	
-	u16 size() const
+	std::size_t size() const
 	{
 		return mOffset;
 	}
@@ -111,7 +116,7 @@ public:
 	}
 	
 private:
-	static u16 headerSize()
+	static std::size_t headerSize()
 	{
 		return ProtocolT::headerSize();
 	}
@@ -123,7 +128,7 @@ private:
 		// Integrate header into packet
 		typename HeaderT::SerializationT output;
 		header.serialize(output);
-		memcpy(mBuffer, output.data(), headerSize());
+		boost::asio::buffer_copy(mBuffer, boost::asio::buffer(output));
 	}
 	
 	bool maySwallowSegmentAndData(const Segment& segment) const
@@ -134,7 +139,21 @@ private:
 		bool hasEnoughSpace = requiredSize <= sizeLeft;
 		return hasEnoughSpace;
 	}
-	
+
+	void throwIfBufferTooSmall() const
+	{
+		if (boost::asio::buffer_size(mBuffer) < ProtocolT::MAX_PACKET_SIZE_BYTES)
+		{
+			std::stringstream ss;
+			ss << "Network::IPacket: Buffer size ("
+			   << boost::asio::buffer_size(mBuffer)
+			   << " bytes) too small. At least "
+			   << ProtocolT::MAX_PACKET_SIZE_BYTES
+			   << " bytes are required.";
+			throw std::length_error(ss.str());
+		}
+	}
+
 	boost::asio::mutable_buffer mBuffer;
 	u16 mOffset;
 	

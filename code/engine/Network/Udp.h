@@ -39,7 +39,7 @@ class UdpHeaderFactory
 public:
 	//! Creates an UnreliableHeader in a provided buffer.
 	//! \param[in] buffer The buffer to write the header data in
-	static UnreliableHeader create(boost::asio::const_buffer buffer, std::size_t)
+	static UnreliableHeader create(boost::asio::const_buffer, std::size_t)
 	{
 		// Make header
 		UnreliableHeader header;
