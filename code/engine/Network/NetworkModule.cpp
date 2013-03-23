@@ -49,10 +49,6 @@ mRoundTripTimer(Clock::milliSecond),
 mPool(PACKET_MTU*2),
 mSendPacket(createBuffer(mPool), mHeaderFactory)
 {
-	// Check case of accidental integer overflow for when mOutPacketPosition
-	// might become smaller than one of the packet buffers.
-	assert(PACKET_MTU <= std::numeric_limits<BOOST_TYPEOF(mOutPacketPosition)>::max());
-	
 	mSocket.reset(new SocketT(service));
 	mTimer.reset(new boost::asio::deadline_timer(service));
 }
