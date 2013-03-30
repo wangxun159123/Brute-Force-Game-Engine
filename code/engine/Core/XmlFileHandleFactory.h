@@ -33,9 +33,6 @@ along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 
 namespace BFG {
 
-//! At the moment there is only one 3rd party lib provided. If anybody intend to use another, this switch must be moved to cmake.
-#define BFG_USE_PUGIXML
-	
 XmlFileHandleT BFG_CORE_API createXmlFileHandle(const std::string& path, bool createFile = false);
 
 } // namespace BFG
