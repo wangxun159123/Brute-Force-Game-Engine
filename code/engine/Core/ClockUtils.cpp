@@ -122,7 +122,6 @@ s32 SleepFrequently::measure()
 
 void SleepFrequently::sleep(s32 offset) const
 {
-	//std::cout << "sleep:" << offset << "\n";
 	switch (mResolution)
 	{
 		case microSecond:
