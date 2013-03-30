@@ -37,17 +37,17 @@ mRunning(false)
 {
 }
 
-ptime Base::now()
+ptime Base::now() const
 {
 	return microsec_clock::local_time();
 }
 
-time_duration Base::tillNow(ptime from)
+time_duration Base::tillNow(ptime from) const
 {
 	return time_period(from, now()).length();
 }
 
-long Base::total(time_duration duration, Resolution resolution)
+long Base::total(time_duration duration, Resolution resolution) const
 {
 	switch (resolution)
 	{
@@ -69,7 +69,7 @@ void StopWatch::start()
 	mRunning = true;
 }
 
-long StopWatch::stop()
+long StopWatch::stop() const
 {
 	if (!mRunning)
 		throw std::logic_error("Don't call stop before start has been called!");
@@ -120,7 +120,7 @@ long SleepFrequently::measure()
 	return diffTimePassed;
 }
 
-void SleepFrequently::sleep(long offset)
+void SleepFrequently::sleep(long offset) const
 {
 	//std::cout << "sleep:" << offset << "\n";
 	switch (mResolution)

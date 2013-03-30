@@ -52,14 +52,14 @@ class BFG_CORE_API Base
 public:
 	virtual ~Base() {}
 
-	//! \return The current time
-	bpt::ptime now();
+	//! \return The current time.
+	bpt::ptime now() const;
 	
-	//! \brief Calculates a duration from a given time to now
-	bpt::time_duration tillNow(bpt::ptime from);
+	//! \brief Calculates a duration from a given time to now.
+	bpt::time_duration tillNow(bpt::ptime from) const;
 	
 	//! \return A duration in a given resolution (s, ms, mics)
-	long total(bpt::time_duration, Resolution resolution);
+	long total(bpt::time_duration, Resolution resolution) const;
 };
 
 //! This class works like a stop watch, with one exception: stop() could be
@@ -78,9 +78,9 @@ public:
 
 	//! Returns the measured value in defined resolution.
 	//! You can call stop() many times but not before calling start initial!
-	long stop();
+	long stop() const;
 
-	//! Returns the measured time and restarts the clock
+	//! Returns the measured time and restarts the clock.
 	long restart();
 	
 	//! Call this at the end of your clock operations to avoid wrong results
@@ -111,7 +111,7 @@ public:
 private:
 
 	//! Sleep this thread for a given duration in defined resolution.
-	void  sleep(long duration);
+	void  sleep(long duration) const;
 
 	long  mFrequency;
 	long  mTickCount;
