@@ -39,11 +39,4 @@ namespace BFG {
 
 #endif
 
-
-//boost::shared_ptr<XmlFileHandle> XmlFileHandleFactory::createWithPugiXml(const std::string& path, bool createFile)
-//{
-//	boost::shared_ptr<XmlFileHandle> tree(new PugiXmlFileHandle(path, createFile));
-//	return tree;
-//}
-
 } // namespace BFG

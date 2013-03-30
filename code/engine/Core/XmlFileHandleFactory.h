@@ -37,12 +37,6 @@ namespace BFG {
 #define BFG_USE_PUGIXML
 	
 XmlFileHandleT BFG_CORE_API createXmlFileHandle(const std::string& path, bool createFile = false);
-	
-//class BFG_CORE_API XmlFileHandleFactory
-//{
-//public:
-//	static XmlFileHandleT createWithPugiXml(const std::string& path, bool createFile = false);
-//};
 
 } // namespace BFG
 
