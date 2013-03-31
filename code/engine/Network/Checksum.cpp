@@ -43,9 +43,9 @@ u32 calculateChecksum(const char* data, std::size_t length)
 u16 calculateHeaderChecksum(const NetworkEventHeader& neh)
 {
        boost::crc_16_type result;
-       result.process_bytes(&(neh.mPacketSize), sizeof(neh.mPacketSize));
+       result.process_bytes(&(neh.mDataLength), sizeof(neh.mDataLength));
        result.process_bytes(&(neh.mTimestamp), sizeof(neh.mTimestamp));
-       result.process_bytes(&(neh.mPacketChecksum), sizeof(neh.mPacketChecksum));
+       result.process_bytes(&(neh.mDataChecksum), sizeof(neh.mDataChecksum));
        return result.checksum();
 }
 

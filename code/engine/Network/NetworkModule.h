@@ -97,7 +97,7 @@ private:
 
 	//! \brief Handler for the flush timer
 	//! \param[in] ec Error code of boost asio
-	void timerHandler(const error_code &ec);
+	void flushTimerHandler(const error_code &ec);
 
 	//! \brief Handler for the reading of the data header
 	//! \param[in] ec Error code of boost asio
@@ -137,7 +137,7 @@ private:
 	//! \brief Received data from the net is packed as a corresponding event 
 	//! \param[in] data data array received from the network
 	//! \param[in] size size of the data received
-	void onReceive(const char* data, size_t size);
+	void onReceive(OPacket<Tcp>& oPacket);
 
 	//! \brief Flushes the data queue to send its data to the connected network module
 	void flush();
@@ -178,7 +178,7 @@ private:
 
 	boost::shared_ptr<SocketT>                     mSocket;
 	boost::shared_ptr<boost::asio::deadline_timer> mTimer;
-	boost::mutex                                   mPacketMutex;
+	boost::mutex                                   mFlushMutex;
 
 	s32 mTimestampOffset;
 	Rtt<s32, 10> mRtt;

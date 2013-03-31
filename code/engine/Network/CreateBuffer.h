@@ -36,11 +36,14 @@ namespace Network {
 //! \brief Creates a new char* buffer in a safe way
 inline boost::asio::mutable_buffer createBuffer(boost::pool<>& pool)
 {
-	return boost::asio::mutable_buffer
-	(
-		static_cast<char*>(pool.malloc()),
-		pool.get_requested_size()
-	);
+	char*     buffer = static_cast<char*>(pool.malloc());
+	std::size_t size = pool.get_requested_size();
+
+#ifndef NDEBUG
+	memset(buffer, 0xCD, size);
+#endif
+	
+	return boost::asio::mutable_buffer(buffer, size);
 }
 
 } // namespace Network

@@ -164,13 +164,12 @@ template <typename ProtocolT>
 class OPacket
 {
 public:
-	//! Constructing after read()
+	//! Construction must happen after headers have been parsed
+	//! \param buffer Contains the data part only
 	OPacket(boost::asio::const_buffer buffer) :
 	mBuffer(buffer),
 	mOffset(0)
-	{
-		parseHeader();
-	}
+	{}
 	
 	bool hasNextPayload() const
 	{
@@ -179,6 +178,14 @@ public:
 	
 	DataPayload nextPayload(PayloadFactory& payloadFactory)
 	{
+		if (!hasNextPayload())
+		{
+			throw std::range_error(
+				"Network::OPacket: No data left within this"
+				" packet. Please Check with hasNextPayload()."
+			);
+		}
+		
 		Segment s;
 		boost::asio::buffer_copy
 		(
@@ -198,16 +205,6 @@ public:
 
 		DataPayload payload = payloadFactory.create(s, ca);
 		return payload;
-	}
-	
-	// TODO: Return Header
-	void parseHeader()
-	{
-		typedef typename ProtocolT::HeaderT HeaderT;
-		typedef typename HeaderT::SerializationT SerializationT;
-		const u16 headerSize = SerializationT::size();
-
-		//mOffset += headerSize;
 	}
 	
 private:

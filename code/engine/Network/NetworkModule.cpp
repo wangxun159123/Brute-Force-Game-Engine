@@ -91,7 +91,7 @@ void NetworkModule::setFlushTimer(const long& waitTime_ms)
 		return;
 
 	mTimer->expires_from_now(boost::posix_time::milliseconds(waitTime_ms));
-	mTimer->async_wait(boost::bind(&NetworkModule::timerHandler, shared_from_this(), _1));
+	mTimer->async_wait(boost::bind(&NetworkModule::flushTimerHandler, shared_from_this(), _1));
 }
 
 void NetworkModule::setTcpDelay(bool on)
@@ -131,7 +131,7 @@ void NetworkModule::read()
 }
 
 // async Handler
-void NetworkModule::timerHandler(const error_code &ec)
+void NetworkModule::flushTimerHandler(const error_code &ec)
 {
 	if (!ec)
 	{
@@ -140,11 +140,11 @@ void NetworkModule::timerHandler(const error_code &ec)
 	}
 	else if (ec.value() == boost::asio::error::operation_aborted)
 	{
-		dbglog << "NetworkModule: mTimer was cancelled!";
+		warnlog << "NetworkModule: Flush timer was cancelled! (PeerID: " << mPeerId << ")";
 	}
 	else
 	{
-		printErrorCode(ec, "timerHandler");
+		printErrorCode(ec, "flushTimerHandler");
 	}
 }
 
@@ -156,7 +156,7 @@ void NetworkModule::readHeaderHandler(const error_code &ec, std::size_t bytesTra
 		NetworkEventHeader neh;
 		neh.deserialize(mReadHeaderBuffer);
 		
-		if (neh.mPacketSize == 0)
+		if (neh.mDataLength == 0)
 		{
 			warnlog << "readHeaderHandler: Got empty Header! Disconnecting Client.";
 
@@ -166,8 +166,6 @@ void NetworkModule::readHeaderHandler(const error_code &ec, std::size_t bytesTra
 		}
 
 		u16 headerChecksum = neh.mHeaderChecksum;
-		neh.mHeaderChecksum = 0;
-
 		u16 ownHeaderChecksum = calculateHeaderChecksum(neh);
 
 		if (ownHeaderChecksum != headerChecksum)
@@ -184,13 +182,13 @@ void NetworkModule::readHeaderHandler(const error_code &ec, std::size_t bytesTra
 			return;
 		}
 
-		dbglog << "PacketSize: " << neh.mPacketSize;
+		dbglog << "PacketSize: " << neh.mDataLength;
 		boost::asio::async_read
 		(
 			*mSocket, 
 			boost::asio::buffer(mReadBuffer),
-			boost::asio::transfer_exactly(neh.mPacketSize),
-			bind(&NetworkModule::readDataHandler, shared_from_this(), _1, _2, neh.mPacketChecksum)
+			boost::asio::transfer_exactly(neh.mDataLength),
+			bind(&NetworkModule::readDataHandler, shared_from_this(), _1, _2, neh.mDataChecksum)
 		);
 	}
 	else if (ec.value() == boost::asio::error::connection_reset)
@@ -226,7 +224,8 @@ void NetworkModule::readDataHandler(const error_code &ec, std::size_t bytesTrans
 			return;
 		}
 
-		onReceive(mReadBuffer.c_array(), bytesTransferred);
+		OPacket<Tcp> oPacket(boost::asio::buffer(mReadBuffer, bytesTransferred));
+		onReceive(oPacket);
 		read();
 	}
 	else if (ec.value() == boost::asio::error::connection_reset)
@@ -278,28 +277,32 @@ void NetworkModule::dataPacketEventHandler(DataPacketEvent* e)
 
 void NetworkModule::onSend(DataPayload& payload)
 {
-	dbglog << "onSend: " << payload.mAppDataLen + sizeof(Segment)
+	dbglog << "NetworkModule::onSend(): Current Time: " << mLocalTime->stop();
+
+	mFlushMutex.lock();
+	dbglog << "NetworkModule::onSend(): "
+	       << payload.mAppDataLen + sizeof(Segment)
 	       << " (" << sizeof(Segment) << " + " << payload.mAppDataLen << ")";
 
-	dbglog << "NetworkModule:Current Time: " << mLocalTime->stop();
-
-	if (!mSendPacket.add(payload))
+	bool added = mSendPacket.add(payload);
+	mFlushMutex.unlock();
+	
+	if (!added)
 	{
 		flush();
 		onSend(payload);
 	}
 }
 
-void NetworkModule::onReceive(const char* data, size_t size)
+void NetworkModule::onReceive(OPacket<Tcp>& oPacket)
 {
 	dbglog << "NetworkModule::onReceive";
 
 	PayloadFactory payloadFactory(mTimestampOffset, mLocalTime, mRtt);
-	OPacket<Tcp> packet(boost::asio::buffer(data, size));
 	
-	while (packet.hasNextPayload())
+	while (oPacket.hasNextPayload())
 	{
-		DataPayload payload = packet.nextPayload(payloadFactory);
+		DataPayload payload = oPacket.nextPayload(payloadFactory);
 
 		if (payload.mAppEventId == ID::NE_TIMESYNC_REQUEST)
 		{
@@ -327,7 +330,7 @@ void NetworkModule::onReceive(const char* data, size_t size)
 
 void NetworkModule::flush()
 {
-	boost::mutex::scoped_lock scoped_lock(mPacketMutex);
+	boost::mutex::scoped_lock scopedLock(mFlushMutex);
 
 	// Nothing to write?
 	if (!mSendPacket.containsData())

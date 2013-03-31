@@ -44,11 +44,11 @@ struct NetworkEventHeader
 		char* p = output.data();
 		memcpy(p, &mTimestamp, sizeof(mTimestamp));
 		p += sizeof(mTimestamp);
-		memcpy(p, &mPacketChecksum, sizeof(mPacketChecksum));
-		p += sizeof(mPacketChecksum);
+		memcpy(p, &mDataChecksum, sizeof(mDataChecksum));
+		p += sizeof(mDataChecksum);
 		memcpy(p, &mHeaderChecksum, sizeof(mHeaderChecksum));
 		p += sizeof(mHeaderChecksum);
-		memcpy(p, &mPacketSize, sizeof(mPacketSize));
+		memcpy(p, &mDataLength, sizeof(mDataLength));
 	}
 
 	void deserialize(const SerializationT& input)
@@ -56,17 +56,17 @@ struct NetworkEventHeader
 		const char* p = input.data();
 		memcpy(&mTimestamp, p, sizeof(mTimestamp));
 		p += sizeof(mTimestamp);
-		memcpy(&mPacketChecksum, p, sizeof(mPacketChecksum));
-		p += sizeof(mPacketChecksum);
+		memcpy(&mDataChecksum, p, sizeof(mDataChecksum));
+		p += sizeof(mDataChecksum);
 		memcpy(&mHeaderChecksum, p, sizeof(mHeaderChecksum));
 		p += sizeof(mHeaderChecksum);
-		memcpy(&mPacketSize, p, sizeof(mPacketSize));
+		memcpy(&mDataLength, p, sizeof(mDataLength));
 	}
 
 	f32 mTimestamp;
-	u32 mPacketChecksum;
+	u32 mDataChecksum;
 	u16 mHeaderChecksum;
-	u16 mPacketSize;
+	u16 mDataLength;
 };
 
 class TcpHeaderFactory;
@@ -99,10 +99,12 @@ public:
 
 		// Checksum of data
 		const_buffer data = buffer + Tcp::headerSize();
-		u32 packetChecksum = calculateChecksum(buffer_cast<const char*>(data), length);
+		std::size_t dataLength = length - Tcp::headerSize();
+		u32 dataChecksum = calculateChecksum(buffer_cast<const char*>(data), dataLength);
 
 		// Construct header (without header checksum)
-		NetworkEventHeader neh = {0.0f, packetChecksum, 0, length};
+		const BFG::u16 headerChecksum = 0;
+		NetworkEventHeader neh = {0.0f, dataChecksum, headerChecksum, dataLength};
 		
 		// Insert header checksum
 		neh.mHeaderChecksum = calculateHeaderChecksum(neh);

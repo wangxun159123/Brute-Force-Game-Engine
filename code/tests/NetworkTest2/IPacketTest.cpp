@@ -8,7 +8,7 @@ This file is part of the Brute-Force Game Engine, BFG-Engine
 
 For the latest info, see http://www.brute-force-games.com
 
-Copyright (c) 2012 Brute-Force Games GbR
+Copyright (c) 2013 Brute-Force Games GbR
 
 The BFG-Engine is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -24,12 +24,14 @@ You should have received a copy of the GNU Lesser General Public License
 along with the BFG-Engine. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <Core/ClockUtils.h>
 #include <Network/Packet.h>
 #include <Network/Tcp.h>
 #include <Network/Udp.h>
 
+
 #include <boost/test/unit_test.hpp>
-BOOST_AUTO_TEST_SUITE(PacketTestSuite)
+BOOST_AUTO_TEST_SUITE(IPacketTestSuite)
 
 using namespace boost;
 using namespace BFG::Network;
@@ -73,6 +75,18 @@ BOOST_AUTO_TEST_CASE_TEMPLATE (TestIPacketContainsSegmentOnly, ProtocolT, AllPro
 
 	// It must now (officially) contain data (with zero size)
 	BOOST_CHECK_EQUAL(s.dataSize, 0);
+	BOOST_REQUIRE(iPacket.containsData());
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE (TestIPacketAddingDataPayload, ProtocolT, AllProtocolsT)
+{
+	typedef typename ProtocolT::HeaderFactoryT HeaderFactoryT;
+	BigBufferT bigBuffer;
+	IPacket<ProtocolT> iPacket(asio::buffer(bigBuffer), HeaderFactoryT());
+	
+	DataPayload dp(12345, 11111111L, 22222222L, 0, CharArray512T());
+	iPacket.add(dp);
+	
 	BOOST_REQUIRE(iPacket.containsData());
 }
 
